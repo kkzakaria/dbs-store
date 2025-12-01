@@ -547,7 +547,7 @@ SEMAINE 2: Checkout + Admin + Polish
 
 ### Planning jour par jour
 
-#### 📅 JOUR 1 — Setup Projet
+#### 📅 JOUR 1 — Setup Projet ✅ TERMINÉ
 
 **Matin (4h)**
 - [X] Créer repo GitHub
@@ -556,11 +556,18 @@ SEMAINE 2: Checkout + Admin + Polish
 - [X] Installer Shadcn UI + composants
 
 **Après-midi (4h)**
-- [ ] Créer projet Supabase
-- [ ] Exécuter script SQL (schema complet)
-- [ ] Configurer Storage buckets (products, categories, avatars)
-- [ ] Générer types TypeScript (`pnpm supabase:types`)
-- [ ] Setup variables d'environnement
+- [X] Créer projet Supabase (local avec ports 44xx)
+- [X] Exécuter script SQL (schema complet via migrations CLI)
+- [X] Configurer Storage buckets (products, categories, avatars)
+- [X] Générer types TypeScript (`pnpm supabase gen types typescript --local`)
+- [X] Setup variables d'environnement (.env.local)
+
+**Bonus réalisés:**
+- [X] Créer structure des dossiers (actions/, hooks/, stores/, types/, lib/supabase/)
+- [X] Setup clients Supabase (client.ts, server.ts, admin.ts, storage.ts)
+- [X] Configurer middleware auth (middleware.ts)
+- [X] Setup providers (ThemeProvider, Toaster)
+- [X] Mise à jour layout avec metadata SEO
 
 **Livrables:**
 ```
@@ -568,6 +575,8 @@ SEMAINE 2: Checkout + Admin + Polish
 ✅ Supabase configuré (DB + Storage + Auth)
 ✅ Types TypeScript générés
 ✅ Thème DBS appliqué
+✅ Structure projet complète
+✅ Middleware auth configuré
 ```
 
 ---
@@ -575,9 +584,9 @@ SEMAINE 2: Checkout + Admin + Polish
 #### 📅 JOUR 2 — Structure & Auth Setup
 
 **Matin (4h)**
-- [ ] Créer structure des dossiers
-- [ ] Setup clients Supabase (client, server, admin)
-- [ ] Configurer middleware auth
+- [X] Créer structure des dossiers (fait en Jour 1)
+- [X] Setup clients Supabase (client, server, admin) (fait en Jour 1)
+- [X] Configurer middleware auth (fait en Jour 1)
 - [ ] Créer composants shared (Logo, Loading, EmptyState)
 
 **Après-midi (4h)**
@@ -590,8 +599,8 @@ SEMAINE 2: Checkout + Admin + Polish
 ```
 ✅ Structure projet complète
 ✅ Auth Supabase configuré
-✅ Header/Footer responsive
-✅ Cart store prêt
+⬜ Header/Footer responsive
+⬜ Cart store prêt
 ```
 
 ---
