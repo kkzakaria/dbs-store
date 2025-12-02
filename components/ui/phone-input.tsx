@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 import { CheckIcon, ChevronsUpDown } from "lucide-react"
 import * as RPNInput from "react-phone-number-input"
@@ -19,6 +21,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { ScrollArea } from "@/components/ui/scroll-area"
+import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
 
 type PhoneInputProps = Omit<
@@ -32,6 +35,23 @@ type PhoneInputProps = Omit<
 const PhoneInput: React.ForwardRefExoticComponent<PhoneInputProps> =
   React.forwardRef<React.ElementRef<typeof RPNInput.default>, PhoneInputProps>(
     ({ className, onChange, value, ...props }, ref) => {
+      // Prevent hydration mismatch by only rendering after mount
+      const [isMounted, setIsMounted] = React.useState(false)
+
+      React.useEffect(() => {
+        setIsMounted(true)
+      }, [])
+
+      if (!isMounted) {
+        // Return a skeleton placeholder during SSR to prevent hydration mismatch
+        return (
+          <div className={cn("flex", className)}>
+            <Skeleton className="h-10 w-[72px] rounded-e-none rounded-s-lg" />
+            <Skeleton className="h-10 flex-1 rounded-e-lg rounded-s-none" />
+          </div>
+        )
+      }
+
       return (
         <RPNInput.default
           ref={ref}
