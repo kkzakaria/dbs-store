@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Heart } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { LiquidGlassCard } from "@/components/ui/liquid-glass"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { calculateDiscount } from "./PriceDisplay"
 import { useCartStore } from "@/stores/cart-store"
@@ -93,26 +93,19 @@ export function ProductCard({
   }
 
   return (
-    <LiquidGlassCard
-      className={cn("w-full", className)}
-      draggable={false}
-      blurIntensity="sm"
-      glowIntensity="none"
-      shadowIntensity="xs"
-      borderRadius="16px"
-    >
-      <Link href={`/products/${product.slug}`} className="block relative z-30">
-        <div className="p-3">
+    <Card className={cn("w-full py-0 transition-all duration-300 hover:-translate-y-2 hover:shadow-lg", className)}>
+      <Link href={`/products/${product.slug}`} className="block">
+        <CardContent className="p-3">
           {/* Product Image */}
           <div className="relative mb-3">
-            <div className="bg-muted/50 rounded-xl h-[280px] relative overflow-hidden">
+            <div className="bg-muted rounded-xl h-[280px] relative overflow-hidden">
               <Image
                 src={imageUrl}
                 alt={primaryImage?.alt || product.name}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 className={cn(
-                  "object-cover transition-transform duration-300 hover:scale-105",
+                  "object-cover transition-transform duration-300 group-hover:scale-105",
                   isOutOfStock && "opacity-50 grayscale"
                 )}
                 priority={priority}
@@ -155,8 +148,8 @@ export function ProductCard({
             </div>
           </div>
 
-          {/* Product Info - fond opaque pour lisibilité */}
-          <div className="mb-2 bg-card/90 backdrop-blur-sm rounded-lg p-2 -mx-0.5">
+          {/* Product Info */}
+          <div className="mb-2">
             {product.category && (
               <p className="text-[10px] text-muted-foreground">
                 {product.category.name}
@@ -187,8 +180,8 @@ export function ProductCard({
               {isOutOfStock ? "Indisponible" : "Acheter"}
             </Button>
           </div>
-        </div>
+        </CardContent>
       </Link>
-    </LiquidGlassCard>
+    </Card>
   )
 }
