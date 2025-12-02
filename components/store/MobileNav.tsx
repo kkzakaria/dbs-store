@@ -24,8 +24,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import type { User as AuthUser } from "@supabase/supabase-js"
 import type { User } from "@/types"
 import {
-  Home,
-  Package,
   FolderOpen,
   Percent,
   Heart,
@@ -45,18 +43,15 @@ interface MobileNavProps {
 }
 
 const navigation = [
-  { name: "Accueil", href: "/", icon: Home },
-  { name: "Produits", href: "/products", icon: Package },
-  { name: "Promotions", href: "/promotions", icon: Percent },
+  { name: "Offre", href: "/promotions", icon: Percent },
 ]
 
 const categories = [
-  { name: "Smartphones", slug: "smartphones" },
-  { name: "Ordinateurs", slug: "ordinateurs" },
+  { name: "Smartphone", slug: "smartphones" },
+  { name: "Montre connectée", slug: "montres-connectees" },
+  { name: "Tablette", slug: "tablettes" },
+  { name: "Ordinateur", slug: "ordinateurs" },
   { name: "Accessoires", slug: "accessoires" },
-  { name: "Audio", slug: "audio" },
-  { name: "Gaming", slug: "gaming" },
-  { name: "TV & Écrans", slug: "tv-ecrans" },
 ]
 
 const userNavigation = [

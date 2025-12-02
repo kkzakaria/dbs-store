@@ -15,12 +15,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SearchCommand } from "./SearchCommand"
 import { MobileNav } from "./MobileNav"
 import { ThemeToggle } from "./theme-toggle"
 import { useUser } from "@/hooks/use-user"
 import { useCart } from "@/hooks/use-cart"
+import { useTheme } from "next-themes"
 import {
   Search,
   ShoppingCart,
@@ -28,24 +37,87 @@ import {
   LogOut,
   Package,
   Heart,
-  Settings,
+  Smartphone,
+  Watch,
+  Tablet,
+  Laptop,
+  Headphones,
   Menu,
+  Percent,
 } from "lucide-react"
 
-const navigation = [
-  { name: "Accueil", href: "/" },
-  { name: "Produits", href: "/products" },
-  { name: "Catégories", href: "/categories" },
-  { name: "Promotions", href: "/promotions" },
+type NavigationItem = {
+  name: string
+  href?: string
+  submenu?: boolean
+  items?: { name: string; href: string; description?: string }[]
+}
+
+const navigation: NavigationItem[] = [
+  { name: "Offre", href: "/promotions" },
+  {
+    name: "Smartphone",
+    submenu: true,
+    items: [
+      { name: "Tous les smartphones", href: "/categories/smartphones", description: "Découvrez notre gamme complète" },
+      { name: "iPhone", href: "/categories/smartphones?brand=apple", description: "Apple iPhone" },
+      { name: "Samsung Galaxy", href: "/categories/smartphones?brand=samsung", description: "Samsung Galaxy Series" },
+      { name: "Xiaomi", href: "/categories/smartphones?brand=xiaomi", description: "Xiaomi & Redmi" },
+    ],
+  },
+  {
+    name: "Montre connectée",
+    submenu: true,
+    items: [
+      { name: "Toutes les montres", href: "/categories/montres-connectees", description: "Montres intelligentes" },
+      { name: "Apple Watch", href: "/categories/montres-connectees?brand=apple", description: "Apple Watch Series" },
+      { name: "Samsung Galaxy Watch", href: "/categories/montres-connectees?brand=samsung", description: "Galaxy Watch" },
+    ],
+  },
+  {
+    name: "Tablette",
+    submenu: true,
+    items: [
+      { name: "Toutes les tablettes", href: "/categories/tablettes", description: "Tablettes tactiles" },
+      { name: "iPad", href: "/categories/tablettes?brand=apple", description: "Apple iPad" },
+      { name: "Samsung Tab", href: "/categories/tablettes?brand=samsung", description: "Galaxy Tab Series" },
+    ],
+  },
+  {
+    name: "Ordinateur",
+    submenu: true,
+    items: [
+      { name: "Tous les ordinateurs", href: "/categories/ordinateurs", description: "PC portables & fixes" },
+      { name: "MacBook", href: "/categories/ordinateurs?brand=apple", description: "Apple MacBook" },
+      { name: "PC Portable", href: "/categories/ordinateurs?type=laptop", description: "Laptops Windows" },
+      { name: "PC Bureau", href: "/categories/ordinateurs?type=desktop", description: "Ordinateurs de bureau" },
+    ],
+  },
+  {
+    name: "Accessoires",
+    submenu: true,
+    items: [
+      { name: "Tous les accessoires", href: "/categories/accessoires", description: "Accessoires high-tech" },
+      { name: "Écouteurs & Casques", href: "/categories/accessoires?type=audio", description: "Audio sans fil" },
+      { name: "Chargeurs", href: "/categories/accessoires?type=chargeurs", description: "Chargeurs & câbles" },
+      { name: "Coques & Protection", href: "/categories/accessoires?type=protection", description: "Protection smartphone" },
+    ],
+  },
 ]
 
 export function Header() {
   const pathname = usePathname()
   const { user, authUser, signOut, isLoading } = useUser()
   const { totalItems, openCart, isHydrated } = useCart()
+  const { resolvedTheme } = useTheme()
   const [searchOpen, setSearchOpen] = React.useState(false)
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false)
   const [isScrolled, setIsScrolled] = React.useState(false)
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Handle scroll effect
   React.useEffect(() => {
@@ -75,66 +147,123 @@ export function Header() {
     .toUpperCase()
     .slice(0, 2) || "U"
 
+  const isDark = mounted && resolvedTheme === "dark"
+
+  const glassStyles = {
+    header: {
+      background: isDark ? 'rgba(15, 15, 20, 0.85)' : 'rgba(255, 255, 255, 0.75)',
+      boxShadow: isDark
+        ? `inset 0 1px 1px 0 rgba(255, 255, 255, 0.05),
+           0 2px 8px rgba(0, 0, 0, 0.2)`
+        : `inset 0 1px 2px 0 rgba(255, 255, 255, 0.3),
+           0 2px 8px rgba(0, 0, 0, 0.05)`,
+      borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+    },
+    submenu: {
+      background: isDark ? 'rgba(20, 20, 25, 0.92)' : 'rgba(255, 255, 255, 0.88)',
+      boxShadow: isDark
+        ? `inset 0 1px 1px 0 rgba(255, 255, 255, 0.05),
+           0 4px 16px rgba(0, 0, 0, 0.3)`
+        : `inset 0 1px 2px 0 rgba(255, 255, 255, 0.4),
+           0 4px 16px rgba(0, 0, 0, 0.08)`,
+      border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+    },
+  }
+
   return (
     <>
       <header
-        className={cn(
-          "sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-shadow",
-          isScrolled && "shadow-sm"
-        )}
+        className="sticky top-0 z-40 w-full backdrop-blur-xl transition-all duration-300"
+        style={glassStyles.header}
       >
-        <div className="container flex h-16 items-center justify-between gap-4">
+        <div className="container flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           {/* Logo */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 ml-2">
             <Logo variant="default" />
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6">
-            {navigation.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  pathname === item.href
-                    ? "text-primary"
-                    : "text-muted-foreground"
-                )}
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
+          <NavigationMenu className="hidden md:flex" viewport={false}>
+            <NavigationMenuList className="gap-1">
+              {navigation.map((item) => (
+                <NavigationMenuItem key={item.name}>
+                  {item.submenu ? (
+                    <>
+                      <NavigationMenuTrigger
+                        className={cn(
+                          "relative !bg-transparent text-base font-semibold transition-colors px-3 py-2",
+                          "hover:!bg-primary/10 hover:!text-primary focus:!bg-primary/10 focus:!text-primary",
+                          "data-[state=open]:!bg-primary/10 data-[state=open]:!text-primary data-[state=open]:hover:!bg-primary/15 data-[state=open]:focus:!bg-primary/15",
+                          "after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
+                          pathname?.startsWith("/categories/" + item.name.toLowerCase().replace(/ /g, "-"))
+                            ? "!text-primary after:w-full"
+                            : "text-foreground/80"
+                        )}
+                      >
+                        {item.name}
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent
+                        className="p-2 backdrop-blur-xl !rounded-xl"
+                        style={glassStyles.submenu}
+                      >
+                        <ul className="grid w-[280px] gap-0.5">
+                          {item.items?.map((subItem) => (
+                            <li key={subItem.href}>
+                              <NavigationMenuLink asChild>
+                                <Link
+                                  href={subItem.href}
+                                  className={cn(
+                                    "block select-none rounded-md px-3 py-2 no-underline outline-none transition-colors hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary",
+                                    pathname === subItem.href && "bg-primary/10 text-primary"
+                                  )}
+                                >
+                                  <div className="text-sm font-semibold">
+                                    {subItem.name}
+                                  </div>
+                                  {subItem.description && (
+                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                      {subItem.description}
+                                    </p>
+                                  )}
+                                </Link>
+                              </NavigationMenuLink>
+                            </li>
+                          ))}
+                        </ul>
+                      </NavigationMenuContent>
+                    </>
+                  ) : (
+                    <Link
+                      href={item.href!}
+                      className={cn(
+                        "relative text-base font-semibold transition-colors hover:text-primary hover:bg-primary/10 rounded-md px-3 py-2 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
+                        pathname === item.href
+                          ? "text-primary after:w-full"
+                          : "text-foreground/80 hover:text-foreground"
+                      )}
+                    >
+                      {item.name}
+                    </Link>
+                  )}
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            {/* Theme Toggle */}
-            <ThemeToggle />
-
             {/* Search Button */}
             <Button
               variant="ghost"
               size="icon"
-              className="hidden sm:flex"
               onClick={() => setSearchOpen(true)}
               aria-label="Rechercher"
             >
               <Search className="size-5" />
             </Button>
 
-            {/* Search Trigger with Shortcut (Desktop) */}
-            <Button
-              variant="outline"
-              className="hidden lg:flex items-center gap-2 text-muted-foreground h-9 px-3"
-              onClick={() => setSearchOpen(true)}
-            >
-              <Search className="size-4" />
-              <span className="text-sm">Rechercher...</span>
-              <kbd className="pointer-events-none ml-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-                <span className="text-xs">⌘</span>K
-              </kbd>
-            </Button>
+            {/* Theme Toggle */}
+            <ThemeToggle />
 
             {/* Cart Button */}
             <Button

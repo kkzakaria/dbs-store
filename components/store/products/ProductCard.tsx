@@ -132,7 +132,7 @@ export function ProductCard({
           <div className="absolute right-2 top-2 flex flex-col gap-1 opacity-0 transition-opacity group-hover:opacity-100">
             <Button
               variant="secondary"
-              size="icon-sm"
+              size="icon"
               className="h-8 w-8 rounded-full shadow-md"
               onClick={handleAddToWishlist}
               aria-label="Ajouter aux favoris"
