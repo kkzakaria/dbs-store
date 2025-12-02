@@ -1,7 +1,7 @@
 export { ProductCard } from "./ProductCard"
 export { ProductGrid, ProductGridLoader } from "./ProductGrid"
 export { ProductFilters, ProductFiltersSidebar } from "./ProductFilters"
-export { ProductGallery, ProductGalleryMobile } from "./ProductGallery"
+export { ProductGallery, ProductGalleryHorizontal, ProductGalleryMobile } from "./ProductGallery"
 export {
   PriceDisplay,
   formatPrice,

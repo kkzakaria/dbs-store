@@ -64,9 +64,36 @@ export function ProductGallery({
   }
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn("flex gap-2", className)}>
+      {/* Vertical Thumbnails - Left Side */}
+      {sortedImages.length > 1 && (
+        <div className="hidden md:flex flex-col gap-2 w-28">
+          {sortedImages.map((image, index) => (
+            <button
+              key={image.id}
+              onClick={() => setSelectedIndex(index)}
+              className={cn(
+                "relative aspect-square w-full overflow-hidden rounded-lg border-2 transition-colors bg-muted",
+                index === selectedIndex
+                  ? "border-foreground"
+                  : "border-transparent"
+              )}
+              aria-label={`Voir image ${index + 1}`}
+            >
+              <Image
+                src={image.url}
+                alt={image.alt || `${productName} - ${index + 1}`}
+                fill
+                sizes="112px"
+                className="object-cover"
+              />
+            </button>
+          ))}
+        </div>
+      )}
+
       {/* Main Image */}
-      <div className="relative aspect-square w-full overflow-hidden rounded-xl bg-muted">
+      <div className="flex-1 relative aspect-[4/5] overflow-hidden rounded-lg bg-muted">
         <Image
           src={currentImage?.url || "/images/placeholder-product.png"}
           alt={currentImage?.alt || productName}
@@ -80,37 +107,115 @@ export function ProductGallery({
         {sortedImages.length > 1 && (
           <>
             <Button
-              variant="secondary"
+              variant="outline"
               size="icon"
-              className="absolute left-2 top-1/2 -translate-y-1/2 rounded-full shadow-lg opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-100 lg:opacity-70"
+              className="absolute left-4 top-1/2 -translate-y-1/2 rounded-full bg-white/80 backdrop-blur-sm"
               onClick={goToPrevious}
               aria-label="Image précédente"
             >
-              <ChevronLeft className="h-5 w-5" />
+              <ChevronLeft className="w-4 h-4" />
             </Button>
             <Button
-              variant="secondary"
+              variant="outline"
               size="icon"
-              className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full shadow-lg opacity-0 transition-opacity hover:opacity-100 group-hover:opacity-100 lg:opacity-70"
+              className="absolute right-4 top-1/2 -translate-y-1/2 rounded-full bg-white/80 backdrop-blur-sm"
               onClick={goToNext}
               aria-label="Image suivante"
             >
-              <ChevronRight className="h-5 w-5" />
+              <ChevronRight className="w-4 h-4" />
             </Button>
           </>
         )}
+      </div>
 
-        {/* Image Counter */}
+    </div>
+  )
+}
+
+// Horizontal thumbnails variant for different layouts
+export function ProductGalleryHorizontal({
+  images,
+  productName,
+  className,
+}: ProductGalleryProps) {
+  const [selectedIndex, setSelectedIndex] = useState(0)
+
+  const sortedImages = [...images].sort((a, b) => {
+    if (a.is_primary === true) return -1
+    if (b.is_primary === true) return 1
+    return (a.position ?? 0) - (b.position ?? 0)
+  })
+
+  const currentImage = sortedImages[selectedIndex]
+
+  const goToPrevious = () => {
+    setSelectedIndex((prev) =>
+      prev === 0 ? sortedImages.length - 1 : prev - 1
+    )
+  }
+
+  const goToNext = () => {
+    setSelectedIndex((prev) =>
+      prev === sortedImages.length - 1 ? 0 : prev + 1
+    )
+  }
+
+  if (sortedImages.length === 0) {
+    return (
+      <div
+        className={cn(
+          "relative aspect-square w-full overflow-hidden rounded-xl bg-muted",
+          className
+        )}
+      >
+        <div className="flex h-full items-center justify-center text-muted-foreground">
+          Aucune image disponible
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className={cn("space-y-3", className)}>
+      {/* Main Image */}
+      <div className="relative aspect-square overflow-hidden rounded-xl bg-muted group">
+        <Image
+          src={currentImage?.url || "/images/placeholder-product.png"}
+          alt={currentImage?.alt || productName}
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover transition-transform duration-300 group-hover:scale-105"
+          priority
+        />
+
+        {/* Navigation Arrows */}
         {sortedImages.length > 1 && (
-          <div className="absolute bottom-2 right-2 rounded-full bg-black/50 px-2 py-1 text-xs text-white">
-            {selectedIndex + 1} / {sortedImages.length}
-          </div>
+          <>
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute left-3 top-1/2 -translate-y-1/2 rounded-full bg-white/80 backdrop-blur-sm shadow-lg opacity-0 transition-opacity group-hover:opacity-100"
+              onClick={goToPrevious}
+              aria-label="Image précédente"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute right-3 top-1/2 -translate-y-1/2 rounded-full bg-white/80 backdrop-blur-sm shadow-lg opacity-0 transition-opacity group-hover:opacity-100"
+              onClick={goToNext}
+              aria-label="Image suivante"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </>
         )}
       </div>
 
-      {/* Thumbnails */}
+      {/* Horizontal Thumbnails */}
       {sortedImages.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-2">
+        <div className="flex gap-2 overflow-x-auto pb-1">
           {sortedImages.map((image, index) => (
             <button
               key={image.id}
