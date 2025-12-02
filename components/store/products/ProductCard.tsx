@@ -97,8 +97,8 @@ export function ProductCard({
       className={cn("w-full", className)}
       draggable={false}
       blurIntensity="sm"
-      glowIntensity="xs"
-      shadowIntensity="sm"
+      glowIntensity="none"
+      shadowIntensity="xs"
       borderRadius="16px"
     >
       <Link href={`/products/${product.slug}`} className="block relative z-30">
