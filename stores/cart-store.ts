@@ -1,6 +1,6 @@
 import { create } from "zustand"
 import { persist, createJSONStorage } from "zustand/middleware"
-import type { Product, CartItem } from "@/types"
+import type { CartProduct, CartItem } from "@/types"
 import { createClient } from "@/lib/supabase/client"
 
 interface CartStore {
@@ -9,7 +9,7 @@ interface CartStore {
   isHydrated: boolean
 
   // Actions
-  addItem: (product: Product, quantity?: number) => void
+  addItem: (product: CartProduct, quantity?: number) => void
   removeItem: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
@@ -36,10 +36,10 @@ export const useCartStore = create<CartStore>()(
       isOpen: false,
       isHydrated: false,
 
-      addItem: (product: Product, quantity: number = 1) => {
+      addItem: (product: CartProduct, quantity: number = 1) => {
         const { items } = get()
         const existingItem = items.find((item) => item.product.id === product.id)
-        const stockQuantity = product.stock_quantity ?? 0
+        const stockQuantity = product.stock_quantity
 
         if (existingItem) {
           // Update quantity, respecting stock
@@ -82,7 +82,7 @@ export const useCartStore = create<CartStore>()(
           items: items.map((item) => {
             if (item.product.id === productId) {
               // Respect stock quantity
-              const stockQuantity = item.product.stock_quantity ?? 0
+              const stockQuantity = item.product.stock_quantity
               const newQuantity = Math.min(quantity, stockQuantity)
               return { ...item, quantity: newQuantity }
             }
@@ -148,7 +148,7 @@ export const useCartStore = create<CartStore>()(
           .select(
             `
             quantity,
-            product:products(*)
+            product:products(id, name, slug, price, stock_quantity, images:product_images(url, is_primary))
           `
           )
           .eq("user_id", userId)
@@ -157,10 +157,21 @@ export const useCartStore = create<CartStore>()(
 
         const items: CartItem[] = data
           .filter((item) => item.product !== null)
-          .map((item) => ({
-            product: item.product as unknown as Product,
-            quantity: item.quantity,
-          }))
+          .map((item) => {
+            const p = item.product as any
+            const primaryImage = p.images?.find((img: any) => img.is_primary === true) || p.images?.[0]
+            return {
+              product: {
+                id: p.id,
+                name: p.name,
+                slug: p.slug,
+                price: p.price,
+                stock_quantity: p.stock_quantity,
+                image: primaryImage?.url || "/images/placeholder-product.png",
+              },
+              quantity: item.quantity,
+            }
+          })
 
         set({ items })
       },
@@ -176,7 +187,7 @@ export const useCartStore = create<CartStore>()(
           .select(
             `
             quantity,
-            product:products(*)
+            product:products(id, name, slug, price, stock_quantity, images:product_images(url, is_primary))
           `
           )
           .eq("user_id", userId)
@@ -189,10 +200,21 @@ export const useCartStore = create<CartStore>()(
 
         const serverItems: CartItem[] = serverData
           .filter((item) => item.product !== null)
-          .map((item) => ({
-            product: item.product as unknown as Product,
-            quantity: item.quantity,
-          }))
+          .map((item) => {
+            const p = item.product as any
+            const primaryImage = p.images?.find((img: any) => img.is_primary === true) || p.images?.[0]
+            return {
+              product: {
+                id: p.id,
+                name: p.name,
+                slug: p.slug,
+                price: p.price,
+                stock_quantity: p.stock_quantity,
+                image: primaryImage?.url || "/images/placeholder-product.png",
+              },
+              quantity: item.quantity,
+            }
+          })
 
         // Merge: local items take priority, add server items not in local
         const mergedItems = [...localItems]
