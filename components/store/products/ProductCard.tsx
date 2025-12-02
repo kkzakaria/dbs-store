@@ -5,7 +5,7 @@ import Link from "next/link"
 import { Heart } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { calculateDiscount } from "./PriceDisplay"
 import { useCartStore } from "@/stores/cart-store"
@@ -95,10 +95,10 @@ export function ProductCard({
   return (
     <Card className={cn("w-full", className)}>
       <Link href={`/products/${product.slug}`} className="block">
-        <CardContent>
+        <CardContent className="p-3">
           {/* Product Image */}
-          <div className="relative mb-6">
-            <div className="bg-muted rounded-2xl flex items-center justify-center h-[280px] relative overflow-hidden">
+          <div className="relative mb-3">
+            <div className="bg-muted rounded-xl h-[180px] relative overflow-hidden">
               <Image
                 src={imageUrl}
                 alt={primaryImage?.alt || product.name}
@@ -112,24 +112,24 @@ export function ProductCard({
               />
 
               {/* Badges */}
-              <div className="absolute left-2 top-2 flex flex-col gap-1">
+              <div className="absolute left-1.5 top-1.5 flex flex-col gap-1">
                 {hasDiscount && (
-                  <Badge variant="destructive" className="font-semibold">
+                  <Badge variant="destructive" className="text-xs px-1.5 py-0.5">
                     -{discountPercentage}%
                   </Badge>
                 )}
                 {product.is_featured && !hasDiscount && (
-                  <Badge className="bg-accent text-accent-foreground font-semibold">
+                  <Badge className="bg-accent text-accent-foreground text-xs px-1.5 py-0.5">
                     Vedette
                   </Badge>
                 )}
                 {isOutOfStock && (
-                  <Badge variant="secondary" className="font-semibold">
+                  <Badge variant="secondary" className="text-xs px-1.5 py-0.5">
                     Rupture
                   </Badge>
                 )}
                 {isLowStock && !isOutOfStock && (
-                  <Badge variant="outline" className="bg-background font-medium">
+                  <Badge variant="outline" className="bg-background text-xs px-1.5 py-0.5">
                     Stock limité
                   </Badge>
                 )}
@@ -139,38 +139,33 @@ export function ProductCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute top-2 right-2"
+                className="absolute top-1 right-1 h-7 w-7"
                 onClick={handleAddToWishlist}
                 aria-label="Ajouter aux favoris"
               >
-                <Heart className="w-6 h-6 text-foreground hover:text-red-500 transition-colors" />
+                <Heart className="w-4 h-4 text-foreground hover:text-red-500 transition-colors" />
               </Button>
             </div>
           </div>
 
           {/* Product Info */}
-          <div className="mb-4">
+          <div className="mb-2">
             {product.category && (
-              <p className="text-xs text-muted-foreground mb-1">
+              <p className="text-[10px] text-muted-foreground">
                 {product.category.name}
               </p>
             )}
-            <CardTitle className="text-xl leading-tight mb-2 line-clamp-2">
+            <h3 className="text-sm font-medium leading-tight line-clamp-2">
               {product.name}
-            </CardTitle>
-            {product.description && (
-              <CardDescription className="text-sm line-clamp-2">
-                {product.description}
-              </CardDescription>
-            )}
+            </h3>
           </div>
 
           {/* Price and Add to Cart */}
           <div className="flex items-center justify-between gap-2">
-            <div className="flex flex-col">
-              <p className="text-2xl font-bold">{formatPrice(product.price)}</p>
+            <div className="flex items-baseline gap-1.5">
+              <p className="text-base font-bold">{formatPrice(product.price)}</p>
               {hasDiscount && product.compare_price && (
-                <p className="text-sm text-muted-foreground line-through">
+                <p className="text-xs text-muted-foreground line-through">
                   {formatPrice(product.compare_price)}
                 </p>
               )}
@@ -180,6 +175,7 @@ export function ProductCard({
               onClick={handleAddToCart}
               disabled={isOutOfStock}
               size="sm"
+              className="h-7 px-2 text-xs"
             >
               {isOutOfStock ? "Indisponible" : "Ajouter"}
             </Button>
