@@ -29,6 +29,7 @@ import { MobileNav } from "./MobileNav"
 import { ThemeToggle } from "./theme-toggle"
 import { useUser } from "@/hooks/use-user"
 import { useCart } from "@/hooks/use-cart"
+import { useTheme } from "next-themes"
 import {
   Search,
   ShoppingCart,
@@ -108,9 +109,15 @@ export function Header() {
   const pathname = usePathname()
   const { user, authUser, signOut, isLoading } = useUser()
   const { totalItems, openCart, isHydrated } = useCart()
+  const { resolvedTheme } = useTheme()
   const [searchOpen, setSearchOpen] = React.useState(false)
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false)
   const [isScrolled, setIsScrolled] = React.useState(false)
+  const [mounted, setMounted] = React.useState(false)
+
+  React.useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Handle scroll effect
   React.useEffect(() => {
@@ -140,13 +147,34 @@ export function Header() {
     .toUpperCase()
     .slice(0, 2) || "U"
 
+  const isDark = mounted && resolvedTheme === "dark"
+
+  const glassStyles = {
+    header: {
+      background: isDark ? 'rgba(15, 15, 20, 0.85)' : 'rgba(255, 255, 255, 0.75)',
+      boxShadow: isDark
+        ? `inset 0 1px 1px 0 rgba(255, 255, 255, 0.05),
+           0 2px 8px rgba(0, 0, 0, 0.2)`
+        : `inset 0 1px 2px 0 rgba(255, 255, 255, 0.3),
+           0 2px 8px rgba(0, 0, 0, 0.05)`,
+      borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+    },
+    submenu: {
+      background: isDark ? 'rgba(20, 20, 25, 0.92)' : 'rgba(255, 255, 255, 0.88)',
+      boxShadow: isDark
+        ? `inset 0 1px 1px 0 rgba(255, 255, 255, 0.05),
+           0 4px 16px rgba(0, 0, 0, 0.3)`
+        : `inset 0 1px 2px 0 rgba(255, 255, 255, 0.4),
+           0 4px 16px rgba(0, 0, 0, 0.08)`,
+      border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
+    },
+  }
+
   return (
     <>
       <header
-        className={cn(
-          "sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 transition-shadow",
-          isScrolled && "shadow-sm"
-        )}
+        className="sticky top-0 z-40 w-full backdrop-blur-xl transition-all duration-300"
+        style={glassStyles.header}
       >
         <div className="container flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           {/* Logo */}
@@ -174,7 +202,10 @@ export function Header() {
                       >
                         {item.name}
                       </NavigationMenuTrigger>
-                      <NavigationMenuContent className="p-2">
+                      <NavigationMenuContent
+                        className="p-2 backdrop-blur-xl !rounded-xl"
+                        style={glassStyles.submenu}
+                      >
                         <ul className="grid w-[280px] gap-0.5">
                           {item.items?.map((subItem) => (
                             <li key={subItem.href}>
