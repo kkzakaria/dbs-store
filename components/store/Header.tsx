@@ -15,6 +15,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SearchCommand } from "./SearchCommand"
 import { MobileNav } from "./MobileNav"
@@ -28,17 +36,72 @@ import {
   LogOut,
   Package,
   Heart,
-  Settings,
+  Smartphone,
+  Watch,
+  Tablet,
+  Laptop,
+  Headphones,
   Menu,
+  Percent,
 } from "lucide-react"
 
-const navigation = [
+type NavigationItem = {
+  name: string
+  href?: string
+  submenu?: boolean
+  items?: { name: string; href: string; description?: string }[]
+}
+
+const navigation: NavigationItem[] = [
   { name: "Offre", href: "/promotions" },
-  { name: "Smartphone", href: "/categories/smartphones" },
-  { name: "Montre connectée", href: "/categories/montres-connectees" },
-  { name: "Tablette", href: "/categories/tablettes" },
-  { name: "Ordinateur", href: "/categories/ordinateurs" },
-  { name: "Accessoires", href: "/categories/accessoires" },
+  {
+    name: "Smartphone",
+    submenu: true,
+    items: [
+      { name: "Tous les smartphones", href: "/categories/smartphones", description: "Découvrez notre gamme complète" },
+      { name: "iPhone", href: "/categories/smartphones?brand=apple", description: "Apple iPhone" },
+      { name: "Samsung Galaxy", href: "/categories/smartphones?brand=samsung", description: "Samsung Galaxy Series" },
+      { name: "Xiaomi", href: "/categories/smartphones?brand=xiaomi", description: "Xiaomi & Redmi" },
+    ],
+  },
+  {
+    name: "Montre connectée",
+    submenu: true,
+    items: [
+      { name: "Toutes les montres", href: "/categories/montres-connectees", description: "Montres intelligentes" },
+      { name: "Apple Watch", href: "/categories/montres-connectees?brand=apple", description: "Apple Watch Series" },
+      { name: "Samsung Galaxy Watch", href: "/categories/montres-connectees?brand=samsung", description: "Galaxy Watch" },
+    ],
+  },
+  {
+    name: "Tablette",
+    submenu: true,
+    items: [
+      { name: "Toutes les tablettes", href: "/categories/tablettes", description: "Tablettes tactiles" },
+      { name: "iPad", href: "/categories/tablettes?brand=apple", description: "Apple iPad" },
+      { name: "Samsung Tab", href: "/categories/tablettes?brand=samsung", description: "Galaxy Tab Series" },
+    ],
+  },
+  {
+    name: "Ordinateur",
+    submenu: true,
+    items: [
+      { name: "Tous les ordinateurs", href: "/categories/ordinateurs", description: "PC portables & fixes" },
+      { name: "MacBook", href: "/categories/ordinateurs?brand=apple", description: "Apple MacBook" },
+      { name: "PC Portable", href: "/categories/ordinateurs?type=laptop", description: "Laptops Windows" },
+      { name: "PC Bureau", href: "/categories/ordinateurs?type=desktop", description: "Ordinateurs de bureau" },
+    ],
+  },
+  {
+    name: "Accessoires",
+    submenu: true,
+    items: [
+      { name: "Tous les accessoires", href: "/categories/accessoires", description: "Accessoires high-tech" },
+      { name: "Écouteurs & Casques", href: "/categories/accessoires?type=audio", description: "Audio sans fil" },
+      { name: "Chargeurs", href: "/categories/accessoires?type=chargeurs", description: "Chargeurs & câbles" },
+      { name: "Coques & Protection", href: "/categories/accessoires?type=protection", description: "Protection smartphone" },
+    ],
+  },
 ]
 
 export function Header() {
@@ -92,22 +155,69 @@ export function Header() {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-8">
-            {navigation.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "relative text-base font-semibold transition-colors hover:text-primary py-1 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
-                  pathname === item.href || pathname?.startsWith(item.href + "/")
-                    ? "text-primary after:w-full"
-                    : "text-foreground/80 hover:text-foreground"
-                )}
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
+          <NavigationMenu className="hidden md:flex" viewport={false}>
+            <NavigationMenuList className="gap-1">
+              {navigation.map((item) => (
+                <NavigationMenuItem key={item.name}>
+                  {item.submenu ? (
+                    <>
+                      <NavigationMenuTrigger
+                        className={cn(
+                          "relative !bg-transparent text-base font-semibold transition-colors px-3 py-2",
+                          "hover:!bg-primary/10 hover:!text-primary focus:!bg-primary/10 focus:!text-primary",
+                          "data-[state=open]:!bg-primary/10 data-[state=open]:!text-primary data-[state=open]:hover:!bg-primary/15 data-[state=open]:focus:!bg-primary/15",
+                          "after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
+                          pathname?.startsWith("/categories/" + item.name.toLowerCase().replace(/ /g, "-"))
+                            ? "!text-primary after:w-full"
+                            : "text-foreground/80"
+                        )}
+                      >
+                        {item.name}
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent className="p-2">
+                        <ul className="grid w-[280px] gap-0.5">
+                          {item.items?.map((subItem) => (
+                            <li key={subItem.href}>
+                              <NavigationMenuLink asChild>
+                                <Link
+                                  href={subItem.href}
+                                  className={cn(
+                                    "block select-none rounded-md px-3 py-2 no-underline outline-none transition-colors hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary",
+                                    pathname === subItem.href && "bg-primary/10 text-primary"
+                                  )}
+                                >
+                                  <div className="text-sm font-semibold">
+                                    {subItem.name}
+                                  </div>
+                                  {subItem.description && (
+                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                      {subItem.description}
+                                    </p>
+                                  )}
+                                </Link>
+                              </NavigationMenuLink>
+                            </li>
+                          ))}
+                        </ul>
+                      </NavigationMenuContent>
+                    </>
+                  ) : (
+                    <Link
+                      href={item.href!}
+                      className={cn(
+                        "relative text-base font-semibold transition-colors hover:text-primary hover:bg-primary/10 rounded-md px-3 py-2 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
+                        pathname === item.href
+                          ? "text-primary after:w-full"
+                          : "text-foreground/80 hover:text-foreground"
+                      )}
+                    >
+                      {item.name}
+                    </Link>
+                  )}
+                </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
 
           {/* Actions */}
           <div className="flex items-center gap-2">
