@@ -93,7 +93,7 @@ export function ProductGallery({
       )}
 
       {/* Main Image */}
-      <div className="flex-1 relative aspect-[3/4] overflow-hidden rounded-lg bg-muted">
+      <div className="flex-1 relative aspect-[4/5] overflow-hidden rounded-lg bg-muted">
         <Image
           src={currentImage?.url || "/images/placeholder-product.png"}
           alt={currentImage?.alt || productName}
