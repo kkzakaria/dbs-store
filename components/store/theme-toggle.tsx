@@ -3,7 +3,7 @@
 import { MoonIcon, SunIcon } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useEffect, useState } from "react"
-import { Toggle } from "@/components/ui/toggle"
+import { Button } from "@/components/ui/button"
 
 export function ThemeToggle() {
   const { theme, setTheme } = useTheme()
@@ -15,30 +15,21 @@ export function ThemeToggle() {
 
   if (!mounted) {
     return (
-      <Toggle variant="outline" className="size-9" disabled>
-        <SunIcon size={16} />
-      </Toggle>
+      <Button variant="ghost" size="icon" disabled>
+        <SunIcon className="size-5" />
+      </Button>
     )
   }
 
   return (
-    <Toggle
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
       aria-label={`Passer en mode ${theme === "dark" ? "clair" : "sombre"}`}
-      className="group size-9 data-[state=on]:bg-transparent data-[state=on]:hover:bg-muted"
-      onPressedChange={() => setTheme(theme === "dark" ? "light" : "dark")}
-      pressed={theme === "dark"}
-      variant="outline"
     >
-      <MoonIcon
-        aria-hidden="true"
-        className="shrink-0 scale-0 opacity-0 transition-all group-data-[state=on]:scale-100 group-data-[state=on]:opacity-100"
-        size={16}
-      />
-      <SunIcon
-        aria-hidden="true"
-        className="absolute shrink-0 scale-100 opacity-100 transition-all group-data-[state=on]:scale-0 group-data-[state=on]:opacity-0"
-        size={16}
-      />
-    </Toggle>
+      <SunIcon className="size-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
+      <MoonIcon className="absolute size-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
+    </Button>
   )
 }
