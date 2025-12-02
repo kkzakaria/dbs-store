@@ -2,12 +2,12 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { Heart, ShoppingCart } from "lucide-react"
+import { Heart } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
+import { Card, CardContent, CardTitle, CardDescription } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { PriceDisplay, calculateDiscount } from "./PriceDisplay"
+import { calculateDiscount } from "./PriceDisplay"
 import { useCartStore } from "@/stores/cart-store"
 import { toast } from "sonner"
 import type { Tables } from "@/types/database.types"
@@ -82,106 +82,108 @@ export function ProductCard({
     toast.info("Fonctionnalité bientôt disponible")
   }
 
+  // Format price in XOF
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat("fr-CI", {
+      style: "currency",
+      currency: "XOF",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(price)
+  }
+
   return (
-    <Card
-      className={cn(
-        "group relative overflow-hidden transition-all duration-300 hover:shadow-card-hover",
-        className
-      )}
-    >
+    <Card className={cn("w-full", className)}>
       <Link href={`/products/${product.slug}`} className="block">
-        {/* Image Container */}
-        <div className="relative aspect-square overflow-hidden bg-muted">
-          <Image
-            src={imageUrl}
-            alt={primaryImage?.alt || product.name}
-            fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className={cn(
-              "object-cover transition-transform duration-300 group-hover:scale-105",
-              isOutOfStock && "opacity-50 grayscale"
-            )}
-            priority={priority}
-          />
+        <CardContent>
+          {/* Product Image */}
+          <div className="relative mb-6">
+            <div className="bg-muted rounded-2xl flex items-center justify-center h-[280px] relative overflow-hidden">
+              <Image
+                src={imageUrl}
+                alt={primaryImage?.alt || product.name}
+                fill
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                className={cn(
+                  "object-cover transition-transform duration-300 group-hover:scale-105",
+                  isOutOfStock && "opacity-50 grayscale"
+                )}
+                priority={priority}
+              />
 
-          {/* Badges */}
-          <div className="absolute left-2 top-2 flex flex-col gap-1">
-            {hasDiscount && (
-              <Badge variant="destructive" className="font-semibold">
-                -{discountPercentage}%
-              </Badge>
+              {/* Badges */}
+              <div className="absolute left-2 top-2 flex flex-col gap-1">
+                {hasDiscount && (
+                  <Badge variant="destructive" className="font-semibold">
+                    -{discountPercentage}%
+                  </Badge>
+                )}
+                {product.is_featured && !hasDiscount && (
+                  <Badge className="bg-accent text-accent-foreground font-semibold">
+                    Vedette
+                  </Badge>
+                )}
+                {isOutOfStock && (
+                  <Badge variant="secondary" className="font-semibold">
+                    Rupture
+                  </Badge>
+                )}
+                {isLowStock && !isOutOfStock && (
+                  <Badge variant="outline" className="bg-background font-medium">
+                    Stock limité
+                  </Badge>
+                )}
+              </div>
+
+              {/* Wishlist Button */}
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-2 right-2"
+                onClick={handleAddToWishlist}
+                aria-label="Ajouter aux favoris"
+              >
+                <Heart className="w-6 h-6 text-foreground hover:text-red-500 transition-colors" />
+              </Button>
+            </div>
+          </div>
+
+          {/* Product Info */}
+          <div className="mb-4">
+            {product.category && (
+              <p className="text-xs text-muted-foreground mb-1">
+                {product.category.name}
+              </p>
             )}
-            {product.is_featured && !hasDiscount && (
-              <Badge className="bg-accent text-accent-foreground font-semibold">
-                Vedette
-              </Badge>
-            )}
-            {isOutOfStock && (
-              <Badge variant="secondary" className="font-semibold">
-                Rupture
-              </Badge>
-            )}
-            {isLowStock && !isOutOfStock && (
-              <Badge variant="outline" className="bg-background font-medium">
-                Stock limité
-              </Badge>
+            <CardTitle className="text-xl leading-tight mb-2 line-clamp-2">
+              {product.name}
+            </CardTitle>
+            {product.description && (
+              <CardDescription className="text-sm line-clamp-2">
+                {product.description}
+              </CardDescription>
             )}
           </div>
 
-          {/* Quick Actions */}
-          <div className="absolute right-2 top-2 flex flex-col gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-            <Button
-              variant="secondary"
-              size="icon"
-              className="h-8 w-8 rounded-full shadow-md"
-              onClick={handleAddToWishlist}
-              aria-label="Ajouter aux favoris"
-            >
-              <Heart className="h-4 w-4" />
-            </Button>
-          </div>
+          {/* Price and Add to Cart */}
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex flex-col">
+              <p className="text-2xl font-bold">{formatPrice(product.price)}</p>
+              {hasDiscount && product.compare_price && (
+                <p className="text-sm text-muted-foreground line-through">
+                  {formatPrice(product.compare_price)}
+                </p>
+              )}
+            </div>
 
-          {/* Add to Cart (hover) */}
-          <div className="absolute inset-x-2 bottom-2 opacity-0 transition-opacity group-hover:opacity-100">
             <Button
-              variant="default"
-              size="sm"
-              className="w-full shadow-md"
               onClick={handleAddToCart}
               disabled={isOutOfStock}
+              size="sm"
             >
-              <ShoppingCart className="mr-2 h-4 w-4" />
               {isOutOfStock ? "Indisponible" : "Ajouter"}
             </Button>
           </div>
-        </div>
-
-        {/* Content */}
-        <CardContent className="p-3">
-          {/* Category */}
-          {product.category && (
-            <p className="mb-1 text-xs text-muted-foreground">
-              {product.category.name}
-            </p>
-          )}
-
-          {/* Name */}
-          <h3 className="mb-1 line-clamp-2 text-sm font-medium leading-tight">
-            {product.name}
-          </h3>
-
-          {/* Brand */}
-          {product.brand && (
-            <p className="mb-2 text-xs text-muted-foreground">{product.brand}</p>
-          )}
-
-          {/* Price */}
-          <PriceDisplay
-            price={product.price}
-            comparePrice={product.compare_price}
-            size="sm"
-            showBadge={false}
-          />
         </CardContent>
       </Link>
     </Card>
