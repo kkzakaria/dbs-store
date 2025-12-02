@@ -2,9 +2,17 @@
 -- DBS STORE - Seed Data
 -- ===========================================
 -- Ce fichier crée des données de test pour le développement local
--- Les numéros de test OTP sont configurés dans config.toml:
+--
+-- IMPORTANT: Les utilisateurs de test sont créés automatiquement lors
+-- de la première connexion OTP. Ce seed ne crée PAS d'utilisateurs
+-- dans auth.users pour éviter les conflits de format de numéro.
+--
+-- Numéros de test OTP configurés dans config.toml:
 -- +2250700000000, +2250700000001, +2250700000002, +2250707070707
 -- Code OTP pour tous: 123456
+--
+-- Lors de la première connexion avec ces numéros, un utilisateur
+-- sera créé automatiquement dans auth.users et public.users.
 -- ===========================================
 
 -- Nettoyer les données existantes (dans l'ordre des dépendances)
@@ -20,186 +28,13 @@ TRUNCATE public.promotions CASCADE;
 TRUNCATE public.categories CASCADE;
 TRUNCATE public.shipping_zones CASCADE;
 
--- Supprimer les utilisateurs auth existants (pour reset complet)
-DELETE FROM auth.users WHERE email LIKE '%@test.dbsstore.ci';
+-- Nettoyer auth.users pour les numéros de test (éviter les conflits)
+DELETE FROM auth.users WHERE phone IN ('+2250700000000', '+2250700000001', '+2250700000002', '+2250707070707', '2250700000000', '2250700000001', '2250700000002', '2250707070707');
 
 -- ===========================================
--- 1. Créer les utilisateurs de test dans auth.users
+-- NOTE: Les utilisateurs sont créés automatiquement
+-- lors de la première connexion OTP
 -- ===========================================
-
--- Utilisateur 1: Client standard avec points fidélité
-INSERT INTO auth.users (
-  id,
-  instance_id,
-  aud,
-  role,
-  email,
-  encrypted_password,
-  email_confirmed_at,
-  phone,
-  phone_confirmed_at,
-  raw_user_meta_data,
-  created_at,
-  updated_at,
-  confirmation_token,
-  email_change,
-  email_change_token_new,
-  recovery_token
-) VALUES (
-  '11111111-1111-1111-1111-111111111111',
-  '00000000-0000-0000-0000-000000000000',
-  'authenticated',
-  'authenticated',
-  'client1@test.dbsstore.ci',
-  crypt('password123', gen_salt('bf')),
-  NOW(),
-  '+2250700000000',
-  NOW(),
-  '{"full_name": "Kouamé Yao", "provider": "phone"}',
-  NOW(),
-  NOW(),
-  '',
-  '',
-  '',
-  ''
-);
-
--- Utilisateur 2: Client avec beaucoup de points (niveau Or)
-INSERT INTO auth.users (
-  id,
-  instance_id,
-  aud,
-  role,
-  email,
-  encrypted_password,
-  email_confirmed_at,
-  phone,
-  phone_confirmed_at,
-  raw_user_meta_data,
-  created_at,
-  updated_at,
-  confirmation_token,
-  email_change,
-  email_change_token_new,
-  recovery_token
-) VALUES (
-  '22222222-2222-2222-2222-222222222222',
-  '00000000-0000-0000-0000-000000000000',
-  'authenticated',
-  'authenticated',
-  'client2@test.dbsstore.ci',
-  crypt('password123', gen_salt('bf')),
-  NOW(),
-  '+2250700000001',
-  NOW(),
-  '{"full_name": "Adjoua Marie", "provider": "phone"}',
-  NOW(),
-  NOW(),
-  '',
-  '',
-  '',
-  ''
-);
-
--- Utilisateur 3: Admin
-INSERT INTO auth.users (
-  id,
-  instance_id,
-  aud,
-  role,
-  email,
-  encrypted_password,
-  email_confirmed_at,
-  phone,
-  phone_confirmed_at,
-  raw_user_meta_data,
-  created_at,
-  updated_at,
-  confirmation_token,
-  email_change,
-  email_change_token_new,
-  recovery_token
-) VALUES (
-  '33333333-3333-3333-3333-333333333333',
-  '00000000-0000-0000-0000-000000000000',
-  'authenticated',
-  'authenticated',
-  'admin@test.dbsstore.ci',
-  crypt('admin123', gen_salt('bf')),
-  NOW(),
-  '+2250700000002',
-  NOW(),
-  '{"full_name": "Admin DBS", "provider": "phone"}',
-  NOW(),
-  NOW(),
-  '',
-  '',
-  '',
-  ''
-);
-
--- Utilisateur 4: Super Admin
-INSERT INTO auth.users (
-  id,
-  instance_id,
-  aud,
-  role,
-  email,
-  encrypted_password,
-  email_confirmed_at,
-  phone,
-  phone_confirmed_at,
-  raw_user_meta_data,
-  created_at,
-  updated_at,
-  confirmation_token,
-  email_change,
-  email_change_token_new,
-  recovery_token
-) VALUES (
-  '44444444-4444-4444-4444-444444444444',
-  '00000000-0000-0000-0000-000000000000',
-  'authenticated',
-  'authenticated',
-  'superadmin@test.dbsstore.ci',
-  crypt('superadmin123', gen_salt('bf')),
-  NOW(),
-  '+2250707070707',
-  NOW(),
-  '{"full_name": "Super Admin", "provider": "phone"}',
-  NOW(),
-  NOW(),
-  '',
-  '',
-  '',
-  ''
-);
-
--- Créer les identités pour chaque utilisateur (requis par Supabase Auth)
-INSERT INTO auth.identities (
-  id,
-  user_id,
-  provider_id,
-  identity_data,
-  provider,
-  last_sign_in_at,
-  created_at,
-  updated_at
-) VALUES
-  (gen_random_uuid(), '11111111-1111-1111-1111-111111111111', '+2250700000000', '{"sub": "11111111-1111-1111-1111-111111111111", "phone": "+2250700000000"}', 'phone', NOW(), NOW(), NOW()),
-  (gen_random_uuid(), '22222222-2222-2222-2222-222222222222', '+2250700000001', '{"sub": "22222222-2222-2222-2222-222222222222", "phone": "+2250700000001"}', 'phone', NOW(), NOW(), NOW()),
-  (gen_random_uuid(), '33333333-3333-3333-3333-333333333333', '+2250700000002', '{"sub": "33333333-3333-3333-3333-333333333333", "phone": "+2250700000002"}', 'phone', NOW(), NOW(), NOW()),
-  (gen_random_uuid(), '44444444-4444-4444-4444-444444444444', '+2250707070707', '{"sub": "44444444-4444-4444-4444-444444444444", "phone": "+2250707070707"}', 'phone', NOW(), NOW(), NOW());
-
--- ===========================================
--- 2. Créer les profils utilisateurs dans public.users
--- ===========================================
-
-INSERT INTO public.users (id, phone, email, full_name, avatar_url, role, loyalty_points, created_at, updated_at) VALUES
-  ('11111111-1111-1111-1111-111111111111', '+2250700000000', 'kouame.yao@email.ci', 'Kouamé Yao', NULL, 'customer', 250, NOW() - INTERVAL '30 days', NOW()),
-  ('22222222-2222-2222-2222-222222222222', '+2250700000001', 'adjoua.marie@email.ci', 'Adjoua Marie', NULL, 'customer', 1850, NOW() - INTERVAL '60 days', NOW()),
-  ('33333333-3333-3333-3333-333333333333', '+2250700000002', 'admin@dbsstore.ci', 'Admin DBS', NULL, 'admin', 0, NOW() - INTERVAL '90 days', NOW()),
-  ('44444444-4444-4444-4444-444444444444', '+2250707070707', 'superadmin@dbsstore.ci', 'Super Admin', NULL, 'super_admin', 0, NOW() - INTERVAL '120 days', NOW());
 
 -- ===========================================
 -- 3. Créer les catégories
@@ -270,23 +105,27 @@ INSERT INTO public.promotions (id, code, name, description, type, value, min_pur
   (gen_random_uuid(), 'NOEL2024', 'Promo Noël', '5000 FCFA de réduction pour Noël', 'fixed_amount', 5000, 30000, NULL, 200, 0, NOW(), NOW() + INTERVAL '60 days', true, NOW());
 
 -- ===========================================
--- 7. Créer des adresses pour les utilisateurs de test
+-- 7. Adresses de test
 -- ===========================================
-
-INSERT INTO public.addresses (id, user_id, full_name, phone, address_line, city, commune, landmark, is_default, created_at) VALUES
-  (gen_random_uuid(), '11111111-1111-1111-1111-111111111111', 'Kouamé Yao', '+2250700000000', 'Rue des Jardins, Résidence Fleur', 'Abidjan', 'Cocody', 'Près de la pharmacie des deux plateaux', true, NOW()),
-  (gen_random_uuid(), '22222222-2222-2222-2222-222222222222', 'Adjoua Marie', '+2250700000001', 'Boulevard Latrille, Immeuble Sococe', 'Abidjan', 'Marcory', 'En face du supermarché CDCI', true, NOW()),
-  (gen_random_uuid(), '22222222-2222-2222-2222-222222222222', 'Adjoua Marie (Bureau)', '+2250700000001', 'Avenue Noguès, Tour BICICI', 'Abidjan', 'Plateau', 'Étage 5', false, NOW());
+-- NOTE: Les adresses seront créées après la connexion
+-- des utilisateurs de test via l'interface
 
 -- ===========================================
--- Résumé des utilisateurs de test
+-- Résumé des numéros de test OTP
 -- ===========================================
 --
--- | Nom           | Téléphone       | OTP    | Rôle        | Points |
--- |---------------|-----------------|--------|-------------|--------|
--- | Kouamé Yao    | +2250700000000  | 123456 | customer    | 250    |
--- | Adjoua Marie  | +2250700000001  | 123456 | customer    | 1850   |
--- | Admin DBS     | +2250700000002  | 123456 | admin       | 0      |
--- | Super Admin   | +2250707070707  | 123456 | super_admin | 0      |
+-- | Téléphone       | OTP    | Description            |
+-- |-----------------|--------|------------------------|
+-- | 07 00 00 00 00  | 123456 | Client standard        |
+-- | 07 00 00 00 01  | 123456 | Client niveau Or       |
+-- | 07 00 00 00 02  | 123456 | Admin                  |
+-- | 07 07 07 07 07  | 123456 | Super Admin            |
+--
+-- Lors de la première connexion, un profil sera créé
+-- automatiquement avec le rôle 'customer'. Pour donner
+-- les droits admin, mettre à jour manuellement:
+--
+-- UPDATE public.users SET role = 'admin' WHERE phone LIKE '%0700000002';
+-- UPDATE public.users SET role = 'super_admin' WHERE phone LIKE '%0707070707';
 --
 -- ===========================================
