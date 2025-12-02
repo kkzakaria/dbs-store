@@ -177,7 +177,7 @@ export function ProductCard({
               size="sm"
               className="h-7 px-2 text-xs"
             >
-              {isOutOfStock ? "Indisponible" : "Ajouter"}
+              {isOutOfStock ? "Indisponible" : "Acheter"}
             </Button>
           </div>
         </CardContent>
