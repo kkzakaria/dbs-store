@@ -33,10 +33,12 @@ import {
 } from "lucide-react"
 
 const navigation = [
-  { name: "Accueil", href: "/" },
-  { name: "Produits", href: "/products" },
-  { name: "Catégories", href: "/categories" },
-  { name: "Promotions", href: "/promotions" },
+  { name: "Offre", href: "/promotions" },
+  { name: "Smartphone", href: "/categories/smartphones" },
+  { name: "Montre connectée", href: "/categories/montres-connectees" },
+  { name: "Tablette", href: "/categories/tablettes" },
+  { name: "Ordinateur", href: "/categories/ordinateurs" },
+  { name: "Accessoires", href: "/categories/accessoires" },
 ]
 
 export function Header() {
@@ -83,23 +85,23 @@ export function Header() {
           isScrolled && "shadow-sm"
         )}
       >
-        <div className="container flex h-16 items-center justify-between gap-4">
+        <div className="container flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           {/* Logo */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 ml-2">
             <Logo variant="default" />
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-6">
+          <nav className="hidden md:flex items-center gap-8">
             {navigation.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  "text-sm font-medium transition-colors hover:text-primary",
-                  pathname === item.href
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                  "relative text-base font-semibold transition-colors hover:text-primary py-1 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
+                  pathname === item.href || pathname?.startsWith(item.href + "/")
+                    ? "text-primary after:w-full"
+                    : "text-foreground/80 hover:text-foreground"
                 )}
               >
                 {item.name}
@@ -109,32 +111,18 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
-            {/* Theme Toggle */}
-            <ThemeToggle />
-
             {/* Search Button */}
             <Button
               variant="ghost"
               size="icon"
-              className="hidden sm:flex"
               onClick={() => setSearchOpen(true)}
               aria-label="Rechercher"
             >
               <Search className="size-5" />
             </Button>
 
-            {/* Search Trigger with Shortcut (Desktop) */}
-            <Button
-              variant="outline"
-              className="hidden lg:flex items-center gap-2 text-muted-foreground h-9 px-3"
-              onClick={() => setSearchOpen(true)}
-            >
-              <Search className="size-4" />
-              <span className="text-sm">Rechercher...</span>
-              <kbd className="pointer-events-none ml-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
-                <span className="text-xs">⌘</span>K
-              </kbd>
-            </Button>
+            {/* Theme Toggle */}
+            <ThemeToggle />
 
             {/* Cart Button */}
             <Button
