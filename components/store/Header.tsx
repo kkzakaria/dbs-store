@@ -18,6 +18,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SearchCommand } from "./SearchCommand"
 import { MobileNav } from "./MobileNav"
+import { ThemeToggle } from "./theme-toggle"
 import { useUser } from "@/hooks/use-user"
 import { useCart } from "@/hooks/use-cart"
 import {
@@ -108,6 +109,9 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-2">
+            {/* Theme Toggle */}
+            <ThemeToggle />
+
             {/* Search Button */}
             <Button
               variant="ghost"

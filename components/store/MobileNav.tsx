@@ -19,6 +19,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import { Separator } from "@/components/ui/separator"
+import { ThemeToggle } from "./theme-toggle"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import type { User as AuthUser } from "@supabase/supabase-js"
 import type { User } from "@/types"
@@ -227,6 +228,13 @@ export function MobileNav({
               </nav>
             </>
           )}
+
+          {/* Theme Toggle */}
+          <Separator />
+          <div className="p-4 flex items-center justify-between">
+            <span className="text-sm text-muted-foreground">Thème</span>
+            <ThemeToggle />
+          </div>
         </div>
       </SheetContent>
     </Sheet>
