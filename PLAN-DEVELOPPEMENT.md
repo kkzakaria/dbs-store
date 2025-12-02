@@ -611,7 +611,7 @@ SEMAINE 2: Checkout + Admin + Polish
 
 ---
 
-#### 📅 JOUR 3 — Authentification complète (partiellement fait en Jour 2)
+#### 📅 JOUR 3 — Authentification complète ✅ TERMINÉ
 
 **Matin (4h)**
 - [X] Page Login avec téléphone
@@ -622,15 +622,18 @@ SEMAINE 2: Checkout + Admin + Polish
 **Après-midi (4h)**
 - [X] OAuth buttons (Google, Apple, Microsoft) - affichés désactivés "Bientôt disponible"
 - [X] Page Register
-- [ ] Callback route (/api/auth/callback)
-- [ ] Page profil utilisateur basique
+- [X] Callback route (/api/auth/callback)
+- [X] Page profil utilisateur avec navigation latérale (Profil, Adresses, Commandes, Fidélité)
+- [X] Upload avatar avec drag & drop (react-dropzone)
+- [X] Server actions: updateProfile, uploadAvatar, deleteAvatar
 
 **Livrables:**
 ```
 ✅ Login OTP fonctionnel
-⬜ OAuth connecté (boutons désactivés pour MVP)
+✅ OAuth préparé (boutons désactivés pour MVP)
 ✅ Session persistante
-⬜ Profil utilisateur
+✅ Profil utilisateur complet avec upload avatar
+✅ Pages placeholder (Adresses, Fidélité)
 ```
 
 ---

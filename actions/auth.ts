@@ -9,6 +9,7 @@ import {
   loginSchema,
   registerSchema,
   verifyOtpSchema,
+  profileSchema,
   normalizePhone,
 } from "@/lib/validations/auth"
 
@@ -213,3 +214,54 @@ export async function getCurrentUser() {
 
   return user
 }
+
+// Update user profile
+export const updateProfile = action
+  .schema(profileSchema)
+  .action(async ({ parsedInput }) => {
+    const supabase = await createClient()
+
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser()
+
+    if (!authUser) {
+      return {
+        error: "Vous devez être connecté pour modifier votre profil.",
+      }
+    }
+
+    const updateData: Record<string, string> = {
+      updated_at: new Date().toISOString(),
+    }
+
+    if (parsedInput.fullName) {
+      updateData.full_name = parsedInput.fullName
+    }
+
+    if (parsedInput.email !== undefined) {
+      updateData.email = parsedInput.email || ""
+    }
+
+    if (parsedInput.avatarUrl !== undefined) {
+      updateData.avatar_url = parsedInput.avatarUrl || ""
+    }
+
+    const { error } = await supabaseAdmin
+      .from("users")
+      .update(updateData)
+      .eq("id", authUser.id)
+
+    if (error) {
+      console.error("Update profile error:", error)
+      return {
+        error: "Impossible de mettre à jour le profil. Veuillez réessayer.",
+      }
+    }
+
+    revalidatePath("/account", "layout")
+
+    return {
+      success: true,
+    }
+  })
