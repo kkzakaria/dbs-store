@@ -93,7 +93,7 @@ export function ProductCard({
   }
 
   return (
-    <Card className={cn("w-full", className)}>
+    <Card className={cn("w-full py-0", className)}>
       <Link href={`/products/${product.slug}`} className="block">
         <CardContent className="p-3">
           {/* Product Image */}
