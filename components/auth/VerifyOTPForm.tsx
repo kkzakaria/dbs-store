@@ -6,7 +6,8 @@ import { useAction } from "next-safe-action/hooks"
 import { Button } from "@/components/ui/button"
 import { OTPInput } from "./OTPInput"
 import { LoadingSpinner } from "@/components/shared/Loading"
-import { verifyOTP, resendOTP } from "@/actions/auth"
+import { upsertUserProfile, resendOTP } from "@/actions/auth"
+import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 
 interface VerifyOTPFormProps {
@@ -18,6 +19,7 @@ export function VerifyOTPForm({ phone }: VerifyOTPFormProps) {
   const [code, setCode] = React.useState("")
   const [error, setError] = React.useState("")
   const [countdown, setCountdown] = React.useState(0)
+  const [isVerifying, setIsVerifying] = React.useState(false)
 
   // Countdown timer for resend
   React.useEffect(() => {
@@ -27,22 +29,14 @@ export function VerifyOTPForm({ phone }: VerifyOTPFormProps) {
     }
   }, [countdown])
 
-  const { execute: executeVerify, status: verifyStatus } = useAction(verifyOTP, {
-    onSuccess: (result) => {
-      if (result.data?.success) {
-        toast.success("Connexion réussie !", {
-          description: "Bienvenue sur DBS Store.",
-        })
-        router.push("/")
-        router.refresh()
-      } else if (result.data?.error) {
-        setError(result.data.error)
-        setCode("")
-      }
+  // Server action to upsert user profile after successful verification
+  const { execute: executeUpsert } = useAction(upsertUserProfile, {
+    onSuccess: () => {
+      // Profile upserted, continue with redirect
     },
-    onError: () => {
-      setError("Une erreur est survenue. Veuillez réessayer.")
-      setCode("")
+    onError: (err) => {
+      console.error("Upsert error:", err)
+      // Don't block login on upsert error
     },
   })
 
@@ -67,8 +61,49 @@ export function VerifyOTPForm({ phone }: VerifyOTPFormProps) {
     },
   })
 
-  const isVerifying = verifyStatus === "executing"
   const isResending = resendStatus === "executing"
+
+  const handleVerifyOTP = async (token: string) => {
+    setIsVerifying(true)
+    setError("")
+
+    try {
+      // Use browser client to verify OTP - this properly sets cookies
+      const supabase = createClient()
+      const { data, error: verifyError } = await supabase.auth.verifyOtp({
+        phone,
+        token,
+        type: "sms",
+      })
+
+      if (verifyError) {
+        setError("Code invalide ou expiré. Veuillez réessayer.")
+        setCode("")
+        setIsVerifying(false)
+        return
+      }
+
+      if (data.user) {
+        // Upsert user profile in background (don't wait)
+        executeUpsert({ phone })
+
+        toast.success("Connexion réussie !", {
+          description: "Bienvenue sur DBS Store.",
+        })
+
+        // Small delay to ensure cookies are set
+        await new Promise((resolve) => setTimeout(resolve, 100))
+
+        router.push("/")
+        router.refresh()
+      }
+    } catch {
+      setError("Une erreur est survenue. Veuillez réessayer.")
+      setCode("")
+    } finally {
+      setIsVerifying(false)
+    }
+  }
 
   const handleCodeChange = (newCode: string) => {
     setCode(newCode)
@@ -76,7 +111,7 @@ export function VerifyOTPForm({ phone }: VerifyOTPFormProps) {
 
     // Auto-submit when code is complete
     if (newCode.length === 6) {
-      executeVerify({ phone, token: newCode })
+      handleVerifyOTP(newCode)
     }
   }
 

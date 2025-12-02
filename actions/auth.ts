@@ -106,48 +106,44 @@ export const signUp = action
     }
   })
 
-// Verify OTP and complete sign in
-export const verifyOTP = action
-  .schema(verifyOtpSchema)
+// Upsert user profile after OTP verification (called from client after verifyOtp)
+export const upsertUserProfile = action
+  .schema(loginSchema)
   .action(async ({ parsedInput }) => {
     const supabase = await createClient()
     const phone = normalizePhone(parsedInput.phone)
 
-    const { data, error } = await supabase.auth.verifyOtp({
-      phone,
-      token: parsedInput.token,
-      type: "sms",
-    })
+    // Get the current authenticated user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    if (error) {
-      console.error("Verify OTP error:", error)
+    if (!user) {
       return {
-        error: "Code invalide ou expiré. Veuillez réessayer.",
+        error: "Non authentifié",
       }
     }
 
-    if (data.user) {
-      // Upsert user profile in public.users table
-      const { error: upsertError } = await supabaseAdmin
-        .from("users")
-        .upsert(
-          {
-            id: data.user.id,
-            phone: phone,
-            full_name:
-              data.user.user_metadata?.full_name ||
-              data.user.phone ||
-              "Utilisateur",
-            role: "customer" as const,
-          },
-          {
-            onConflict: "id",
-          }
-        )
+    // Upsert user profile in public.users table
+    const { error: upsertError } = await supabaseAdmin
+      .from("users")
+      .upsert(
+        {
+          id: user.id,
+          phone: phone,
+          full_name:
+            user.user_metadata?.full_name || user.phone || "Utilisateur",
+          role: "customer" as const,
+        },
+        {
+          onConflict: "id",
+        }
+      )
 
-      if (upsertError) {
-        console.error("Upsert user error:", upsertError)
-        // Don't fail the login, profile can be updated later
+    if (upsertError) {
+      console.error("Upsert user error:", upsertError)
+      return {
+        error: "Erreur lors de la création du profil",
       }
     }
 
@@ -155,7 +151,6 @@ export const verifyOTP = action
 
     return {
       success: true,
-      user: data.user,
     }
   })
 
