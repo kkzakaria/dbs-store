@@ -22,29 +22,34 @@ export const sendOTP = action
     const supabase = await createClient()
     const phone = normalizePhone(parsedInput.phone)
 
-    // Check if user exists
+    // Check if user exists in public.users
     const { data: existingUser } = await supabaseAdmin
       .from("users")
       .select("id")
       .eq("phone", phone)
       .single()
 
-    if (!existingUser) {
-      return {
-        error: "Aucun compte associé à ce numéro. Créez un compte d'abord.",
-      }
-    }
-
     // Send OTP
+    // Note: shouldCreateUser is set based on whether user exists in our system
+    // In production, we want to prevent new user creation via login
+    // For existing users, shouldCreateUser: true still works (Supabase won't duplicate)
     const { error } = await supabase.auth.signInWithOtp({
       phone,
       options: {
-        shouldCreateUser: false,
+        // Allow creation for existing public.users (may have different auth.users id)
+        // Block creation only if user doesn't exist in our system
+        shouldCreateUser: !!existingUser,
       },
     })
 
     if (error) {
       console.error("Send OTP error:", error)
+      // Check if it's a "user not found" error when shouldCreateUser is false
+      if (!existingUser) {
+        return {
+          error: "Aucun compte associé à ce numéro. Créez un compte d'abord.",
+        }
+      }
       return {
         error: "Impossible d'envoyer le code. Veuillez réessayer.",
       }
