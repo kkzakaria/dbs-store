@@ -581,50 +581,56 @@ SEMAINE 2: Checkout + Admin + Polish
 
 ---
 
-#### 📅 JOUR 2 — Structure & Auth Setup
+#### 📅 JOUR 2 — Structure & Auth Setup ✅ TERMINÉ
 
 **Matin (4h)**
 - [X] Créer structure des dossiers (fait en Jour 1)
 - [X] Setup clients Supabase (client, server, admin) (fait en Jour 1)
 - [X] Configurer middleware auth (fait en Jour 1)
-- [ ] Créer composants shared (Logo, Loading, EmptyState)
+- [X] Créer composants shared (Logo, Loading, EmptyState, ConfirmDialog)
 
 **Après-midi (4h)**
-- [ ] Layout store (Header, Footer, MobileNav)
-- [ ] Setup Zustand store (cart)
-- [ ] Configurer Supabase Auth providers (Phone, Google, Apple, Microsoft)
-- [ ] Tester OTP en mode dev
+- [X] Layout store (Header avec Command Palette Cmd+K, Footer, MobileNav)
+- [X] Setup Zustand store (cart) avec persistance localStorage + sync Supabase
+- [X] Configurer Supabase Auth OTP Phone (numéros de test configurés)
+- [X] Créer schémas de validation auth (Zod)
+- [X] Créer hooks (use-user, use-cart)
+- [X] Pages auth (login, register, verify-otp)
+- [X] Composants auth (PhoneInput shadcn avec drapeaux, OTPInput shadcn, LoginForm, RegisterForm, OAuthButtons désactivés)
+- [X] Migration table cart_items avec RLS
 
 **Livrables:**
 ```
 ✅ Structure projet complète
-✅ Auth Supabase configuré
-⬜ Header/Footer responsive
-⬜ Cart store prêt
+✅ Auth Supabase OTP configuré
+✅ Header/Footer responsive avec Command Palette
+✅ Cart store prêt avec sync Supabase
+✅ Pages auth complètes
+✅ Composants shadcn (input-otp, phone-input)
 ```
 
 ---
 
-#### 📅 JOUR 3 — Authentification complète
+#### 📅 JOUR 3 — Authentification complète (partiellement fait en Jour 2)
 
 **Matin (4h)**
-- [ ] Page Login avec téléphone
-- [ ] Composant PhoneInput (format CI +225)
-- [ ] Composant OTPInput (6 digits)
-- [ ] Page vérification OTP
+- [X] Page Login avec téléphone
+- [X] Composant PhoneInput (format CI +225, shadcn avec sélecteur pays)
+- [X] Composant OTPInput (6 digits, shadcn input-otp)
+- [X] Page vérification OTP
 
 **Après-midi (4h)**
-- [ ] OAuth buttons (Google, Apple, Microsoft)
-- [ ] Page Register
+- [X] OAuth buttons (Google, Apple, Microsoft) - affichés désactivés "Bientôt disponible"
+- [X] Page Register
 - [ ] Callback route (/api/auth/callback)
 - [ ] Page profil utilisateur basique
 
 **Livrables:**
 ```
 ✅ Login OTP fonctionnel
-✅ OAuth connecté
+⬜ OAuth connecté (boutons désactivés pour MVP)
 ✅ Session persistante
-✅ Profil utilisateur
+⬜ Profil utilisateur
 ```
 
 ---
