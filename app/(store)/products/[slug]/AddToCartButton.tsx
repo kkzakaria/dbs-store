@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Heart, Minus, Plus, ShoppingCart } from "lucide-react"
+import { Heart, Minus, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/stores/cart-store"
 import { toast } from "sonner"
@@ -53,53 +53,51 @@ export function AddToCartButton({ product, isOutOfStock }: AddToCartButtonProps)
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex items-center gap-4">
       {/* Quantity Selector */}
-      <div className="flex items-center gap-4">
-        <span className="text-sm font-medium">Quantité</span>
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={decreaseQuantity}
-            disabled={quantity <= 1 || isOutOfStock}
-            aria-label="Diminuer la quantité"
-          >
-            <Minus className="h-4 w-4" />
-          </Button>
-          <span className="w-12 text-center font-medium">{quantity}</span>
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={increaseQuantity}
-            disabled={quantity >= product.stock_quantity || isOutOfStock}
-            aria-label="Augmenter la quantité"
-          >
-            <Plus className="h-4 w-4" />
-          </Button>
-        </div>
+      <div className="flex items-center border border-input rounded-lg">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-10 w-10 rounded-lg"
+          onClick={decreaseQuantity}
+          disabled={quantity <= 1 || isOutOfStock}
+          aria-label="Diminuer la quantité"
+        >
+          <Minus className="w-4 h-4" />
+        </Button>
+        <span className="w-12 text-center font-medium">{quantity}</span>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-10 w-10 rounded-lg"
+          onClick={increaseQuantity}
+          disabled={quantity >= product.stock_quantity || isOutOfStock}
+          aria-label="Augmenter la quantité"
+        >
+          <Plus className="w-4 h-4" />
+        </Button>
       </div>
 
-      {/* Action Buttons */}
-      <div className="flex gap-3">
-        <Button
-          size="lg"
-          className="flex-1"
-          onClick={handleAddToCart}
-          disabled={isOutOfStock}
-        >
-          <ShoppingCart className="mr-2 h-5 w-5" />
-          {isOutOfStock ? "Indisponible" : "Ajouter au panier"}
-        </Button>
-        <Button
-          variant="outline"
-          size="lg"
-          onClick={handleAddToWishlist}
-          aria-label="Ajouter aux favoris"
-        >
-          <Heart className="h-5 w-5" />
-        </Button>
-      </div>
+      {/* Add to Cart Button */}
+      <Button
+        size="lg"
+        onClick={handleAddToCart}
+        disabled={isOutOfStock}
+      >
+        {isOutOfStock ? "Indisponible" : "Ajouter au panier"}
+      </Button>
+
+      {/* Wishlist Button */}
+      <Button
+        variant="outline"
+        size="icon"
+        className="h-10 w-10 rounded-lg"
+        onClick={handleAddToWishlist}
+        aria-label="Ajouter aux favoris"
+      >
+        <Heart className="w-4 h-4" />
+      </Button>
     </div>
   )
 }
