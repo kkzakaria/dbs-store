@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
 import { useAction } from "next-safe-action/hooks"
 import { Button } from "@/components/ui/button"
 import { OTPInput } from "./OTPInput"
@@ -15,7 +14,6 @@ interface VerifyOTPFormProps {
 }
 
 export function VerifyOTPForm({ phone }: VerifyOTPFormProps) {
-  const router = useRouter()
   const [code, setCode] = React.useState("")
   const [error, setError] = React.useState("")
   const [countdown, setCountdown] = React.useState(0)
@@ -77,7 +75,15 @@ export function VerifyOTPForm({ phone }: VerifyOTPFormProps) {
       })
 
       if (verifyError) {
-        setError("Code invalide ou expiré. Veuillez réessayer.")
+        console.error("Verify OTP error:", verifyError)
+        // Handle specific error messages
+        if (verifyError.message?.includes("expired") || verifyError.message?.includes("invalid")) {
+          setError("Code invalide ou expiré. Veuillez réessayer.")
+        } else if (verifyError.message?.includes("unexpected")) {
+          setError("Erreur de connexion au serveur. Veuillez réessayer.")
+        } else {
+          setError(verifyError.message || "Code invalide ou expiré. Veuillez réessayer.")
+        }
         setCode("")
         setIsVerifying(false)
         return
@@ -91,11 +97,9 @@ export function VerifyOTPForm({ phone }: VerifyOTPFormProps) {
           description: "Bienvenue sur DBS Store.",
         })
 
-        // Small delay to ensure cookies are set
-        await new Promise((resolve) => setTimeout(resolve, 100))
-
-        router.push("/")
-        router.refresh()
+        // Use window.location for a full page reload to ensure cookies are properly sent
+        // This avoids race conditions between router.push() and middleware redirects
+        window.location.href = "/"
       }
     } catch {
       setError("Une erreur est survenue. Veuillez réessayer.")
