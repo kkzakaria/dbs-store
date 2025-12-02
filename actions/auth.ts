@@ -9,6 +9,7 @@ import {
   loginSchema,
   registerSchema,
   verifyOtpSchema,
+  profileSchema,
   normalizePhone,
 } from "@/lib/validations/auth"
 
@@ -21,29 +22,34 @@ export const sendOTP = action
     const supabase = await createClient()
     const phone = normalizePhone(parsedInput.phone)
 
-    // Check if user exists
+    // Check if user exists in public.users
     const { data: existingUser } = await supabaseAdmin
       .from("users")
       .select("id")
       .eq("phone", phone)
       .single()
 
-    if (!existingUser) {
-      return {
-        error: "Aucun compte associé à ce numéro. Créez un compte d'abord.",
-      }
-    }
-
     // Send OTP
+    // Note: shouldCreateUser is set based on whether user exists in our system
+    // In production, we want to prevent new user creation via login
+    // For existing users, shouldCreateUser: true still works (Supabase won't duplicate)
     const { error } = await supabase.auth.signInWithOtp({
       phone,
       options: {
-        shouldCreateUser: false,
+        // Allow creation for existing public.users (may have different auth.users id)
+        // Block creation only if user doesn't exist in our system
+        shouldCreateUser: !!existingUser,
       },
     })
 
     if (error) {
       console.error("Send OTP error:", error)
+      // Check if it's a "user not found" error when shouldCreateUser is false
+      if (!existingUser) {
+        return {
+          error: "Aucun compte associé à ce numéro. Créez un compte d'abord.",
+        }
+      }
       return {
         error: "Impossible d'envoyer le code. Veuillez réessayer.",
       }
@@ -100,48 +106,44 @@ export const signUp = action
     }
   })
 
-// Verify OTP and complete sign in
-export const verifyOTP = action
-  .schema(verifyOtpSchema)
+// Upsert user profile after OTP verification (called from client after verifyOtp)
+export const upsertUserProfile = action
+  .schema(loginSchema)
   .action(async ({ parsedInput }) => {
     const supabase = await createClient()
     const phone = normalizePhone(parsedInput.phone)
 
-    const { data, error } = await supabase.auth.verifyOtp({
-      phone,
-      token: parsedInput.token,
-      type: "sms",
-    })
+    // Get the current authenticated user
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
 
-    if (error) {
-      console.error("Verify OTP error:", error)
+    if (!user) {
       return {
-        error: "Code invalide ou expiré. Veuillez réessayer.",
+        error: "Non authentifié",
       }
     }
 
-    if (data.user) {
-      // Upsert user profile in public.users table
-      const { error: upsertError } = await supabaseAdmin
-        .from("users")
-        .upsert(
-          {
-            id: data.user.id,
-            phone: phone,
-            full_name:
-              data.user.user_metadata?.full_name ||
-              data.user.phone ||
-              "Utilisateur",
-            role: "customer" as const,
-          },
-          {
-            onConflict: "id",
-          }
-        )
+    // Upsert user profile in public.users table
+    const { error: upsertError } = await supabaseAdmin
+      .from("users")
+      .upsert(
+        {
+          id: user.id,
+          phone: phone,
+          full_name:
+            user.user_metadata?.full_name || user.phone || "Utilisateur",
+          role: "customer" as const,
+        },
+        {
+          onConflict: "id",
+        }
+      )
 
-      if (upsertError) {
-        console.error("Upsert user error:", upsertError)
-        // Don't fail the login, profile can be updated later
+    if (upsertError) {
+      console.error("Upsert user error:", upsertError)
+      return {
+        error: "Erreur lors de la création du profil",
       }
     }
 
@@ -149,7 +151,6 @@ export const verifyOTP = action
 
     return {
       success: true,
-      user: data.user,
     }
   })
 
@@ -213,3 +214,54 @@ export async function getCurrentUser() {
 
   return user
 }
+
+// Update user profile
+export const updateProfile = action
+  .schema(profileSchema)
+  .action(async ({ parsedInput }) => {
+    const supabase = await createClient()
+
+    const {
+      data: { user: authUser },
+    } = await supabase.auth.getUser()
+
+    if (!authUser) {
+      return {
+        error: "Vous devez être connecté pour modifier votre profil.",
+      }
+    }
+
+    const updateData: Record<string, string> = {
+      updated_at: new Date().toISOString(),
+    }
+
+    if (parsedInput.fullName) {
+      updateData.full_name = parsedInput.fullName
+    }
+
+    if (parsedInput.email !== undefined) {
+      updateData.email = parsedInput.email || ""
+    }
+
+    if (parsedInput.avatarUrl !== undefined) {
+      updateData.avatar_url = parsedInput.avatarUrl || ""
+    }
+
+    const { error } = await supabaseAdmin
+      .from("users")
+      .update(updateData)
+      .eq("id", authUser.id)
+
+    if (error) {
+      console.error("Update profile error:", error)
+      return {
+        error: "Impossible de mettre à jour le profil. Veuillez réessayer.",
+      }
+    }
+
+    revalidatePath("/account", "layout")
+
+    return {
+      success: true,
+    }
+  })

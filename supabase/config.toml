@@ -242,10 +242,12 @@ max_frequency = "60s"
 # uri = "pg-functions://<database>/<schema>/<hook_name>"
 
 # Configure one of the supported SMS providers: `twilio`, `twilio_verify`, `messagebird`, `textlocal`, `vonage`.
+# En développement local, on utilise twilio avec des valeurs factices pour activer le SMS
+# Les test_otp ci-dessus interceptent les appels pour les numéros de test
 [auth.sms.twilio]
-enabled = false
-account_sid = ""
-message_service_sid = ""
+enabled = true
+account_sid = "AC_fake_account_sid_for_local_dev"
+message_service_sid = "MG_fake_message_service_sid"
 # DO NOT commit your Twilio auth token to git. Use environment variable substitution instead:
 auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
 
