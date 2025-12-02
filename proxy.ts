@@ -10,7 +10,7 @@ const adminRoutes = ['/admin']
 // Routes accessible only when NOT authenticated
 const authRoutes = ['/login', '/register', '/verify-otp']
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { supabaseResponse, user, supabase } = await updateSession(request)
   const { pathname } = request.nextUrl
 
@@ -21,17 +21,27 @@ export async function middleware(request: NextRequest) {
   const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route))
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route))
 
+  // Helper to create redirect response with preserved cookies
+  const redirectWithCookies = (url: URL) => {
+    const response = NextResponse.redirect(url)
+    // Copy cookies from supabaseResponse to preserve session state
+    supabaseResponse.cookies.getAll().forEach((cookie) => {
+      response.cookies.set(cookie.name, cookie.value, cookie)
+    })
+    return response
+  }
+
   // Redirect to login if accessing protected route without auth
   if (isProtectedRoute && !user) {
     const redirectUrl = new URL('/login', request.url)
     redirectUrl.searchParams.set('redirect', pathname)
-    return NextResponse.redirect(redirectUrl)
+    return redirectWithCookies(redirectUrl)
   }
 
   // Check admin access
   if (isAdminRoute) {
     if (!user) {
-      return NextResponse.redirect(new URL('/login', request.url))
+      return redirectWithCookies(new URL('/login', request.url))
     }
 
     // Verify admin role
@@ -42,13 +52,13 @@ export async function middleware(request: NextRequest) {
       .single()
 
     if (!userData?.role || !['admin', 'super_admin'].includes(userData.role)) {
-      return NextResponse.redirect(new URL('/', request.url))
+      return redirectWithCookies(new URL('/', request.url))
     }
   }
 
   // Redirect authenticated users away from auth routes
   if (isAuthRoute && user) {
-    return NextResponse.redirect(new URL('/', request.url))
+    return redirectWithCookies(new URL('/', request.url))
   }
 
   return supabaseResponse

@@ -55,8 +55,18 @@ export type OrderWithItems = Order & {
   })[]
 }
 
+// Simplified product for cart (client-side)
+export type CartProduct = {
+  id: string
+  name: string
+  slug: string
+  price: number
+  image: string
+  stock_quantity: number
+}
+
 // Cart item type (for client-side cart)
 export type CartItem = {
-  product: Product
+  product: CartProduct
   quantity: number
 }

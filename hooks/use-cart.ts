@@ -3,7 +3,7 @@
 import { useEffect, useMemo } from "react"
 import { useCartStore, useCartHydration } from "@/stores/cart-store"
 import { formatPrice } from "@/lib/config"
-import type { Product, CartItem } from "@/types"
+import type { CartProduct, CartItem } from "@/types"
 
 interface UseCartReturn {
   // State
@@ -18,7 +18,7 @@ interface UseCartReturn {
   hasItems: boolean
 
   // Actions
-  addItem: (product: Product, quantity?: number) => void
+  addItem: (product: CartProduct, quantity?: number) => void
   removeItem: (productId: string) => void
   updateQuantity: (productId: string, quantity: number) => void
   clearCart: () => void
