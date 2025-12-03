@@ -94,101 +94,113 @@ export function ShippingStep({
       <div className="space-y-3">
         {/* Option 1: Store Pickup */}
         <div
-          role="button"
-          tabIndex={0}
-          onClick={() => onSelectMethod("pickup")}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault()
-              onSelectMethod("pickup")
-            }
-          }}
           className={cn(
-            "flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all",
+            "rounded-lg border transition-all",
             deliveryMethod === "pickup"
               ? "border-primary bg-primary/5 ring-1 ring-primary"
               : "hover:border-primary/50"
           )}
         >
-          {/* Selection indicator */}
+          {/* Main clickable area */}
           <div
-            className={cn(
-              "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-              deliveryMethod === "pickup"
-                ? "border-primary bg-primary text-primary-foreground"
-                : "border-muted-foreground/30"
-            )}
+            role="button"
+            tabIndex={0}
+            onClick={() => onSelectMethod("pickup")}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault()
+                onSelectMethod("pickup")
+              }
+            }}
+            className="flex items-center gap-3 p-4 cursor-pointer"
           >
-            {deliveryMethod === "pickup" && <Check className="h-3 w-3" />}
-          </div>
-
-          {/* Icon */}
-          <StoreIcon className="h-5 w-5 text-primary shrink-0" />
-
-          {/* Content */}
-          <div className="flex-1 min-w-0">
-            <div className="flex items-center justify-between gap-2">
-              <span className="font-medium">Retrait en magasin</span>
-              <Badge variant="secondary" className="text-green-600 shrink-0">
-                Gratuit
-              </Badge>
+            {/* Selection indicator */}
+            <div
+              className={cn(
+                "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                deliveryMethod === "pickup"
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-muted-foreground/30"
+              )}
+            >
+              {deliveryMethod === "pickup" && <Check className="h-3 w-3" />}
             </div>
-            {selectedStore && (
-              <p className="text-sm text-muted-foreground truncate">
-                {selectedStore.name} - {selectedStore.commune}
-              </p>
-            )}
+
+            {/* Icon */}
+            <StoreIcon className="h-5 w-5 text-primary shrink-0" />
+
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between gap-2">
+                <span className="font-medium">Retrait en magasin</span>
+                <Badge variant="secondary" className="text-green-600 shrink-0">
+                  Gratuit
+                </Badge>
+              </div>
+              {selectedStore && deliveryMethod !== "pickup" && (
+                <p className="text-sm text-muted-foreground truncate">
+                  {selectedStore.name} - {selectedStore.commune}
+                </p>
+              )}
+            </div>
           </div>
+
+          {/* Store selector and details (inside the card when pickup is selected) */}
+          {deliveryMethod === "pickup" && (
+            <div className="px-4 pb-4 pt-0 space-y-3">
+              {/* Store selector dropdown */}
+              {stores.length > 1 ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="sm" className="w-full justify-between">
+                      <span className="truncate">
+                        {selectedStore?.name || "Choisir un magasin"}
+                      </span>
+                      <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-[--radix-dropdown-menu-trigger-width]">
+                    {stores.map((store) => (
+                      <DropdownMenuItem
+                        key={store.id}
+                        onClick={() => onSelectStore(store)}
+                        className="flex items-center justify-between"
+                      >
+                        <div>
+                          <p className="font-medium">{store.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {store.commune} - {store.hours}
+                          </p>
+                        </div>
+                        {selectedStore?.id === store.id && (
+                          <Check className="h-4 w-4 text-primary" />
+                        )}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : selectedStore && (
+                <p className="font-medium text-sm">{selectedStore.name}</p>
+              )}
+
+              {/* Selected store details */}
+              {selectedStore && (
+                <div className="p-3 rounded-md bg-muted/50 text-sm space-y-1">
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5 shrink-0" />
+                    <span className="truncate">
+                      {selectedStore.address}, {selectedStore.commune}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Clock className="h-3.5 w-3.5 shrink-0" />
+                    <span>{selectedStore.hours}</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-
-        {/* Store selector dropdown (only show when pickup is selected and multiple stores exist) */}
-        {deliveryMethod === "pickup" && stores.length > 1 && (
-          <div className="ml-8">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="w-full justify-between">
-                  <span className="truncate">
-                    {selectedStore?.name || "Choisir un magasin"}
-                  </span>
-                  <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-[--radix-dropdown-menu-trigger-width]">
-                {stores.map((store) => (
-                  <DropdownMenuItem
-                    key={store.id}
-                    onClick={() => onSelectStore(store)}
-                    className="flex items-center justify-between"
-                  >
-                    <div>
-                      <p className="font-medium">{store.name}</p>
-                      <p className="text-xs text-muted-foreground">
-                        {store.commune} - {store.hours}
-                      </p>
-                    </div>
-                    {selectedStore?.id === store.id && (
-                      <Check className="h-4 w-4 text-primary" />
-                    )}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        )}
-
-        {/* Selected store details (compact) */}
-        {deliveryMethod === "pickup" && selectedStore && (
-          <div className="ml-8 p-3 rounded-md bg-muted/50 text-sm space-y-1">
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <MapPin className="h-3.5 w-3.5 shrink-0" />
-              <span className="truncate">{selectedStore.address}</span>
-            </div>
-            <div className="flex items-center gap-2 text-muted-foreground">
-              <Clock className="h-3.5 w-3.5 shrink-0" />
-              <span>{selectedStore.hours}</span>
-            </div>
-          </div>
-        )}
 
         {/* Option 2: Home Delivery */}
         <div
