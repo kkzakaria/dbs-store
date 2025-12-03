@@ -13,14 +13,21 @@ interface FeaturedProduct {
   image: string
 }
 
+interface HeroAction {
+  label: string
+  href: string
+}
+
 interface HeroSectionProps {
   backgroundImage: string
   featuredProducts?: FeaturedProduct[]
+  action?: HeroAction
 }
 
 export function HeroSection({
   backgroundImage,
   featuredProducts = [],
+  action,
 }: HeroSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
 
@@ -141,9 +148,9 @@ export function HeroSection({
             size="lg"
             className="rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm border border-white/20 px-4 md:px-6 shrink-0"
           >
-            <Link href="/products">
-              <span className="hidden md:inline">Explorer tout</span>
-              <span className="md:hidden">Explorer</span>
+            <Link href={action?.href || "/products"}>
+              <span className="hidden md:inline">{action?.label || "Explorer tout"}</span>
+              <span className="md:hidden">{action?.label || "Explorer"}</span>
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
