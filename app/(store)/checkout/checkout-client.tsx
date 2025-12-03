@@ -12,6 +12,7 @@ import {
   CheckoutSummary,
   OrderSummaryStep,
   type CheckoutStep,
+  type DeliveryMethod,
 } from "@/components/store/checkout"
 import { getShippingZoneByCity, validatePromoForCheckout } from "@/actions/checkout"
 import type { Address, ShippingZone, CartItem } from "@/types"
@@ -38,6 +39,7 @@ export function CheckoutClient({
     null
   )
   const [detectedZone, setDetectedZone] = React.useState<ShippingZone | null>(null)
+  const [deliveryMethod, setDeliveryMethod] = React.useState<DeliveryMethod>("pickup")
   const [isLoading, setIsLoading] = React.useState(false)
 
   // Promo state
@@ -49,7 +51,14 @@ export function CheckoutClient({
   // Computed values
   const subtotal = getSubtotal()
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId) || null
-  const shippingFee = freeShipping || !detectedZone ? 0 : detectedZone.fee
+
+  // Shipping fee: 0 for pickup, zone fee for delivery (unless free shipping promo)
+  const shippingFee = React.useMemo(() => {
+    if (deliveryMethod === "pickup") return 0
+    if (freeShipping) return 0
+    return detectedZone?.fee || 0
+  }, [deliveryMethod, freeShipping, detectedZone])
+
   const total = subtotal - discount + (step !== "address" ? shippingFee : 0)
 
   // Completed steps
@@ -58,11 +67,14 @@ export function CheckoutClient({
     if (selectedAddressId && step !== "address") {
       completed.add("address")
     }
-    if (detectedZone && step === "summary") {
-      completed.add("shipping")
+    // Shipping is complete if pickup OR if delivery with valid zone
+    if (step === "summary") {
+      if (deliveryMethod === "pickup" || detectedZone) {
+        completed.add("shipping")
+      }
     }
     return completed
-  }, [selectedAddressId, detectedZone, step])
+  }, [selectedAddressId, detectedZone, deliveryMethod, step])
 
   // Redirect if cart is empty (after hydration)
   React.useEffect(() => {
@@ -125,7 +137,8 @@ export function CheckoutClient({
   }
 
   const handleShippingContinue = () => {
-    if (detectedZone) {
+    // Can continue if pickup selected OR if delivery with valid zone
+    if (deliveryMethod === "pickup" || detectedZone) {
       setStep("summary")
     }
   }
@@ -194,6 +207,8 @@ export function CheckoutClient({
             <ShippingStep
               selectedCity={selectedAddress.city}
               detectedZone={detectedZone}
+              deliveryMethod={deliveryMethod}
+              onSelectMethod={setDeliveryMethod}
               onBack={() => setStep("address")}
               onContinue={handleShippingContinue}
               freeShipping={freeShipping}
@@ -201,11 +216,12 @@ export function CheckoutClient({
             />
           )}
 
-          {step === "summary" && selectedAddress && detectedZone && (
+          {step === "summary" && selectedAddress && (
             <OrderSummaryStep
               cartItems={cartItems}
               selectedAddress={selectedAddress}
-              selectedShippingZone={detectedZone}
+              selectedShippingZone={deliveryMethod === "delivery" ? detectedZone : null}
+              deliveryMethod={deliveryMethod}
               subtotal={subtotal}
               discount={discount}
               shippingFee={shippingFee}
@@ -229,7 +245,7 @@ export function CheckoutClient({
             shippingFee={step === "address" ? null : shippingFee}
             total={total}
             promoCode={promoCode}
-            freeShipping={freeShipping}
+            freeShipping={deliveryMethod === "delivery" && freeShipping}
             step={step}
           />
         </div>

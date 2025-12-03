@@ -1,8 +1,19 @@
 "use client"
 
 import * as React from "react"
-import { ArrowLeft, ArrowRight, Truck, Clock, MapPin, Loader2, Info } from "lucide-react"
+import {
+  ArrowLeft,
+  ArrowRight,
+  Truck,
+  Clock,
+  MapPin,
+  Loader2,
+  Info,
+  Store,
+  Check,
+} from "lucide-react"
 
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
@@ -10,9 +21,22 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { formatPrice } from "@/components/store/products/PriceDisplay"
 import type { ShippingZone } from "@/types"
 
+export type DeliveryMethod = "delivery" | "pickup"
+
+// Store info for pickup
+const STORE_INFO = {
+  name: "DBS Store - Plateau",
+  address: "Rue du Commerce, Immeuble Alpha 2000",
+  city: "Plateau, Abidjan",
+  hours: "Lun-Sam: 9h-19h",
+  phone: "+225 07 00 00 00 00",
+}
+
 interface ShippingStepProps {
   selectedCity: string
   detectedZone: ShippingZone | null
+  deliveryMethod: DeliveryMethod
+  onSelectMethod: (method: DeliveryMethod) => void
   onBack: () => void
   onContinue: () => void
   freeShipping?: boolean
@@ -22,46 +46,20 @@ interface ShippingStepProps {
 export function ShippingStep({
   selectedCity,
   detectedZone,
+  deliveryMethod,
+  onSelectMethod,
   onBack,
   onContinue,
   freeShipping = false,
   isLoading = false,
 }: ShippingStepProps) {
-  // Cannot continue if no zone detected
-  const canContinue = !!detectedZone
+  // Can continue if pickup selected OR if delivery selected with valid zone
+  const canContinue = deliveryMethod === "pickup" || !!detectedZone
 
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    )
-  }
-
-  if (!detectedZone) {
-    return (
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-lg font-semibold">Mode de livraison</h2>
-          <p className="text-sm text-muted-foreground">
-            Livraison à {selectedCity}
-          </p>
-        </div>
-
-        <Alert variant="destructive">
-          <Info className="h-4 w-4" />
-          <AlertDescription>
-            Désolé, nous ne livrons pas encore dans cette zone. Veuillez
-            sélectionner une autre adresse.
-          </AlertDescription>
-        </Alert>
-
-        <div className="flex justify-start pt-4">
-          <Button variant="outline" onClick={onBack}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Modifier l&apos;adresse
-          </Button>
-        </div>
       </div>
     )
   }
@@ -72,12 +70,12 @@ export function ShippingStep({
       <div>
         <h2 className="text-lg font-semibold">Mode de livraison</h2>
         <p className="text-sm text-muted-foreground">
-          Basé sur votre adresse à <Badge variant="outline">{selectedCity}</Badge>
+          Choisissez comment recevoir votre commande
         </p>
       </div>
 
       {/* Free shipping notice */}
-      {freeShipping && (
+      {freeShipping && deliveryMethod === "delivery" && (
         <Alert className="border-green-200 bg-green-50 text-green-700 dark:border-green-900 dark:bg-green-950/50 dark:text-green-400">
           <Truck className="h-4 w-4" />
           <AlertDescription>
@@ -87,68 +85,155 @@ export function ShippingStep({
         </Alert>
       )}
 
-      {/* Detected zone card */}
-      <Card className="border-primary bg-primary/5">
-        <CardContent className="pt-6">
-          <div className="flex items-start justify-between gap-4">
-            {/* Zone info */}
-            <div className="space-y-3">
-              {/* Name */}
-              <div className="flex items-center gap-2">
-                <Truck className="h-5 w-5 text-primary" />
-                <span className="font-semibold text-lg">{detectedZone.name}</span>
+      {/* Delivery options */}
+      <div className="grid gap-4">
+        {/* Option 1: Store Pickup */}
+        <Card
+          role="button"
+          tabIndex={0}
+          onClick={() => onSelectMethod("pickup")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault()
+              onSelectMethod("pickup")
+            }
+          }}
+          className={cn(
+            "cursor-pointer transition-all hover:border-primary/50",
+            deliveryMethod === "pickup" && "border-primary bg-primary/5 ring-1 ring-primary"
+          )}
+        >
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              {/* Selection indicator */}
+              <div
+                className={cn(
+                  "mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                  deliveryMethod === "pickup"
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-muted-foreground/30"
+                )}
+              >
+                {deliveryMethod === "pickup" && <Check className="h-3 w-3" />}
               </div>
 
-              {/* Estimated days */}
-              {detectedZone.estimated_days && (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Clock className="h-4 w-4" />
-                  <span>Livraison estimée : {detectedZone.estimated_days}</span>
-                </div>
-              )}
-
-              {/* Cities covered */}
-              {detectedZone.cities && detectedZone.cities.length > 0 && (
-                <div className="flex items-start gap-2 text-sm text-muted-foreground">
-                  <MapPin className="h-4 w-4 mt-0.5 shrink-0" />
-                  <span>
-                    Couvre : {detectedZone.cities.slice(0, 5).join(", ")}
-                    {detectedZone.cities.length > 5 && " ..."}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Price */}
-            <div className="text-right shrink-0">
-              {freeShipping ? (
-                <div className="space-y-1">
-                  <p className="text-sm line-through text-muted-foreground">
-                    {formatPrice(detectedZone.fee)}
-                  </p>
-                  <Badge className="bg-green-600 hover:bg-green-600">
+              {/* Pickup info */}
+              <div className="flex-1 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Store className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Retrait en magasin</span>
+                  </div>
+                  <Badge variant="secondary" className="text-green-600">
                     Gratuit
                   </Badge>
                 </div>
-              ) : (
-                <div>
-                  <p className="text-2xl font-bold text-primary">
-                    {formatPrice(detectedZone.fee)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Frais de livraison
-                  </p>
-                </div>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Info */}
-      <p className="text-sm text-muted-foreground text-center">
-        Les frais de livraison sont calculés automatiquement selon votre zone.
-      </p>
+                <div className="space-y-1 text-sm text-muted-foreground">
+                  <p className="font-medium text-foreground">{STORE_INFO.name}</p>
+                  <div className="flex items-start gap-2">
+                    <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                    <span>
+                      {STORE_INFO.address}, {STORE_INFO.city}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Clock className="h-3.5 w-3.5" />
+                    <span>{STORE_INFO.hours}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Option 2: Home Delivery */}
+        <Card
+          role="button"
+          tabIndex={0}
+          onClick={() => onSelectMethod("delivery")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault()
+              onSelectMethod("delivery")
+            }
+          }}
+          className={cn(
+            "cursor-pointer transition-all hover:border-primary/50",
+            deliveryMethod === "delivery" && "border-primary bg-primary/5 ring-1 ring-primary"
+          )}
+        >
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              {/* Selection indicator */}
+              <div
+                className={cn(
+                  "mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+                  deliveryMethod === "delivery"
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-muted-foreground/30"
+                )}
+              >
+                {deliveryMethod === "delivery" && <Check className="h-3 w-3" />}
+              </div>
+
+              {/* Delivery info */}
+              <div className="flex-1 space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Truck className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Livraison à domicile</span>
+                  </div>
+                  {detectedZone && (
+                    <div className="text-right">
+                      {freeShipping ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm line-through text-muted-foreground">
+                            {formatPrice(detectedZone.fee)}
+                          </span>
+                          <Badge variant="secondary" className="text-green-600">
+                            Gratuit
+                          </Badge>
+                        </div>
+                      ) : (
+                        <span className="font-semibold text-lg">
+                          {formatPrice(detectedZone.fee)}
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {detectedZone ? (
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    <p className="font-medium text-foreground">
+                      Zone : {detectedZone.name}
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-3.5 w-3.5" />
+                      <span>Livraison à {selectedCity}</span>
+                    </div>
+                    {detectedZone.estimated_days && (
+                      <div className="flex items-center gap-2">
+                        <Clock className="h-3.5 w-3.5" />
+                        <span>Délai : {detectedZone.estimated_days}</span>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Alert variant="destructive" className="py-2">
+                    <Info className="h-4 w-4" />
+                    <AlertDescription className="text-sm">
+                      Désolé, nous ne livrons pas encore à {selectedCity}.
+                      Vous pouvez choisir le retrait en magasin.
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Navigation buttons */}
       <div className="flex justify-between gap-4 pt-4">
@@ -164,3 +249,6 @@ export function ShippingStep({
     </div>
   )
 }
+
+// Export store info for use in OrderSummaryStep
+export { STORE_INFO }

@@ -2,7 +2,17 @@
 
 import * as React from "react"
 import Image from "next/image"
-import { ArrowLeft, CreditCard, MapPin, Truck, Pencil, Loader2 } from "lucide-react"
+import {
+  ArrowLeft,
+  CreditCard,
+  MapPin,
+  Truck,
+  Pencil,
+  Loader2,
+  Store,
+  Clock,
+  Phone,
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,12 +20,14 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { formatPrice } from "@/components/store/products/PriceDisplay"
 import { formatPhoneForDisplay } from "@/lib/validations/auth"
+import { STORE_INFO, type DeliveryMethod } from "./ShippingStep"
 import type { Address, ShippingZone, CartItem } from "@/types"
 
 interface OrderSummaryStepProps {
   cartItems: CartItem[]
   selectedAddress: Address
-  selectedShippingZone: ShippingZone
+  selectedShippingZone: ShippingZone | null
+  deliveryMethod: DeliveryMethod
   subtotal: number
   discount: number
   shippingFee: number
@@ -33,6 +45,7 @@ export function OrderSummaryStep({
   cartItems,
   selectedAddress,
   selectedShippingZone,
+  deliveryMethod,
   subtotal,
   discount,
   shippingFee,
@@ -46,6 +59,7 @@ export function OrderSummaryStep({
   isPlacingOrder = false,
 }: OrderSummaryStepProps) {
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
+  const isPickup = deliveryMethod === "pickup"
 
   return (
     <div className="space-y-6">
@@ -57,12 +71,12 @@ export function OrderSummaryStep({
         </p>
       </div>
 
-      {/* Delivery Address */}
+      {/* Contact Address (for both pickup and delivery) */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-base font-medium flex items-center gap-2">
             <MapPin className="h-4 w-4 text-muted-foreground" />
-            Adresse de livraison
+            {isPickup ? "Coordonnées de contact" : "Adresse de livraison"}
           </CardTitle>
           <Button variant="ghost" size="sm" onClick={onEditAddress}>
             <Pencil className="h-4 w-4" />
@@ -74,27 +88,35 @@ export function OrderSummaryStep({
           <p className="text-muted-foreground">
             {formatPhoneForDisplay(selectedAddress.phone)}
           </p>
-          <p className="text-muted-foreground mt-1">
-            {selectedAddress.address_line}
-          </p>
-          <p className="text-muted-foreground">
-            {selectedAddress.city}
-            {selectedAddress.commune && `, ${selectedAddress.commune}`}
-          </p>
-          {selectedAddress.landmark && (
-            <p className="text-muted-foreground text-xs italic mt-1">
-              Repère: {selectedAddress.landmark}
-            </p>
+          {!isPickup && (
+            <>
+              <p className="text-muted-foreground mt-1">
+                {selectedAddress.address_line}
+              </p>
+              <p className="text-muted-foreground">
+                {selectedAddress.city}
+                {selectedAddress.commune && `, ${selectedAddress.commune}`}
+              </p>
+              {selectedAddress.landmark && (
+                <p className="text-muted-foreground text-xs italic mt-1">
+                  Repère: {selectedAddress.landmark}
+                </p>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
 
-      {/* Shipping Method */}
+      {/* Delivery/Pickup Method */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-base font-medium flex items-center gap-2">
-            <Truck className="h-4 w-4 text-muted-foreground" />
-            Mode de livraison
+            {isPickup ? (
+              <Store className="h-4 w-4 text-muted-foreground" />
+            ) : (
+              <Truck className="h-4 w-4 text-muted-foreground" />
+            )}
+            {isPickup ? "Retrait en magasin" : "Livraison à domicile"}
           </CardTitle>
           <Button variant="ghost" size="sm" onClick={onEditShipping}>
             <Pencil className="h-4 w-4" />
@@ -102,25 +124,50 @@ export function OrderSummaryStep({
           </Button>
         </CardHeader>
         <CardContent className="text-sm">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="font-medium">{selectedShippingZone.name}</p>
-              {selectedShippingZone.estimated_days && (
-                <p className="text-muted-foreground">
-                  Livraison en {selectedShippingZone.estimated_days}
-                </p>
-              )}
+          {isPickup ? (
+            <div className="space-y-2">
+              <p className="font-medium">{STORE_INFO.name}</p>
+              <div className="flex items-start gap-2 text-muted-foreground">
+                <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                <span>
+                  {STORE_INFO.address}, {STORE_INFO.city}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Clock className="h-3.5 w-3.5" />
+                <span>{STORE_INFO.hours}</span>
+              </div>
+              <div className="flex items-center gap-2 text-muted-foreground">
+                <Phone className="h-3.5 w-3.5" />
+                <span>{STORE_INFO.phone}</span>
+              </div>
+              <Badge variant="secondary" className="text-green-600 mt-2">
+                Gratuit
+              </Badge>
             </div>
-            <div className="text-right">
-              {freeShipping ? (
-                <Badge variant="secondary" className="text-green-600">
-                  Gratuit
-                </Badge>
-              ) : (
-                <p className="font-medium">{formatPrice(shippingFee)}</p>
-              )}
+          ) : selectedShippingZone ? (
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium">{selectedShippingZone.name}</p>
+                {selectedShippingZone.estimated_days && (
+                  <p className="text-muted-foreground">
+                    Livraison en {selectedShippingZone.estimated_days}
+                  </p>
+                )}
+              </div>
+              <div className="text-right">
+                {freeShipping ? (
+                  <Badge variant="secondary" className="text-green-600">
+                    Gratuit
+                  </Badge>
+                ) : (
+                  <p className="font-medium">{formatPrice(shippingFee)}</p>
+                )}
+              </div>
             </div>
-          </div>
+          ) : (
+            <p className="text-muted-foreground">Zone non disponible</p>
+          )}
         </CardContent>
       </Card>
 
@@ -183,7 +230,8 @@ export function OrderSummaryStep({
           {discount > 0 && (
             <div className="flex items-center justify-between text-sm text-green-600">
               <span>
-                Réduction {promoCode && <span className="text-xs">({promoCode})</span>}
+                Réduction{" "}
+                {promoCode && <span className="text-xs">({promoCode})</span>}
               </span>
               <span>-{formatPrice(discount)}</span>
             </div>
@@ -191,10 +239,12 @@ export function OrderSummaryStep({
 
           {/* Shipping */}
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Livraison</span>
+            <span className="text-muted-foreground">
+              {isPickup ? "Retrait" : "Livraison"}
+            </span>
             <span>
-              {freeShipping ? (
-                <span className="text-green-600">Gratuite</span>
+              {shippingFee === 0 ? (
+                <span className="text-green-600">Gratuit</span>
               ) : (
                 formatPrice(shippingFee)
               )}
