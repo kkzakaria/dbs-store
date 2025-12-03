@@ -9,8 +9,10 @@ import {
   MapPin,
   Loader2,
   Info,
-  Store,
+  Store as StoreIcon,
   Check,
+  Phone,
+  ChevronDown,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -18,25 +20,25 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import { formatPrice } from "@/components/store/products/PriceDisplay"
-import type { ShippingZone } from "@/types"
+import { formatPhoneForDisplay } from "@/lib/validations/auth"
+import type { ShippingZone, Store } from "@/types"
 
 export type DeliveryMethod = "delivery" | "pickup"
-
-// Store info for pickup
-const STORE_INFO = {
-  name: "DBS Store - Plateau",
-  address: "Rue du Commerce, Immeuble Alpha 2000",
-  city: "Plateau, Abidjan",
-  hours: "Lun-Sam: 9h-19h",
-  phone: "+225 07 00 00 00 00",
-}
 
 interface ShippingStepProps {
   selectedCity: string
   detectedZone: ShippingZone | null
   deliveryMethod: DeliveryMethod
+  stores: Store[]
+  selectedStore: Store | null
   onSelectMethod: (method: DeliveryMethod) => void
+  onSelectStore: (store: Store) => void
   onBack: () => void
   onContinue: () => void
   freeShipping?: boolean
@@ -47,14 +49,21 @@ export function ShippingStep({
   selectedCity,
   detectedZone,
   deliveryMethod,
+  stores,
+  selectedStore,
   onSelectMethod,
+  onSelectStore,
   onBack,
   onContinue,
   freeShipping = false,
   isLoading = false,
 }: ShippingStepProps) {
-  // Can continue if pickup selected OR if delivery selected with valid zone
-  const canContinue = deliveryMethod === "pickup" || !!detectedZone
+  const [storesOpen, setStoresOpen] = React.useState(false)
+
+  // Can continue if pickup selected with a store OR if delivery selected with valid zone
+  const canContinue =
+    (deliveryMethod === "pickup" && selectedStore) ||
+    (deliveryMethod === "delivery" && !!detectedZone)
 
   if (isLoading) {
     return (
@@ -89,22 +98,25 @@ export function ShippingStep({
       <div className="grid gap-4">
         {/* Option 1: Store Pickup */}
         <Card
-          role="button"
-          tabIndex={0}
-          onClick={() => onSelectMethod("pickup")}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault()
-              onSelectMethod("pickup")
-            }
-          }}
           className={cn(
-            "cursor-pointer transition-all hover:border-primary/50",
-            deliveryMethod === "pickup" && "border-primary bg-primary/5 ring-1 ring-primary"
+            "transition-all",
+            deliveryMethod === "pickup" &&
+              "border-primary bg-primary/5 ring-1 ring-primary"
           )}
         >
           <CardContent className="pt-6">
-            <div className="flex items-start gap-4">
+            <div
+              role="button"
+              tabIndex={0}
+              onClick={() => onSelectMethod("pickup")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault()
+                  onSelectMethod("pickup")
+                }
+              }}
+              className="flex items-start gap-4 cursor-pointer"
+            >
               {/* Selection indicator */}
               <div
                 className={cn(
@@ -121,7 +133,7 @@ export function ShippingStep({
               <div className="flex-1 space-y-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <Store className="h-5 w-5 text-primary" />
+                    <StoreIcon className="h-5 w-5 text-primary" />
                     <span className="font-semibold">Retrait en magasin</span>
                   </div>
                   <Badge variant="secondary" className="text-green-600">
@@ -129,21 +141,94 @@ export function ShippingStep({
                   </Badge>
                 </div>
 
-                <div className="space-y-1 text-sm text-muted-foreground">
-                  <p className="font-medium text-foreground">{STORE_INFO.name}</p>
-                  <div className="flex items-start gap-2">
-                    <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                    <span>
-                      {STORE_INFO.address}, {STORE_INFO.city}
-                    </span>
+                {/* Selected store info */}
+                {selectedStore && (
+                  <div className="space-y-1 text-sm text-muted-foreground">
+                    <p className="font-medium text-foreground">
+                      {selectedStore.name}
+                    </p>
+                    <div className="flex items-start gap-2">
+                      <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                      <span>
+                        {selectedStore.address}, {selectedStore.commune},{" "}
+                        {selectedStore.city}
+                      </span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-3.5 w-3.5" />
+                      <span>{selectedStore.hours}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Phone className="h-3.5 w-3.5" />
+                      <span>{formatPhoneForDisplay(selectedStore.phone)}</span>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Clock className="h-3.5 w-3.5" />
-                    <span>{STORE_INFO.hours}</span>
-                  </div>
-                </div>
+                )}
               </div>
             </div>
+
+            {/* Store selector (only show when pickup is selected and multiple stores exist) */}
+            {deliveryMethod === "pickup" && stores.length > 1 && (
+              <Collapsible
+                open={storesOpen}
+                onOpenChange={setStoresOpen}
+                className="mt-4 ml-9"
+              >
+                <CollapsibleTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full justify-between"
+                  >
+                    Changer de magasin
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 transition-transform",
+                        storesOpen && "rotate-180"
+                      )}
+                    />
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-3 space-y-2">
+                  {stores.map((store) => (
+                    <div
+                      key={store.id}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => {
+                        onSelectStore(store)
+                        setStoresOpen(false)
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault()
+                          onSelectStore(store)
+                          setStoresOpen(false)
+                        }
+                      }}
+                      className={cn(
+                        "p-3 rounded-lg border cursor-pointer transition-colors",
+                        selectedStore?.id === store.id
+                          ? "border-primary bg-primary/5"
+                          : "hover:border-primary/50 hover:bg-muted/50"
+                      )}
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium text-sm">{store.name}</span>
+                        {selectedStore?.id === store.id && (
+                          <Badge variant="secondary" className="text-xs">
+                            Sélectionné
+                          </Badge>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {store.commune}, {store.city}
+                      </p>
+                    </div>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
+            )}
           </CardContent>
         </Card>
 
@@ -160,7 +245,8 @@ export function ShippingStep({
           }}
           className={cn(
             "cursor-pointer transition-all hover:border-primary/50",
-            deliveryMethod === "delivery" && "border-primary bg-primary/5 ring-1 ring-primary"
+            deliveryMethod === "delivery" &&
+              "border-primary bg-primary/5 ring-1 ring-primary"
           )}
         >
           <CardContent className="pt-6">
@@ -224,8 +310,8 @@ export function ShippingStep({
                   <Alert variant="destructive" className="py-2">
                     <Info className="h-4 w-4" />
                     <AlertDescription className="text-sm">
-                      Désolé, nous ne livrons pas encore à {selectedCity}.
-                      Vous pouvez choisir le retrait en magasin.
+                      Désolé, nous ne livrons pas encore à {selectedCity}. Vous
+                      pouvez choisir le retrait en magasin.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -249,6 +335,3 @@ export function ShippingStep({
     </div>
   )
 }
-
-// Export store info for use in OrderSummaryStep
-export { STORE_INFO }

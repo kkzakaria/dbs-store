@@ -712,6 +712,51 @@ export type Database = {
         }
         Relationships: []
       }
+      stores: {
+        Row: {
+          address: string
+          city: string
+          commune: string | null
+          created_at: string
+          hours: string
+          id: string
+          is_active: boolean
+          latitude: number | null
+          longitude: number | null
+          name: string
+          phone: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          city: string
+          commune?: string | null
+          created_at?: string
+          hours: string
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name: string
+          phone: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          city?: string
+          commune?: string | null
+          created_at?: string
+          hours?: string
+          id?: string
+          is_active?: boolean
+          latitude?: number | null
+          longitude?: number | null
+          name?: string
+          phone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       users: {
         Row: {
           avatar_url: string | null

@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
 import { createClient } from "@/lib/supabase/server"
 import { getAddresses } from "@/actions/addresses"
+import { getStores } from "@/actions/checkout"
 import { CheckoutClient } from "./checkout-client"
 
 export const metadata = {
@@ -31,12 +32,16 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
     redirect(`/login?redirect=${encodeURIComponent(redirectUrl)}`)
   }
 
-  // Fetch user addresses
-  const { addresses } = await getAddresses()
+  // Fetch user addresses and stores in parallel
+  const [{ addresses }, { stores }] = await Promise.all([
+    getAddresses(),
+    getStores(),
+  ])
 
   return (
     <CheckoutClient
       addresses={addresses}
+      stores={stores}
       promoCode={params.promo || null}
     />
   )

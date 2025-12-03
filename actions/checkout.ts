@@ -1,7 +1,95 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
-import type { ShippingZone, Promotion, PromoType } from "@/types"
+import type { ShippingZone, Promotion, PromoType, Store } from "@/types"
+
+// =====================
+// STORE ACTIONS
+// =====================
+
+/**
+ * Get all active stores
+ * Sorted by name
+ */
+export async function getStores(): Promise<{
+  stores: Store[]
+  error: string | null
+}> {
+  const supabase = await createClient()
+
+  const { data, error } = await supabase
+    .from("stores")
+    .select("*")
+    .eq("is_active", true)
+    .order("name", { ascending: true })
+
+  if (error) {
+    console.error("Get stores error:", error)
+    return { stores: [], error: "Erreur lors du chargement des magasins" }
+  }
+
+  return { stores: data as Store[], error: null }
+}
+
+/**
+ * Get the closest store based on the customer's commune/city
+ * Uses commune matching first, then falls back to same city
+ * If no match, returns the first store (default)
+ */
+export async function getClosestStore(
+  commune: string | null,
+  city: string
+): Promise<{ store: Store | null; error: string | null }> {
+  const supabase = await createClient()
+
+  // First, try to find a store in the same commune
+  if (commune) {
+    const { data: communeMatch } = await supabase
+      .from("stores")
+      .select("*")
+      .eq("is_active", true)
+      .ilike("commune", commune)
+      .limit(1)
+      .single()
+
+    if (communeMatch) {
+      return { store: communeMatch as Store, error: null }
+    }
+  }
+
+  // Fallback: get the first store in the same city
+  const { data: cityMatch } = await supabase
+    .from("stores")
+    .select("*")
+    .eq("is_active", true)
+    .ilike("city", `%${city}%`)
+    .limit(1)
+    .single()
+
+  if (cityMatch) {
+    return { store: cityMatch as Store, error: null }
+  }
+
+  // Final fallback: return the first active store
+  const { data: defaultStore, error } = await supabase
+    .from("stores")
+    .select("*")
+    .eq("is_active", true)
+    .order("name", { ascending: true })
+    .limit(1)
+    .single()
+
+  if (error || !defaultStore) {
+    console.error("Get closest store error:", error)
+    return { store: null, error: "Aucun magasin disponible" }
+  }
+
+  return { store: defaultStore as Store, error: null }
+}
+
+// =====================
+// SHIPPING ZONE ACTIONS
+// =====================
 
 /**
  * Get all active shipping zones

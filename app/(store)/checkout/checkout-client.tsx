@@ -14,16 +14,22 @@ import {
   type CheckoutStep,
   type DeliveryMethod,
 } from "@/components/store/checkout"
-import { getShippingZoneByCity, validatePromoForCheckout } from "@/actions/checkout"
-import type { Address, ShippingZone, CartItem } from "@/types"
+import {
+  getShippingZoneByCity,
+  validatePromoForCheckout,
+  getClosestStore,
+} from "@/actions/checkout"
+import type { Address, ShippingZone, CartItem, Store } from "@/types"
 
 interface CheckoutClientProps {
   addresses: Address[]
+  stores: Store[]
   promoCode: string | null
 }
 
 export function CheckoutClient({
   addresses,
+  stores,
   promoCode: initialPromoCode,
 }: CheckoutClientProps) {
   const router = useRouter()
@@ -35,22 +41,29 @@ export function CheckoutClient({
 
   // Checkout state
   const [step, setStep] = React.useState<CheckoutStep>("address")
-  const [selectedAddressId, setSelectedAddressId] = React.useState<string | null>(
+  const [selectedAddressId, setSelectedAddressId] = React.useState<
+    string | null
+  >(null)
+  const [detectedZone, setDetectedZone] = React.useState<ShippingZone | null>(
     null
   )
-  const [detectedZone, setDetectedZone] = React.useState<ShippingZone | null>(null)
-  const [deliveryMethod, setDeliveryMethod] = React.useState<DeliveryMethod>("pickup")
+  const [deliveryMethod, setDeliveryMethod] =
+    React.useState<DeliveryMethod>("pickup")
+  const [selectedStore, setSelectedStore] = React.useState<Store | null>(null)
   const [isLoading, setIsLoading] = React.useState(false)
 
   // Promo state
-  const [promoCode, setPromoCode] = React.useState<string | null>(initialPromoCode)
+  const [promoCode, setPromoCode] = React.useState<string | null>(
+    initialPromoCode
+  )
   const [discount, setDiscount] = React.useState(0)
   const [freeShipping, setFreeShipping] = React.useState(false)
   const [promoValidated, setPromoValidated] = React.useState(false)
 
   // Computed values
   const subtotal = getSubtotal()
-  const selectedAddress = addresses.find((a) => a.id === selectedAddressId) || null
+  const selectedAddress =
+    addresses.find((a) => a.id === selectedAddressId) || null
 
   // Shipping fee: 0 for pickup, zone fee for delivery (unless free shipping promo)
   const shippingFee = React.useMemo(() => {
@@ -67,14 +80,14 @@ export function CheckoutClient({
     if (selectedAddressId && step !== "address") {
       completed.add("address")
     }
-    // Shipping is complete if pickup OR if delivery with valid zone
+    // Shipping is complete if pickup with store OR delivery with valid zone
     if (step === "summary") {
-      if (deliveryMethod === "pickup" || detectedZone) {
+      if ((deliveryMethod === "pickup" && selectedStore) || detectedZone) {
         completed.add("shipping")
       }
     }
     return completed
-  }, [selectedAddressId, detectedZone, deliveryMethod, step])
+  }, [selectedAddressId, detectedZone, deliveryMethod, selectedStore, step])
 
   // Redirect if cart is empty (after hydration)
   React.useEffect(() => {
@@ -113,21 +126,33 @@ export function CheckoutClient({
     }
   }, [initialPromoCode, subtotal, promoValidated])
 
-  // Auto-detect shipping zone when entering shipping step
+  // Auto-detect shipping zone and closest store when entering shipping step
   React.useEffect(() => {
-    async function detectShippingZone() {
-      if (!selectedAddress?.city) return
+    async function detectShippingAndStore() {
+      if (!selectedAddress) return
 
       setIsLoading(true)
-      const result = await getShippingZoneByCity(selectedAddress.city)
-      setDetectedZone(result.zone)
+
+      // Fetch shipping zone for delivery
+      const zoneResult = await getShippingZoneByCity(selectedAddress.city)
+      setDetectedZone(zoneResult.zone)
+
+      // Fetch closest store for pickup (based on commune/city)
+      const storeResult = await getClosestStore(
+        selectedAddress.commune || null,
+        selectedAddress.city
+      )
+      if (storeResult.store && !selectedStore) {
+        setSelectedStore(storeResult.store)
+      }
+
       setIsLoading(false)
     }
 
     if (selectedAddressId && step === "shipping") {
-      detectShippingZone()
+      detectShippingAndStore()
     }
-  }, [selectedAddressId, selectedAddress?.city, step])
+  }, [selectedAddressId, selectedAddress, step, selectedStore])
 
   // Step handlers
   const handleAddressContinue = () => {
@@ -137,8 +162,8 @@ export function CheckoutClient({
   }
 
   const handleShippingContinue = () => {
-    // Can continue if pickup selected OR if delivery with valid zone
-    if (deliveryMethod === "pickup" || detectedZone) {
+    // Can continue if pickup selected with store OR if delivery with valid zone
+    if ((deliveryMethod === "pickup" && selectedStore) || detectedZone) {
       setStep("summary")
     }
   }
@@ -208,7 +233,10 @@ export function CheckoutClient({
               selectedCity={selectedAddress.city}
               detectedZone={detectedZone}
               deliveryMethod={deliveryMethod}
+              stores={stores}
+              selectedStore={selectedStore}
               onSelectMethod={setDeliveryMethod}
+              onSelectStore={setSelectedStore}
               onBack={() => setStep("address")}
               onContinue={handleShippingContinue}
               freeShipping={freeShipping}
@@ -220,7 +248,10 @@ export function CheckoutClient({
             <OrderSummaryStep
               cartItems={cartItems}
               selectedAddress={selectedAddress}
-              selectedShippingZone={deliveryMethod === "delivery" ? detectedZone : null}
+              selectedShippingZone={
+                deliveryMethod === "delivery" ? detectedZone : null
+              }
+              selectedStore={deliveryMethod === "pickup" ? selectedStore : null}
               deliveryMethod={deliveryMethod}
               subtotal={subtotal}
               discount={discount}

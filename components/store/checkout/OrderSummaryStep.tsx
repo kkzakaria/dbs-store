@@ -9,7 +9,7 @@ import {
   Truck,
   Pencil,
   Loader2,
-  Store,
+  Store as StoreIcon,
   Clock,
   Phone,
 } from "lucide-react"
@@ -20,13 +20,14 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { formatPrice } from "@/components/store/products/PriceDisplay"
 import { formatPhoneForDisplay } from "@/lib/validations/auth"
-import { STORE_INFO, type DeliveryMethod } from "./ShippingStep"
-import type { Address, ShippingZone, CartItem } from "@/types"
+import type { DeliveryMethod } from "./ShippingStep"
+import type { Address, ShippingZone, CartItem, Store } from "@/types"
 
 interface OrderSummaryStepProps {
   cartItems: CartItem[]
   selectedAddress: Address
   selectedShippingZone: ShippingZone | null
+  selectedStore: Store | null
   deliveryMethod: DeliveryMethod
   subtotal: number
   discount: number
@@ -45,6 +46,7 @@ export function OrderSummaryStep({
   cartItems,
   selectedAddress,
   selectedShippingZone,
+  selectedStore,
   deliveryMethod,
   subtotal,
   discount,
@@ -112,7 +114,7 @@ export function OrderSummaryStep({
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
           <CardTitle className="text-base font-medium flex items-center gap-2">
             {isPickup ? (
-              <Store className="h-4 w-4 text-muted-foreground" />
+              <StoreIcon className="h-4 w-4 text-muted-foreground" />
             ) : (
               <Truck className="h-4 w-4 text-muted-foreground" />
             )}
@@ -124,22 +126,23 @@ export function OrderSummaryStep({
           </Button>
         </CardHeader>
         <CardContent className="text-sm">
-          {isPickup ? (
+          {isPickup && selectedStore ? (
             <div className="space-y-2">
-              <p className="font-medium">{STORE_INFO.name}</p>
+              <p className="font-medium">{selectedStore.name}</p>
               <div className="flex items-start gap-2 text-muted-foreground">
                 <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
                 <span>
-                  {STORE_INFO.address}, {STORE_INFO.city}
+                  {selectedStore.address}, {selectedStore.commune},{" "}
+                  {selectedStore.city}
                 </span>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Clock className="h-3.5 w-3.5" />
-                <span>{STORE_INFO.hours}</span>
+                <span>{selectedStore.hours}</span>
               </div>
               <div className="flex items-center gap-2 text-muted-foreground">
                 <Phone className="h-3.5 w-3.5" />
-                <span>{STORE_INFO.phone}</span>
+                <span>{formatPhoneForDisplay(selectedStore.phone)}</span>
               </div>
               <Badge variant="secondary" className="text-green-600 mt-2">
                 Gratuit
