@@ -702,25 +702,34 @@ SEMAINE 2: Checkout + Admin + Polish
 
 ---
 
-#### 📅 JOUR 6 — Checkout Part 1
+#### 📅 JOUR 6 — Checkout Part 1 ✅ TERMINÉ
 
 **Matin (4h)**
-- [ ] Page checkout multi-étapes
-- [ ] Étape 1: Sélection/ajout adresse
-- [ ] AddressForm composant
-- [ ] Server Action: createAddress, getAddresses
+- [X] Page checkout multi-étapes
+- [X] Étape 1: Sélection/ajout adresse
+- [X] AddressForm composant
+- [X] Server Action: createAddress, getAddresses
 
 **Après-midi (4h)**
-- [ ] Étape 2: Mode de livraison
-- [ ] Affichage zones et tarifs
-- [ ] Étape 3: Récapitulatif commande
-- [ ] Calcul total avec remise et livraison
+- [X] Étape 2: Mode de livraison
+- [X] Affichage zones et tarifs
+- [X] Étape 3: Récapitulatif commande
+- [X] Calcul total avec remise et livraison
+
+**Bonus réalisés:**
+- [X] CheckoutStepper avec navigation
+- [X] AddressCard avec actions (edit, delete, setDefault)
+- [X] ShippingZoneCard avec badge "Recommandé"
+- [X] Auto-détection zone de livraison par ville
+- [X] Support livraison gratuite (promo)
+- [X] CheckoutSummary sidebar sticky
+- [X] OrderSummaryStep avec récap complet
 
 **Livrables:**
 ```
 ✅ Flow checkout complet (sans paiement)
-✅ Gestion adresses
-✅ Calcul des frais
+✅ Gestion adresses (CRUD complet)
+✅ Calcul des frais avec support promo
 ```
 
 ---
