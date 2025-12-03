@@ -60,14 +60,18 @@ export function CartSheet() {
         {hasItems ? (
           <>
             {/* Cart Items - Scrollable */}
-            <ScrollArea className="flex-1 -mx-6 px-6">
-              <div className="divide-y">
+            <ScrollArea className="flex-1">
+              <div className="space-y-3 pl-2 pr-4">
                 {items.map((item) => (
-                  <CartItem
+                  <div
                     key={item.product.id}
-                    item={item}
-                    variant="sheet"
-                  />
+                    className="rounded-lg border bg-card p-3"
+                  >
+                    <CartItem
+                      item={item}
+                      variant="sheet"
+                    />
+                  </div>
                 ))}
               </div>
             </ScrollArea>

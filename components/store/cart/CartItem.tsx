@@ -48,7 +48,7 @@ export function CartItem({ item, variant = "sheet", className }: CartItemProps) 
   return (
     <div
       className={cn(
-        "flex gap-3 py-4",
+        "flex gap-3",
         isPageVariant && "gap-4 py-6",
         className
       )}
