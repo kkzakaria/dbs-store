@@ -33,6 +33,7 @@ export type ShippingZone = Tables<'shipping_zones'>
 export type ShippingPartner = Tables<'shipping_partners'>
 export type Wishlist = Tables<'wishlist'>
 export type LoyaltyHistory = Tables<'loyalty_history'>
+export type Store = Tables<'stores'>
 
 // Product with relations
 export type ProductWithCategory = Product & {
