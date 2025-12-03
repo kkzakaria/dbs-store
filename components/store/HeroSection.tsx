@@ -14,17 +14,13 @@ interface FeaturedProduct {
 }
 
 interface HeroSectionProps {
+  backgroundImage: string
   featuredProducts?: FeaturedProduct[]
-  mainProduct?: FeaturedProduct
-  headline?: string
-  backgroundWord?: string
 }
 
 export function HeroSection({
+  backgroundImage,
   featuredProducts = [],
-  mainProduct,
-  headline = "DÉCOUVREZ NOS",
-  backgroundWord = "TECH",
 }: HeroSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
 
@@ -57,82 +53,47 @@ export function HeroSection({
     return () => clearInterval(interval)
   }, [totalSlides, nextSlide])
 
-  // Main featured product (first one or provided)
-  const heroProduct = mainProduct || featuredProducts[0]
-
   return (
-    <section className="relative min-h-[600px] md:min-h-[700px] overflow-hidden bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900">
-      {/* Background Word */}
-      <div className="absolute inset-0 flex items-center justify-center overflow-hidden pointer-events-none select-none">
-        <span className="text-[20vw] md:text-[18vw] font-black text-white/[0.03] tracking-tighter whitespace-nowrap">
-          {backgroundWord}
-        </span>
-      </div>
+    <section className="relative min-h-[500px] md:min-h-[600px] lg:min-h-[700px] overflow-hidden">
+      {/* Background Image */}
+      <Image
+        src={backgroundImage}
+        alt="Hero"
+        fill
+        className="object-cover"
+        priority
+        sizes="100vw"
+      />
 
-      {/* Gradient Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-900/90 via-transparent to-slate-900/50" />
-
-      {/* Main Product - Center/Right (positioned behind carousel) */}
-      <div className="absolute inset-0 flex items-center justify-center md:justify-end md:pr-[10%] pointer-events-none">
-        {heroProduct ? (
-          <div className="relative w-[300px] h-[300px] md:w-[450px] md:h-[450px] lg:w-[500px] lg:h-[500px]">
-            {/* Glow Effect */}
-            <div className="absolute inset-0 blur-3xl bg-gradient-to-r from-primary/20 to-accent/20 rounded-full scale-90" />
-
-            <Image
-              src={heroProduct.image}
-              alt={heroProduct.name}
-              fill
-              className="object-contain drop-shadow-2xl"
-              sizes="(max-width: 768px) 300px, 500px"
-              priority
-            />
-          </div>
-        ) : (
-          <div className="relative w-[300px] h-[300px] md:w-[450px] md:h-[450px] flex items-center justify-center">
-            <div className="w-32 h-32 rounded-full bg-white/10 flex items-center justify-center">
-              <span className="text-6xl">📱</span>
-            </div>
-          </div>
-        )}
-      </div>
+      {/* Gradient overlay for better readability at bottom */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
       {/* Content Container */}
-      <div className="container relative z-10 h-full py-12 md:py-16 flex flex-col justify-between min-h-[600px] md:min-h-[700px]">
-        {/* Top Content - Headline */}
-        <div className="max-w-xl">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white leading-tight">
-            {headline}
-          </h1>
-          <p className="text-5xl md:text-6xl lg:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-primary to-accent mt-2">
-            APPAREILS
-          </p>
-        </div>
-
+      <div className="container relative z-10 h-full flex flex-col justify-end min-h-[500px] md:min-h-[600px] lg:min-h-[700px] pb-8 md:pb-12">
         {/* Bottom Content */}
-        <div className="flex items-end justify-between gap-8">
+        <div className="flex items-end justify-between gap-4 md:gap-8">
           {/* Product Carousel - Bottom Left */}
           {featuredProducts.length > 0 && (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 md:gap-3">
               {/* Left Arrow */}
               {totalSlides > 1 && (
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm shrink-0"
+                  className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm shrink-0"
                   onClick={prevSlide}
                 >
-                  <ChevronLeft className="h-5 w-5" />
+                  <ChevronLeft className="h-4 w-4 md:h-5 md:w-5" />
                 </Button>
               )}
 
               {/* Product Cards */}
-              <div className="flex gap-4">
+              <div className="flex gap-3 md:gap-4">
                 {getCurrentProducts().map((product) => (
                   <Link
                     key={product.id}
                     href={`/products/${product.slug}`}
-                    className="group relative w-[160px] md:w-[190px] shrink-0"
+                    className="group relative w-[130px] md:w-[170px] lg:w-[190px] shrink-0"
                   >
                     <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-slate-700/60 to-slate-800/60 backdrop-blur-sm border border-white/10 transition-all duration-300 group-hover:border-primary/50">
                       <Image
@@ -147,11 +108,11 @@ export function HeroSection({
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                       {/* Product Info */}
-                      <div className="absolute bottom-0 left-0 right-0 p-4">
-                        <p className="text-xs text-white/70 line-clamp-1 mb-2">
+                      <div className="absolute bottom-0 left-0 right-0 p-3 md:p-4">
+                        <p className="text-[10px] md:text-xs text-white/70 line-clamp-1 mb-1.5 md:mb-2">
                           {product.name}
                         </p>
-                        <div className="flex items-center justify-center gap-1 text-white text-sm font-medium bg-white/10 backdrop-blur-sm rounded-full py-2 px-4 border border-white/10">
+                        <div className="flex items-center justify-center gap-1 text-white text-xs md:text-sm font-medium bg-white/10 backdrop-blur-sm rounded-full py-1.5 md:py-2 px-3 md:px-4 border border-white/10">
                           <span>Explorer</span>
                         </div>
                       </div>
@@ -165,10 +126,10 @@ export function HeroSection({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm shrink-0"
+                  className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm shrink-0"
                   onClick={nextSlide}
                 >
-                  <ChevronRight className="h-5 w-5" />
+                  <ChevronRight className="h-4 w-4 md:h-5 md:w-5" />
                 </Button>
               )}
             </div>
@@ -178,10 +139,11 @@ export function HeroSection({
           <Button
             asChild
             size="lg"
-            className="rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm border border-white/20 px-6 shrink-0"
+            className="rounded-full bg-white/10 hover:bg-white/20 text-white backdrop-blur-sm border border-white/20 px-4 md:px-6 shrink-0"
           >
             <Link href="/products">
-              Explorer tout
+              <span className="hidden md:inline">Explorer tout</span>
+              <span className="md:hidden">Explorer</span>
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
