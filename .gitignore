@@ -42,3 +42,6 @@ next-env.d.ts
 
 # playwright mcp screenshot
 /.playwright-mcp
+
+# Hero template
+/hero-template.jpg
