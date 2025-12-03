@@ -638,20 +638,27 @@ SEMAINE 2: Checkout + Admin + Polish
 
 ---
 
-#### 📅 JOUR 4 — Catalogue Produits
+#### 📅 JOUR 4 — Catalogue Produits ✅ TERMINÉ
 
 **Matin (4h)**
-- [ ] Server Action: getProducts (avec filtres)
-- [ ] Page liste produits
-- [ ] Composant ProductCard
-- [ ] ProductGrid avec loading skeleton
+- [X] Server Action: getProducts (avec filtres)
+- [X] Page liste produits
+- [X] Composant ProductCard
+- [X] ProductGrid avec loading skeleton
 
 **Après-midi (4h)**
-- [ ] Recherche full-text (Supabase textSearch)
-- [ ] Filtres (catégorie, prix, marque) avec nuqs
-- [ ] Page détail produit
-- [ ] Galerie images produit
-- [ ] Section produits similaires
+- [X] Recherche full-text (Supabase textSearch)
+- [X] Filtres (catégorie, prix, marque) avec nuqs
+- [X] Page détail produit
+- [X] Galerie images produit
+- [X] Section produits similaires
+
+**Bonus réalisés:**
+- [X] ProductSpecifications (affichage specs 2 colonnes)
+- [X] PriceDisplay (formatage XOF avec remises)
+- [X] AddToCartButton (sélecteur quantité + favoris)
+- [X] ProductFiltersSidebar (filtres desktop statiques)
+- [X] Actions supplémentaires: getFeaturedProducts, searchProducts, getRelatedProducts, getBrands, getPriceRange
 
 **Livrables:**
 ```
