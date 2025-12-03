@@ -18,13 +18,11 @@ import type { Address, ShippingZone, CartItem } from "@/types"
 
 interface CheckoutClientProps {
   addresses: Address[]
-  shippingZones: ShippingZone[]
   promoCode: string | null
 }
 
 export function CheckoutClient({
   addresses,
-  shippingZones,
   promoCode: initialPromoCode,
 }: CheckoutClientProps) {
   const router = useRouter()
@@ -39,9 +37,7 @@ export function CheckoutClient({
   const [selectedAddressId, setSelectedAddressId] = React.useState<string | null>(
     null
   )
-  const [selectedShippingZoneId, setSelectedShippingZoneId] = React.useState<
-    string | null
-  >(null)
+  const [detectedZone, setDetectedZone] = React.useState<ShippingZone | null>(null)
   const [isLoading, setIsLoading] = React.useState(false)
 
   // Promo state
@@ -53,10 +49,7 @@ export function CheckoutClient({
   // Computed values
   const subtotal = getSubtotal()
   const selectedAddress = addresses.find((a) => a.id === selectedAddressId) || null
-  const selectedShippingZone =
-    shippingZones.find((z) => z.id === selectedShippingZoneId) || null
-  const shippingFee =
-    freeShipping || !selectedShippingZone ? 0 : selectedShippingZone.fee
+  const shippingFee = freeShipping || !detectedZone ? 0 : detectedZone.fee
   const total = subtotal - discount + (step !== "address" ? shippingFee : 0)
 
   // Completed steps
@@ -65,11 +58,11 @@ export function CheckoutClient({
     if (selectedAddressId && step !== "address") {
       completed.add("address")
     }
-    if (selectedShippingZoneId && step === "summary") {
+    if (detectedZone && step === "summary") {
       completed.add("shipping")
     }
     return completed
-  }, [selectedAddressId, selectedShippingZoneId, step])
+  }, [selectedAddressId, detectedZone, step])
 
   // Redirect if cart is empty (after hydration)
   React.useEffect(() => {
@@ -108,16 +101,14 @@ export function CheckoutClient({
     }
   }, [initialPromoCode, subtotal, promoValidated])
 
-  // Auto-detect shipping zone when address changes
+  // Auto-detect shipping zone when entering shipping step
   React.useEffect(() => {
     async function detectShippingZone() {
       if (!selectedAddress?.city) return
 
       setIsLoading(true)
       const result = await getShippingZoneByCity(selectedAddress.city)
-      if (result.zone) {
-        setSelectedShippingZoneId(result.zone.id)
-      }
+      setDetectedZone(result.zone)
       setIsLoading(false)
     }
 
@@ -134,7 +125,7 @@ export function CheckoutClient({
   }
 
   const handleShippingContinue = () => {
-    if (selectedShippingZoneId) {
+    if (detectedZone) {
       setStep("summary")
     }
   }
@@ -201,10 +192,8 @@ export function CheckoutClient({
 
           {step === "shipping" && selectedAddress && (
             <ShippingStep
-              shippingZones={shippingZones}
               selectedCity={selectedAddress.city}
-              selectedZoneId={selectedShippingZoneId}
-              onSelectZone={setSelectedShippingZoneId}
+              detectedZone={detectedZone}
               onBack={() => setStep("address")}
               onContinue={handleShippingContinue}
               freeShipping={freeShipping}
@@ -212,11 +201,11 @@ export function CheckoutClient({
             />
           )}
 
-          {step === "summary" && selectedAddress && selectedShippingZone && (
+          {step === "summary" && selectedAddress && detectedZone && (
             <OrderSummaryStep
               cartItems={cartItems}
               selectedAddress={selectedAddress}
-              selectedShippingZone={selectedShippingZone}
+              selectedShippingZone={detectedZone}
               subtotal={subtotal}
               discount={discount}
               shippingFee={shippingFee}
