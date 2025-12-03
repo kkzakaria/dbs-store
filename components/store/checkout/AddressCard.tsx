@@ -61,7 +61,7 @@ export function AddressCard({
       {address.is_default && (
         <Badge
           variant="secondary"
-          className="absolute right-2 top-2 gap-1 text-xs"
+          className="absolute right-2 top-2 gap-1 text-xs text-green-600"
         >
           <Star className="h-3 w-3 fill-current" />
           Par défaut
