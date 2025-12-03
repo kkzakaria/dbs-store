@@ -670,19 +670,28 @@ SEMAINE 2: Checkout + Admin + Polish
 
 ---
 
-#### 📅 JOUR 5 — Panier & Wishlist
+#### 📅 JOUR 5 — Panier & Wishlist ✅ TERMINÉ
 
 **Matin (4h)**
-- [ ] CartSheet (drawer latéral)
-- [ ] CartItem composant
-- [ ] Actions panier (add, remove, update)
-- [ ] Persistance localStorage + sync Supabase (si connecté)
+- [X] CartSheet (drawer latéral)
+- [X] CartItem composant
+- [X] Actions panier (add, remove, update) - déjà fait en Jour 2
+- [X] Persistance localStorage + sync Supabase (si connecté) - déjà fait en Jour 2
 
 **Après-midi (4h)**
-- [ ] Page panier complète
-- [ ] Application code promo (UI + validation)
-- [ ] Page wishlist
-- [ ] Toggle wishlist depuis ProductCard
+- [X] Page panier complète
+- [X] Application code promo (UI + validation)
+- [X] Page wishlist
+- [X] Toggle wishlist depuis ProductCard
+
+**Bonus réalisés:**
+- [X] CartSummary component avec résumé de commande
+- [X] PromoCodeInput component avec validation en temps réel
+- [X] Zustand wishlist-store.ts
+- [X] Hook use-wishlist.ts avec optimistic updates
+- [X] Actions wishlist.ts (add, remove, toggle, getWishlist)
+- [X] Actions promotions.ts (validatePromoCode, getActivePromotions)
+- [X] Support URL params pour passer le code promo au checkout
 
 **Livrables:**
 ```
