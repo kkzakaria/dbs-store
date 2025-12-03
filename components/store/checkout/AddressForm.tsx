@@ -29,7 +29,6 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { PhoneInput } from "@/components/auth/PhoneInput"
 
 import {
   addressSchema,
@@ -51,8 +50,6 @@ export function AddressForm({ address, onSuccess, onCancel }: AddressFormProps) 
   const form = useForm<AddressInput>({
     resolver: zodResolver(addressSchema),
     defaultValues: {
-      fullName: address?.full_name || "",
-      phone: address?.phone || "",
       addressLine: address?.address_line || "",
       city: address?.city || "",
       commune: address?.commune || "",
@@ -112,44 +109,6 @@ export function AddressForm({ address, onSuccess, onCancel }: AddressFormProps) 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        {/* Full Name */}
-        <FormField
-          control={form.control}
-          name="fullName"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Nom complet</FormLabel>
-              <FormControl>
-                <Input
-                  placeholder="Jean Kouassi"
-                  {...field}
-                  disabled={isLoading}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Phone */}
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Téléphone</FormLabel>
-              <FormControl>
-                <PhoneInput
-                  value={field.value || ""}
-                  onChange={field.onChange}
-                  error={form.formState.errors.phone?.message}
-                  disabled={isLoading}
-                />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-
         {/* Address Line */}
         <FormField
           control={form.control}

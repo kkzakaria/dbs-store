@@ -1,5 +1,4 @@
 import { z } from "zod"
-import { phoneSchema } from "./auth"
 
 // City options grouped by shipping zone for Côte d'Ivoire
 export const ABIDJAN_CENTRE_CITIES = [
@@ -56,13 +55,8 @@ export const CITY_GROUPS = [
   },
 ] as const
 
-// Address form schema
+// Address form schema (name and phone come from user profile)
 export const addressSchema = z.object({
-  fullName: z
-    .string()
-    .min(2, "Le nom doit contenir au moins 2 caractères")
-    .max(255, "Le nom ne peut pas dépasser 255 caractères"),
-  phone: phoneSchema,
   addressLine: z
     .string()
     .min(5, "L'adresse doit contenir au moins 5 caractères")

@@ -77,6 +77,7 @@ export async function getAddress(
 
 /**
  * Create a new address
+ * Name and phone are automatically taken from user profile
  */
 export const createAddress = action
   .schema(addressSchema)
@@ -88,6 +89,17 @@ export const createAddress = action
 
     if (!user) {
       return { error: "Vous devez être connecté pour ajouter une adresse" }
+    }
+
+    // Fetch user profile for name and phone
+    const { data: userProfile } = await supabase
+      .from("users")
+      .select("full_name, phone")
+      .eq("id", user.id)
+      .single()
+
+    if (!userProfile?.full_name || !userProfile?.phone) {
+      return { error: "Veuillez compléter votre profil (nom et téléphone)" }
     }
 
     // If setting as default, unset other defaults first
@@ -110,8 +122,8 @@ export const createAddress = action
       .from("addresses")
       .insert({
         user_id: user.id,
-        full_name: parsedInput.fullName,
-        phone: parsedInput.phone,
+        full_name: userProfile.full_name,
+        phone: userProfile.phone,
         address_line: parsedInput.addressLine,
         city: parsedInput.city,
         commune: parsedInput.commune || null,
@@ -134,6 +146,7 @@ export const createAddress = action
 
 /**
  * Update an existing address
+ * Name and phone are automatically synced from user profile
  */
 export const updateAddress = action
   .schema(addressUpdateSchema)
@@ -145,6 +158,17 @@ export const updateAddress = action
 
     if (!user) {
       return { error: "Vous devez être connecté" }
+    }
+
+    // Fetch user profile for name and phone (in case they changed)
+    const { data: userProfile } = await supabase
+      .from("users")
+      .select("full_name, phone")
+      .eq("id", user.id)
+      .single()
+
+    if (!userProfile?.full_name || !userProfile?.phone) {
+      return { error: "Veuillez compléter votre profil (nom et téléphone)" }
     }
 
     // If setting as default, unset other defaults first
@@ -159,8 +183,8 @@ export const updateAddress = action
     const { data, error } = await supabase
       .from("addresses")
       .update({
-        full_name: parsedInput.fullName,
-        phone: parsedInput.phone,
+        full_name: userProfile.full_name,
+        phone: userProfile.phone,
         address_line: parsedInput.addressLine,
         city: parsedInput.city,
         commune: parsedInput.commune || null,
