@@ -44,9 +44,8 @@ export default async function HomePage() {
     <div className="flex flex-col">
       {/* Hero Section */}
       <HeroSection
+        backgroundImage="/images/hero-bg.jpg"
         featuredProducts={featuredProducts}
-        headline="DÉCOUVREZ NOS"
-        backgroundWord="TECH"
       />
 
       {/* Categories Section */}
