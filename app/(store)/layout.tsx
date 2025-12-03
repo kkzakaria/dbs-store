@@ -1,5 +1,6 @@
 import { Header } from "@/components/store/Header"
 import { Footer } from "@/components/store/Footer"
+import { CartSheet } from "@/components/store/cart/CartSheet"
 
 export default function StoreLayout({
   children,
@@ -11,6 +12,7 @@ export default function StoreLayout({
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />
+      <CartSheet />
     </div>
   )
 }

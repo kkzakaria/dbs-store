@@ -1,14 +1,17 @@
 "use client"
 
+import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Heart } from "lucide-react"
+import { Heart, Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { calculateDiscount } from "./PriceDisplay"
 import { useCartStore } from "@/stores/cart-store"
+import { useWishlist, useIsInWishlist } from "@/hooks/use-wishlist"
+import { useUser } from "@/hooks/use-user"
 import { toast } from "sonner"
 import type { Tables } from "@/types/database.types"
 
@@ -35,6 +38,10 @@ export function ProductCard({
   priority = false,
 }: ProductCardProps) {
   const addItem = useCartStore((state) => state.addItem)
+  const { user } = useUser()
+  const { toggleWishlist } = useWishlist()
+  const isInWishlist = useIsInWishlist(product.id)
+  const [isWishlistLoading, setIsWishlistLoading] = React.useState(false)
 
   // Get primary image or first image
   const primaryImage =
@@ -76,10 +83,28 @@ export function ProductCard({
     toast.success(`${product.name} ajouté au panier`)
   }
 
-  const handleAddToWishlist = (e: React.MouseEvent) => {
+  const handleToggleWishlist = async (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    toast.info("Fonctionnalité bientôt disponible")
+
+    if (!user) {
+      toast.error("Connectez-vous pour gérer vos favoris")
+      return
+    }
+
+    if (isWishlistLoading) return
+
+    setIsWishlistLoading(true)
+    await toggleWishlist({
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      price: product.price,
+      compare_price: product.compare_price,
+      image: imageUrl,
+      stock_quantity: stockQuantity,
+    })
+    setIsWishlistLoading(false)
   }
 
   // Format price in XOF
@@ -139,11 +164,26 @@ export function ProductCard({
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute top-1 right-1 h-7 w-7"
-                onClick={handleAddToWishlist}
-                aria-label="Ajouter aux favoris"
+                className={cn(
+                  "absolute top-1 right-1 h-7 w-7 transition-colors",
+                  isInWishlist && "text-red-500 hover:text-red-600"
+                )}
+                onClick={handleToggleWishlist}
+                disabled={isWishlistLoading}
+                aria-label={isInWishlist ? "Retirer des favoris" : "Ajouter aux favoris"}
               >
-                <Heart className="w-4 h-4 text-foreground hover:text-red-500 transition-colors" />
+                {isWishlistLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Heart
+                    className={cn(
+                      "w-4 h-4 transition-colors",
+                      isInWishlist
+                        ? "fill-current text-red-500"
+                        : "text-foreground hover:text-red-500"
+                    )}
+                  />
+                )}
               </Button>
             </div>
           </div>
