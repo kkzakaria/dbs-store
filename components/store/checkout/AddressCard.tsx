@@ -22,6 +22,7 @@ interface AddressCardProps {
   onSetDefault?: () => void
   showActions?: boolean
   disabled?: boolean
+  compact?: boolean
 }
 
 export function AddressCard({
@@ -33,6 +34,7 @@ export function AddressCard({
   onSetDefault,
   showActions = false,
   disabled = false,
+  compact = false,
 }: AddressCardProps) {
   const hasActions = showActions && (onEdit || onDelete || onSetDefault)
 
@@ -48,7 +50,8 @@ export function AddressCard({
         }
       }}
       className={cn(
-        "relative rounded-lg border p-4 transition-all",
+        "relative rounded-lg border transition-all",
+        compact ? "p-3" : "p-4",
         onSelect && !disabled && "cursor-pointer hover:border-primary/50",
         isSelected && "border-primary bg-primary/5 ring-1 ring-primary",
         disabled && "cursor-not-allowed opacity-60"
@@ -138,26 +141,32 @@ export function AddressCard({
       )}
 
       {/* Content */}
-      <div className={cn("space-y-2", onSelect && "pl-8")}>
+      <div className={cn(compact ? "space-y-1" : "space-y-2", onSelect && "pl-8")}>
         {/* Name */}
-        <p className="font-medium">{address.full_name}</p>
+        <p className={cn("font-medium", compact && "text-sm")}>{address.full_name}</p>
 
         {/* Phone */}
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Phone className="h-3.5 w-3.5" />
+        <div className={cn(
+          "flex items-center gap-2 text-muted-foreground",
+          compact ? "text-xs" : "text-sm"
+        )}>
+          <Phone className={cn(compact ? "h-3 w-3" : "h-3.5 w-3.5")} />
           <span>{formatPhoneForDisplay(address.phone)}</span>
         </div>
 
         {/* Address */}
-        <div className="flex items-start gap-2 text-sm text-muted-foreground">
-          <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+        <div className={cn(
+          "flex items-start gap-2 text-muted-foreground",
+          compact ? "text-xs" : "text-sm"
+        )}>
+          <MapPin className={cn(compact ? "h-3 w-3" : "h-3.5 w-3.5", "mt-0.5 shrink-0")} />
           <div>
             <p>{address.address_line}</p>
             <p>
               {address.city}
               {address.commune && `, ${address.commune}`}
             </p>
-            {address.landmark && (
+            {!compact && address.landmark && (
               <p className="text-xs italic">Repère: {address.landmark}</p>
             )}
           </div>

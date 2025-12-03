@@ -19,6 +19,8 @@ import { Separator } from "@/components/ui/separator"
 import { Badge } from "@/components/ui/badge"
 import { formatPrice } from "@/components/store/products/PriceDisplay"
 import { formatPhoneForDisplay } from "@/lib/validations/auth"
+import { AddressSelectDialog } from "./AddressSelectDialog"
+import { ShippingSelectDialog } from "./ShippingSelectDialog"
 import type { DeliveryMethod } from "./ShippingStep"
 import type { Address, ShippingZone, CartItem, Store } from "@/types"
 
@@ -35,10 +37,15 @@ interface OrderSummaryStepProps {
   promoCode: string | null
   freeShipping: boolean
   onBack: () => void
-  onEditAddress: () => void
-  onEditShipping: () => void
   onPlaceOrder: () => void
   isPlacingOrder?: boolean
+  // Dialog-related props
+  addresses: Address[]
+  stores: Store[]
+  onSelectAddress: (address: Address) => void
+  onAddressesChange: (addresses: Address[]) => void
+  onSelectDeliveryMethod: (method: DeliveryMethod) => void
+  onSelectStore: (store: Store) => void
 }
 
 export function OrderSummaryStep({
@@ -54,11 +61,18 @@ export function OrderSummaryStep({
   promoCode,
   freeShipping,
   onBack,
-  onEditAddress,
-  onEditShipping,
   onPlaceOrder,
   isPlacingOrder = false,
+  addresses,
+  stores,
+  onSelectAddress,
+  onAddressesChange,
+  onSelectDeliveryMethod,
+  onSelectStore,
 }: OrderSummaryStepProps) {
+  const [addressDialogOpen, setAddressDialogOpen] = React.useState(false)
+  const [shippingDialogOpen, setShippingDialogOpen] = React.useState(false)
+
   const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0)
   const isPickup = deliveryMethod === "pickup"
 
@@ -79,7 +93,12 @@ export function OrderSummaryStep({
             <MapPin className="h-4 w-4 text-muted-foreground" />
             {isPickup ? "Contact" : "Livraison"}
           </div>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEditAddress}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={() => setAddressDialogOpen(true)}
+          >
             <Pencil className="h-3.5 w-3.5" />
           </Button>
         </div>
@@ -108,7 +127,12 @@ export function OrderSummaryStep({
             )}
             {isPickup ? "Retrait" : "Livraison"}
           </div>
-          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={onEditShipping}>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-7 w-7"
+            onClick={() => setShippingDialogOpen(true)}
+          >
             <Pencil className="h-3.5 w-3.5" />
           </Button>
         </div>
@@ -262,6 +286,31 @@ export function OrderSummaryStep({
           Payer
         </Button>
       </div>
+
+      {/* Address Select Dialog */}
+      <AddressSelectDialog
+        open={addressDialogOpen}
+        onOpenChange={setAddressDialogOpen}
+        addresses={addresses}
+        selectedAddressId={selectedAddress.id}
+        onSelectAddress={onSelectAddress}
+        onAddressesChange={onAddressesChange}
+      />
+
+      {/* Shipping Select Dialog */}
+      <ShippingSelectDialog
+        open={shippingDialogOpen}
+        onOpenChange={setShippingDialogOpen}
+        selectedCity={selectedAddress.city}
+        detectedZone={selectedShippingZone}
+        deliveryMethod={deliveryMethod}
+        stores={stores}
+        selectedStore={selectedStore}
+        onSelectMethod={onSelectDeliveryMethod}
+        onSelectStore={onSelectStore}
+        freeShipping={freeShipping}
+        onConfirm={() => {}}
+      />
     </div>
   )
 }

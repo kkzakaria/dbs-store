@@ -28,7 +28,7 @@ interface CheckoutClientProps {
 }
 
 export function CheckoutClient({
-  addresses,
+  addresses: initialAddresses,
   stores,
   promoCode: initialPromoCode,
 }: CheckoutClientProps) {
@@ -41,6 +41,7 @@ export function CheckoutClient({
 
   // Checkout state
   const [step, setStep] = React.useState<CheckoutStep>("address")
+  const [addresses, setAddresses] = React.useState<Address[]>(initialAddresses)
   const [selectedAddressId, setSelectedAddressId] = React.useState<
     string | null
   >(null)
@@ -180,6 +181,17 @@ export function CheckoutClient({
     toast.info("Le paiement sera disponible dans la prochaine mise à jour")
   }
 
+  // Handle address selection from dialog (used in summary step)
+  const handleSelectAddressFromDialog = async (address: Address) => {
+    setSelectedAddressId(address.id)
+
+    // Re-detect shipping zone if city changed
+    if (selectedAddress && selectedAddress.city !== address.city) {
+      const zoneResult = await getShippingZoneByCity(address.city)
+      setDetectedZone(zoneResult.zone)
+    }
+  }
+
   // Don't render until hydrated
   if (!isHydrated) {
     return (
@@ -260,9 +272,13 @@ export function CheckoutClient({
               promoCode={promoCode}
               freeShipping={freeShipping}
               onBack={() => setStep("shipping")}
-              onEditAddress={() => setStep("address")}
-              onEditShipping={() => setStep("shipping")}
               onPlaceOrder={handlePlaceOrder}
+              addresses={addresses}
+              stores={stores}
+              onSelectAddress={handleSelectAddressFromDialog}
+              onAddressesChange={setAddresses}
+              onSelectDeliveryMethod={setDeliveryMethod}
+              onSelectStore={setSelectedStore}
             />
           )}
         </div>
