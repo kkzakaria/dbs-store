@@ -11,22 +11,20 @@ import {
   Info,
   Store as StoreIcon,
   Check,
-  Phone,
-  ChevronDown,
+  ChevronsUpDown,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Card, CardContent } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible"
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { formatPrice } from "@/components/store/products/PriceDisplay"
-import { formatPhoneForDisplay } from "@/lib/validations/auth"
 import type { ShippingZone, Store } from "@/types"
 
 export type DeliveryMethod = "delivery" | "pickup"
@@ -58,8 +56,6 @@ export function ShippingStep({
   freeShipping = false,
   isLoading = false,
 }: ShippingStepProps) {
-  const [storesOpen, setStoresOpen] = React.useState(false)
-
   // Can continue if pickup selected with a store OR if delivery selected with valid zone
   const canContinue =
     (deliveryMethod === "pickup" && selectedStore) ||
@@ -95,145 +91,107 @@ export function ShippingStep({
       )}
 
       {/* Delivery options */}
-      <div className="grid gap-4">
+      <div className="space-y-3">
         {/* Option 1: Store Pickup */}
-        <Card
+        <div
+          role="button"
+          tabIndex={0}
+          onClick={() => onSelectMethod("pickup")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault()
+              onSelectMethod("pickup")
+            }
+          }}
           className={cn(
-            "transition-all",
-            deliveryMethod === "pickup" &&
-              "border-primary bg-primary/5 ring-1 ring-primary"
+            "flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all",
+            deliveryMethod === "pickup"
+              ? "border-primary bg-primary/5 ring-1 ring-primary"
+              : "hover:border-primary/50"
           )}
         >
-          <CardContent className="pt-6">
-            <div
-              role="button"
-              tabIndex={0}
-              onClick={() => onSelectMethod("pickup")}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault()
-                  onSelectMethod("pickup")
-                }
-              }}
-              className="flex items-start gap-4 cursor-pointer"
-            >
-              {/* Selection indicator */}
-              <div
-                className={cn(
-                  "mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-                  deliveryMethod === "pickup"
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-muted-foreground/30"
-                )}
-              >
-                {deliveryMethod === "pickup" && <Check className="h-3 w-3" />}
-              </div>
+          {/* Selection indicator */}
+          <div
+            className={cn(
+              "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+              deliveryMethod === "pickup"
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-muted-foreground/30"
+            )}
+          >
+            {deliveryMethod === "pickup" && <Check className="h-3 w-3" />}
+          </div>
 
-              {/* Pickup info */}
-              <div className="flex-1 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <StoreIcon className="h-5 w-5 text-primary" />
-                    <span className="font-semibold">Retrait en magasin</span>
-                  </div>
-                  <Badge variant="secondary" className="text-green-600">
-                    Gratuit
-                  </Badge>
-                </div>
+          {/* Icon */}
+          <StoreIcon className="h-5 w-5 text-primary shrink-0" />
 
-                {/* Selected store info */}
-                {selectedStore && (
-                  <div className="space-y-1 text-sm text-muted-foreground">
-                    <p className="font-medium text-foreground">
-                      {selectedStore.name}
-                    </p>
-                    <div className="flex items-start gap-2">
-                      <MapPin className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                      <span>
-                        {selectedStore.address}, {selectedStore.commune},{" "}
-                        {selectedStore.city}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-3.5 w-3.5" />
-                      <span>{selectedStore.hours}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-3.5 w-3.5" />
-                      <span>{formatPhoneForDisplay(selectedStore.phone)}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-medium">Retrait en magasin</span>
+              <Badge variant="secondary" className="text-green-600 shrink-0">
+                Gratuit
+              </Badge>
             </div>
+            {selectedStore && (
+              <p className="text-sm text-muted-foreground truncate">
+                {selectedStore.name} - {selectedStore.commune}
+              </p>
+            )}
+          </div>
+        </div>
 
-            {/* Store selector (only show when pickup is selected and multiple stores exist) */}
-            {deliveryMethod === "pickup" && stores.length > 1 && (
-              <Collapsible
-                open={storesOpen}
-                onOpenChange={setStoresOpen}
-                className="mt-4 ml-9"
-              >
-                <CollapsibleTrigger asChild>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full justify-between"
+        {/* Store selector dropdown (only show when pickup is selected and multiple stores exist) */}
+        {deliveryMethod === "pickup" && stores.length > 1 && (
+          <div className="ml-8">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="w-full justify-between">
+                  <span className="truncate">
+                    {selectedStore?.name || "Choisir un magasin"}
+                  </span>
+                  <ChevronsUpDown className="h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[--radix-dropdown-menu-trigger-width]">
+                {stores.map((store) => (
+                  <DropdownMenuItem
+                    key={store.id}
+                    onClick={() => onSelectStore(store)}
+                    className="flex items-center justify-between"
                   >
-                    Changer de magasin
-                    <ChevronDown
-                      className={cn(
-                        "h-4 w-4 transition-transform",
-                        storesOpen && "rotate-180"
-                      )}
-                    />
-                  </Button>
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-3 space-y-2">
-                  {stores.map((store) => (
-                    <div
-                      key={store.id}
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => {
-                        onSelectStore(store)
-                        setStoresOpen(false)
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter" || e.key === " ") {
-                          e.preventDefault()
-                          onSelectStore(store)
-                          setStoresOpen(false)
-                        }
-                      }}
-                      className={cn(
-                        "p-3 rounded-lg border cursor-pointer transition-colors",
-                        selectedStore?.id === store.id
-                          ? "border-primary bg-primary/5"
-                          : "hover:border-primary/50 hover:bg-muted/50"
-                      )}
-                    >
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-sm">{store.name}</span>
-                        {selectedStore?.id === store.id && (
-                          <Badge variant="secondary" className="text-xs">
-                            Sélectionné
-                          </Badge>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {store.commune}, {store.city}
+                    <div>
+                      <p className="font-medium">{store.name}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {store.commune} - {store.hours}
                       </p>
                     </div>
-                  ))}
-                </CollapsibleContent>
-              </Collapsible>
-            )}
-          </CardContent>
-        </Card>
+                    {selectedStore?.id === store.id && (
+                      <Check className="h-4 w-4 text-primary" />
+                    )}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
+
+        {/* Selected store details (compact) */}
+        {deliveryMethod === "pickup" && selectedStore && (
+          <div className="ml-8 p-3 rounded-md bg-muted/50 text-sm space-y-1">
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <MapPin className="h-3.5 w-3.5 shrink-0" />
+              <span className="truncate">{selectedStore.address}</span>
+            </div>
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <Clock className="h-3.5 w-3.5 shrink-0" />
+              <span>{selectedStore.hours}</span>
+            </div>
+          </div>
+        )}
 
         {/* Option 2: Home Delivery */}
-        <Card
+        <div
           role="button"
           tabIndex={0}
           onClick={() => onSelectMethod("delivery")}
@@ -244,81 +202,67 @@ export function ShippingStep({
             }
           }}
           className={cn(
-            "cursor-pointer transition-all hover:border-primary/50",
-            deliveryMethod === "delivery" &&
-              "border-primary bg-primary/5 ring-1 ring-primary"
+            "flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-all",
+            deliveryMethod === "delivery"
+              ? "border-primary bg-primary/5 ring-1 ring-primary"
+              : "hover:border-primary/50"
           )}
         >
-          <CardContent className="pt-6">
-            <div className="flex items-start gap-4">
-              {/* Selection indicator */}
-              <div
-                className={cn(
-                  "mt-1 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
-                  deliveryMethod === "delivery"
-                    ? "border-primary bg-primary text-primary-foreground"
-                    : "border-muted-foreground/30"
-                )}
-              >
-                {deliveryMethod === "delivery" && <Check className="h-3 w-3" />}
-              </div>
+          {/* Selection indicator */}
+          <div
+            className={cn(
+              "flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition-colors",
+              deliveryMethod === "delivery"
+                ? "border-primary bg-primary text-primary-foreground"
+                : "border-muted-foreground/30"
+            )}
+          >
+            {deliveryMethod === "delivery" && <Check className="h-3 w-3" />}
+          </div>
 
-              {/* Delivery info */}
-              <div className="flex-1 space-y-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Truck className="h-5 w-5 text-primary" />
-                    <span className="font-semibold">Livraison à domicile</span>
-                  </div>
-                  {detectedZone && (
-                    <div className="text-right">
-                      {freeShipping ? (
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm line-through text-muted-foreground">
-                            {formatPrice(detectedZone.fee)}
-                          </span>
-                          <Badge variant="secondary" className="text-green-600">
-                            Gratuit
-                          </Badge>
-                        </div>
-                      ) : (
-                        <span className="font-semibold text-lg">
-                          {formatPrice(detectedZone.fee)}
-                        </span>
-                      )}
-                    </div>
+          {/* Icon */}
+          <Truck className="h-5 w-5 text-primary shrink-0" />
+
+          {/* Content */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between gap-2">
+              <span className="font-medium">Livraison à domicile</span>
+              {detectedZone && (
+                <div className="shrink-0">
+                  {freeShipping ? (
+                    <Badge variant="secondary" className="text-green-600">
+                      Gratuit
+                    </Badge>
+                  ) : (
+                    <span className="font-semibold">
+                      {formatPrice(detectedZone.fee)}
+                    </span>
                   )}
                 </div>
-
-                {detectedZone ? (
-                  <div className="space-y-1 text-sm text-muted-foreground">
-                    <p className="font-medium text-foreground">
-                      Zone : {detectedZone.name}
-                    </p>
-                    <div className="flex items-center gap-2">
-                      <MapPin className="h-3.5 w-3.5" />
-                      <span>Livraison à {selectedCity}</span>
-                    </div>
-                    {detectedZone.estimated_days && (
-                      <div className="flex items-center gap-2">
-                        <Clock className="h-3.5 w-3.5" />
-                        <span>Délai : {detectedZone.estimated_days}</span>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <Alert variant="destructive" className="py-2">
-                    <Info className="h-4 w-4" />
-                    <AlertDescription className="text-sm">
-                      Désolé, nous ne livrons pas encore à {selectedCity}. Vous
-                      pouvez choisir le retrait en magasin.
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </div>
+              )}
             </div>
-          </CardContent>
-        </Card>
+            {detectedZone ? (
+              <p className="text-sm text-muted-foreground">
+                {detectedZone.name} - {detectedZone.estimated_days}
+              </p>
+            ) : (
+              <p className="text-sm text-destructive">
+                Non disponible à {selectedCity}
+              </p>
+            )}
+          </div>
+        </div>
+
+        {/* Delivery unavailable notice */}
+        {deliveryMethod === "delivery" && !detectedZone && (
+          <Alert variant="destructive" className="ml-8">
+            <Info className="h-4 w-4" />
+            <AlertDescription className="text-sm">
+              Désolé, nous ne livrons pas encore à {selectedCity}. Vous pouvez
+              choisir le retrait en magasin.
+            </AlertDescription>
+          </Alert>
+        )}
       </div>
 
       {/* Navigation buttons */}
