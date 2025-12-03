@@ -219,6 +219,12 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Container with consistent horizontal padding */
+  .container {
+    @apply mx-auto w-full px-4 sm:px-6 lg:px-8 xl:px-12;
+    max-width: 1400px;
+  }
 }
 
 /* ============================================

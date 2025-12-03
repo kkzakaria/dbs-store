@@ -61,22 +61,23 @@ export function HeroSection({
   }, [totalSlides, nextSlide])
 
   return (
-    <section className="relative min-h-[500px] md:min-h-[600px] lg:min-h-[700px] overflow-hidden">
-      {/* Background Image */}
-      <Image
-        src={backgroundImage}
-        alt="Hero"
-        fill
-        className="object-cover"
-        priority
-        sizes="100vw"
-      />
+    <section className="px-4 sm:px-6 lg:px-8 xl:px-12 pt-4">
+      <div className="relative min-h-[500px] md:min-h-[600px] lg:min-h-[700px] overflow-hidden rounded-2xl md:rounded-3xl">
+        {/* Background Image */}
+        <Image
+          src={backgroundImage}
+          alt="Hero"
+          fill
+          className="object-cover"
+          priority
+          sizes="100vw"
+        />
 
-      {/* Gradient overlay for better readability at bottom */}
-      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        {/* Gradient overlay for better readability at bottom */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
-      {/* Content Container */}
-      <div className="container relative z-10 h-full flex flex-col justify-end min-h-[500px] md:min-h-[600px] lg:min-h-[700px] pb-8 md:pb-12">
+        {/* Content Container */}
+        <div className="relative z-10 h-full flex flex-col justify-end min-h-[500px] md:min-h-[600px] lg:min-h-[700px] pb-8 md:pb-12 px-4 sm:px-6 lg:px-8">
         {/* Bottom Content */}
         <div className="flex items-end justify-between gap-4 md:gap-8">
           {/* Product Carousel - Bottom Left */}
@@ -154,6 +155,7 @@ export function HeroSection({
               <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
+        </div>
         </div>
       </div>
     </section>
