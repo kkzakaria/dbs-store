@@ -1,37 +1,53 @@
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowRight, Smartphone, Laptop, Headphones, Gamepad2 } from "lucide-react"
+import { HeroSection } from "@/components/store/HeroSection"
+import { createClient } from "@/lib/supabase/server"
 
-export default function HomePage() {
+async function getFeaturedProducts() {
+  const supabase = await createClient()
+
+  const { data: products } = await supabase
+    .from("products")
+    .select(`
+      id,
+      name,
+      slug,
+      product_images (
+        url,
+        is_primary
+      )
+    `)
+    .eq("is_featured", true)
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(6)
+
+  return (
+    products?.map((product) => {
+      const primaryImage =
+        product.product_images?.find((img) => img.is_primary) || product.product_images?.[0]
+      return {
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        image: primaryImage?.url || "/images/placeholder-product.png",
+      }
+    }) || []
+  )
+}
+
+export default async function HomePage() {
+  const featuredProducts = await getFeaturedProducts()
+
   return (
     <div className="flex flex-col">
       {/* Hero Section */}
-      <section className="relative bg-gradient-hero py-20 md:py-32">
-        <div className="container">
-          <div className="max-w-2xl">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-              <span className="text-primary">Électronique</span>{" "}
-              <span className="text-accent-foreground">Premium</span>
-            </h1>
-            <p className="mt-6 text-lg text-muted-foreground max-w-xl">
-              Découvrez notre sélection de produits électroniques de qualité.
-              Smartphones, ordinateurs, accessoires et plus encore, livrés
-              partout en Côte d'Ivoire.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-4">
-              <Button asChild size="lg">
-                <Link href="/products">
-                  Voir les produits
-                  <ArrowRight className="ml-2 size-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" size="lg">
-                <Link href="/categories">Explorer les catégories</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <HeroSection
+        featuredProducts={featuredProducts}
+        headline="DÉCOUVREZ NOS"
+        backgroundWord="TECH"
+      />
 
       {/* Categories Section */}
       <section className="py-16 md:py-24">
