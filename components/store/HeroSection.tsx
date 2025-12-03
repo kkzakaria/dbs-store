@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useState } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -38,13 +38,24 @@ export function HeroSection({
     return featuredProducts.slice(start, start + productsPerSlide)
   }
 
-  const nextSlide = () => {
+  const nextSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev + 1) % totalSlides)
-  }
+  }, [totalSlides])
 
-  const prevSlide = () => {
+  const prevSlide = useCallback(() => {
     setCurrentSlide((prev) => (prev === 0 ? totalSlides - 1 : prev - 1))
-  }
+  }, [totalSlides])
+
+  // Auto-scroll carousel
+  useEffect(() => {
+    if (totalSlides <= 1) return
+
+    const interval = setInterval(() => {
+      nextSlide()
+    }, 4000)
+
+    return () => clearInterval(interval)
+  }, [totalSlides, nextSlide])
 
   // Main featured product (first one or provided)
   const heroProduct = mainProduct || featuredProducts[0]
@@ -116,12 +127,12 @@ export function HeroSection({
               )}
 
               {/* Product Cards */}
-              <div className="flex gap-3">
+              <div className="flex gap-4">
                 {getCurrentProducts().map((product) => (
                   <Link
                     key={product.id}
                     href={`/products/${product.slug}`}
-                    className="group relative w-[140px] md:w-[160px] shrink-0"
+                    className="group relative w-[160px] md:w-[190px] shrink-0"
                   >
                     <div className="relative aspect-square rounded-2xl overflow-hidden bg-gradient-to-br from-slate-700/60 to-slate-800/60 backdrop-blur-sm border border-white/10 transition-all duration-300 group-hover:border-primary/50">
                       <Image
@@ -129,18 +140,18 @@ export function HeroSection({
                         alt={product.name}
                         fill
                         className="object-cover transition-transform duration-500 group-hover:scale-110"
-                        sizes="160px"
+                        sizes="190px"
                       />
 
                       {/* Overlay */}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
 
                       {/* Product Info */}
-                      <div className="absolute bottom-0 left-0 right-0 p-3">
-                        <p className="text-[10px] text-white/60 line-clamp-1 mb-2">
+                      <div className="absolute bottom-0 left-0 right-0 p-4">
+                        <p className="text-xs text-white/70 line-clamp-1 mb-2">
                           {product.name}
                         </p>
-                        <div className="flex items-center justify-center gap-1 text-white text-xs font-medium bg-white/10 backdrop-blur-sm rounded-full py-1.5 px-3 border border-white/10">
+                        <div className="flex items-center justify-center gap-1 text-white text-sm font-medium bg-white/10 backdrop-blur-sm rounded-full py-2 px-4 border border-white/10">
                           <span>Explorer</span>
                         </div>
                       </div>
