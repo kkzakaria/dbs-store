@@ -32,9 +32,125 @@ TRUNCATE public.shipping_zones CASCADE;
 DELETE FROM auth.users WHERE phone IN ('+2250700000000', '+2250700000001', '+2250700000002', '+2250707070707', '2250700000000', '2250700000001', '2250700000002', '2250707070707');
 
 -- ===========================================
--- NOTE: Les utilisateurs sont créés automatiquement
--- lors de la première connexion OTP
+-- Créer les utilisateurs admin et super_admin
 -- ===========================================
+-- Note: Le trigger handle_new_user() crée automatiquement le profil
+-- dans public.users avec role='customer'. On UPDATE ensuite pour
+-- définir le rôle et le nom correct.
+
+-- Super Admin: 07 07 07 07 07
+INSERT INTO auth.users (
+  id,
+  instance_id,
+  aud,
+  role,
+  phone,
+  phone_confirmed_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  created_at,
+  updated_at,
+  confirmation_token,
+  email_change,
+  email_change_token_new,
+  recovery_token
+) VALUES (
+  'a0000000-0000-0000-0000-000000000001',
+  '00000000-0000-0000-0000-000000000000',
+  'authenticated',
+  'authenticated',
+  '+2250707070707',
+  NOW(),
+  '{"provider": "phone", "providers": ["phone"]}',
+  '{"phone": "+2250707070707", "full_name": "Super Admin DBS"}',
+  NOW(),
+  NOW(),
+  '',
+  '',
+  '',
+  ''
+);
+
+UPDATE public.users SET
+  full_name = 'Super Admin DBS',
+  role = 'super_admin'
+WHERE id = 'a0000000-0000-0000-0000-000000000001';
+
+-- Admin: 07 00 00 00 02
+INSERT INTO auth.users (
+  id,
+  instance_id,
+  aud,
+  role,
+  phone,
+  phone_confirmed_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  created_at,
+  updated_at,
+  confirmation_token,
+  email_change,
+  email_change_token_new,
+  recovery_token
+) VALUES (
+  'a0000000-0000-0000-0000-000000000002',
+  '00000000-0000-0000-0000-000000000000',
+  'authenticated',
+  'authenticated',
+  '+2250700000002',
+  NOW(),
+  '{"provider": "phone", "providers": ["phone"]}',
+  '{"phone": "+2250700000002", "full_name": "Admin DBS"}',
+  NOW(),
+  NOW(),
+  '',
+  '',
+  '',
+  ''
+);
+
+UPDATE public.users SET
+  full_name = 'Admin DBS',
+  role = 'admin'
+WHERE id = 'a0000000-0000-0000-0000-000000000002';
+
+-- Client standard: 07 00 00 00 00 (pour les tests)
+INSERT INTO auth.users (
+  id,
+  instance_id,
+  aud,
+  role,
+  phone,
+  phone_confirmed_at,
+  raw_app_meta_data,
+  raw_user_meta_data,
+  created_at,
+  updated_at,
+  confirmation_token,
+  email_change,
+  email_change_token_new,
+  recovery_token
+) VALUES (
+  'a0000000-0000-0000-0000-000000000003',
+  '00000000-0000-0000-0000-000000000000',
+  'authenticated',
+  'authenticated',
+  '+2250700000000',
+  NOW(),
+  '{"provider": "phone", "providers": ["phone"]}',
+  '{"phone": "+2250700000000", "full_name": "Client Test"}',
+  NOW(),
+  NOW(),
+  '',
+  '',
+  '',
+  ''
+);
+
+UPDATE public.users SET
+  full_name = 'Client Test',
+  loyalty_points = 500
+WHERE id = 'a0000000-0000-0000-0000-000000000003';
 
 -- ===========================================
 -- 3. Créer les catégories
@@ -149,21 +265,17 @@ INSERT INTO public.promotions (id, code, name, description, type, value, min_pur
 -- des utilisateurs de test via l'interface
 
 -- ===========================================
--- Résumé des numéros de test OTP
+-- Résumé des utilisateurs de test
 -- ===========================================
 --
--- | Téléphone       | OTP    | Description            |
--- |-----------------|--------|------------------------|
--- | 07 00 00 00 00  | 123456 | Client standard        |
--- | 07 00 00 00 01  | 123456 | Client niveau Or       |
--- | 07 00 00 00 02  | 123456 | Admin                  |
--- | 07 07 07 07 07  | 123456 | Super Admin            |
+-- | Téléphone       | OTP    | Rôle        | Nom              |
+-- |-----------------|--------|-------------|------------------|
+-- | 07 00 00 00 00  | 123456 | customer    | Client Test      |
+-- | 07 00 00 00 02  | 123456 | admin       | Admin DBS        |
+-- | 07 07 07 07 07  | 123456 | super_admin | Super Admin DBS  |
 --
--- Lors de la première connexion, un profil sera créé
--- automatiquement avec le rôle 'customer'. Pour donner
--- les droits admin, mettre à jour manuellement:
+-- Ces utilisateurs sont créés automatiquement par le seed.
+-- Connectez-vous avec le numéro et le code OTP 123456.
 --
--- UPDATE public.users SET role = 'admin' WHERE phone LIKE '%0700000002';
--- UPDATE public.users SET role = 'super_admin' WHERE phone LIKE '%0707070707';
---
+-- Pour accéder au dashboard admin: /admin
 -- ===========================================
