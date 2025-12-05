@@ -36,18 +36,20 @@ export function DataTableSkeleton({
   showPagination = true,
   columnWidths = ["w-24", "w-32", "w-20", "w-28", "w-16"],
 }: DataTableSkeletonProps) {
+  const skeletonColor = "bg-gray-200 dark:bg-gray-600";
+
   return (
     <div className="flex flex-col h-full space-y-4">
       {/* Toolbar Skeleton */}
       {showToolbar && (
         <div className="flex items-center justify-between">
           <div className="flex flex-1 items-center space-x-2">
-            <Skeleton className="h-8 w-[150px] lg:w-[250px]" />
-            <Skeleton className="h-8 w-24" />
+            <Skeleton className={cn("h-8 w-[150px] lg:w-[250px]", skeletonColor)} />
+            <Skeleton className={cn("h-8 w-24", skeletonColor)} />
           </div>
           <div className="flex items-center space-x-2">
-            <Skeleton className="h-8 w-8" />
-            <Skeleton className="h-8 w-24" />
+            <Skeleton className={cn("h-8 w-8", skeletonColor)} />
+            <Skeleton className={cn("h-8 w-24", skeletonColor)} />
           </div>
         </div>
       )}
@@ -67,7 +69,8 @@ export function DataTableSkeleton({
                     <Skeleton
                       className={cn(
                         "h-4",
-                        columnWidths[index % columnWidths.length]
+                        columnWidths[index % columnWidths.length],
+                        skeletonColor
                       )}
                     />
                   </th>
@@ -90,7 +93,8 @@ export function DataTableSkeleton({
                       <Skeleton
                         className={cn(
                           "h-4",
-                          columnWidths[colIndex % columnWidths.length]
+                          columnWidths[colIndex % columnWidths.length],
+                          skeletonColor
                         )}
                       />
                     </td>
@@ -107,19 +111,19 @@ export function DataTableSkeleton({
         <div className="flex-shrink-0">
           <div className="flex items-center justify-between px-2">
             <div className="flex-1">
-              <Skeleton className="h-4 w-48" />
+              <Skeleton className={cn("h-4 w-48", skeletonColor)} />
             </div>
             <div className="flex items-center space-x-6 lg:space-x-8">
               <div className="flex items-center space-x-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-8 w-[70px]" />
+                <Skeleton className={cn("h-4 w-24", skeletonColor)} />
+                <Skeleton className={cn("h-8 w-[70px]", skeletonColor)} />
               </div>
-              <Skeleton className="h-4 w-24" />
+              <Skeleton className={cn("h-4 w-24", skeletonColor)} />
               <div className="flex items-center space-x-2">
-                <Skeleton className="hidden h-8 w-8 lg:block" />
-                <Skeleton className="h-8 w-8" />
-                <Skeleton className="h-8 w-8" />
-                <Skeleton className="hidden h-8 w-8 lg:block" />
+                <Skeleton className={cn("hidden h-8 w-8 lg:block", skeletonColor)} />
+                <Skeleton className={cn("h-8 w-8", skeletonColor)} />
+                <Skeleton className={cn("h-8 w-8", skeletonColor)} />
+                <Skeleton className={cn("hidden h-8 w-8 lg:block", skeletonColor)} />
               </div>
             </div>
           </div>
