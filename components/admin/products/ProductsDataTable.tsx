@@ -4,7 +4,6 @@ import { useState, useCallback, useTransition, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Check, X, Star } from "lucide-react"
 import { DataTable } from "@/components/data-table"
-import { PageHeader } from "@/components/admin/shared/PageHeader"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { getProductColumns } from "./columns"
 import { deleteProduct, toggleProductStatus } from "@/actions/admin/products"
@@ -32,7 +31,6 @@ type Category = {
 interface ProductsDataTableProps {
   products: Product[]
   pageCount: number
-  totalCount: number
   currentPage: number
   pageSize: number
   search?: string
@@ -43,7 +41,6 @@ interface ProductsDataTableProps {
 export function ProductsDataTable({
   products,
   pageCount,
-  totalCount,
   currentPage,
   pageSize,
   search = "",
@@ -199,11 +196,7 @@ export function ProductsDataTable({
   }, [search, statusFilter])
 
   return (
-    <div className="space-y-3">
-      <PageHeader
-        title={`Produits (${totalCount})`}
-      />
-
+    <div className="space-y-4">
       <DataTable
         columns={columns}
         data={products}
