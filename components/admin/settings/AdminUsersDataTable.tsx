@@ -193,7 +193,7 @@ export function AdminUsersDataTable({
         onConfirm={handleRoleChange}
         loading={isPending}
         variant={selectedUser?.role === "super_admin" ? "destructive" : "default"}
-        confirmText={selectedUser?.role === "super_admin" ? "Rétrograder" : "Promouvoir"}
+        confirmLabel={selectedUser?.role === "super_admin" ? "Rétrograder" : "Promouvoir"}
       />
 
       {/* Delete Dialog */}
@@ -205,7 +205,7 @@ export function AdminUsersDataTable({
         onConfirm={handleDelete}
         loading={isPending}
         variant="destructive"
-        confirmText="Supprimer"
+        confirmLabel="Supprimer"
       />
     </>
   )

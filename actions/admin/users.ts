@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache"
 import { supabaseAdmin } from "@/lib/supabase/admin"
 import { getCurrentUser } from "@/actions/auth"
 import { z } from "zod"
-import { adminUsersFiltersSchema, updateUserRoleSchema, isAdminRole } from "@/lib/validations/admin"
+import { adminUsersFiltersSchema, updateUserRoleSchema, createAdminUserSchema, isAdminRole } from "@/lib/validations/admin"
 
 const action = createSafeActionClient()
 
@@ -216,72 +216,70 @@ export const deleteAdminUser = action
   })
 
 // ===========================================
-// Search Customers (for promotion) - super_admin only
+// Create Admin User - super_admin only
 // ===========================================
 
-export const searchCustomersForPromotion = action
-  .schema(z.object({ search: z.string().min(2) }))
+export const createAdminUser = action
+  .schema(createAdminUserSchema)
   .action(async ({ parsedInput }) => {
     const currentUser = await getCurrentUser()
     if (!currentUser || currentUser.role !== "super_admin") {
-      return { error: "Seul un super admin peut ajouter des administrateurs" }
+      return { error: "Seul un super admin peut créer des administrateurs" }
     }
 
-    const { search } = parsedInput
+    const { full_name, email, phone, password, role } = parsedInput
 
     try {
-      const { data: customers, error } = await supabaseAdmin
+      // Check if email already exists
+      const { data: existingUser } = await supabaseAdmin
         .from("users")
-        .select("id, full_name, email, phone")
-        .eq("role", "customer")
-        .or(`full_name.ilike.%${search}%,phone.ilike.%${search}%,email.ilike.%${search}%`)
-        .limit(10)
+        .select("id")
+        .eq("email", email)
+        .single()
 
-      if (error) throw error
+      if (existingUser) {
+        return { error: "Un utilisateur avec cet email existe déjà" }
+      }
 
-      return { customers: customers || [] }
-    } catch (error) {
-      console.error("Search customers error:", error)
-      return { error: "Erreur lors de la recherche" }
-    }
-  })
+      // Create user via Supabase Auth
+      const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
+        email,
+        password,
+        email_confirm: true,
+        user_metadata: {
+          full_name,
+          phone: phone || null,
+        },
+      })
 
-// ===========================================
-// Promote Customer to Admin - super_admin only
-// ===========================================
+      if (authError) {
+        console.error("Auth create user error:", authError)
+        return { error: "Erreur lors de la création du compte" }
+      }
 
-export const promoteToAdmin = action
-  .schema(z.object({
-    userId: z.string().uuid(),
-    role: z.enum(["admin", "super_admin"]),
-  }))
-  .action(async ({ parsedInput }) => {
-    const currentUser = await getCurrentUser()
-    if (!currentUser || currentUser.role !== "super_admin") {
-      return { error: "Seul un super admin peut ajouter des administrateurs" }
-    }
-
-    const { userId, role } = parsedInput
-
-    try {
-      const { data: updatedUser, error } = await supabaseAdmin
+      // Update user role in users table
+      const { error: updateError } = await supabaseAdmin
         .from("users")
         .update({
           role,
+          full_name,
+          phone: phone || null,
           updated_at: new Date().toISOString(),
         })
-        .eq("id", userId)
-        .select()
-        .single()
+        .eq("id", authData.user.id)
 
-      if (error) throw error
+      if (updateError) {
+        console.error("Update user role error:", updateError)
+        // Try to clean up the auth user if role update fails
+        await supabaseAdmin.auth.admin.deleteUser(authData.user.id)
+        return { error: "Erreur lors de l'attribution du rôle" }
+      }
 
       revalidatePath("/admin/settings")
-      revalidatePath("/admin/customers")
 
-      return { success: true, user: updatedUser }
+      return { success: true, userId: authData.user.id }
     } catch (error) {
-      console.error("Promote to admin error:", error)
-      return { error: "Erreur lors de la promotion" }
+      console.error("Create admin user error:", error)
+      return { error: "Erreur lors de la création de l'administrateur" }
     }
   })

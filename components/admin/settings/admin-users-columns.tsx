@@ -14,12 +14,16 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { DataTableColumnHeader } from "@/components/data-table"
 
+import type { Database } from "@/types/database.types"
+
+type UserRole = Database["public"]["Enums"]["user_role"]
+
 export type AdminUser = {
   id: string
   full_name: string | null
   email: string | null
   phone: string | null
-  role: "admin" | "super_admin" | null
+  role: UserRole | null
   created_at: string | null
   avatar_url: string | null
 }
