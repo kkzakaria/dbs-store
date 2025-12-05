@@ -758,25 +758,44 @@ SEMAINE 2: Checkout + Admin + Polish
 
 ---
 
-#### 📅 JOUR 8 — Admin Dashboard Part 1
+#### 📅 JOUR 8 — Admin Dashboard Part 1 ✅ TERMINÉ
 
 **Matin (4h)**
-- [ ] Layout admin (Sidebar responsive, Header)
-- [ ] AuthGuard admin (vérifier role)
-- [ ] Dashboard home avec stats
-- [ ] Graphique ventes (Recharts)
+- [X] Layout admin (Sidebar responsive, Header)
+- [X] AuthGuard admin (vérifier role)
+- [X] Dashboard home avec stats
+- [X] Graphique ventes (Recharts)
 
 **Après-midi (4h)**
-- [ ] DataTable générique
-- [ ] Page liste produits admin
-- [ ] Formulaire création/édition produit
-- [ ] Upload images avec react-dropzone + Supabase Storage
+- [X] DataTable générique
+- [X] Page liste produits admin
+- [X] Formulaire création/édition produit
+- [X] Upload images avec react-dropzone + Supabase Storage
+
+**Bonus réalisés:**
+- [X] AdminSidebar collapsible avec toggle
+- [X] AdminSidebarMobile avec Sheet pour mobile
+- [X] AdminNav avec icônes Lucide
+- [X] StatsCards (CA, commandes, produits, clients) avec variations %
+- [X] SalesChart (AreaChart Recharts 30 jours)
+- [X] Commandes récentes sur dashboard
+- [X] DataTablePagination avec navigation URL
+- [X] DataTableToolbar avec recherche
+- [X] ProductForm avec tabs (Général, Prix, Stock, SEO, Spécifications, Images)
+- [X] ProductSpecsEditor (éditeur key-value JSONB)
+- [X] ProductImageUpload (drag-drop multi-images avec réorganisation)
+- [X] Actions CRUD produits (create, update, delete, toggle status)
+- [X] Actions upload images (upload, delete, reorder, setPrimary)
+- [X] Seed utilisateurs admin (super_admin, admin, customer)
+- [X] Fix trigger handle_new_user pour conflits phone
 
 **Livrables:**
 ```
-✅ Dashboard avec stats
-✅ CRUD produits complet
+✅ Dashboard avec stats et graphique
+✅ CRUD produits complet avec tabs
 ✅ Upload images fonctionnel
+✅ DataTable générique réutilisable
+✅ Utilisateurs admin dans seed
 ```
 
 ---
@@ -1003,5 +1022,5 @@ await resend.emails.send({
 
 ---
 
-*Document mis à jour le 01/12/2025*  
-*DBS Store — Plan de développement v1.1 (Stack Supabase Native)*
+*Document mis à jour le 05/12/2025*
+*DBS Store — Plan de développement v1.2 (Stack Supabase Native)*
