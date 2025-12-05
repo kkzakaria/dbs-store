@@ -138,9 +138,11 @@ export function ProductsDataTable({
   // Handle pagination change
   const handlePaginationChange = useCallback(
     (pagination: { pageIndex: number; pageSize: number }) => {
-      updateUrlParams({
-        page: pagination.pageIndex + 1,
-        limit: pagination.pageSize,
+      startTransition(() => {
+        updateUrlParams({
+          page: pagination.pageIndex + 1,
+          limit: pagination.pageSize,
+        })
       })
     },
     [updateUrlParams]
@@ -153,15 +155,17 @@ export function ProductsDataTable({
       const statusFilterValue = filters.find((f) => f.id === "is_active")
       const categoryFilter = filters.find((f) => f.id === "category")
 
-      updateUrlParams({
-        search: searchFilter?.value as string | undefined,
-        status: Array.isArray(statusFilterValue?.value)
-          ? (statusFilterValue.value as string[]).join(",")
-          : undefined,
-        category: Array.isArray(categoryFilter?.value)
-          ? (categoryFilter.value as string[]).join(",")
-          : undefined,
-        page: 1,
+      startTransition(() => {
+        updateUrlParams({
+          search: searchFilter?.value as string | undefined,
+          status: Array.isArray(statusFilterValue?.value)
+            ? (statusFilterValue.value as string[]).join(",")
+            : undefined,
+          category: Array.isArray(categoryFilter?.value)
+            ? (categoryFilter.value as string[]).join(",")
+            : undefined,
+          page: 1,
+        })
       })
     },
     [updateUrlParams]
