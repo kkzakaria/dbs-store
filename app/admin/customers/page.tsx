@@ -8,7 +8,6 @@ interface CustomersPageProps {
     page?: string
     limit?: string
     search?: string
-    role?: string
   }>
 }
 
@@ -17,14 +16,12 @@ export default async function AdminCustomersPage({ searchParams }: CustomersPage
   const page = Number(params.page) || 1
   const limit = Number(params.limit) || 20
   const search = params.search || ""
-  const role = params.role as "customer" | "admin" | "super_admin" | undefined
 
   const [result, stats] = await Promise.all([
     getAdminCustomers({
       page,
       limit,
       search: search || undefined,
-      role,
     }),
     getCustomerStats(),
   ])
@@ -42,7 +39,7 @@ export default async function AdminCustomersPage({ searchParams }: CustomersPage
   const customerStats = stats && !("error" in stats) ? stats : undefined
 
   return (
-    <Suspense fallback={<DataTableSkeleton columnCount={7} rowCount={10} />}>
+    <Suspense fallback={<DataTableSkeleton columnCount={6} rowCount={10} />}>
       <CustomersDataTable
         customers={customers}
         pageCount={totalPages}
