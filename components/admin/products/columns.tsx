@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { DataTableColumnHeader } from "@/components/data-table"
+import { ClientOnly } from "@/components/shared/ClientOnly"
 import { formatPrice } from "@/lib/config"
 import { cn } from "@/lib/utils"
 import type { Database } from "@/types/database.types"
@@ -207,67 +208,75 @@ export function getProductColumns({
       cell: ({ row }) => {
         const product = row.original
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          <ClientOnly
+            fallback={
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Menu</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href={`/admin/products/${product.id}/edit`}>
-                  <Pencil className="mr-2 h-4 w-4" />
-                  Modifier
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuItem asChild>
-                <Link href={`/products/${product.slug}`} target="_blank">
-                  <Eye className="mr-2 h-4 w-4" />
-                  Voir sur le site
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              {onToggleActive && (
-                <DropdownMenuItem onClick={() => onToggleActive(product.id)}>
-                  {product.is_active ? (
-                    <>
-                      <EyeOff className="mr-2 h-4 w-4" />
-                      Desactiver
-                    </>
-                  ) : (
-                    <>
-                      <Eye className="mr-2 h-4 w-4" />
-                      Activer
-                    </>
-                  )}
+            }
+          >
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="h-8 w-8 p-0">
+                  <span className="sr-only">Menu</span>
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href={`/admin/products/${product.id}/edit`}>
+                    <Pencil className="mr-2 h-4 w-4" />
+                    Modifier
+                  </Link>
                 </DropdownMenuItem>
-              )}
-              {onToggleFeatured && (
-                <DropdownMenuItem onClick={() => onToggleFeatured(product.id)}>
-                  <Star
-                    className={cn(
-                      "mr-2 h-4 w-4",
-                      product.is_featured && "fill-current"
+                <DropdownMenuItem asChild>
+                  <Link href={`/products/${product.slug}`} target="_blank">
+                    <Eye className="mr-2 h-4 w-4" />
+                    Voir sur le site
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                {onToggleActive && (
+                  <DropdownMenuItem onClick={() => onToggleActive(product.id)}>
+                    {product.is_active ? (
+                      <>
+                        <EyeOff className="mr-2 h-4 w-4" />
+                        Desactiver
+                      </>
+                    ) : (
+                      <>
+                        <Eye className="mr-2 h-4 w-4" />
+                        Activer
+                      </>
                     )}
-                  />
-                  {product.is_featured ? "Retirer des vedettes" : "Mettre en vedette"}
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuSeparator />
-              {onDelete && (
-                <DropdownMenuItem
-                  onClick={() => onDelete(product.id)}
-                  className="text-destructive focus:text-destructive"
-                >
-                  <Trash2 className="mr-2 h-4 w-4" />
-                  Supprimer
-                </DropdownMenuItem>
-              )}
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  </DropdownMenuItem>
+                )}
+                {onToggleFeatured && (
+                  <DropdownMenuItem onClick={() => onToggleFeatured(product.id)}>
+                    <Star
+                      className={cn(
+                        "mr-2 h-4 w-4",
+                        product.is_featured && "fill-current"
+                      )}
+                    />
+                    {product.is_featured ? "Retirer des vedettes" : "Mettre en vedette"}
+                  </DropdownMenuItem>
+                )}
+                <DropdownMenuSeparator />
+                {onDelete && (
+                  <DropdownMenuItem
+                    onClick={() => onDelete(product.id)}
+                    className="text-destructive focus:text-destructive"
+                  >
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Supprimer
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </ClientOnly>
         )
       },
     },
