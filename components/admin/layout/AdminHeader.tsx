@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { LogOut, User, Store, Bell } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
@@ -24,9 +24,44 @@ interface AdminHeaderProps {
   user: User
 }
 
+// Map routes to page titles
+const pageTitles: Record<string, string> = {
+  "/admin": "Tableau de bord",
+  "/admin/products": "Produits",
+  "/admin/products/new": "Nouveau produit",
+  "/admin/categories": "Catégories",
+  "/admin/orders": "Commandes",
+  "/admin/customers": "Clients",
+  "/admin/settings": "Paramètres",
+}
+
+function getPageTitle(pathname: string): string {
+  // Check for exact match first
+  if (pageTitles[pathname]) {
+    return pageTitles[pathname]
+  }
+
+  // Check for edit pages (e.g., /admin/products/[id]/edit)
+  if (pathname.includes("/admin/products/") && pathname.endsWith("/edit")) {
+    return "Modifier le produit"
+  }
+
+  // Check for parent routes
+  for (const [route, title] of Object.entries(pageTitles)) {
+    if (pathname.startsWith(route) && route !== "/admin") {
+      return title
+    }
+  }
+
+  return "Administration"
+}
+
 export function AdminHeader({ user }: AdminHeaderProps) {
   const router = useRouter()
+  const pathname = usePathname()
   const supabase = createClient()
+
+  const pageTitle = getPageTitle(pathname)
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
@@ -50,7 +85,7 @@ export function AdminHeader({ user }: AdminHeaderProps) {
 
       {/* Title / Breadcrumb */}
       <div className="flex-1">
-        <h1 className="text-lg font-semibold lg:text-xl">Administration</h1>
+        <h1 className="text-lg font-semibold">{pageTitle}</h1>
       </div>
 
       {/* Actions */}

@@ -47,14 +47,13 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
     )
   }
 
-  const { products = [], totalPages = 1, total = 0 } = result.data
+  const { products = [], totalPages = 1 } = result.data
   const categories = categoriesResult?.categories || []
 
   return (
     <ProductsDataTable
       products={products}
       pageCount={totalPages}
-      totalCount={total}
       currentPage={page}
       pageSize={limit}
       search={search}
