@@ -130,3 +130,221 @@ export function generateSlug(name: string): string {
 export function isAdminRole(role: string | null | undefined): boolean {
   return role === "admin" || role === "super_admin"
 }
+
+// ===========================================
+// Order Filters Schema (Admin)
+// ===========================================
+
+export const ORDER_STATUSES = [
+  "pending",
+  "confirmed",
+  "processing",
+  "shipped",
+  "delivered",
+  "cancelled",
+  "refunded",
+] as const
+
+export const PAYMENT_STATUSES = ["pending", "paid", "failed", "refunded"] as const
+
+export const ORDER_STATUS_LABELS: Record<string, string> = {
+  pending: "En attente",
+  confirmed: "Confirmée",
+  processing: "En préparation",
+  shipped: "Expédiée",
+  delivered: "Livrée",
+  cancelled: "Annulée",
+  refunded: "Remboursée",
+}
+
+export const PAYMENT_STATUS_LABELS: Record<string, string> = {
+  pending: "En attente",
+  paid: "Payée",
+  failed: "Échouée",
+  refunded: "Remboursée",
+}
+
+export const adminOrderFiltersSchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(10),
+  search: z.string().optional(),
+  status: z.enum(ORDER_STATUSES).optional(),
+  paymentStatus: z.enum(PAYMENT_STATUSES).optional(),
+  dateFrom: z.string().optional(),
+  dateTo: z.string().optional(),
+  sort: z.enum(["created_at", "total", "order_number"]).default("created_at"),
+  order: z.enum(["asc", "desc"]).default("desc"),
+})
+
+export type AdminOrderFilters = z.infer<typeof adminOrderFiltersSchema>
+
+export const updateOrderStatusSchema = z.object({
+  id: z.string().uuid(),
+  status: z.enum(ORDER_STATUSES),
+})
+
+export const updatePaymentStatusSchema = z.object({
+  id: z.string().uuid(),
+  paymentStatus: z.enum(PAYMENT_STATUSES),
+})
+
+export const updateTrackingSchema = z.object({
+  id: z.string().uuid(),
+  trackingNumber: z.string().min(1, "Numéro de suivi requis").max(100),
+})
+
+// ===========================================
+// Category Schema (Admin)
+// ===========================================
+
+export const adminCategoryFiltersSchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(50),
+  search: z.string().optional(),
+  isActive: z.coerce.boolean().optional(),
+  parentId: z.string().uuid().optional().nullable(),
+})
+
+export type AdminCategoryFilters = z.infer<typeof adminCategoryFiltersSchema>
+
+export const adminCategorySchema = z.object({
+  name: z
+    .string()
+    .min(2, "Le nom doit contenir au moins 2 caractères")
+    .max(100, "Le nom ne peut pas dépasser 100 caractères"),
+  slug: z
+    .string()
+    .min(2, "Le slug doit contenir au moins 2 caractères")
+    .max(100, "Le slug ne peut pas dépasser 100 caractères")
+    .regex(
+      /^[a-z0-9]+(?:-[a-z0-9]+)*$/,
+      "Le slug doit contenir uniquement des lettres minuscules, chiffres et tirets"
+    )
+    .optional(),
+  description: z
+    .string()
+    .max(500, "La description ne peut pas dépasser 500 caractères")
+    .optional()
+    .nullable(),
+  image_url: z.string().url("URL invalide").optional().nullable(),
+  parent_id: z.string().uuid().optional().nullable(),
+  position: z.coerce.number().min(0).default(0),
+  is_active: z.boolean().default(true),
+})
+
+export type AdminCategoryInput = z.input<typeof adminCategorySchema>
+
+// ===========================================
+// Promotion Schema (Admin)
+// ===========================================
+
+export const PROMO_TYPES = ["percentage", "fixed_amount", "free_shipping"] as const
+
+export const adminPromotionFiltersSchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(10),
+  search: z.string().optional(),
+  isActive: z.coerce.boolean().optional(),
+  type: z.enum(PROMO_TYPES).optional(),
+})
+
+export type AdminPromotionFilters = z.infer<typeof adminPromotionFiltersSchema>
+
+export const adminPromotionSchema = z.object({
+  code: z
+    .string()
+    .min(3, "Le code doit contenir au moins 3 caractères")
+    .max(50, "Le code ne peut pas dépasser 50 caractères")
+    .regex(/^[A-Z0-9]+$/, "Le code doit contenir uniquement des lettres majuscules et chiffres"),
+  name: z
+    .string()
+    .min(2, "Le nom doit contenir au moins 2 caractères")
+    .max(100, "Le nom ne peut pas dépasser 100 caractères"),
+  description: z
+    .string()
+    .max(500, "La description ne peut pas dépasser 500 caractères")
+    .optional()
+    .nullable(),
+  type: z.enum(PROMO_TYPES),
+  value: z.coerce.number().min(0, "La valeur doit être positive"),
+  min_purchase: z.coerce.number().min(0).default(0),
+  max_discount: z.coerce.number().min(0).optional().nullable(),
+  max_uses: z.coerce.number().min(1).optional().nullable(),
+  max_uses_per_user: z.coerce.number().min(1).default(1),
+  starts_at: z.string().min(1, "Date de début requise"),
+  ends_at: z.string().min(1, "Date de fin requise"),
+  is_active: z.boolean().default(true),
+})
+
+export type AdminPromotionInput = z.input<typeof adminPromotionSchema>
+
+// ===========================================
+// Review Filters Schema (Admin)
+// ===========================================
+
+export const adminReviewFiltersSchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(10),
+  search: z.string().optional(),
+  isApproved: z.coerce.boolean().optional(),
+  rating: z.coerce.number().min(1).max(5).optional(),
+  productId: z.string().uuid().optional(),
+})
+
+export type AdminReviewFilters = z.infer<typeof adminReviewFiltersSchema>
+
+// ===========================================
+// Customer Filters Schema (Admin)
+// ===========================================
+
+export const adminCustomerFiltersSchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(10),
+  search: z.string().optional(),
+  role: z.enum(["customer", "admin", "super_admin"]).optional(),
+  sort: z.enum(["created_at", "full_name", "loyalty_points"]).default("created_at"),
+  order: z.enum(["asc", "desc"]).default("desc"),
+})
+
+export type AdminCustomerFilters = z.infer<typeof adminCustomerFiltersSchema>
+
+// ===========================================
+// Inventory Filters Schema (Admin)
+// ===========================================
+
+export const adminInventoryFiltersSchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(10),
+  search: z.string().optional(),
+  lowStock: z.coerce.boolean().optional(),
+  outOfStock: z.coerce.boolean().optional(),
+  categoryId: z.string().uuid().optional(),
+})
+
+export type AdminInventoryFilters = z.infer<typeof adminInventoryFiltersSchema>
+
+export const updateStockSchema = z.object({
+  productId: z.string().uuid(),
+  quantity: z.coerce.number().min(0, "La quantité doit être positive"),
+})
+
+// ===========================================
+// Shipping Zone Schema (Admin)
+// ===========================================
+
+export const adminShippingZoneSchema = z.object({
+  name: z
+    .string()
+    .min(2, "Le nom doit contenir au moins 2 caractères")
+    .max(100, "Le nom ne peut pas dépasser 100 caractères"),
+  cities: z.array(z.string()).min(1, "Au moins une ville requise"),
+  fee: z.coerce.number().min(0, "Les frais doivent être positifs"),
+  estimated_days: z
+    .string()
+    .max(50, "Le délai ne peut pas dépasser 50 caractères")
+    .optional()
+    .nullable(),
+  is_active: z.boolean().default(true),
+})
+
+export type AdminShippingZoneInput = z.input<typeof adminShippingZoneSchema>
