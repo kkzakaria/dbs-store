@@ -1,12 +1,13 @@
 "use client"
 
-import { useState, useCallback, useTransition, useMemo } from "react"
+import { useState, useCallback, useTransition, useMemo, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Check, X, Star } from "lucide-react"
 import { DataTable } from "@/components/data-table"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { getProductColumns } from "./columns"
 import { deleteProduct, toggleProductStatus } from "@/actions/admin/products"
+import { useAdminHeader } from "@/components/admin/layout/AdminHeaderContext"
 import { toast } from "sonner"
 import type { Database } from "@/types/database.types"
 import type { FilterableColumn } from "@/types/data-table"
@@ -36,6 +37,7 @@ interface ProductsDataTableProps {
   search?: string
   categories?: Category[]
   statusFilter?: string
+  totalCount?: number
 }
 
 export function ProductsDataTable({
@@ -46,12 +48,22 @@ export function ProductsDataTable({
   search = "",
   categories = [],
   statusFilter,
+  totalCount,
 }: ProductsDataTableProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isPending, startTransition] = useTransition()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [productToDelete, setProductToDelete] = useState<string | null>(null)
+  const { setCustomTitle } = useAdminHeader()
+
+  // Set custom title with product count
+  useEffect(() => {
+    if (totalCount !== undefined) {
+      setCustomTitle(`Produits (${totalCount})`)
+    }
+    return () => setCustomTitle(null)
+  }, [totalCount, setCustomTitle])
 
   // Update URL with new params
   const updateUrlParams = useCallback(

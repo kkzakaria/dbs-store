@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { AdminSidebarMobile } from "./AdminSidebarMobile"
 import { ThemeToggle } from "@/components/store/theme-toggle"
+import { useAdminHeader } from "./AdminHeaderContext"
 import { createClient } from "@/lib/supabase/client"
 import type { Database } from "@/types/database.types"
 
@@ -60,8 +61,9 @@ export function AdminHeader({ user }: AdminHeaderProps) {
   const router = useRouter()
   const pathname = usePathname()
   const supabase = createClient()
+  const { customTitle } = useAdminHeader()
 
-  const pageTitle = getPageTitle(pathname)
+  const pageTitle = customTitle || getPageTitle(pathname)
 
   const handleSignOut = async () => {
     await supabase.auth.signOut()
