@@ -94,7 +94,7 @@ export function DataTable<TData, TValue>({
               <TableRow>
                 {columns.map((_, index) => (
                   <TableHead key={index}>
-                    <Skeleton className="h-4 w-24" />
+                    <Skeleton className="h-4 w-24 bg-gray-200 dark:bg-gray-600" />
                   </TableHead>
                 ))}
               </TableRow>
@@ -104,7 +104,7 @@ export function DataTable<TData, TValue>({
                 <TableRow key={rowIndex}>
                   {columns.map((_, colIndex) => (
                     <TableCell key={colIndex}>
-                      <Skeleton className="h-4 w-full" />
+                      <Skeleton className="h-4 w-full bg-gray-200 dark:bg-gray-600" />
                     </TableCell>
                   ))}
                 </TableRow>
