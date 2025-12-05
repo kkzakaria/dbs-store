@@ -47,7 +47,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
     )
   }
 
-  const { products = [], totalPages = 1 } = result.data
+  const { products = [], totalPages = 1, total = 0 } = result.data
   const categories = categoriesResult?.categories || []
 
   return (
@@ -59,6 +59,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
       search={search}
       categories={categories}
       statusFilter={status}
+      totalCount={total}
     />
   )
 }
