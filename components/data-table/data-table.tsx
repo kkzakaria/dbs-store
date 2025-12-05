@@ -46,13 +46,14 @@ export function DataTable<TData, TValue>({
   onColumnVisibilityChange,
   onPaginationChange,
 }: DataTableProps<TData, TValue>) {
-  // Track if component is mounted to prevent state updates during render
-  const isMountedRef = React.useRef(false);
+  // Track if component has completed initial render to prevent callbacks on mount
+  const isInitialRenderRef = React.useRef(true);
   React.useEffect(() => {
-    isMountedRef.current = true;
-    return () => {
-      isMountedRef.current = false;
-    };
+    // Mark initial render as complete after first effect cycle
+    const timer = setTimeout(() => {
+      isInitialRenderRef.current = false;
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   // Local state initialized with URL values
@@ -69,76 +70,51 @@ export function DataTable<TData, TValue>({
     }
   );
 
-  // Wrapper setters that update local state (only after mount to prevent render-time state updates)
-  const handleColumnFiltersChange = React.useCallback(
-    (
-      updater: ColumnFiltersState | ((prev: ColumnFiltersState) => ColumnFiltersState)
-    ) => {
-      if (isMountedRef.current) {
-        setColumnFilters(updater);
-      }
-    },
-    []
-  );
+  // Track previous values to detect actual user-initiated changes
+  const prevColumnFiltersRef = React.useRef(columnFilters);
+  const prevSortingRef = React.useRef(sorting);
+  const prevColumnVisibilityRef = React.useRef(columnVisibility);
+  const prevPaginationRef = React.useRef(pagination);
 
-  const handleSortingChange = React.useCallback(
-    (updater: SortingState | ((prev: SortingState) => SortingState)) => {
-      if (isMountedRef.current) {
-        setSorting(updater);
-      }
-    },
-    []
-  );
-
-  const handleColumnVisibilityChange = React.useCallback(
-    (
-      updater: VisibilityState | ((prev: VisibilityState) => VisibilityState)
-    ) => {
-      if (isMountedRef.current) {
-        setColumnVisibility(updater);
-      }
-    },
-    []
-  );
-
-  const handlePaginationChange = React.useCallback(
-    (
-      updater:
-        | { pageIndex: number; pageSize: number }
-        | ((prev: { pageIndex: number; pageSize: number }) => {
-            pageIndex: number;
-            pageSize: number;
-          })
-    ) => {
-      if (isMountedRef.current) {
-        setPagination(updater);
-      }
-    },
-    []
-  );
-
-  // Call URL sync callbacks after state changes (outside of render)
-  // Skip initial render to prevent state updates before mount
+  // Call URL sync callbacks only after user-initiated changes (not on mount)
   React.useEffect(() => {
-    if (isMountedRef.current && onColumnFiltersChange) {
+    if (isInitialRenderRef.current) return;
+
+    const hasChanged = JSON.stringify(prevColumnFiltersRef.current) !== JSON.stringify(columnFilters);
+    if (hasChanged && onColumnFiltersChange) {
+      prevColumnFiltersRef.current = columnFilters;
       onColumnFiltersChange(columnFilters);
     }
   }, [columnFilters, onColumnFiltersChange]);
 
   React.useEffect(() => {
-    if (isMountedRef.current && onSortingChange) {
+    if (isInitialRenderRef.current) return;
+
+    const hasChanged = JSON.stringify(prevSortingRef.current) !== JSON.stringify(sorting);
+    if (hasChanged && onSortingChange) {
+      prevSortingRef.current = sorting;
       onSortingChange(sorting);
     }
   }, [sorting, onSortingChange]);
 
   React.useEffect(() => {
-    if (isMountedRef.current && onColumnVisibilityChange) {
+    if (isInitialRenderRef.current) return;
+
+    const hasChanged = JSON.stringify(prevColumnVisibilityRef.current) !== JSON.stringify(columnVisibility);
+    if (hasChanged && onColumnVisibilityChange) {
+      prevColumnVisibilityRef.current = columnVisibility;
       onColumnVisibilityChange(columnVisibility);
     }
   }, [columnVisibility, onColumnVisibilityChange]);
 
   React.useEffect(() => {
-    if (isMountedRef.current && onPaginationChange) {
+    if (isInitialRenderRef.current) return;
+
+    const hasChanged =
+      prevPaginationRef.current.pageIndex !== pagination.pageIndex ||
+      prevPaginationRef.current.pageSize !== pagination.pageSize;
+    if (hasChanged && onPaginationChange) {
+      prevPaginationRef.current = pagination;
       onPaginationChange(pagination);
     }
   }, [pagination, onPaginationChange]);
@@ -157,10 +133,10 @@ export function DataTable<TData, TValue>({
     },
     enableRowSelection,
     onRowSelectionChange: setRowSelection,
-    onSortingChange: handleSortingChange,
-    onColumnFiltersChange: handleColumnFiltersChange,
-    onColumnVisibilityChange: handleColumnVisibilityChange,
-    onPaginationChange: handlePaginationChange,
+    onSortingChange: setSorting,
+    onColumnFiltersChange: setColumnFilters,
+    onColumnVisibilityChange: setColumnVisibility,
+    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: enablePagination
@@ -173,9 +149,6 @@ export function DataTable<TData, TValue>({
     manualPagination,
   });
 
-  // Track previous pagination to detect actual changes
-  const prevPaginationRef = React.useRef(pagination);
-
   // Notify parent of selection changes
   React.useEffect(() => {
     if (onRowSelectionChange) {
@@ -185,20 +158,6 @@ export function DataTable<TData, TValue>({
       onRowSelectionChange(selectedRows);
     }
   }, [rowSelection, onRowSelectionChange, table]);
-
-  // Notify parent of pagination changes (for server-side pagination)
-  React.useEffect(() => {
-    // Only call if pagination actually changed from previous value
-    const prevPagination = prevPaginationRef.current;
-    const hasChanged =
-      prevPagination.pageIndex !== pagination.pageIndex ||
-      prevPagination.pageSize !== pagination.pageSize;
-
-    if (hasChanged && manualPagination && onPaginationChange) {
-      onPaginationChange(pagination);
-      prevPaginationRef.current = pagination;
-    }
-  }, [pagination, manualPagination, onPaginationChange]);
 
   return (
     <div className="flex flex-col h-full space-y-4">

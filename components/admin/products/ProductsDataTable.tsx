@@ -226,6 +226,7 @@ export function ProductsDataTable({
           pageSize,
         }}
         initialColumnFilters={initialFilters}
+        initialColumnVisibility={{ is_featured: false }}
         onPaginationChange={handlePaginationChange}
         onColumnFiltersChange={handleColumnFiltersChange}
         enableRowSelection
