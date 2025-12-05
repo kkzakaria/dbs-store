@@ -21,23 +21,20 @@ export const getAdminCustomers = action
       return { error: "Accès non autorisé" }
     }
 
-    const { page, limit, search, role } = parsedInput
+    const { page, limit, search } = parsedInput
 
     try {
-      // First get users
+      // First get users - only customers (not admins)
       let query = supabaseAdmin
         .from("users")
         .select("*", { count: "exact" })
+        .eq("role", "customer")
 
-      // Apply filters
+      // Apply search filter
       if (search && search.trim()) {
         query = query.or(
           `full_name.ilike.%${search}%,phone.ilike.%${search}%,email.ilike.%${search}%`
         )
-      }
-
-      if (role) {
-        query = query.eq("role", role)
       }
 
       // Sorting
@@ -190,9 +187,11 @@ export async function getCustomerStats() {
   }
 
   try {
+    // Only get customers (not admins)
     const { data: users, error } = await supabaseAdmin
       .from("users")
       .select("id, role, created_at, loyalty_points")
+      .eq("role", "customer")
 
     if (error) throw error
 
@@ -202,8 +201,6 @@ export async function getCustomerStats() {
 
     const stats = {
       total: users?.length || 0,
-      customers: (users || []).filter((u) => u.role === "customer").length,
-      admins: (users || []).filter((u) => u.role === "admin" || u.role === "super_admin").length,
       newThisMonth: (users || []).filter(
         (u) => u.created_at && new Date(u.created_at) >= startOfMonth
       ).length,

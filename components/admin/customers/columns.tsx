@@ -2,7 +2,6 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 import { User, Phone, Mail, ShoppingBag, Award } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
 import { DataTableColumnHeader } from "@/components/data-table"
 import { formatPrice } from "@/lib/config"
 
@@ -11,17 +10,10 @@ type Customer = {
   full_name: string | null
   phone: string | null
   email: string | null
-  role: "customer" | "admin" | "super_admin" | null
   loyalty_points: number | null
   created_at: string | null
   orders_count: number
   total_spent: number
-}
-
-const ROLE_LABELS: Record<string, { label: string; variant: "default" | "secondary" | "destructive" | "outline" }> = {
-  customer: { label: "Client", variant: "secondary" },
-  admin: { label: "Admin", variant: "default" },
-  super_admin: { label: "Super Admin", variant: "destructive" },
 }
 
 export function getCustomerColumns(): ColumnDef<Customer>[] {
@@ -64,15 +56,6 @@ export function getCustomerColumns(): ColumnDef<Customer>[] {
         ) : (
           <span className="text-muted-foreground">-</span>
         )
-      },
-    },
-    {
-      accessorKey: "role",
-      header: "Rôle",
-      cell: ({ row }) => {
-        const role = row.original.role
-        const config = role ? ROLE_LABELS[role] : ROLE_LABELS.customer
-        return <Badge variant={config.variant}>{config.label}</Badge>
       },
     },
     {

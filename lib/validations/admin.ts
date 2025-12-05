@@ -301,7 +301,6 @@ export const adminCustomerFiltersSchema = z.object({
   page: z.coerce.number().min(1).default(1),
   limit: z.coerce.number().min(1).max(100).default(10),
   search: z.string().optional(),
-  role: z.enum(["customer", "admin", "super_admin"]).optional(),
   sort: z.enum(["created_at", "full_name", "loyalty_points"]).default("created_at"),
   order: z.enum(["asc", "desc"]).default("desc"),
 })
@@ -348,3 +347,22 @@ export const adminShippingZoneSchema = z.object({
 })
 
 export type AdminShippingZoneInput = z.input<typeof adminShippingZoneSchema>
+
+// ===========================================
+// Admin Users Schema (Settings)
+// ===========================================
+
+export const adminUsersFiltersSchema = z.object({
+  page: z.coerce.number().min(1).default(1),
+  limit: z.coerce.number().min(1).max(100).default(50),
+  search: z.string().optional(),
+})
+
+export type AdminUsersFilters = z.infer<typeof adminUsersFiltersSchema>
+
+export const updateUserRoleSchema = z.object({
+  userId: z.string().uuid(),
+  role: z.enum(["admin", "super_admin"]),
+})
+
+export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>
