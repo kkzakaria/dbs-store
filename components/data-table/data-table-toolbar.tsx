@@ -52,14 +52,16 @@ export function DataTableToolbar<TData>({
         )}
         {config?.filterableColumns?.map((filterColumn) => {
           const column = table.getColumn(filterColumn.id);
-          return column ? (
+          // Only render filter if column exists AND has options
+          if (!column || !filterColumn.options?.length) return null;
+          return (
             <DataTableFacetedFilter
               key={filterColumn.id}
               column={column}
               title={filterColumn.title}
               options={filterColumn.options}
             />
-          ) : null;
+          );
         })}
         {isFiltered && (
           <Button
