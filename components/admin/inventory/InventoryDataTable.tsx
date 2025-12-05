@@ -2,12 +2,12 @@
 
 import { useState, useCallback, useTransition, useMemo, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { AlertTriangle, PackageX, Package } from "lucide-react"
+import { AlertTriangle, PackageX } from "lucide-react"
 import { DataTable } from "@/components/data-table"
 import { getInventoryColumns } from "./columns"
 import { StockEditDialog } from "./StockEditDialog"
 import { useAdminHeader } from "@/components/admin/layout/AdminHeaderContext"
-import type { FilterableColumn } from "@/types/data-table"
+import type { FilterableColumn, FilterOption } from "@/types/data-table"
 
 type InventoryProduct = {
   id: string
@@ -109,6 +109,12 @@ export function InventoryDataTable({
     (filters: { id: string; value: unknown }[]) => {
       const searchFilter = filters.find((f) => f.id === "name")
       const categoryFilter = filters.find((f) => f.id === "category")
+      const statusFilter = filters.find((f) => f.id === "status")
+
+      // Map status filter values to lowStock/outOfStock params
+      const statusValues = (statusFilter?.value as string[]) || []
+      const hasLowStock = statusValues.includes("low_stock")
+      const hasOutOfStock = statusValues.includes("out_of_stock")
 
       startTransition(() => {
         updateUrlParams({
@@ -116,6 +122,8 @@ export function InventoryDataTable({
           category: Array.isArray(categoryFilter?.value)
             ? (categoryFilter.value as string[])[0]
             : undefined,
+          lowStock: hasLowStock || undefined,
+          outOfStock: hasOutOfStock || undefined,
           page: 1,
         })
       })
@@ -123,8 +131,27 @@ export function InventoryDataTable({
     [updateUrlParams]
   )
 
+  // Build status filter options with counts
+  const statusOptions: FilterOption[] = useMemo(() => [
+    {
+      label: `Stock bas (${lowStockCount})`,
+      value: "low_stock",
+      icon: AlertTriangle,
+    },
+    {
+      label: `Epuises (${outOfStockCount})`,
+      value: "out_of_stock",
+      icon: PackageX,
+    },
+  ], [lowStockCount, outOfStockCount])
+
   // Build filterable columns
   const filterableColumns: FilterableColumn[] = useMemo(() => [
+    {
+      id: "status",
+      title: "Statut",
+      options: statusOptions,
+    },
     ...(categories.length > 0 ? [{
       id: "category",
       title: "Categorie",
@@ -133,49 +160,29 @@ export function InventoryDataTable({
         value: c.id,
       })),
     }] : []),
-  ], [categories])
+  ], [categories, statusOptions])
 
-  // Build initial filters from URL
+  // Build initial filters from URL (including status filters)
+  const lowStockFilter = searchParams.get("lowStock") === "true"
+  const outOfStockFilter = searchParams.get("outOfStock") === "true"
+
   const initialFilters = useMemo(() => {
     const filters: { id: string; value: unknown }[] = []
     if (search) {
       filters.push({ id: "name", value: search })
     }
+    // Map URL params to status filter values
+    const statusValues: string[] = []
+    if (lowStockFilter) statusValues.push("low_stock")
+    if (outOfStockFilter) statusValues.push("out_of_stock")
+    if (statusValues.length > 0) {
+      filters.push({ id: "status", value: statusValues })
+    }
     return filters
-  }, [search])
-
-  // Quick filter buttons
-  const lowStockFilter = searchParams.get("lowStock") === "true"
-  const outOfStockFilter = searchParams.get("outOfStock") === "true"
+  }, [search, lowStockFilter, outOfStockFilter])
 
   return (
     <div className="space-y-4">
-      {/* Quick Stats */}
-      <div className="flex gap-2">
-        <button
-          onClick={() => updateUrlParams({ lowStock: !lowStockFilter, outOfStock: undefined, page: 1 })}
-          className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-colors ${
-            lowStockFilter
-              ? "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-900/20"
-              : "hover:bg-muted"
-          }`}
-        >
-          <AlertTriangle className="h-4 w-4" />
-          Stock bas ({lowStockCount})
-        </button>
-        <button
-          onClick={() => updateUrlParams({ outOfStock: !outOfStockFilter, lowStock: undefined, page: 1 })}
-          className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-colors ${
-            outOfStockFilter
-              ? "border-destructive bg-destructive/10 text-destructive"
-              : "hover:bg-muted"
-          }`}
-        >
-          <PackageX className="h-4 w-4" />
-          Epuises ({outOfStockCount})
-        </button>
-      </div>
-
       <DataTable
         columns={columns}
         data={products}
