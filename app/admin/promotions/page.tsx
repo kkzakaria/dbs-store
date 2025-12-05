@@ -52,6 +52,8 @@ export default async function AdminPromotionsPage({ searchParams }: PromotionsPa
         currentPage={page}
         pageSize={limit}
         search={search}
+        isActiveFilter={params.isActive}
+        typeFilter={params.type}
         totalCount={total}
         stats={promotionStats}
       />

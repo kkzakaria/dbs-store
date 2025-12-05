@@ -2,10 +2,8 @@
 
 import { useState, useCallback, useTransition, useMemo, useEffect } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { Plus, Tag, Clock, CheckCircle, XCircle } from "lucide-react"
-import Link from "next/link"
+import { Tag, Clock, CheckCircle, XCircle } from "lucide-react"
 import { DataTable } from "@/components/data-table"
-import { Button } from "@/components/ui/button"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { getPromotionColumns } from "./columns"
 import { deletePromotion, togglePromotionStatus } from "@/actions/admin/promotions"
@@ -35,6 +33,8 @@ interface PromotionsDataTableProps {
   currentPage: number
   pageSize: number
   search?: string
+  isActiveFilter?: string
+  typeFilter?: string
   totalCount?: number
   stats?: {
     total: number
@@ -50,6 +50,8 @@ export function PromotionsDataTable({
   currentPage,
   pageSize,
   search = "",
+  isActiveFilter,
+  typeFilter,
   totalCount,
   stats,
 }: PromotionsDataTableProps) {
@@ -146,24 +148,37 @@ export function PromotionsDataTable({
     [updateUrlParams]
   )
 
-  // Handle search
+  // Handle search and filters
   const handleColumnFiltersChange = useCallback(
     (filters: { id: string; value: unknown }[]) => {
       const searchFilter = filters.find((f) => f.id === "name")
-      const typeFilter = filters.find((f) => f.id === "type")
+      const typeFilterValue = filters.find((f) => f.id === "type")
+      const statusFilter = filters.find((f) => f.id === "is_active")
 
       startTransition(() => {
+        // Extract isActive value from status filter
+        let isActiveValue: boolean | undefined = undefined
+        if (Array.isArray(statusFilter?.value) && statusFilter.value.length > 0) {
+          isActiveValue = statusFilter.value[0] === "true"
+        }
+
         updateUrlParams({
           search: searchFilter?.value as string | undefined,
-          type: Array.isArray(typeFilter?.value)
-            ? (typeFilter.value as string[])[0]
+          type: Array.isArray(typeFilterValue?.value)
+            ? (typeFilterValue.value as string[])[0]
             : undefined,
+          isActive: isActiveValue,
           page: 1,
         })
       })
     },
     [updateUrlParams]
   )
+
+  // Handle add new promotion
+  const handleAdd = useCallback(() => {
+    router.push("/admin/promotions/new")
+  }, [router])
 
   // Build filterable columns
   const filterableColumns: FilterableColumn[] = useMemo(() => [
@@ -176,6 +191,14 @@ export function PromotionsDataTable({
         { label: "Livraison gratuite", value: "free_shipping" },
       ],
     },
+    {
+      id: "is_active",
+      title: "Statut",
+      options: [
+        { label: "Actives", value: "true" },
+        { label: "Inactives", value: "false" },
+      ],
+    },
   ], [])
 
   // Build initial filters from URL
@@ -184,11 +207,14 @@ export function PromotionsDataTable({
     if (search) {
       filters.push({ id: "name", value: search })
     }
+    if (typeFilter) {
+      filters.push({ id: "type", value: [typeFilter] })
+    }
+    if (isActiveFilter) {
+      filters.push({ id: "is_active", value: [isActiveFilter] })
+    }
     return filters
-  }, [search])
-
-  // Quick filter buttons
-  const activeFilter = searchParams.get("isActive")
+  }, [search, typeFilter, isActiveFilter])
 
   return (
     <div className="space-y-4">
@@ -226,42 +252,6 @@ export function PromotionsDataTable({
         </div>
       )}
 
-      {/* Quick Filters */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => updateUrlParams({ isActive: activeFilter === "true" ? undefined : true, page: 1 })}
-          className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-colors ${
-            activeFilter === "true"
-              ? "border-green-500 bg-green-50 text-green-700 dark:bg-green-900/20"
-              : "hover:bg-muted"
-          }`}
-        >
-          <CheckCircle className="h-4 w-4" />
-          Actives uniquement
-        </button>
-        <button
-          onClick={() => updateUrlParams({ isActive: activeFilter === "false" ? undefined : false, page: 1 })}
-          className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-colors ${
-            activeFilter === "false"
-              ? "border-gray-500 bg-gray-50 text-gray-700 dark:bg-gray-900/20"
-              : "hover:bg-muted"
-          }`}
-        >
-          <XCircle className="h-4 w-4" />
-          Inactives uniquement
-        </button>
-      </div>
-
-      {/* Action Button */}
-      <div className="flex justify-end">
-        <Button asChild>
-          <Link href="/admin/promotions/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Nouvelle promotion
-          </Link>
-        </Button>
-      </div>
-
       <DataTable
         columns={columns}
         data={promotions}
@@ -271,6 +261,8 @@ export function PromotionsDataTable({
           onRefresh: () => router.refresh(),
           isRefreshing: isPending,
           filterableColumns,
+          onAdd: handleAdd,
+          addLabel: "Nouvelle promotion",
         }}
         manualPagination
         pageCount={pageCount}
