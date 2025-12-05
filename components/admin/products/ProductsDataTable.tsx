@@ -32,6 +32,7 @@ type Category = {
 interface ProductsDataTableProps {
   products: Product[]
   pageCount: number
+  totalCount: number
   currentPage: number
   pageSize: number
   search?: string
@@ -42,6 +43,7 @@ interface ProductsDataTableProps {
 export function ProductsDataTable({
   products,
   pageCount,
+  totalCount,
   currentPage,
   pageSize,
   search = "",
@@ -199,8 +201,7 @@ export function ProductsDataTable({
   return (
     <div className="space-y-4">
       <PageHeader
-        title="Produits"
-        description={`${products.length} produit(s) sur cette page`}
+        title={`Produits (${totalCount})`}
       />
 
       <DataTable
