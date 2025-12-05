@@ -1,9 +1,8 @@
 "use client"
 
-import { useState, useCallback, useTransition } from "react"
+import { useState, useCallback, useTransition, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
-import { RefreshCw } from "lucide-react"
+import { RefreshCw, Check, X, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { DataTable } from "@/components/data-table"
 import { PageHeader } from "@/components/admin/shared/PageHeader"
@@ -12,6 +11,7 @@ import { getProductColumns } from "./columns"
 import { deleteProduct, toggleProductStatus } from "@/actions/admin/products"
 import { toast } from "sonner"
 import type { Database } from "@/types/database.types"
+import type { FilterableColumn } from "@/types/data-table"
 
 type Product = Database["public"]["Tables"]["products"]["Row"] & {
   category?: { id: string; name: string; slug: string } | null
@@ -24,12 +24,20 @@ type Product = Database["public"]["Tables"]["products"]["Row"] & {
   }> | null
 }
 
+type Category = {
+  id: string
+  name: string
+  slug: string
+}
+
 interface ProductsDataTableProps {
   products: Product[]
   pageCount: number
   currentPage: number
   pageSize: number
   search?: string
+  categories?: Category[]
+  statusFilter?: string
 }
 
 export function ProductsDataTable({
@@ -38,6 +46,8 @@ export function ProductsDataTable({
   currentPage,
   pageSize,
   search = "",
+  categories = [],
+  statusFilter,
 }: ProductsDataTableProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -130,13 +140,62 @@ export function ProductsDataTable({
   const handleColumnFiltersChange = useCallback(
     (filters: { id: string; value: unknown }[]) => {
       const searchFilter = filters.find((f) => f.id === "name")
+      const statusFilterValue = filters.find((f) => f.id === "is_active")
+      const categoryFilter = filters.find((f) => f.id === "category")
+
       updateUrlParams({
         search: searchFilter?.value as string | undefined,
+        status: Array.isArray(statusFilterValue?.value)
+          ? (statusFilterValue.value as string[]).join(",")
+          : undefined,
+        category: Array.isArray(categoryFilter?.value)
+          ? (categoryFilter.value as string[]).join(",")
+          : undefined,
         page: 1,
       })
     },
     [updateUrlParams]
   )
+
+  // Build filterable columns
+  const filterableColumns: FilterableColumn[] = useMemo(() => [
+    {
+      id: "is_active",
+      title: "Statut",
+      options: [
+        { label: "Actif", value: "true", icon: Check },
+        { label: "Inactif", value: "false", icon: X },
+      ],
+    },
+    {
+      id: "is_featured",
+      title: "Vedette",
+      options: [
+        { label: "En vedette", value: "true", icon: Star },
+        { label: "Standard", value: "false" },
+      ],
+    },
+    ...(categories.length > 0 ? [{
+      id: "category",
+      title: "Catégorie",
+      options: categories.map((c) => ({
+        label: c.name,
+        value: c.id,
+      })),
+    }] : []),
+  ], [categories])
+
+  // Build initial filters from URL
+  const initialFilters = useMemo(() => {
+    const filters: { id: string; value: unknown }[] = []
+    if (search) {
+      filters.push({ id: "name", value: search })
+    }
+    if (statusFilter) {
+      filters.push({ id: "is_active", value: statusFilter.split(",") })
+    }
+    return filters
+  }, [search, statusFilter])
 
   return (
     <div className="space-y-4">
@@ -148,11 +207,6 @@ export function ProductsDataTable({
           <RefreshCw className={isPending ? "animate-spin" : ""} />
           <span className="sr-only">Actualiser</span>
         </Button>
-        <Button asChild>
-          <Link href="/admin/products/new">
-            Nouveau produit
-          </Link>
-        </Button>
       </PageHeader>
 
       <DataTable
@@ -161,6 +215,9 @@ export function ProductsDataTable({
         toolbar={{
           searchKey: "name",
           searchPlaceholder: "Rechercher par nom...",
+          onAdd: () => router.push("/admin/products/new"),
+          addLabel: "Nouveau produit",
+          filterableColumns,
         }}
         manualPagination
         pageCount={pageCount}
@@ -168,7 +225,7 @@ export function ProductsDataTable({
           pageIndex: currentPage - 1,
           pageSize,
         }}
-        initialColumnFilters={search ? [{ id: "name", value: search }] : []}
+        initialColumnFilters={initialFilters}
         onPaginationChange={handlePaginationChange}
         onColumnFiltersChange={handleColumnFiltersChange}
         enableRowSelection

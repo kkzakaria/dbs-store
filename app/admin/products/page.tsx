@@ -1,4 +1,5 @@
 import { getAdminProducts } from "@/actions/admin/products"
+import { getCategories } from "@/actions/categories"
 import { ProductsDataTable } from "@/components/admin/products/ProductsDataTable"
 
 interface ProductsPageProps {
@@ -7,6 +8,7 @@ interface ProductsPageProps {
     limit?: string
     search?: string
     category?: string
+    status?: string
   }>
 }
 
@@ -21,15 +23,19 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
   const limit = Number(params.limit) || 10
   const search = params.search || ""
   const categoryId = params.category || undefined
+  const status = params.status || undefined
 
-  const result = await getAdminProducts({
-    page,
-    limit,
-    search: search || undefined,
-    categoryId,
-    sort: "created_at",
-    order: "desc",
-  })
+  const [result, categoriesResult] = await Promise.all([
+    getAdminProducts({
+      page,
+      limit,
+      search: search || undefined,
+      categoryId,
+      sort: "created_at",
+      order: "desc",
+    }),
+    getCategories(),
+  ])
 
   // Handle error case
   if (!result.data) {
@@ -42,6 +48,7 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
   }
 
   const { products = [], totalPages = 1 } = result.data
+  const categories = categoriesResult?.categories || []
 
   return (
     <ProductsDataTable
@@ -50,6 +57,8 @@ export default async function AdminProductsPage({ searchParams }: ProductsPagePr
       currentPage={page}
       pageSize={limit}
       search={search}
+      categories={categories}
+      statusFilter={status}
     />
   )
 }
