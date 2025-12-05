@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import { DataTableSkeleton } from "@/components/data-table"
 
-export default function AdminOrdersLoading() {
+export default function OrdersPageSkeleton() {
   return (
     <div className="space-y-6">
       {/* Stats Cards Skeleton - 5 columns like OrderStats */}

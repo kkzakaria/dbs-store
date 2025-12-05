@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 
-export default function AdminDashboardLoading() {
+export default function DashboardSkeleton() {
   return (
     <div className="space-y-6">
       {/* Page Header */}

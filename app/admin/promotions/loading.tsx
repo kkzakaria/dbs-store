@@ -1,7 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton"
 import { DataTableSkeleton } from "@/components/data-table"
 
-export default function AdminPromotionsLoading() {
+export default function PromotionsPageSkeleton() {
   return (
     <div className="space-y-4">
       {/* Stats Cards Skeleton - 4 columns */}
