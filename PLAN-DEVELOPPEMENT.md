@@ -800,24 +800,34 @@ SEMAINE 2: Checkout + Admin + Polish
 
 ---
 
-#### 📅 JOUR 9 — Admin Dashboard Part 2
+#### 📅 JOUR 9 — Admin Dashboard Part 2 ✅ TERMINÉ
 
 **Matin (4h)**
-- [ ] Page gestion commandes
-- [ ] Détail commande + changement statut
-- [ ] Page gestion catégories
-- [ ] Page gestion stocks/inventaire
+- [X] Page gestion commandes (DataTable avec filtres statut)
+- [X] Détail commande + changement statut
+- [X] Page gestion catégories (CRUD complet)
+- [X] Page gestion stocks/inventaire (DataTable avec filtres faceted)
 
 **Après-midi (4h)**
-- [ ] Page promotions (CRUD)
-- [ ] Page modération avis
-- [ ] Page clients
-- [ ] Settings (zones livraison)
+- [X] Page promotions (CRUD complet avec création manuelle admin)
+- [X] Page modération avis (DataTable avec filtres faceted)
+- [X] Page clients (séparation clients/admins, DataTable)
+- [X] Settings (zones livraison, gestion utilisateurs admin)
+
+**Bonus réalisés:**
+- [X] Filtres faceted intégrés au DataTable toolbar (inventaire, avis)
+- [X] Gestion utilisateurs admin séparée des clients
+- [X] CRUD complet utilisateurs admin avec rôles
+- [X] Création manuelle promotions (remplacement auto-attribution)
+- [X] DataTable réutilisable avec toolbar configurable
 
 **Livrables:**
 ```
 ✅ Gestion commandes complète
 ✅ Gestion promotions
+✅ Gestion inventaire avec filtres
+✅ Modération avis avec filtres
+✅ Gestion clients/admins séparée
 ✅ Admin fonctionnel
 ```
 
