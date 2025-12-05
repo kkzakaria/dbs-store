@@ -17,17 +17,6 @@ export default function AdminPromotionsLoading() {
         ))}
       </div>
 
-      {/* Quick Filters Skeleton */}
-      <div className="flex flex-wrap gap-2">
-        <Skeleton className="h-10 w-40 rounded-lg bg-gray-200 dark:bg-gray-600" />
-        <Skeleton className="h-10 w-44 rounded-lg bg-gray-200 dark:bg-gray-600" />
-      </div>
-
-      {/* Action Button Skeleton */}
-      <div className="flex justify-end">
-        <Skeleton className="h-10 w-44 bg-gray-200 dark:bg-gray-600" />
-      </div>
-
       {/* Promotions DataTable Skeleton */}
       <DataTableSkeleton
         columnCount={9}
