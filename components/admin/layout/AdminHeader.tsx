@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { AdminSidebarMobile } from "./AdminSidebarMobile"
+import { ThemeToggle } from "@/components/store/theme-toggle"
 import { createClient } from "@/lib/supabase/client"
 import type { Database } from "@/types/database.types"
 
@@ -69,6 +70,9 @@ export function AdminHeader({ user }: AdminHeaderProps) {
           {/* Notification badge - can be dynamic later */}
           {/* <span className="absolute -right-1 -top-1 h-4 w-4 rounded-full bg-destructive text-[10px] font-medium text-destructive-foreground flex items-center justify-center">3</span> */}
         </Button>
+
+        {/* Theme Toggle */}
+        <ThemeToggle />
 
         {/* User Menu */}
         <DropdownMenu>
