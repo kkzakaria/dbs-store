@@ -29,7 +29,7 @@ export function AdminSidebar() {
           {collapsed ? (
             <span className="text-xl font-bold text-primary">D</span>
           ) : (
-            <Logo />
+            <Logo asLink={false} />
           )}
         </Link>
       </div>

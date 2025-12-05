@@ -29,7 +29,7 @@ export function AdminSidebarMobile() {
         <SheetHeader className="h-16 border-b px-4">
           <SheetTitle className="flex items-center">
             <Link href="/admin" onClick={() => setOpen(false)}>
-              <Logo />
+              <Logo asLink={false} />
             </Link>
           </SheetTitle>
         </SheetHeader>
