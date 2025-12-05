@@ -1,6 +1,6 @@
 import { DataTableSkeleton } from "@/components/data-table"
 
-export default function AdminCategoriesLoading() {
+export default function CategoriesTableSkeleton() {
   return (
     <DataTableSkeleton
       columnCount={7}

@@ -1,6 +1,6 @@
 import { DataTableSkeleton } from "@/components/data-table"
 
-export default function AdminProductsLoading() {
+export default function ProductsTableSkeleton() {
   return (
     <DataTableSkeleton
       columnCount={8}
