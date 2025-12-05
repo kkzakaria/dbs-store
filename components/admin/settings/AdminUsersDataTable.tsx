@@ -5,8 +5,9 @@ import { useRouter } from "next/navigation"
 import { Users, Shield, ShieldCheck } from "lucide-react"
 import { DataTable } from "@/components/data-table"
 import { getAdminUsersColumns, type AdminUser } from "./admin-users-columns"
+import { AddAdminDialog } from "./AddAdminDialog"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
-import { updateUserRole } from "@/actions/admin/users"
+import { updateUserRole, deleteAdminUser } from "@/actions/admin/users"
 import { useAdminHeader } from "@/components/admin/layout/AdminHeaderContext"
 import { toast } from "sonner"
 import type { FilterableColumn } from "@/types/data-table"
@@ -31,9 +32,15 @@ export function AdminUsersDataTable({
   const [selectedUser, setSelectedUser] = useState<AdminUser | null>(null)
   const [newRole, setNewRole] = useState<"admin" | "super_admin">("admin")
 
+  // Dialog state for delete
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [userToDelete, setUserToDelete] = useState<AdminUser | null>(null)
+
   // Stats
   const adminsCount = users.filter((u) => u.role === "admin").length
   const superAdminsCount = users.filter((u) => u.role === "super_admin").length
+
+  const isSuperAdmin = currentUserRole === "super_admin"
 
   // Set custom title
   useEffect(() => {
@@ -46,6 +53,12 @@ export function AdminUsersDataTable({
     setSelectedUser(user)
     setNewRole(role)
     setRoleDialogOpen(true)
+  }
+
+  // Handle delete request
+  const handleDeleteRequest = (user: AdminUser) => {
+    setUserToDelete(user)
+    setDeleteDialogOpen(true)
   }
 
   // Execute role change
@@ -70,6 +83,24 @@ export function AdminUsersDataTable({
     })
   }
 
+  // Execute delete
+  const handleDelete = () => {
+    if (!userToDelete) return
+
+    startTransition(async () => {
+      const result = await deleteAdminUser({ userId: userToDelete.id })
+
+      if (result?.data?.success) {
+        toast.success(`${userToDelete.full_name || "Utilisateur"} retiré des administrateurs`)
+        setDeleteDialogOpen(false)
+        setUserToDelete(null)
+        router.refresh()
+      } else {
+        toast.error(result?.data?.error || "Erreur lors de la suppression")
+      }
+    })
+  }
+
   // Get columns with actions
   const columns = useMemo(
     () =>
@@ -77,6 +108,7 @@ export function AdminUsersDataTable({
         currentUserId,
         currentUserRole,
         onRoleChange: handleRoleChangeRequest,
+        onDelete: handleDeleteRequest,
       }),
     [currentUserId, currentUserRole]
   )
@@ -99,6 +131,15 @@ export function AdminUsersDataTable({
   return (
     <>
       <div className="space-y-4">
+        {/* Header with Add Button */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="h-5 w-5 text-primary" />
+            <h2 className="text-xl font-semibold">Utilisateurs administrateurs</h2>
+          </div>
+          {isSuperAdmin && <AddAdminDialog />}
+        </div>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-3 gap-4">
           <div className="rounded-lg border bg-card p-4">
@@ -140,6 +181,7 @@ export function AdminUsersDataTable({
         />
       </div>
 
+      {/* Role Change Dialog */}
       <ConfirmDialog
         open={roleDialogOpen}
         onOpenChange={setRoleDialogOpen}
@@ -153,6 +195,18 @@ export function AdminUsersDataTable({
         loading={isPending}
         variant={selectedUser?.role === "super_admin" ? "destructive" : "default"}
         confirmText={selectedUser?.role === "super_admin" ? "Rétrograder" : "Promouvoir"}
+      />
+
+      {/* Delete Dialog */}
+      <ConfirmDialog
+        open={deleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
+        title="Supprimer l'administrateur"
+        description={`Êtes-vous sûr de vouloir retirer ${userToDelete?.full_name || "cet utilisateur"} des administrateurs ? Il sera rétrogradé en client.`}
+        onConfirm={handleDelete}
+        loading={isPending}
+        variant="destructive"
+        confirmText="Supprimer"
       />
     </>
   )

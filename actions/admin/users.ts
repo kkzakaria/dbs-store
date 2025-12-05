@@ -4,6 +4,7 @@ import { createSafeActionClient } from "next-safe-action"
 import { revalidatePath } from "next/cache"
 import { supabaseAdmin } from "@/lib/supabase/admin"
 import { getCurrentUser } from "@/actions/auth"
+import { z } from "zod"
 import { adminUsersFiltersSchema, updateUserRoleSchema, isAdminRole } from "@/lib/validations/admin"
 
 const action = createSafeActionClient()
@@ -154,3 +155,133 @@ export async function getAdminUsersStats() {
     return { error: "Erreur lors du comptage" }
   }
 }
+
+// ===========================================
+// Delete Admin User (demote to customer) - super_admin only
+// ===========================================
+
+export const deleteAdminUser = action
+  .schema(z.object({ userId: z.string().uuid() }))
+  .action(async ({ parsedInput }) => {
+    const currentUser = await getCurrentUser()
+    if (!currentUser || currentUser.role !== "super_admin") {
+      return { error: "Seul un super admin peut supprimer des administrateurs" }
+    }
+
+    const { userId } = parsedInput
+
+    // Prevent self-deletion
+    if (currentUser.id === userId) {
+      return { error: "Vous ne pouvez pas vous supprimer vous-même" }
+    }
+
+    try {
+      // Check if target is super_admin and if they're the last one
+      const { data: targetUser } = await supabaseAdmin
+        .from("users")
+        .select("role")
+        .eq("id", userId)
+        .single()
+
+      if (targetUser?.role === "super_admin") {
+        const { count } = await supabaseAdmin
+          .from("users")
+          .select("*", { count: "exact", head: true })
+          .eq("role", "super_admin")
+
+        if (count && count <= 1) {
+          return { error: "Impossible : il doit rester au moins un super admin" }
+        }
+      }
+
+      // Demote to customer
+      const { error } = await supabaseAdmin
+        .from("users")
+        .update({
+          role: "customer",
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", userId)
+
+      if (error) throw error
+
+      revalidatePath("/admin/settings")
+      revalidatePath("/admin/customers")
+
+      return { success: true }
+    } catch (error) {
+      console.error("Delete admin user error:", error)
+      return { error: "Erreur lors de la suppression de l'administrateur" }
+    }
+  })
+
+// ===========================================
+// Search Customers (for promotion) - super_admin only
+// ===========================================
+
+export const searchCustomersForPromotion = action
+  .schema(z.object({ search: z.string().min(2) }))
+  .action(async ({ parsedInput }) => {
+    const currentUser = await getCurrentUser()
+    if (!currentUser || currentUser.role !== "super_admin") {
+      return { error: "Seul un super admin peut ajouter des administrateurs" }
+    }
+
+    const { search } = parsedInput
+
+    try {
+      const { data: customers, error } = await supabaseAdmin
+        .from("users")
+        .select("id, full_name, email, phone")
+        .eq("role", "customer")
+        .or(`full_name.ilike.%${search}%,phone.ilike.%${search}%,email.ilike.%${search}%`)
+        .limit(10)
+
+      if (error) throw error
+
+      return { customers: customers || [] }
+    } catch (error) {
+      console.error("Search customers error:", error)
+      return { error: "Erreur lors de la recherche" }
+    }
+  })
+
+// ===========================================
+// Promote Customer to Admin - super_admin only
+// ===========================================
+
+export const promoteToAdmin = action
+  .schema(z.object({
+    userId: z.string().uuid(),
+    role: z.enum(["admin", "super_admin"]),
+  }))
+  .action(async ({ parsedInput }) => {
+    const currentUser = await getCurrentUser()
+    if (!currentUser || currentUser.role !== "super_admin") {
+      return { error: "Seul un super admin peut ajouter des administrateurs" }
+    }
+
+    const { userId, role } = parsedInput
+
+    try {
+      const { data: updatedUser, error } = await supabaseAdmin
+        .from("users")
+        .update({
+          role,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", userId)
+        .select()
+        .single()
+
+      if (error) throw error
+
+      revalidatePath("/admin/settings")
+      revalidatePath("/admin/customers")
+
+      return { success: true, user: updatedUser }
+    } catch (error) {
+      console.error("Promote to admin error:", error)
+      return { error: "Erreur lors de la promotion" }
+    }
+  })

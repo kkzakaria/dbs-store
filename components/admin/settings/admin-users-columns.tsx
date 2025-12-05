@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { User, Phone, Mail, Shield, ShieldCheck, MoreHorizontal } from "lucide-react"
+import { User, Phone, Mail, Shield, ShieldCheck, MoreHorizontal, Trash2 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -33,12 +33,14 @@ interface GetAdminUsersColumnsProps {
   currentUserId: string
   currentUserRole: string | null
   onRoleChange: (user: AdminUser, newRole: "admin" | "super_admin") => void
+  onDelete: (user: AdminUser) => void
 }
 
 export function getAdminUsersColumns({
   currentUserId,
   currentUserRole,
   onRoleChange,
+  onDelete,
 }: GetAdminUsersColumnsProps): ColumnDef<AdminUser>[] {
   const isSuperAdmin = currentUserRole === "super_admin"
 
@@ -166,6 +168,14 @@ export function getAdminUsersColumns({
                     Promouvoir Super Admin
                   </>
                 )}
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => onDelete(user)}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" />
+                Supprimer
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
