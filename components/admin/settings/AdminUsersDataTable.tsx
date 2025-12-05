@@ -36,6 +36,9 @@ export function AdminUsersDataTable({
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [userToDelete, setUserToDelete] = useState<AdminUser | null>(null)
 
+  // Dialog state for add
+  const [addDialogOpen, setAddDialogOpen] = useState(false)
+
   // Stats
   const adminsCount = users.filter((u) => u.role === "admin").length
   const superAdminsCount = users.filter((u) => u.role === "super_admin").length
@@ -131,15 +134,6 @@ export function AdminUsersDataTable({
   return (
     <>
       <div className="space-y-4">
-        {/* Header with Add Button */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-primary" />
-            <h2 className="text-xl font-semibold">Utilisateurs administrateurs</h2>
-          </div>
-          {isSuperAdmin && <AddAdminDialog />}
-        </div>
-
         {/* Stats Cards */}
         <div className="grid grid-cols-3 gap-4">
           <div className="rounded-lg border bg-card p-4">
@@ -174,12 +168,17 @@ export function AdminUsersDataTable({
             onRefresh: () => router.refresh(),
             isRefreshing: isPending,
             filterableColumns,
+            onAdd: isSuperAdmin ? () => setAddDialogOpen(true) : undefined,
+            addLabel: "Ajouter",
           }}
           pageSize={10}
           emptyMessage="Aucun utilisateur administrateur"
           isLoading={isPending}
         />
       </div>
+
+      {/* Add Admin Dialog */}
+      <AddAdminDialog open={addDialogOpen} onOpenChange={setAddDialogOpen} />
 
       {/* Role Change Dialog */}
       <ConfirmDialog

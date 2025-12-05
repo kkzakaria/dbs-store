@@ -10,7 +10,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,10 +24,14 @@ type Customer = {
   phone: string | null
 }
 
-export function AddAdminDialog() {
+interface AddAdminDialogProps {
+  open: boolean
+  onOpenChange: (open: boolean) => void
+}
+
+export function AddAdminDialog({ open, onOpenChange }: AddAdminDialogProps) {
   const router = useRouter()
   const [isPending, startTransition] = useTransition()
-  const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
   const [customers, setCustomers] = useState<Customer[]>([])
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null)
@@ -77,11 +80,7 @@ export function AddAdminDialog() {
         toast.success(
           `${selectedCustomer.full_name || "Utilisateur"} promu ${selectedRole === "super_admin" ? "Super Admin" : "Admin"}`
         )
-        setOpen(false)
-        setSearch("")
-        setCustomers([])
-        setSelectedCustomer(null)
-        setSelectedRole("admin")
+        handleClose(false)
         router.refresh()
       } else {
         toast.error(result?.data?.error || "Erreur lors de la promotion")
@@ -90,7 +89,7 @@ export function AddAdminDialog() {
   }
 
   const handleClose = (isOpen: boolean) => {
-    setOpen(isOpen)
+    onOpenChange(isOpen)
     if (!isOpen) {
       setSearch("")
       setCustomers([])
@@ -101,12 +100,6 @@ export function AddAdminDialog() {
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogTrigger asChild>
-        <Button>
-          <UserPlus className="mr-2 h-4 w-4" />
-          Ajouter un admin
-        </Button>
-      </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Ajouter un administrateur</DialogTitle>
