@@ -108,7 +108,8 @@ export function getProductColumns({
       ),
     },
     {
-      accessorKey: "category",
+      id: "category",
+      accessorFn: (row) => row.category?.id,
       header: "Categorie",
       cell: ({ row }) => {
         const category = row.original.category
@@ -117,6 +118,9 @@ export function getProductColumns({
         ) : (
           <span className="text-muted-foreground">-</span>
         )
+      },
+      filterFn: (row, id, value: string[]) => {
+        return value.includes(row.getValue(id) as string)
       },
     },
     {
@@ -164,7 +168,8 @@ export function getProductColumns({
       },
     },
     {
-      accessorKey: "is_active",
+      id: "is_active",
+      accessorFn: (row) => String(row.is_active),
       header: "Statut",
       cell: ({ row }) => {
         const isActive = row.original.is_active
@@ -182,6 +187,19 @@ export function getProductColumns({
             )}
           </div>
         )
+      },
+      filterFn: (row, id, value: string[]) => {
+        return value.includes(row.getValue(id) as string)
+      },
+    },
+    {
+      id: "is_featured",
+      accessorFn: (row) => String(row.is_featured),
+      header: () => null,
+      cell: () => null,
+      enableHiding: true,
+      filterFn: (row, id, value: string[]) => {
+        return value.includes(row.getValue(id) as string)
       },
     },
     {
