@@ -3,7 +3,7 @@ import { getShippingZones } from "@/actions/admin/settings"
 import { getAdminUsers } from "@/actions/admin/users"
 import { getCurrentUser } from "@/actions/auth"
 import { ShippingZonesManager } from "@/components/admin/settings/ShippingZonesManager"
-import { AdminUsersManager } from "@/components/admin/settings/AdminUsersManager"
+import { AdminUsersDataTable } from "@/components/admin/settings/AdminUsersDataTable"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Truck, Store, Settings2, Users } from "lucide-react"
 
@@ -55,7 +55,7 @@ export default async function AdminSettingsPage() {
 
         <TabsContent value="users" className="mt-6">
           <Suspense fallback={<div>Chargement...</div>}>
-            <AdminUsersManager
+            <AdminUsersDataTable
               users={adminUsers}
               currentUserId={currentUser?.id || ""}
               currentUserRole={currentUser?.role || null}
