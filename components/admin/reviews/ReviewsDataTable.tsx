@@ -9,6 +9,7 @@ import { getReviewColumns } from "./columns"
 import { approveReview, rejectReview } from "@/actions/admin/reviews"
 import { useAdminHeader } from "@/components/admin/layout/AdminHeaderContext"
 import { toast } from "sonner"
+import type { FilterableColumn, FilterOption } from "@/types/data-table"
 
 type Review = {
   id: string
@@ -133,14 +134,25 @@ export function ReviewsDataTable({
     [updateUrlParams]
   )
 
-  // Handle search
+  // Handle search and filters
   const handleColumnFiltersChange = useCallback(
     (filters: { id: string; value: unknown }[]) => {
       const searchFilter = filters.find((f) => f.id === "content")
+      const statusFilter = filters.find((f) => f.id === "status")
+
+      // Map status filter values to isApproved param
+      const statusValues = (statusFilter?.value as string[]) || []
+      let isApprovedParam: boolean | undefined
+      if (statusValues.includes("pending") && !statusValues.includes("approved")) {
+        isApprovedParam = false
+      } else if (statusValues.includes("approved") && !statusValues.includes("pending")) {
+        isApprovedParam = true
+      }
 
       startTransition(() => {
         updateUrlParams({
           search: searchFilter?.value as string | undefined,
+          isApproved: isApprovedParam,
           page: 1,
         })
       })
@@ -148,17 +160,45 @@ export function ReviewsDataTable({
     [updateUrlParams]
   )
 
-  // Build initial filters from URL
+  // Build status filter options with counts
+  const statusOptions: FilterOption[] = useMemo(() => [
+    {
+      label: `En attente (${stats?.pending ?? 0})`,
+      value: "pending",
+      icon: Clock,
+    },
+    {
+      label: `Approuves (${stats?.approved ?? 0})`,
+      value: "approved",
+      icon: CheckCircle,
+    },
+  ], [stats?.pending, stats?.approved])
+
+  // Build filterable columns
+  const filterableColumns: FilterableColumn[] = useMemo(() => [
+    {
+      id: "status",
+      title: "Statut",
+      options: statusOptions,
+    },
+  ], [statusOptions])
+
+  // Build initial filters from URL (including status filters)
+  const approvedFilter = searchParams.get("isApproved")
+
   const initialFilters = useMemo(() => {
     const filters: { id: string; value: unknown }[] = []
     if (search) {
       filters.push({ id: "content", value: search })
     }
+    // Map URL param to status filter values
+    if (approvedFilter === "false") {
+      filters.push({ id: "status", value: ["pending"] })
+    } else if (approvedFilter === "true") {
+      filters.push({ id: "status", value: ["approved"] })
+    }
     return filters
-  }, [search])
-
-  // Quick filter buttons
-  const approvedFilter = searchParams.get("isApproved")
+  }, [search, approvedFilter])
 
   return (
     <div className="space-y-4">
@@ -182,7 +222,7 @@ export function ReviewsDataTable({
           <div className="rounded-lg border bg-card p-4">
             <div className="flex items-center gap-2">
               <CheckCircle className="h-4 w-4 text-green-600" />
-              <span className="text-sm text-muted-foreground">Approuvés</span>
+              <span className="text-sm text-muted-foreground">Approuves</span>
             </div>
             <p className="mt-2 text-2xl font-bold text-green-600">{stats.approved}</p>
           </div>
@@ -196,32 +236,6 @@ export function ReviewsDataTable({
         </div>
       )}
 
-      {/* Quick Filters */}
-      <div className="flex flex-wrap gap-2">
-        <button
-          onClick={() => updateUrlParams({ isApproved: approvedFilter === "false" ? undefined : false, page: 1 })}
-          className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-colors ${
-            approvedFilter === "false"
-              ? "border-amber-500 bg-amber-50 text-amber-700 dark:bg-amber-900/20"
-              : "hover:bg-muted"
-          }`}
-        >
-          <Clock className="h-4 w-4" />
-          En attente de modération
-        </button>
-        <button
-          onClick={() => updateUrlParams({ isApproved: approvedFilter === "true" ? undefined : true, page: 1 })}
-          className={`flex items-center gap-2 rounded-lg border px-4 py-2 text-sm transition-colors ${
-            approvedFilter === "true"
-              ? "border-green-500 bg-green-50 text-green-700 dark:bg-green-900/20"
-              : "hover:bg-muted"
-          }`}
-        >
-          <CheckCircle className="h-4 w-4" />
-          Approuvés
-        </button>
-      </div>
-
       <DataTable
         columns={columns}
         data={reviews}
@@ -230,6 +244,7 @@ export function ReviewsDataTable({
           searchPlaceholder: "Rechercher dans les avis...",
           onRefresh: () => router.refresh(),
           isRefreshing: isPending,
+          filterableColumns,
         }}
         manualPagination
         pageCount={pageCount}
