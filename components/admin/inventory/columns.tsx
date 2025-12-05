@@ -128,6 +128,13 @@ export function getInventoryColumns({
     },
     {
       id: "status",
+      accessorFn: (row) => {
+        const stock = row.stock_quantity || 0
+        const threshold = row.low_stock_threshold || 5
+        if (stock === 0) return "out_of_stock"
+        if (stock <= threshold) return "low_stock"
+        return "in_stock"
+      },
       header: "Statut",
       cell: ({ row }) => {
         const stock = row.original.stock_quantity || 0
@@ -158,6 +165,9 @@ export function getInventoryColumns({
             En stock
           </Badge>
         )
+      },
+      filterFn: (row, id, value: string[]) => {
+        return value.includes(row.getValue(id))
       },
     },
     {
