@@ -130,7 +130,8 @@ export function getReviewColumns({
       },
     },
     {
-      accessorKey: "is_approved",
+      id: "status",
+      accessorFn: (row) => row.is_approved === true ? "approved" : "pending",
       header: "Statut",
       cell: ({ row }) => {
         const isApproved = row.original.is_approved
@@ -147,6 +148,9 @@ export function getReviewColumns({
             En attente
           </Badge>
         )
+      },
+      filterFn: (row, id, value: string[]) => {
+        return value.includes(row.getValue(id))
       },
     },
     {
