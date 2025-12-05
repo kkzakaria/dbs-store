@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { ArrowUpDown, MoreHorizontal, Pencil, Trash2, Eye, Star, EyeOff } from "lucide-react"
+import { MoreHorizontal, Pencil, Trash2, Eye, Star, EyeOff } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { Badge } from "@/components/ui/badge"
@@ -15,6 +15,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { DataTableColumnHeader } from "@/components/data-table"
 import { formatPrice } from "@/lib/config"
 import { cn } from "@/lib/utils"
 import type { Database } from "@/types/database.types"
@@ -93,14 +94,7 @@ export function getProductColumns({
     {
       accessorKey: "name",
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="-ml-4"
-        >
-          Nom
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        <DataTableColumnHeader column={column} title="Nom" />
       ),
       cell: ({ row }) => (
         <div className="min-w-[200px]">
@@ -128,14 +122,7 @@ export function getProductColumns({
     {
       accessorKey: "price",
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="-ml-4"
-        >
-          Prix
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        <DataTableColumnHeader column={column} title="Prix" />
       ),
       cell: ({ row }) => {
         const price = row.original.price
@@ -155,14 +142,7 @@ export function getProductColumns({
     {
       accessorKey: "stock_quantity",
       header: ({ column }) => (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="-ml-4"
-        >
-          Stock
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
+        <DataTableColumnHeader column={column} title="Stock" />
       ),
       cell: ({ row }) => {
         const stock = row.original.stock_quantity || 0
