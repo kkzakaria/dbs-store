@@ -16,6 +16,7 @@ interface ProductImage {
   alt: string | null
   position: number | null
   is_primary: boolean | null
+  variant_id?: string | null
 }
 
 interface ProductImageUploadProps {

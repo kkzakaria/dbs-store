@@ -19,15 +19,15 @@ interface UseCartReturn {
 
   // Actions
   addItem: (product: CartProduct, quantity?: number) => void
-  removeItem: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
+  removeItem: (productId: string, variantId?: string | null) => void
+  updateQuantity: (productId: string, variantId: string | null | undefined, quantity: number) => void
   clearCart: () => void
   openCart: () => void
   closeCart: () => void
 
   // Helpers
-  getItem: (productId: string) => CartItem | undefined
-  isInCart: (productId: string) => boolean
+  getItem: (productId: string, variantId?: string | null) => CartItem | undefined
+  isInCart: (productId: string, variantId?: string | null) => boolean
 
   // Server sync
   syncWithServer: (userId: string) => Promise<void>

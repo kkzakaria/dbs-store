@@ -7,9 +7,13 @@ import { getCurrentUser } from "@/actions/auth"
 import {
   adminProductFiltersSchema,
   adminProductSchema,
+  adminProductWithVariantsSchema,
   isAdminRole,
   generateSlug,
   type AdminProductInput,
+  type AdminProductWithVariantsInput,
+  type ProductOptionInput,
+  type ProductVariantInput,
 } from "@/lib/validations/admin"
 import { z } from "zod"
 
@@ -121,7 +125,9 @@ export const getAdminProduct = action
           `
           *,
           category:categories(id, name, slug),
-          images:product_images(id, url, alt, position, is_primary)
+          images:product_images(id, url, alt, position, is_primary, variant_id),
+          options:product_options(id, name, values, position),
+          variants:product_variants(id, sku, price, compare_price, stock_quantity, low_stock_threshold, options, position, is_active)
         `
         )
         .eq("id", parsedInput.id)
@@ -132,7 +138,24 @@ export const getAdminProduct = action
       // Sort images by position
       if (product?.images) {
         product.images.sort(
-          (a, b) => (a.position ?? 0) - (b.position ?? 0)
+          (a: { position: number | null }, b: { position: number | null }) =>
+            (a.position ?? 0) - (b.position ?? 0)
+        )
+      }
+
+      // Sort options by position
+      if (product?.options) {
+        product.options.sort(
+          (a: { position: number | null }, b: { position: number | null }) =>
+            (a.position ?? 0) - (b.position ?? 0)
+        )
+      }
+
+      // Sort variants by position
+      if (product?.variants) {
+        product.variants.sort(
+          (a: { position: number | null }, b: { position: number | null }) =>
+            (a.position ?? 0) - (b.position ?? 0)
         )
       }
 
@@ -383,3 +406,372 @@ export async function getCategories() {
     return { error: "Erreur lors de la recuperation des categories" }
   }
 }
+
+// ===========================================
+// Create Product with Variants
+// ===========================================
+
+export const createProductWithVariants = action
+  .schema(adminProductWithVariantsSchema)
+  .action(async ({ parsedInput }) => {
+    const user = await getCurrentUser()
+    if (!user || !isAdminRole(user.role)) {
+      return { error: "Acces non autorise" }
+    }
+
+    try {
+      const { has_variants, options, variants, ...productData } = parsedInput
+
+      // Generate slug if not provided
+      const slug = productData.slug || generateSlug(productData.name)
+
+      // Check if slug already exists
+      const { data: existingProduct } = await supabaseAdmin
+        .from("products")
+        .select("id")
+        .eq("slug", slug)
+        .single()
+
+      if (existingProduct) {
+        return { error: "Un produit avec ce slug existe deja" }
+      }
+
+      // Calculate price and stock from variants if has_variants
+      let finalPrice = productData.price
+      let finalStock = productData.stock_quantity
+
+      if (has_variants && variants && variants.length > 0) {
+        // Price = min variant price
+        finalPrice = Math.min(...variants.map((v) => v.price))
+        // Stock = sum of all variant stock
+        finalStock = variants.reduce((sum, v) => sum + (v.stock_quantity || 0), 0)
+      }
+
+      // Create product
+      const { data: product, error: productError } = await supabaseAdmin
+        .from("products")
+        .insert({
+          name: productData.name,
+          slug,
+          description: productData.description || null,
+          brand: productData.brand || null,
+          sku: has_variants ? null : (productData.sku || null),
+          price: finalPrice,
+          compare_price: productData.compare_price || null,
+          category_id: productData.category_id || null,
+          stock_quantity: finalStock,
+          stock_type: productData.stock_type,
+          low_stock_threshold: productData.low_stock_threshold,
+          is_active: productData.is_active,
+          is_featured: productData.is_featured,
+          meta_title: productData.meta_title || null,
+          meta_description: productData.meta_description || null,
+          specifications: productData.specifications || {},
+          has_variants,
+        })
+        .select()
+        .single()
+
+      if (productError) throw productError
+
+      // Create options if has_variants
+      if (has_variants && options && options.length > 0) {
+        const optionsToInsert = options.map((opt, index) => ({
+          product_id: product.id,
+          name: opt.name,
+          values: opt.values,
+          position: opt.position ?? index,
+        }))
+
+        const { error: optionsError } = await supabaseAdmin
+          .from("product_options")
+          .insert(optionsToInsert)
+
+        if (optionsError) throw optionsError
+      }
+
+      // Create variants if has_variants
+      if (has_variants && variants && variants.length > 0) {
+        const variantsToInsert = variants.map((v, index) => ({
+          product_id: product.id,
+          sku: v.sku,
+          price: v.price,
+          compare_price: v.compare_price || null,
+          stock_quantity: v.stock_quantity || 0,
+          low_stock_threshold: v.low_stock_threshold || 5,
+          options: v.options,
+          position: v.position ?? index,
+          is_active: v.is_active ?? true,
+        }))
+
+        const { error: variantsError } = await supabaseAdmin
+          .from("product_variants")
+          .insert(variantsToInsert)
+
+        if (variantsError) throw variantsError
+      }
+
+      revalidatePath("/admin/products")
+      revalidatePath("/products")
+
+      return { success: true, product }
+    } catch (error) {
+      console.error("Create product with variants error:", error)
+      return { error: "Erreur lors de la creation du produit" }
+    }
+  })
+
+// ===========================================
+// Update Product with Variants
+// ===========================================
+
+export const updateProductWithVariants = action
+  .schema(adminProductWithVariantsSchema.extend({ id: z.string().uuid() }))
+  .action(async ({ parsedInput }) => {
+    const user = await getCurrentUser()
+    if (!user || !isAdminRole(user.role)) {
+      return { error: "Acces non autorise" }
+    }
+
+    try {
+      const { id, has_variants, options, variants, ...productData } = parsedInput
+
+      // Generate slug if not provided
+      const slug = productData.slug || generateSlug(productData.name)
+
+      // Check if slug already exists for another product
+      const { data: existingProduct } = await supabaseAdmin
+        .from("products")
+        .select("id")
+        .eq("slug", slug)
+        .neq("id", id)
+        .single()
+
+      if (existingProduct) {
+        return { error: "Un produit avec ce slug existe deja" }
+      }
+
+      // Calculate price and stock from variants if has_variants
+      let finalPrice = productData.price
+      let finalStock = productData.stock_quantity
+
+      if (has_variants && variants && variants.length > 0) {
+        finalPrice = Math.min(...variants.map((v) => v.price))
+        finalStock = variants.reduce((sum, v) => sum + (v.stock_quantity || 0), 0)
+      }
+
+      // Update product
+      const { data: product, error: productError } = await supabaseAdmin
+        .from("products")
+        .update({
+          name: productData.name,
+          slug,
+          description: productData.description || null,
+          brand: productData.brand || null,
+          sku: has_variants ? null : (productData.sku || null),
+          price: finalPrice,
+          compare_price: productData.compare_price || null,
+          category_id: productData.category_id || null,
+          stock_quantity: finalStock,
+          stock_type: productData.stock_type,
+          low_stock_threshold: productData.low_stock_threshold,
+          is_active: productData.is_active,
+          is_featured: productData.is_featured,
+          meta_title: productData.meta_title || null,
+          meta_description: productData.meta_description || null,
+          specifications: productData.specifications || {},
+          has_variants,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", id)
+        .select()
+        .single()
+
+      if (productError) throw productError
+
+      // Handle options: delete all and re-insert
+      await supabaseAdmin
+        .from("product_options")
+        .delete()
+        .eq("product_id", id)
+
+      if (has_variants && options && options.length > 0) {
+        const optionsToInsert = options.map((opt, index) => ({
+          product_id: id,
+          name: opt.name,
+          values: opt.values,
+          position: opt.position ?? index,
+        }))
+
+        const { error: optionsError } = await supabaseAdmin
+          .from("product_options")
+          .insert(optionsToInsert)
+
+        if (optionsError) throw optionsError
+      }
+
+      // Handle variants: upsert existing, insert new, delete removed
+      const { data: existingVariants } = await supabaseAdmin
+        .from("product_variants")
+        .select("id")
+        .eq("product_id", id)
+
+      const existingVariantIds = new Set(existingVariants?.map((v) => v.id) || [])
+      const newVariantIds = new Set(variants?.filter((v) => v.id).map((v) => v.id) || [])
+
+      // Delete variants that are no longer present
+      const variantsToDelete = [...existingVariantIds].filter((vid) => !newVariantIds.has(vid))
+      if (variantsToDelete.length > 0) {
+        await supabaseAdmin
+          .from("product_variants")
+          .delete()
+          .in("id", variantsToDelete)
+      }
+
+      // Upsert variants
+      if (has_variants && variants && variants.length > 0) {
+        for (let i = 0; i < variants.length; i++) {
+          const v = variants[i]
+          if (v.id && existingVariantIds.has(v.id)) {
+            // Update existing variant
+            await supabaseAdmin
+              .from("product_variants")
+              .update({
+                sku: v.sku,
+                price: v.price,
+                compare_price: v.compare_price || null,
+                stock_quantity: v.stock_quantity || 0,
+                low_stock_threshold: v.low_stock_threshold || 5,
+                options: v.options,
+                position: v.position ?? i,
+                is_active: v.is_active ?? true,
+                updated_at: new Date().toISOString(),
+              })
+              .eq("id", v.id)
+          } else {
+            // Insert new variant
+            await supabaseAdmin
+              .from("product_variants")
+              .insert({
+                product_id: id,
+                sku: v.sku,
+                price: v.price,
+                compare_price: v.compare_price || null,
+                stock_quantity: v.stock_quantity || 0,
+                low_stock_threshold: v.low_stock_threshold || 5,
+                options: v.options,
+                position: v.position ?? i,
+                is_active: v.is_active ?? true,
+              })
+          }
+        }
+      } else {
+        // If no variants, delete all existing variants
+        await supabaseAdmin
+          .from("product_variants")
+          .delete()
+          .eq("product_id", id)
+      }
+
+      revalidatePath("/admin/products")
+      revalidatePath(`/admin/products/${id}`)
+      revalidatePath("/products")
+      revalidatePath(`/products/${slug}`)
+
+      return { success: true, product }
+    } catch (error) {
+      console.error("Update product with variants error:", error)
+      return { error: "Erreur lors de la mise a jour du produit" }
+    }
+  })
+
+// ===========================================
+// Update Variant Stock (Quick update)
+// ===========================================
+
+export const updateVariantStock = action
+  .schema(
+    z.object({
+      variantId: z.string().uuid(),
+      quantity: z.coerce.number().min(0),
+    })
+  )
+  .action(async ({ parsedInput }) => {
+    const user = await getCurrentUser()
+    if (!user || !isAdminRole(user.role)) {
+      return { error: "Acces non autorise" }
+    }
+
+    try {
+      // Update variant stock
+      const { data: variant, error: variantError } = await supabaseAdmin
+        .from("product_variants")
+        .update({
+          stock_quantity: parsedInput.quantity,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", parsedInput.variantId)
+        .select("product_id")
+        .single()
+
+      if (variantError) throw variantError
+
+      // Recalculate product total stock
+      const { data: variants } = await supabaseAdmin
+        .from("product_variants")
+        .select("stock_quantity")
+        .eq("product_id", variant.product_id)
+
+      const totalStock = variants?.reduce((sum, v) => sum + (v.stock_quantity || 0), 0) || 0
+
+      await supabaseAdmin
+        .from("products")
+        .update({
+          stock_quantity: totalStock,
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", variant.product_id)
+
+      revalidatePath("/admin/products")
+      revalidatePath("/admin/inventory")
+
+      return { success: true }
+    } catch (error) {
+      console.error("Update variant stock error:", error)
+      return { error: "Erreur lors de la mise a jour du stock" }
+    }
+  })
+
+// ===========================================
+// Assign Image to Variant
+// ===========================================
+
+export const assignImageToVariant = action
+  .schema(
+    z.object({
+      imageId: z.string().uuid(),
+      variantId: z.string().uuid().nullable(),
+    })
+  )
+  .action(async ({ parsedInput }) => {
+    const user = await getCurrentUser()
+    if (!user || !isAdminRole(user.role)) {
+      return { error: "Acces non autorise" }
+    }
+
+    try {
+      const { error } = await supabaseAdmin
+        .from("product_images")
+        .update({ variant_id: parsedInput.variantId })
+        .eq("id", parsedInput.imageId)
+
+      if (error) throw error
+
+      revalidatePath("/admin/products")
+
+      return { success: true }
+    } catch (error) {
+      console.error("Assign image to variant error:", error)
+      return { error: "Erreur lors de l'assignation de l'image" }
+    }
+  })

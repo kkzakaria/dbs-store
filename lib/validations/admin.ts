@@ -85,6 +85,58 @@ export type AdminProductInput = z.input<typeof adminProductSchema>
 export type AdminProductOutput = z.infer<typeof adminProductSchema>
 
 // ===========================================
+// Product Options Schema (for variants)
+// ===========================================
+
+export const productOptionSchema = z.object({
+  id: z.string().uuid().optional(),
+  name: z
+    .string()
+    .min(1, "Le nom de l'option est requis")
+    .max(100, "Le nom ne peut pas dépasser 100 caractères"),
+  values: z
+    .array(z.string().min(1, "La valeur ne peut pas être vide"))
+    .min(1, "Au moins une valeur requise"),
+  position: z.number().min(0).default(0),
+})
+
+export type ProductOptionInput = z.infer<typeof productOptionSchema>
+
+// ===========================================
+// Product Variant Schema
+// ===========================================
+
+export const productVariantSchema = z.object({
+  id: z.string().uuid().optional(),
+  sku: z
+    .string()
+    .min(1, "Le SKU est requis")
+    .max(100, "Le SKU ne peut pas dépasser 100 caractères"),
+  price: z.coerce.number().min(0, "Le prix doit être positif"),
+  compare_price: z.coerce.number().min(0).optional().nullable(),
+  stock_quantity: z.coerce.number().min(0).default(0),
+  low_stock_threshold: z.coerce.number().min(0).default(5),
+  options: z.record(z.string(), z.string()),
+  position: z.number().min(0).default(0),
+  is_active: z.boolean().default(true),
+})
+
+export type ProductVariantInput = z.infer<typeof productVariantSchema>
+
+// ===========================================
+// Product with Variants Schema (Admin)
+// ===========================================
+
+export const adminProductWithVariantsSchema = adminProductSchema.extend({
+  has_variants: z.boolean().default(false),
+  options: z.array(productOptionSchema).optional().default([]),
+  variants: z.array(productVariantSchema).optional().default([]),
+})
+
+export type AdminProductWithVariantsInput = z.input<typeof adminProductWithVariantsSchema>
+export type AdminProductWithVariantsOutput = z.infer<typeof adminProductWithVariantsSchema>
+
+// ===========================================
 // Product Image Schema
 // ===========================================
 

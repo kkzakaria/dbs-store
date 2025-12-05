@@ -32,21 +32,58 @@ import {
 } from "@/components/ui/form"
 import { ProductSpecsEditor } from "./ProductSpecsEditor"
 import { ProductImageUpload } from "./ProductImageUpload"
+import { ProductOptionsEditor } from "./ProductOptionsEditor"
+import { ProductVariantsEditor } from "./ProductVariantsEditor"
+import { VariantImageAssignment } from "./VariantImageAssignment"
 import { PageHeader } from "@/components/admin/shared/PageHeader"
-import { createProduct, updateProduct } from "@/actions/admin/products"
-import { adminProductSchema, generateSlug, type AdminProductInput } from "@/lib/validations/admin"
+import {
+  createProductWithVariants,
+  updateProductWithVariants,
+  assignImageToVariant,
+} from "@/actions/admin/products"
+import {
+  adminProductWithVariantsSchema,
+  generateSlug,
+  type AdminProductWithVariantsInput,
+  type ProductOptionInput,
+  type ProductVariantInput,
+} from "@/lib/validations/admin"
 import { toast } from "sonner"
 import type { Database } from "@/types/database.types"
 
+type ProductImage = {
+  id: string
+  url: string
+  alt: string | null
+  position: number | null
+  is_primary: boolean | null
+  variant_id?: string | null
+}
+
+type ProductOption = {
+  id: string
+  name: string
+  values: unknown // Json type from database, will be parsed as string[]
+  position: number | null
+}
+
+type ProductVariant = {
+  id: string
+  sku: string
+  price: number
+  compare_price: number | null
+  stock_quantity: number | null
+  low_stock_threshold: number | null
+  options: unknown // Json type from database, will be parsed as Record<string, string>
+  position: number | null
+  is_active: boolean | null
+}
+
 type Product = Database["public"]["Tables"]["products"]["Row"] & {
   category?: { id: string; name: string; slug: string } | null
-  images?: Array<{
-    id: string
-    url: string
-    alt: string | null
-    position: number | null
-    is_primary: boolean | null
-  }> | null
+  images?: ProductImage[] | null
+  options?: ProductOption[] | null
+  variants?: ProductVariant[] | null
 }
 
 type Category = {
@@ -65,10 +102,32 @@ export function ProductForm({ product, categories }: ProductFormProps) {
   const router = useRouter()
   const isEditing = !!product
 
-  const [images, setImages] = useState(product?.images || [])
+  const [images, setImages] = useState<ProductImage[]>(product?.images || [])
+  const [hasVariants, setHasVariants] = useState(product?.has_variants ?? false)
+  const [productOptions, setProductOptions] = useState<ProductOptionInput[]>(
+    product?.options?.map((o) => ({
+      id: o.id,
+      name: o.name,
+      values: Array.isArray(o.values) ? o.values as string[] : [],
+      position: o.position ?? 0,
+    })) || []
+  )
+  const [productVariants, setProductVariants] = useState<ProductVariantInput[]>(
+    product?.variants?.map((v) => ({
+      id: v.id,
+      sku: v.sku,
+      price: v.price,
+      compare_price: v.compare_price,
+      stock_quantity: v.stock_quantity ?? 0,
+      low_stock_threshold: v.low_stock_threshold ?? 5,
+      options: (typeof v.options === "object" && v.options !== null ? v.options : {}) as Record<string, string>,
+      position: v.position ?? 0,
+      is_active: v.is_active ?? true,
+    })) || []
+  )
 
-  const form = useForm<AdminProductInput>({
-    resolver: zodResolver(adminProductSchema),
+  const form = useForm<AdminProductWithVariantsInput>({
+    resolver: zodResolver(adminProductWithVariantsSchema),
     defaultValues: {
       name: product?.name || "",
       slug: product?.slug || "",
@@ -86,10 +145,13 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       meta_title: product?.meta_title || "",
       meta_description: product?.meta_description || "",
       specifications: (product?.specifications as Record<string, string>) || {},
+      has_variants: product?.has_variants ?? false,
+      options: [],
+      variants: [],
     },
   })
 
-  const { execute: executeCreate, isExecuting: isCreating } = useAction(createProduct, {
+  const { execute: executeCreate, isExecuting: isCreating } = useAction(createProductWithVariants, {
     onSuccess: (result) => {
       if (result.data?.success) {
         toast.success("Produit cree avec succes")
@@ -103,7 +165,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
     },
   })
 
-  const { execute: executeUpdate, isExecuting: isUpdating } = useAction(updateProduct, {
+  const { execute: executeUpdate, isExecuting: isUpdating } = useAction(updateProductWithVariants, {
     onSuccess: (result) => {
       if (result.data?.success) {
         toast.success("Produit mis a jour")
@@ -114,6 +176,16 @@ export function ProductForm({ product, categories }: ProductFormProps) {
     },
     onError: () => {
       toast.error("Une erreur est survenue")
+    },
+  })
+
+  const { execute: executeAssignImage } = useAction(assignImageToVariant, {
+    onSuccess: (result) => {
+      if (result.data?.success) {
+        toast.success("Image assignee")
+      } else if (result.data?.error) {
+        toast.error(result.data.error)
+      }
     },
   })
 
@@ -128,11 +200,31 @@ export function ProductForm({ product, categories }: ProductFormProps) {
     }
   }, [watchName, isEditing, form])
 
-  const onSubmit = (data: AdminProductInput) => {
+  const onSubmit = (data: AdminProductWithVariantsInput) => {
+    // Include options and variants from state
+    const submitData = {
+      ...data,
+      has_variants: hasVariants,
+      options: hasVariants ? productOptions : [],
+      variants: hasVariants ? productVariants : [],
+    }
+
     if (isEditing && product) {
-      executeUpdate({ ...data, id: product.id })
+      executeUpdate({ ...submitData, id: product.id })
     } else {
-      executeCreate(data)
+      executeCreate(submitData)
+    }
+  }
+
+  const handleAssignImage = (imageId: string, variantId: string | null) => {
+    if (isEditing && product) {
+      executeAssignImage({ imageId, variantId })
+      // Update local state
+      setImages((prev) =>
+        prev.map((img) =>
+          img.id === imageId ? { ...img, variant_id: variantId } : img
+        )
+      )
     }
   }
 
@@ -156,9 +248,10 @@ export function ProductForm({ product, categories }: ProductFormProps) {
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
               <Tabs defaultValue="general" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
+                <TabsList className="grid w-full grid-cols-5">
                   <TabsTrigger value="general">General</TabsTrigger>
                   <TabsTrigger value="pricing">Prix & Stock</TabsTrigger>
+                  <TabsTrigger value="variants">Variantes</TabsTrigger>
                   <TabsTrigger value="seo">SEO</TabsTrigger>
                   <TabsTrigger value="specs">Specs</TabsTrigger>
                 </TabsList>
@@ -417,6 +510,84 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                           )}
                         />
                       </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                {/* Variants Tab */}
+                <TabsContent value="variants" className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Configuration des variantes</CardTitle>
+                      <CardDescription>
+                        Definissez les options et variantes de ce produit
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                      {/* Toggle has_variants */}
+                      <div className="flex items-center justify-between rounded-lg border p-4">
+                        <div className="space-y-0.5">
+                          <Label className="text-base">Ce produit a des variantes</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Activez pour gerer plusieurs versions (couleur, taille, stockage...)
+                          </p>
+                        </div>
+                        <Switch
+                          checked={hasVariants}
+                          onCheckedChange={setHasVariants}
+                        />
+                      </div>
+
+                      {hasVariants && (
+                        <>
+                          {/* Options Editor */}
+                          <div className="space-y-2">
+                            <Label className="text-base">Options</Label>
+                            <p className="text-sm text-muted-foreground mb-4">
+                              Definissez les types d'options (ex: Couleur, Taille) et leurs valeurs
+                            </p>
+                            <ProductOptionsEditor
+                              options={productOptions}
+                              onChange={setProductOptions}
+                            />
+                          </div>
+
+                          {/* Variants Editor */}
+                          <div className="space-y-2 pt-4 border-t">
+                            <Label className="text-base">Variantes</Label>
+                            <p className="text-sm text-muted-foreground mb-4">
+                              Gerez le SKU, prix et stock de chaque variante
+                            </p>
+                            <ProductVariantsEditor
+                              options={productOptions}
+                              variants={productVariants}
+                              onChange={setProductVariants}
+                              productName={form.watch("name")}
+                            />
+                          </div>
+
+                          {/* Variant Image Assignment (only in edit mode with existing product) */}
+                          {isEditing && images.length > 0 && productVariants.some((v) => v.id) && (
+                            <div className="space-y-2 pt-4 border-t">
+                              <Label className="text-base">Images par variante</Label>
+                              <p className="text-sm text-muted-foreground mb-4">
+                                Assignez des images specifiques a chaque variante
+                              </p>
+                              <VariantImageAssignment
+                                images={images}
+                                variants={productVariants}
+                                onAssign={handleAssignImage}
+                              />
+                            </div>
+                          )}
+                        </>
+                      )}
+
+                      {!hasVariants && (
+                        <p className="text-sm text-muted-foreground text-center py-4">
+                          Activez les variantes pour configurer plusieurs versions de ce produit.
+                        </p>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>

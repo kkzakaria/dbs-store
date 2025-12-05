@@ -24,6 +24,7 @@ type Product = Tables<"products"> & {
     position: number | null
     is_primary: boolean | null
   }> | null
+  has_variants?: boolean | null
 }
 
 interface ProductCardProps {
@@ -62,9 +63,18 @@ export function ProductCard({
     stockQuantity > 0 &&
     stockQuantity <= (product.low_stock_threshold || 5)
 
+  // Products with variants need variant selection on product page
+  const hasVariants = product.has_variants === true
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
+
+    if (hasVariants) {
+      // Redirect to product page for variant selection
+      window.location.href = `/products/${product.slug}`
+      return
+    }
 
     if (isOutOfStock) {
       toast.error("Produit en rupture de stock")
@@ -202,22 +212,27 @@ export function ProductCard({
 
           {/* Price and Add to Cart */}
           <div className="flex items-center justify-between gap-2">
-            <div className="flex items-baseline gap-1.5">
-              <p className="text-base font-bold">{formatPrice(product.price)}</p>
-              {hasDiscount && product.compare_price && (
-                <p className="text-xs text-muted-foreground line-through">
-                  {formatPrice(product.compare_price)}
-                </p>
+            <div className="flex flex-col">
+              {hasVariants && (
+                <span className="text-[10px] text-muted-foreground">À partir de</span>
               )}
+              <div className="flex items-baseline gap-1.5">
+                <p className="text-base font-bold">{formatPrice(product.price)}</p>
+                {hasDiscount && product.compare_price && !hasVariants && (
+                  <p className="text-xs text-muted-foreground line-through">
+                    {formatPrice(product.compare_price)}
+                  </p>
+                )}
+              </div>
             </div>
 
             <Button
               onClick={handleAddToCart}
-              disabled={isOutOfStock}
+              disabled={isOutOfStock && !hasVariants}
               size="sm"
               className="h-7 px-2 text-xs"
             >
-              {isOutOfStock ? "Indisponible" : "Acheter"}
+              {hasVariants ? "Voir" : isOutOfStock ? "Indisponible" : "Acheter"}
             </Button>
           </div>
         </CardContent>

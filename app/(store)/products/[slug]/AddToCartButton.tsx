@@ -6,6 +6,14 @@ import { Button } from "@/components/ui/button"
 import { useCartStore } from "@/stores/cart-store"
 import { toast } from "sonner"
 
+interface ProductVariant {
+  id: string
+  sku: string
+  price: number
+  stock_quantity: number
+  options: Record<string, string>
+}
+
 interface AddToCartButtonProps {
   product: {
     id: string
@@ -15,41 +23,75 @@ interface AddToCartButtonProps {
     image: string
     stock_quantity: number
   }
+  variant?: ProductVariant | null
   isOutOfStock: boolean
+  requiresVariant?: boolean
 }
 
-export function AddToCartButton({ product, isOutOfStock }: AddToCartButtonProps) {
+export function AddToCartButton({
+  product,
+  variant,
+  isOutOfStock,
+  requiresVariant = false,
+}: AddToCartButtonProps) {
   const [quantity, setQuantity] = useState(1)
   const addItem = useCartStore((state) => state.addItem)
+
+  // Use variant stock if available, otherwise product stock
+  const effectiveStock = variant?.stock_quantity ?? product.stock_quantity
 
   const decreaseQuantity = () => {
     setQuantity((prev) => Math.max(1, prev - 1))
   }
 
   const increaseQuantity = () => {
-    setQuantity((prev) => Math.min(product.stock_quantity, prev + 1))
+    setQuantity((prev) => Math.min(effectiveStock, prev + 1))
   }
 
   const handleAddToCart = () => {
+    if (requiresVariant) {
+      toast.error("Veuillez sélectionner une variante")
+      return
+    }
+
     if (isOutOfStock) {
       toast.error("Produit en rupture de stock")
       return
     }
 
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      slug: product.slug,
-      stock_quantity: product.stock_quantity,
-    }, quantity)
+    addItem(
+      {
+        id: product.id,
+        name: product.name,
+        price: variant?.price ?? product.price,
+        image: product.image,
+        slug: product.slug,
+        stock_quantity: effectiveStock,
+        variant_id: variant?.id ?? null,
+        variant_options: variant?.options ?? null,
+        variant_sku: variant?.sku ?? null,
+      },
+      quantity
+    )
 
-    toast.success(`${product.name} ajouté au panier`)
+    // Build variant description for toast
+    const variantDesc = variant?.options
+      ? ` (${Object.values(variant.options).join(" / ")})`
+      : ""
+    toast.success(`${product.name}${variantDesc} ajouté au panier`)
   }
+
+  const isDisabled = isOutOfStock || requiresVariant
 
   const handleAddToWishlist = () => {
     toast.info("Fonctionnalité bientôt disponible")
+  }
+
+  // Determine button text
+  const getButtonText = () => {
+    if (requiresVariant) return "Sélectionnez une option"
+    if (isOutOfStock) return "Indisponible"
+    return "Ajouter au panier"
   }
 
   return (
@@ -61,7 +103,7 @@ export function AddToCartButton({ product, isOutOfStock }: AddToCartButtonProps)
           size="icon"
           className="h-10 w-10 rounded-lg"
           onClick={decreaseQuantity}
-          disabled={quantity <= 1 || isOutOfStock}
+          disabled={quantity <= 1 || isDisabled}
           aria-label="Diminuer la quantité"
         >
           <Minus className="w-4 h-4" />
@@ -72,7 +114,7 @@ export function AddToCartButton({ product, isOutOfStock }: AddToCartButtonProps)
           size="icon"
           className="h-10 w-10 rounded-lg"
           onClick={increaseQuantity}
-          disabled={quantity >= product.stock_quantity || isOutOfStock}
+          disabled={quantity >= effectiveStock || isDisabled}
           aria-label="Augmenter la quantité"
         >
           <Plus className="w-4 h-4" />
@@ -83,9 +125,10 @@ export function AddToCartButton({ product, isOutOfStock }: AddToCartButtonProps)
       <Button
         size="lg"
         onClick={handleAddToCart}
-        disabled={isOutOfStock}
+        disabled={isDisabled}
+        className="flex-1 sm:flex-none"
       >
-        {isOutOfStock ? "Indisponible" : "Ajouter au panier"}
+        {getButtonText()}
       </Button>
 
       {/* Wishlist Button */}
