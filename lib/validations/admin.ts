@@ -366,3 +366,24 @@ export const updateUserRoleSchema = z.object({
 })
 
 export type UpdateUserRoleInput = z.infer<typeof updateUserRoleSchema>
+
+export const createAdminUserSchema = z.object({
+  full_name: z
+    .string()
+    .min(2, "Le nom doit contenir au moins 2 caractères")
+    .max(100, "Le nom ne peut pas dépasser 100 caractères"),
+  email: z
+    .string()
+    .email("Email invalide"),
+  phone: z
+    .string()
+    .regex(/^\+225\d{10}$/, "Format: +225XXXXXXXXXX")
+    .optional()
+    .or(z.literal("")),
+  password: z
+    .string()
+    .min(6, "Le mot de passe doit contenir au moins 6 caractères"),
+  role: z.enum(["admin", "super_admin"]),
+})
+
+export type CreateAdminUserInput = z.infer<typeof createAdminUserSchema>
