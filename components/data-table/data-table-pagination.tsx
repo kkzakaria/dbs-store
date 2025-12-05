@@ -16,6 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { ClientOnly } from "@/components/shared/ClientOnly";
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
@@ -38,23 +39,31 @@ export function DataTablePagination<TData>({
       <div className="flex items-center space-x-6 lg:space-x-8">
         <div className="flex items-center space-x-2">
           <p className="text-sm font-medium">Lignes par page</p>
-          <Select
-            value={`${table.getState().pagination.pageSize}`}
-            onValueChange={(value) => {
-              table.setPageSize(Number(value));
-            }}
+          <ClientOnly
+            fallback={
+              <div className="h-8 w-[70px] rounded-md border border-input bg-background px-3 py-2 text-sm">
+                {table.getState().pagination.pageSize}
+              </div>
+            }
           >
-            <SelectTrigger className="h-8 w-[70px]">
-              <SelectValue placeholder={table.getState().pagination.pageSize} />
-            </SelectTrigger>
-            <SelectContent side="top">
-              {pageSizeOptions.map((pageSize) => (
-                <SelectItem key={pageSize} value={`${pageSize}`}>
-                  {pageSize}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            <Select
+              value={`${table.getState().pagination.pageSize}`}
+              onValueChange={(value) => {
+                table.setPageSize(Number(value));
+              }}
+            >
+              <SelectTrigger className="h-8 w-[70px]">
+                <SelectValue placeholder={table.getState().pagination.pageSize} />
+              </SelectTrigger>
+              <SelectContent side="top">
+                {pageSizeOptions.map((pageSize) => (
+                  <SelectItem key={pageSize} value={`${pageSize}`}>
+                    {pageSize}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </ClientOnly>
         </div>
         <div className="flex w-[100px] items-center justify-center text-sm font-medium">
           Page {table.getState().pagination.pageIndex + 1} sur{" "}

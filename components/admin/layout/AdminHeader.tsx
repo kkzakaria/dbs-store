@@ -16,6 +16,7 @@ import {
 import { AdminSidebarMobile } from "./AdminSidebarMobile"
 import { ThemeToggle } from "@/components/store/theme-toggle"
 import { useAdminHeader } from "./AdminHeaderContext"
+import { ClientOnly } from "@/components/shared/ClientOnly"
 import { createClient } from "@/lib/supabase/client"
 import type { Database } from "@/types/database.types"
 
@@ -112,53 +113,65 @@ export function AdminHeader({ user }: AdminHeaderProps) {
         <ThemeToggle />
 
         {/* User Menu */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="relative h-9 w-9 rounded-full"
-            >
+        <ClientOnly
+          fallback={
+            <Button variant="ghost" className="relative h-9 w-9 rounded-full">
               <Avatar className="h-9 w-9">
-                <AvatarImage
-                  src={user.avatar_url || undefined}
-                  alt={user.full_name || "Admin"}
-                />
                 <AvatarFallback className="bg-primary text-primary-foreground">
                   {initials}
                 </AvatarFallback>
               </Avatar>
             </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-56">
-            <DropdownMenuLabel>
-              <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium">{user.full_name || "Admin"}</p>
-                <p className="text-xs text-muted-foreground">{user.phone}</p>
-              </div>
-            </DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem asChild>
-              <Link href="/account" className="cursor-pointer">
-                <User className="mr-2 h-4 w-4" />
-                Mon profil
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/" className="cursor-pointer">
-                <Store className="mr-2 h-4 w-4" />
-                Voir la boutique
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={handleSignOut}
-              className="cursor-pointer text-destructive focus:text-destructive"
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              Deconnexion
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+          }
+        >
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="relative h-9 w-9 rounded-full"
+              >
+                <Avatar className="h-9 w-9">
+                  <AvatarImage
+                    src={user.avatar_url || undefined}
+                    alt={user.full_name || "Admin"}
+                  />
+                  <AvatarFallback className="bg-primary text-primary-foreground">
+                    {initials}
+                  </AvatarFallback>
+                </Avatar>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>
+                <div className="flex flex-col space-y-1">
+                  <p className="text-sm font-medium">{user.full_name || "Admin"}</p>
+                  <p className="text-xs text-muted-foreground">{user.phone}</p>
+                </div>
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/account" className="cursor-pointer">
+                  <User className="mr-2 h-4 w-4" />
+                  Mon profil
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href="/" className="cursor-pointer">
+                  <Store className="mr-2 h-4 w-4" />
+                  Voir la boutique
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={handleSignOut}
+                className="cursor-pointer text-destructive focus:text-destructive"
+              >
+                <LogOut className="mr-2 h-4 w-4" />
+                Deconnexion
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </ClientOnly>
       </div>
     </header>
   )
