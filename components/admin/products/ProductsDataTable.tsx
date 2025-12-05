@@ -3,16 +3,14 @@
 import { useState, useCallback, useTransition } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import Link from "next/link"
-import { Plus, RefreshCw } from "lucide-react"
+import { RefreshCw } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { DataTable } from "@/components/admin/shared/DataTable"
-import { DataTableToolbar } from "@/components/admin/shared/DataTableToolbar"
+import { DataTable } from "@/components/data-table"
 import { PageHeader } from "@/components/admin/shared/PageHeader"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
 import { getProductColumns } from "./columns"
 import { deleteProduct, toggleProductStatus } from "@/actions/admin/products"
 import { toast } from "sonner"
-import { useReactTable, getCoreRowModel } from "@tanstack/react-table"
 import type { Database } from "@/types/database.types"
 
 type Product = Database["public"]["Tables"]["products"]["Row"] & {
@@ -46,7 +44,6 @@ export function ProductsDataTable({
   const [isPending, startTransition] = useTransition()
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [productToDelete, setProductToDelete] = useState<string | null>(null)
-  const [searchValue, setSearchValue] = useState(search)
 
   // Update URL with new params
   const updateUrlParams = useCallback(
@@ -64,44 +61,15 @@ export function ProductsDataTable({
     [router, searchParams]
   )
 
-  // Handle search with debounce
-  const handleSearchChange = useCallback(
-    (value: string) => {
-      setSearchValue(value)
-      // Debounced update
-      const timer = setTimeout(() => {
-        updateUrlParams({ search: value, page: 1 })
-      }, 300)
-      return () => clearTimeout(timer)
-    },
-    [updateUrlParams]
-  )
-
-  // Handle page change
-  const handlePageChange = useCallback(
-    (page: number) => {
-      updateUrlParams({ page: page + 1 })
-    },
-    [updateUrlParams]
-  )
-
-  // Handle page size change
-  const handlePageSizeChange = useCallback(
-    (size: number) => {
-      updateUrlParams({ limit: size, page: 1 })
-    },
-    [updateUrlParams]
-  )
-
   // Handle toggle active
   const handleToggleActive = useCallback((id: string) => {
     startTransition(async () => {
       const result = await toggleProductStatus({ id, field: "is_active" })
       if (result?.data?.success) {
-        toast.success("Statut mis a jour")
+        toast.success("Statut mis à jour")
         router.refresh()
       } else {
-        toast.error(result?.data?.error || "Erreur lors de la mise a jour")
+        toast.error(result?.data?.error || "Erreur lors de la mise à jour")
       }
     })
   }, [router])
@@ -111,10 +79,10 @@ export function ProductsDataTable({
     startTransition(async () => {
       const result = await toggleProductStatus({ id, field: "is_featured" })
       if (result?.data?.success) {
-        toast.success("Statut mis a jour")
+        toast.success("Statut mis à jour")
         router.refresh()
       } else {
-        toast.error(result?.data?.error || "Erreur lors de la mise a jour")
+        toast.error(result?.data?.error || "Erreur lors de la mise à jour")
       }
     })
   }, [router])
@@ -131,7 +99,7 @@ export function ProductsDataTable({
     startTransition(async () => {
       const result = await deleteProduct({ id: productToDelete })
       if (result?.data?.success) {
-        toast.success("Produit supprime")
+        toast.success("Produit supprimé")
         router.refresh()
       } else {
         toast.error(result?.data?.error || "Erreur lors de la suppression")
@@ -147,12 +115,28 @@ export function ProductsDataTable({
     onDelete: handleDelete,
   })
 
-  // Create a dummy table for the toolbar
-  const table = useReactTable({
-    data: products,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  })
+  // Handle pagination change
+  const handlePaginationChange = useCallback(
+    (pagination: { pageIndex: number; pageSize: number }) => {
+      updateUrlParams({
+        page: pagination.pageIndex + 1,
+        limit: pagination.pageSize,
+      })
+    },
+    [updateUrlParams]
+  )
+
+  // Handle search via column filters
+  const handleColumnFiltersChange = useCallback(
+    (filters: { id: string; value: unknown }[]) => {
+      const searchFilter = filters.find((f) => f.id === "name")
+      updateUrlParams({
+        search: searchFilter?.value as string | undefined,
+        page: 1,
+      })
+    },
+    [updateUrlParams]
+  )
 
   return (
     <div className="space-y-4">
@@ -166,28 +150,28 @@ export function ProductsDataTable({
         </Button>
         <Button asChild>
           <Link href="/admin/products/new">
-            <Plus className="mr-2 h-4 w-4" />
             Nouveau produit
           </Link>
         </Button>
       </PageHeader>
 
-      <DataTableToolbar
-        table={table}
-        searchPlaceholder="Rechercher par nom, SKU ou marque..."
-        searchValue={searchValue}
-        onSearchChange={handleSearchChange}
-      />
-
       <DataTable
         columns={columns}
         data={products}
+        toolbar={{
+          searchKey: "name",
+          searchPlaceholder: "Rechercher par nom...",
+        }}
         manualPagination
         pageCount={pageCount}
-        pageIndex={currentPage - 1}
-        pageSize={pageSize}
-        onPageChange={handlePageChange}
-        onPageSizeChange={handlePageSizeChange}
+        initialPagination={{
+          pageIndex: currentPage - 1,
+          pageSize,
+        }}
+        initialColumnFilters={search ? [{ id: "name", value: search }] : []}
+        onPaginationChange={handlePaginationChange}
+        onColumnFiltersChange={handleColumnFiltersChange}
+        enableRowSelection
         isLoading={isPending}
       />
 
@@ -195,7 +179,7 @@ export function ProductsDataTable({
         open={deleteDialogOpen}
         onOpenChange={setDeleteDialogOpen}
         title="Supprimer le produit"
-        description="Etes-vous sur de vouloir supprimer ce produit ? Cette action est irreversible."
+        description="Êtes-vous sûr de vouloir supprimer ce produit ? Cette action est irréversible."
         variant="destructive"
         confirmLabel="Supprimer"
         onConfirm={confirmDelete}
