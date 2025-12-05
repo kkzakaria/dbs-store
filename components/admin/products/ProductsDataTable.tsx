@@ -2,8 +2,7 @@
 
 import { useState, useCallback, useTransition, useMemo } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
-import { RefreshCw, Check, X, Star } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { Check, X, Star } from "lucide-react"
 import { DataTable } from "@/components/data-table"
 import { PageHeader } from "@/components/admin/shared/PageHeader"
 import { ConfirmDialog } from "@/components/shared/ConfirmDialog"
@@ -202,12 +201,7 @@ export function ProductsDataTable({
       <PageHeader
         title="Produits"
         description={`${products.length} produit(s) sur cette page`}
-      >
-        <Button variant="outline" size="icon" onClick={() => router.refresh()}>
-          <RefreshCw className={isPending ? "animate-spin" : ""} />
-          <span className="sr-only">Actualiser</span>
-        </Button>
-      </PageHeader>
+      />
 
       <DataTable
         columns={columns}
@@ -215,6 +209,8 @@ export function ProductsDataTable({
         toolbar={{
           searchKey: "name",
           searchPlaceholder: "Rechercher par nom...",
+          onRefresh: () => router.refresh(),
+          isRefreshing: isPending,
           onAdd: () => router.push("/admin/products/new"),
           addLabel: "Nouveau produit",
           filterableColumns,

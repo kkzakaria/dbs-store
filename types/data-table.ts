@@ -32,6 +32,8 @@ export interface DataTableToolbarConfig<TData> {
   filterableColumns?: FilterableColumn[];
   onAdd?: () => void;
   addLabel?: string;
+  onRefresh?: () => void;
+  isRefreshing?: boolean;
   onExport?: (data: TData[]) => void;
   enableExport?: boolean;
 }
