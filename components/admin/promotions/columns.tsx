@@ -180,11 +180,17 @@ export function getPromotionColumns({
       },
     },
     {
-      id: "status",
+      accessorKey: "is_active",
+      id: "is_active",
       header: "Statut",
       cell: ({ row }) => {
         const status = getPromotionStatus(row.original)
         return <Badge variant={status.variant}>{status.label}</Badge>
+      },
+      filterFn: (row, id, value) => {
+        if (!value || value.length === 0) return true
+        const isActive = row.getValue(id)
+        return value.includes(String(isActive))
       },
     },
     {
