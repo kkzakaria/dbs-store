@@ -39,7 +39,7 @@ export function DataTableSkeleton({
   const skeletonColor = "bg-gray-200 dark:bg-gray-600";
 
   return (
-    <div className="flex flex-col h-full space-y-4">
+    <div className="flex flex-col space-y-4">
       {/* Toolbar Skeleton */}
       {showToolbar && (
         <div className="flex items-center justify-between">
@@ -55,8 +55,8 @@ export function DataTableSkeleton({
       )}
 
       {/* Table Skeleton */}
-      <div className="rounded-md border flex-1 min-h-0">
-        <div className="relative h-full overflow-auto">
+      <div className="rounded-md border">
+        <div className="relative overflow-auto">
           <table className="w-full caption-bottom text-sm">
             {/* Header */}
             <thead className="[&_tr]:border-b sticky top-0 z-10 bg-card shadow-sm">
@@ -108,7 +108,7 @@ export function DataTableSkeleton({
 
       {/* Pagination Skeleton */}
       {showPagination && (
-        <div className="flex-shrink-0">
+        <div>
           <div className="flex items-center justify-between px-2">
             <div className="flex-1">
               <Skeleton className={cn("h-4 w-48", skeletonColor)} />
