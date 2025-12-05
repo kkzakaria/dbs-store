@@ -16,9 +16,12 @@ import {
 } from "@tanstack/react-table";
 
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 import { DataTablePagination } from "@/components/data-table/data-table-pagination";
 import { DataTableToolbar } from "@/components/data-table/data-table-toolbar";
 import type { DataTableProps } from "@/types/data-table";
+
+const skeletonColor = "bg-gray-200 dark:bg-gray-600";
 
 export function DataTable<TData, TValue>({
   columns,
@@ -198,21 +201,31 @@ export function DataTable<TData, TValue>({
             </thead>
             <tbody className={cn("[&_tr:last-child]:border-0")}>
               {isLoading ? (
-                <tr
-                  className={cn(
-                    "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors"
-                  )}
-                >
-                  <td
-                    colSpan={columns.length}
+                Array.from({ length: pagination.pageSize }).map((_, rowIndex) => (
+                  <tr
+                    key={`skeleton-row-${rowIndex}`}
                     className={cn(
-                      "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
-                      "h-24 text-center"
+                      "hover:bg-muted/50 data-[state=selected]:bg-muted border-b transition-colors"
                     )}
                   >
-                    Chargement...
-                  </td>
-                </tr>
+                    {columns.map((_, colIndex) => (
+                      <td
+                        key={`skeleton-cell-${rowIndex}-${colIndex}`}
+                        className={cn(
+                          "p-2 align-middle whitespace-nowrap [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]"
+                        )}
+                      >
+                        <Skeleton
+                          className={cn(
+                            "h-4",
+                            colIndex === 0 ? "w-8" : colIndex === 1 ? "w-12" : "w-24",
+                            skeletonColor
+                          )}
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))
               ) : table.getRowModel().rows?.length ? (
                 table.getRowModel().rows.map((row) => (
                   <tr
