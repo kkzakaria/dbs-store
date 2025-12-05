@@ -28,11 +28,18 @@ export function CartItem({ item, variant = "sheet", className }: CartItemProps) 
   const isOverStock = quantity > product.stock_quantity
   const lineTotal = product.price * quantity
 
+  // Format variant options for display
+  const variantLabel = product.variant_options
+    ? Object.entries(product.variant_options)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(" | ")
+    : null
+
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity <= 0) {
-      removeItem(product.id)
+      removeItem(product.id, product.variant_id)
     } else {
-      updateQuantity(product.id, newQuantity)
+      updateQuantity(product.id, product.variant_id, newQuantity)
     }
   }
 
@@ -85,6 +92,14 @@ export function CartItem({ item, variant = "sheet", className }: CartItemProps) 
             >
               {product.name}
             </Link>
+            {variantLabel && (
+              <p className={cn(
+                "text-muted-foreground",
+                isPageVariant ? "text-xs" : "text-[10px]"
+              )}>
+                {variantLabel}
+              </p>
+            )}
             <p className={cn(
               "text-muted-foreground",
               isPageVariant ? "text-sm" : "text-xs"
@@ -99,7 +114,7 @@ export function CartItem({ item, variant = "sheet", className }: CartItemProps) 
               variant="ghost"
               size="icon"
               className="h-8 w-8 shrink-0 text-muted-foreground hover:text-destructive"
-              onClick={() => removeItem(product.id)}
+              onClick={() => removeItem(product.id, product.variant_id)}
               aria-label="Supprimer l'article"
             >
               <Trash2 className="h-4 w-4" />
@@ -180,7 +195,7 @@ export function CartItem({ item, variant = "sheet", className }: CartItemProps) 
                 variant="ghost"
                 size="icon"
                 className="h-9 w-9 text-muted-foreground hover:text-destructive"
-                onClick={() => removeItem(product.id)}
+                onClick={() => removeItem(product.id, product.variant_id)}
                 aria-label="Supprimer l'article"
               >
                 <Trash2 className="h-4 w-4" />

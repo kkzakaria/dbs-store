@@ -34,6 +34,8 @@ export type ShippingPartner = Tables<'shipping_partners'>
 export type Wishlist = Tables<'wishlist'>
 export type LoyaltyHistory = Tables<'loyalty_history'>
 export type Store = Tables<'stores'>
+export type ProductOption = Tables<'product_options'>
+export type ProductVariant = Tables<'product_variants'>
 
 // Product with relations
 export type ProductWithCategory = Product & {
@@ -47,6 +49,14 @@ export type ProductWithImages = Product & {
 export type ProductFull = Product & {
   category: Category | null
   images: ProductImage[]
+}
+
+// Product with variants
+export type ProductWithVariants = Product & {
+  category: Category | null
+  images: ProductImage[]
+  options: ProductOption[]
+  variants: ProductVariant[]
 }
 
 // Order with relations
@@ -64,6 +74,9 @@ export type CartProduct = {
   price: number
   image: string
   stock_quantity: number
+  variant_id?: string | null
+  variant_options?: Record<string, string> | null
+  variant_sku?: string | null
 }
 
 // Cart item type (for client-side cart)

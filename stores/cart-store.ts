@@ -3,6 +3,10 @@ import { persist, createJSONStorage } from "zustand/middleware"
 import type { CartProduct, CartItem } from "@/types"
 import { createClient } from "@/lib/supabase/client"
 
+// Generate unique key for cart items (product + variant combination)
+const makeCartItemKey = (productId: string, variantId?: string | null) =>
+  `${productId}:${variantId || "null"}`
+
 interface CartStore {
   items: CartItem[]
   isOpen: boolean
@@ -10,8 +14,8 @@ interface CartStore {
 
   // Actions
   addItem: (product: CartProduct, quantity?: number) => void
-  removeItem: (productId: string) => void
-  updateQuantity: (productId: string, quantity: number) => void
+  removeItem: (productId: string, variantId?: string | null) => void
+  updateQuantity: (productId: string, variantId: string | null | undefined, quantity: number) => void
   clearCart: () => void
   openCart: () => void
   closeCart: () => void
@@ -20,8 +24,8 @@ interface CartStore {
   // Computed helpers (as functions to avoid hydration issues)
   getTotalItems: () => number
   getSubtotal: () => number
-  getItem: (productId: string) => CartItem | undefined
-  isInCart: (productId: string) => boolean
+  getItem: (productId: string, variantId?: string | null) => CartItem | undefined
+  isInCart: (productId: string, variantId?: string | null) => boolean
 
   // Supabase sync
   syncWithServer: (userId: string) => Promise<void>
@@ -38,7 +42,10 @@ export const useCartStore = create<CartStore>()(
 
       addItem: (product: CartProduct, quantity: number = 1) => {
         const { items } = get()
-        const existingItem = items.find((item) => item.product.id === product.id)
+        const itemKey = makeCartItemKey(product.id, product.variant_id)
+        const existingItem = items.find(
+          (item) => makeCartItemKey(item.product.id, item.product.variant_id) === itemKey
+        )
         const stockQuantity = product.stock_quantity
 
         if (existingItem) {
@@ -49,7 +56,7 @@ export const useCartStore = create<CartStore>()(
           )
           set({
             items: items.map((item) =>
-              item.product.id === product.id
+              makeCartItemKey(item.product.id, item.product.variant_id) === itemKey
                 ? { ...item, quantity: newQuantity }
                 : item
             ),
@@ -65,22 +72,26 @@ export const useCartStore = create<CartStore>()(
         }
       },
 
-      removeItem: (productId: string) => {
+      removeItem: (productId: string, variantId?: string | null) => {
+        const itemKey = makeCartItemKey(productId, variantId)
         set({
-          items: get().items.filter((item) => item.product.id !== productId),
+          items: get().items.filter(
+            (item) => makeCartItemKey(item.product.id, item.product.variant_id) !== itemKey
+          ),
         })
       },
 
-      updateQuantity: (productId: string, quantity: number) => {
+      updateQuantity: (productId: string, variantId: string | null | undefined, quantity: number) => {
         if (quantity <= 0) {
-          get().removeItem(productId)
+          get().removeItem(productId, variantId)
           return
         }
 
         const { items } = get()
+        const itemKey = makeCartItemKey(productId, variantId)
         set({
           items: items.map((item) => {
-            if (item.product.id === productId) {
+            if (makeCartItemKey(item.product.id, item.product.variant_id) === itemKey) {
               // Respect stock quantity
               const stockQuantity = item.product.stock_quantity
               const newQuantity = Math.min(quantity, stockQuantity)
@@ -111,12 +122,18 @@ export const useCartStore = create<CartStore>()(
         }, 0)
       },
 
-      getItem: (productId: string) => {
-        return get().items.find((item) => item.product.id === productId)
+      getItem: (productId: string, variantId?: string | null) => {
+        const itemKey = makeCartItemKey(productId, variantId)
+        return get().items.find(
+          (item) => makeCartItemKey(item.product.id, item.product.variant_id) === itemKey
+        )
       },
 
-      isInCart: (productId: string) => {
-        return get().items.some((item) => item.product.id === productId)
+      isInCart: (productId: string, variantId?: string | null) => {
+        const itemKey = makeCartItemKey(productId, variantId)
+        return get().items.some(
+          (item) => makeCartItemKey(item.product.id, item.product.variant_id) === itemKey
+        )
       },
 
       // Sync local cart to server
@@ -129,10 +146,11 @@ export const useCartStore = create<CartStore>()(
 
         if (items.length === 0) return
 
-        // Insert current cart items
+        // Insert current cart items with variant support
         const cartItems = items.map((item) => ({
           user_id: userId,
           product_id: item.product.id,
+          variant_id: item.product.variant_id || null,
           quantity: item.quantity,
         }))
 
@@ -148,7 +166,9 @@ export const useCartStore = create<CartStore>()(
           .select(
             `
             quantity,
-            product:products(id, name, slug, price, stock_quantity, images:product_images(url, is_primary))
+            variant_id,
+            product:products(id, name, slug, price, stock_quantity, images:product_images(url, is_primary)),
+            variant:product_variants(id, sku, price, stock_quantity, options)
           `
           )
           .eq("user_id", userId)
@@ -159,15 +179,25 @@ export const useCartStore = create<CartStore>()(
           .filter((item) => item.product !== null)
           .map((item) => {
             const p = item.product as any
+            const v = item.variant as any
             const primaryImage = p.images?.find((img: any) => img.is_primary === true) || p.images?.[0]
+
+            // Use variant data if available
+            const price = v?.price ?? p.price
+            const stockQuantity = v?.stock_quantity ?? p.stock_quantity
+            const variantOptions = v?.options && typeof v.options === "object" ? v.options : null
+
             return {
               product: {
                 id: p.id,
                 name: p.name,
                 slug: p.slug,
-                price: p.price,
-                stock_quantity: p.stock_quantity,
+                price,
+                stock_quantity: stockQuantity,
                 image: primaryImage?.url || "/images/placeholder-product.png",
+                variant_id: item.variant_id || null,
+                variant_options: variantOptions,
+                variant_sku: v?.sku || null,
               },
               quantity: item.quantity,
             }
@@ -181,13 +211,15 @@ export const useCartStore = create<CartStore>()(
         const supabase = createClient()
         const localItems = get().items
 
-        // Get server cart
+        // Get server cart with variant support
         const { data: serverData } = await supabase
           .from("cart_items")
           .select(
             `
             quantity,
-            product:products(id, name, slug, price, stock_quantity, images:product_images(url, is_primary))
+            variant_id,
+            product:products(id, name, slug, price, stock_quantity, images:product_images(url, is_primary)),
+            variant:product_variants(id, sku, price, stock_quantity, options)
           `
           )
           .eq("user_id", userId)
@@ -202,15 +234,24 @@ export const useCartStore = create<CartStore>()(
           .filter((item) => item.product !== null)
           .map((item) => {
             const p = item.product as any
+            const v = item.variant as any
             const primaryImage = p.images?.find((img: any) => img.is_primary === true) || p.images?.[0]
+
+            const price = v?.price ?? p.price
+            const stockQuantity = v?.stock_quantity ?? p.stock_quantity
+            const variantOptions = v?.options && typeof v.options === "object" ? v.options : null
+
             return {
               product: {
                 id: p.id,
                 name: p.name,
                 slug: p.slug,
-                price: p.price,
-                stock_quantity: p.stock_quantity,
+                price,
+                stock_quantity: stockQuantity,
                 image: primaryImage?.url || "/images/placeholder-product.png",
+                variant_id: item.variant_id || null,
+                variant_options: variantOptions,
+                variant_sku: v?.sku || null,
               },
               quantity: item.quantity,
             }
@@ -220,8 +261,9 @@ export const useCartStore = create<CartStore>()(
         const mergedItems = [...localItems]
 
         for (const serverItem of serverItems) {
+          const serverKey = makeCartItemKey(serverItem.product.id, serverItem.product.variant_id)
           const existingIndex = mergedItems.findIndex(
-            (item) => item.product.id === serverItem.product.id
+            (item) => makeCartItemKey(item.product.id, item.product.variant_id) === serverKey
           )
           if (existingIndex === -1) {
             // Add server item not in local cart

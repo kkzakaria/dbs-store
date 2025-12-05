@@ -155,7 +155,9 @@ export const getProductBySlug = action
         `
         *,
         category:categories(id, name, slug, description),
-        images:product_images(id, url, alt, position, is_primary)
+        images:product_images(id, url, alt, position, is_primary, variant_id),
+        options:product_options(id, name, values, position),
+        variants:product_variants(id, sku, price, compare_price, stock_quantity, low_stock_threshold, options, position, is_active)
       `
       )
       .eq("slug", slug)
@@ -170,8 +172,27 @@ export const getProductBySlug = action
     // Sort images by position
     if (product?.images) {
       product.images.sort(
-        (a, b) => (a.position ?? 0) - (b.position ?? 0)
+        (a: { position: number | null }, b: { position: number | null }) =>
+          (a.position ?? 0) - (b.position ?? 0)
       )
+    }
+
+    // Sort options by position
+    if (product?.options) {
+      product.options.sort(
+        (a: { position: number | null }, b: { position: number | null }) =>
+          (a.position ?? 0) - (b.position ?? 0)
+      )
+    }
+
+    // Sort variants by position, filter inactive
+    if (product?.variants) {
+      product.variants = product.variants
+        .filter((v: { is_active: boolean | null }) => v.is_active !== false)
+        .sort(
+          (a: { position: number | null }, b: { position: number | null }) =>
+            (a.position ?? 0) - (b.position ?? 0)
+        )
     }
 
     return { product }

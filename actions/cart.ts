@@ -10,16 +10,19 @@ const action = createSafeActionClient()
 // Schema for cart operations
 const addToCartSchema = z.object({
   productId: z.string().uuid(),
+  variantId: z.string().uuid().optional().nullable(),
   quantity: z.number().int().positive().default(1),
 })
 
 const updateCartItemSchema = z.object({
   productId: z.string().uuid(),
+  variantId: z.string().uuid().optional().nullable(),
   quantity: z.number().int().nonnegative(),
 })
 
 const removeFromCartSchema = z.object({
   productId: z.string().uuid(),
+  variantId: z.string().uuid().optional().nullable(),
 })
 
 // Get user's cart from database
@@ -39,7 +42,9 @@ export async function getServerCart() {
     .select(
       `
       quantity,
-      product:products(*)
+      variant_id,
+      product:products(*),
+      variant:product_variants(id, sku, price, compare_price, stock_quantity, options)
     `
     )
     .eq("user_id", user.id)
@@ -53,6 +58,8 @@ export async function getServerCart() {
     .filter((item) => item.product !== null)
     .map((item) => ({
       product: item.product,
+      variant: item.variant,
+      variant_id: item.variant_id,
       quantity: item.quantity,
     }))
 
@@ -73,13 +80,20 @@ export const addToCart = action
       return { error: "Vous devez être connecté pour ajouter au panier" }
     }
 
-    // Check if item exists in cart
-    const { data: existingItem } = await supabase
+    // Check if item exists in cart (with same variant)
+    let query = supabase
       .from("cart_items")
       .select("id, quantity")
       .eq("user_id", user.id)
       .eq("product_id", parsedInput.productId)
-      .single()
+
+    if (parsedInput.variantId) {
+      query = query.eq("variant_id", parsedInput.variantId)
+    } else {
+      query = query.is("variant_id", null)
+    }
+
+    const { data: existingItem } = await query.single()
 
     if (existingItem) {
       // Update quantity
@@ -97,6 +111,7 @@ export const addToCart = action
       const { error } = await supabase.from("cart_items").insert({
         user_id: user.id,
         product_id: parsedInput.productId,
+        variant_id: parsedInput.variantId || null,
         quantity: parsedInput.quantity,
       })
 
@@ -124,13 +139,30 @@ export const updateCartItem = action
       return { error: "Vous devez être connecté" }
     }
 
+    // Build query with variant support
+    let deleteQuery = supabase
+      .from("cart_items")
+      .delete()
+      .eq("user_id", user.id)
+      .eq("product_id", parsedInput.productId)
+
+    let updateQuery = supabase
+      .from("cart_items")
+      .update({ quantity: parsedInput.quantity })
+      .eq("user_id", user.id)
+      .eq("product_id", parsedInput.productId)
+
+    if (parsedInput.variantId) {
+      deleteQuery = deleteQuery.eq("variant_id", parsedInput.variantId)
+      updateQuery = updateQuery.eq("variant_id", parsedInput.variantId)
+    } else {
+      deleteQuery = deleteQuery.is("variant_id", null)
+      updateQuery = updateQuery.is("variant_id", null)
+    }
+
     if (parsedInput.quantity === 0) {
       // Remove item
-      const { error } = await supabase
-        .from("cart_items")
-        .delete()
-        .eq("user_id", user.id)
-        .eq("product_id", parsedInput.productId)
+      const { error } = await deleteQuery
 
       if (error) {
         console.error("Remove cart item error:", error)
@@ -138,11 +170,7 @@ export const updateCartItem = action
       }
     } else {
       // Update quantity
-      const { error } = await supabase
-        .from("cart_items")
-        .update({ quantity: parsedInput.quantity })
-        .eq("user_id", user.id)
-        .eq("product_id", parsedInput.productId)
+      const { error } = await updateQuery
 
       if (error) {
         console.error("Update cart item error:", error)
@@ -168,11 +196,19 @@ export const removeFromCart = action
       return { error: "Vous devez être connecté" }
     }
 
-    const { error } = await supabase
+    let query = supabase
       .from("cart_items")
       .delete()
       .eq("user_id", user.id)
       .eq("product_id", parsedInput.productId)
+
+    if (parsedInput.variantId) {
+      query = query.eq("variant_id", parsedInput.variantId)
+    } else {
+      query = query.is("variant_id", null)
+    }
+
+    const { error } = await query
 
     if (error) {
       console.error("Remove from cart error:", error)
@@ -216,6 +252,7 @@ export const syncCartToServer = action
       items: z.array(
         z.object({
           productId: z.string().uuid(),
+          variantId: z.string().uuid().optional().nullable(),
           quantity: z.number().int().positive(),
         })
       ),
@@ -235,39 +272,49 @@ export const syncCartToServer = action
     // Get existing server cart
     const { data: serverItems } = await supabase
       .from("cart_items")
-      .select("product_id, quantity")
+      .select("product_id, variant_id, quantity")
       .eq("user_id", user.id)
 
+    // Create key for product+variant combination
+    const makeKey = (productId: string, variantId: string | null | undefined) =>
+      `${productId}:${variantId || "null"}`
+
     const serverMap = new Map(
-      serverItems?.map((item) => [item.product_id, item.quantity]) || []
+      serverItems?.map((item) => [
+        makeKey(item.product_id, item.variant_id),
+        { ...item },
+      ]) || []
     )
 
     // Merge local items with server (local takes priority for conflicts)
-    const mergedItems: { product_id: string; quantity: number }[] = []
+    const mergedItems: { product_id: string; variant_id: string | null; quantity: number }[] = []
 
     for (const item of parsedInput.items) {
-      const existingQuantity = serverMap.get(item.productId)
-      if (existingQuantity !== undefined) {
+      const key = makeKey(item.productId, item.variantId)
+      if (serverMap.has(key)) {
         // Keep local quantity (user's recent action)
         mergedItems.push({
           product_id: item.productId,
+          variant_id: item.variantId || null,
           quantity: item.quantity,
         })
-        serverMap.delete(item.productId)
+        serverMap.delete(key)
       } else {
         // New item from local
         mergedItems.push({
           product_id: item.productId,
+          variant_id: item.variantId || null,
           quantity: item.quantity,
         })
       }
     }
 
     // Add remaining server items not in local
-    for (const [productId, quantity] of serverMap) {
+    for (const [, serverItem] of serverMap) {
       mergedItems.push({
-        product_id: productId,
-        quantity,
+        product_id: serverItem.product_id,
+        variant_id: serverItem.variant_id,
+        quantity: serverItem.quantity,
       })
     }
 
@@ -279,6 +326,7 @@ export const syncCartToServer = action
         mergedItems.map((item) => ({
           user_id: user.id,
           product_id: item.product_id,
+          variant_id: item.variant_id,
           quantity: item.quantity,
         }))
       )
