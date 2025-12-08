@@ -1,7 +1,14 @@
-import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ArrowRight, Smartphone, Laptop, Headphones, Gamepad2 } from "lucide-react"
 import { HeroSection } from "@/components/store/HeroSection"
+import { PromotionsSection } from "@/components/store/PromotionsSection"
+import { NewArrivalsSection } from "@/components/store/NewArrivalsSection"
+import { FeaturesSection } from "@/components/store/FeaturesSection"
+import { TestimonialsSection } from "@/components/store/TestimonialsSection"
+import { BrandsSection } from "@/components/store/BrandsSection"
+import { StatsSection } from "@/components/store/StatsSection"
+import { CTASection } from "@/components/store/CTASection"
+import { AnimateOnScroll } from "@/components/animations"
 import { createClient } from "@/lib/supabase/server"
 
 async function getFeaturedProducts() {
@@ -37,8 +44,125 @@ async function getFeaturedProducts() {
   )
 }
 
+async function getPromoProducts() {
+  const supabase = await createClient()
+
+  const { data: products } = await supabase
+    .from("products")
+    .select(`
+      id,
+      name,
+      slug,
+      price,
+      compare_price,
+      product_images (
+        url,
+        is_primary
+      )
+    `)
+    .eq("is_active", true)
+    .not("compare_price", "is", null)
+    .gt("compare_price", 0)
+    .order("created_at", { ascending: false })
+    .limit(4)
+
+  return (
+    products?.map((product) => {
+      const primaryImage =
+        product.product_images?.find((img: { is_primary: boolean | null }) => img.is_primary) || product.product_images?.[0]
+      const originalPrice = product.compare_price || product.price
+      const salePrice = product.price
+      const discountPercent = Math.round(((originalPrice - salePrice) / originalPrice) * 100)
+      
+      return {
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        image: primaryImage?.url || "/images/placeholder-product.png",
+        originalPrice,
+        salePrice,
+        discountPercent,
+      }
+    }) || []
+  )
+}
+
+async function getNewProducts() {
+  const supabase = await createClient()
+
+  const { data: products } = await supabase
+    .from("products")
+    .select(`
+      id,
+      name,
+      slug,
+      price,
+      categories (
+        name
+      ),
+      product_images (
+        url,
+        is_primary
+      )
+    `)
+    .eq("is_active", true)
+    .order("created_at", { ascending: false })
+    .limit(5)
+
+  return (
+    products?.map((product) => {
+      const primaryImage =
+        product.product_images?.find((img) => img.is_primary) || product.product_images?.[0]
+      return {
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        price: product.price,
+        image: primaryImage?.url || "/images/placeholder-product.png",
+        category: product.categories?.name,
+        rating: 4.5 + Math.random() * 0.5, // Simulated rating for now
+      }
+    }) || []
+  )
+}
+
+const categories = [
+  {
+    name: "Smartphones",
+    icon: Smartphone,
+    href: "/categories/smartphones",
+    color: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+    gradient: "from-blue-500 to-cyan-400",
+  },
+  {
+    name: "Ordinateurs",
+    icon: Laptop,
+    href: "/categories/ordinateurs",
+    color: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
+    gradient: "from-purple-500 to-pink-500",
+  },
+  {
+    name: "Audio",
+    icon: Headphones,
+    href: "/categories/audio",
+    color: "bg-green-500/10 text-green-600 dark:text-green-400",
+    gradient: "from-green-500 to-emerald-400",
+  },
+  {
+    name: "Gaming",
+    icon: Gamepad2,
+    href: "/categories/gaming",
+    color: "bg-red-500/10 text-red-600 dark:text-red-400",
+    gradient: "from-red-500 to-orange-500",
+  },
+]
+
 export default async function HomePage() {
-  const featuredProducts = await getFeaturedProducts()
+  const [featuredProducts, promoProducts, newProducts] = await Promise.all([
+    getFeaturedProducts(),
+    getPromoProducts(),
+    getNewProducts(),
+  ])
 
   return (
     <div className="flex flex-col">
@@ -48,125 +172,80 @@ export default async function HomePage() {
         featuredProducts={featuredProducts}
       />
 
-      {/* Categories Section */}
+      {/* Categories Section - Enhanced */}
       <section className="py-16 md:py-24">
         <div className="container">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold tracking-tight">
-              Nos catégories
-            </h2>
-            <p className="mt-2 text-muted-foreground">
-              Trouvez ce dont vous avez besoin
-            </p>
-          </div>
+          <AnimateOnScroll animation="fade-up">
+            <div className="text-center mb-12">
+              <span className="text-primary font-semibold text-sm uppercase tracking-wider">
+                Explorez notre catalogue
+              </span>
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mt-3">
+                Nos catégories
+              </h2>
+              <p className="mt-3 text-muted-foreground text-lg">
+                Trouvez ce dont vous avez besoin
+              </p>
+            </div>
+          </AnimateOnScroll>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              {
-                name: "Smartphones",
-                icon: Smartphone,
-                href: "/categories/smartphones",
-                color: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-              },
-              {
-                name: "Ordinateurs",
-                icon: Laptop,
-                href: "/categories/ordinateurs",
-                color: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
-              },
-              {
-                name: "Audio",
-                icon: Headphones,
-                href: "/categories/audio",
-                color: "bg-green-500/10 text-green-600 dark:text-green-400",
-              },
-              {
-                name: "Gaming",
-                icon: Gamepad2,
-                href: "/categories/gaming",
-                color: "bg-red-500/10 text-red-600 dark:text-red-400",
-              },
-            ].map((category) => {
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+            {categories.map((category, index) => {
               const Icon = category.icon
               return (
-                <Link
-                  key={category.name}
-                  href={category.href}
-                  className="group flex flex-col items-center gap-4 p-6 rounded-xl border bg-card hover:shadow-lg transition-all"
+                <AnimateOnScroll 
+                  key={category.name} 
+                  animation="fade-up" 
+                  delay={index * 100}
                 >
-                  <div
-                    className={`p-4 rounded-full ${category.color} group-hover:scale-110 transition-transform`}
+                  <Link
+                    href={category.href}
+                    className="group relative flex flex-col items-center gap-4 p-6 md:p-8 rounded-2xl border bg-card hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
                   >
-                    <Icon className="size-8" />
-                  </div>
-                  <span className="font-medium">{category.name}</span>
-                </Link>
+                    {/* Gradient background on hover */}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
+                    
+                    <div
+                      className={`relative p-4 md:p-5 rounded-2xl ${category.color} group-hover:scale-110 transition-transform duration-300`}
+                    >
+                      <Icon className="size-7 md:size-8" />
+                    </div>
+                    <span className="font-semibold text-base md:text-lg group-hover:text-primary transition-colors">
+                      {category.name}
+                    </span>
+                    
+                    {/* Arrow indicator */}
+                    <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <ArrowRight className="size-4 text-primary" />
+                    </div>
+                  </Link>
+                </AnimateOnScroll>
               )
             })}
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 bg-muted/40">
-        <div className="container">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                title: "Livraison rapide",
-                description:
-                  "Livraison dans toute la Côte d'Ivoire en 24-72h",
-              },
-              {
-                title: "Paiement sécurisé",
-                description:
-                  "Wave, Orange Money, MTN - Payez en toute sécurité",
-              },
-              {
-                title: "Garantie qualité",
-                description:
-                  "Produits authentiques avec garantie constructeur",
-              },
-            ].map((feature) => (
-              <div
-                key={feature.title}
-                className="text-center p-6 rounded-xl bg-background border"
-              >
-                <h3 className="font-semibold text-lg">{feature.title}</h3>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {feature.description}
-                </p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* Promotions Section */}
+      <PromotionsSection products={promoProducts} />
 
-      {/* CTA Section */}
-      <section className="py-16 md:py-24">
-        <div className="container">
-          <div className="bg-primary rounded-2xl p-8 md:p-12 text-center text-primary-foreground">
-            <h2 className="text-2xl md:text-3xl font-bold">
-              Prêt à découvrir nos produits ?
-            </h2>
-            <p className="mt-4 text-primary-foreground/80 max-w-xl mx-auto">
-              Rejoignez des milliers de clients satisfaits et profitez de nos
-              offres exclusives.
-            </p>
-            <Button
-              asChild
-              size="lg"
-              variant="secondary"
-              className="mt-8"
-            >
-              <Link href="/products">
-                Commencer mes achats
-                <ArrowRight className="ml-2 size-4" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+      {/* Brands Section */}
+      <BrandsSection />
+
+      {/* New Arrivals Section */}
+      <NewArrivalsSection products={newProducts} />
+
+      {/* Stats Section */}
+      <StatsSection />
+
+      {/* Features Section - Enhanced */}
+      <FeaturesSection />
+
+      {/* Testimonials Section */}
+      <TestimonialsSection />
+
+      {/* CTA Section - Enhanced */}
+      <CTASection />
     </div>
   )
 }

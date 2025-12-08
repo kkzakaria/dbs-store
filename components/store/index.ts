@@ -1,4 +1,12 @@
-export { Header } from "./Header"
-export { Footer } from "./Footer"
-export { MobileNav } from "./MobileNav"
-export { SearchCommand } from "./SearchCommand"
+export { Header } from "./Header";
+export { Footer } from "./Footer";
+export { MobileNav } from "./MobileNav";
+export { SearchCommand } from "./SearchCommand";
+export { HeroSection } from "./HeroSection";
+export { PromotionsSection } from "./PromotionsSection";
+export { NewArrivalsSection } from "./NewArrivalsSection";
+export { FeaturesSection } from "./FeaturesSection";
+export { TestimonialsSection } from "./TestimonialsSection";
+export { BrandsSection } from "./BrandsSection";
+export { StatsSection } from "./StatsSection";
+export { CTASection } from "./CTASection";
