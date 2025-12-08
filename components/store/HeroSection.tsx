@@ -61,8 +61,9 @@ export function HeroSection({
   }, [totalSlides, nextSlide])
 
   return (
-    <section className="px-4 sm:px-6 lg:px-8 xl:px-12 pt-4">
-      <div className="relative min-h-[500px] md:min-h-[600px] lg:min-h-[700px] overflow-hidden rounded-2xl md:rounded-3xl">
+    <section className="pt-4">
+      <div className="container">
+        <div className="relative min-h-[500px] md:min-h-[600px] lg:min-h-[700px] overflow-hidden rounded-2xl md:rounded-3xl">
         {/* Background Image */}
         <Image
           src={backgroundImage}
@@ -157,6 +158,7 @@ export function HeroSection({
           </Button>
         </div>
         </div>
+      </div>
       </div>
     </section>
   )
