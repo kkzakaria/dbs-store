@@ -183,23 +183,9 @@ export default async function HomePage() {
         }}
       />
 
-      {/* Categories Section - Enhanced */}
-      <section className="py-16 md:py-24">
+      {/* Categories Section */}
+      <section className="py-4 md:py-6">
         <div className="container">
-          <AnimateOnScroll animation="fade-up">
-            <div className="text-center mb-12">
-              <span className="text-primary font-semibold text-sm uppercase tracking-wider">
-                Explorez notre catalogue
-              </span>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight mt-3">
-                Nos catégories
-              </h2>
-              <p className="mt-3 text-muted-foreground text-lg">
-                Trouvez ce dont vous avez besoin
-              </p>
-            </div>
-          </AnimateOnScroll>
-
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
             {categories.map((category, index) => {
               const Icon = category.icon
