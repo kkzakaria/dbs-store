@@ -4,8 +4,8 @@
 @custom-variant dark (&:is(.dark *));
 
 /* ============================================
-   DBS STORE - Blue & Gold Theme
-   Palette "Premium Classique"
+   DBS STORE - Blue Theme
+   Palette "Premium Moderne"
    ============================================ */
 
 @theme inline {
@@ -103,11 +103,11 @@
   --muted: #f1f5f9;
   --muted-foreground: #64748b;
 
-  /* === Accent (Gold) === */
-  --accent: #d4a853;
+  /* === Accent (Sky Blue) === */
+  --accent: #0ea5e9;
   --accent-foreground: #ffffff;
-  --accent-hover: #c49a48;
-  --accent-light: #e8c068;
+  --accent-hover: #0284c7;
+  --accent-light: #38bdf8;
 
   /* === Destructive === */
   --destructive: #ef4444;
@@ -128,7 +128,7 @@
 
   /* === Charts === */
   --chart-1: #0077b6;
-  --chart-2: #d4a853;
+  --chart-2: #0ea5e9;
   --chart-3: #10b981;
   --chart-4: #f59e0b;
   --chart-5: #3b82f6;
@@ -171,11 +171,11 @@
   --muted: #27272a;
   --muted-foreground: #a1a1aa;
 
-  /* === Accent (Gold) === */
-  --accent: #e8c068;
+  /* === Accent (Sky Blue) === */
+  --accent: #38bdf8;
   --accent-foreground: #0d0d0f;
-  --accent-hover: #d4a853;
-  --accent-light: #e8c068;
+  --accent-hover: #0ea5e9;
+  --accent-light: #7dd3fc;
 
   /* === Destructive === */
   --destructive: #dc2626;
@@ -196,7 +196,7 @@
 
   /* === Charts === */
   --chart-1: #4dc4e8;
-  --chart-2: #e8c068;
+  --chart-2: #38bdf8;
   --chart-3: #10b981;
   --chart-4: #f59e0b;
   --chart-5: #3b82f6;
@@ -242,7 +242,7 @@
   }
 
   .bg-gradient-accent {
-    background: linear-gradient(135deg, #e8c068 0%, #d4a853 100%);
+    background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 100%);
   }
 
   .bg-gradient-hero {
