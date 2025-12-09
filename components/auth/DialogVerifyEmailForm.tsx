@@ -5,15 +5,24 @@ import { useAction } from "next-safe-action/hooks"
 import { Button } from "@/components/ui/button"
 import { OTPInput } from "./OTPInput"
 import { LoadingSpinner } from "@/components/shared/Loading"
-import { upsertUserProfile, resendOTP } from "@/actions/auth"
-import { createClient } from "@/lib/supabase/client"
+import { verifyEmailOtp, resendEmailOtp } from "@/actions/auth"
+import { useAuthStore } from "@/stores/auth-store"
 import { toast } from "sonner"
 
-interface VerifyOTPFormProps {
-  phone: string
+// Mask email for privacy display (e.g., "j***@example.com")
+function maskEmail(email: string): string {
+  const [local, domain] = email.split("@")
+  if (!local || !domain) return email
+
+  if (local.length <= 2) {
+    return `${local}***@${domain}`
+  }
+
+  return `${local[0]}***@${domain}`
 }
 
-export function VerifyOTPForm({ phone }: VerifyOTPFormProps) {
+export function DialogVerifyEmailForm() {
+  const { email, reset } = useAuthStore()
   const [code, setCode] = React.useState("")
   const [error, setError] = React.useState("")
   const [countdown, setCountdown] = React.useState(0)
@@ -27,22 +36,32 @@ export function VerifyOTPForm({ phone }: VerifyOTPFormProps) {
     }
   }, [countdown])
 
-  // Server action to upsert user profile after successful verification
-  const { execute: executeUpsert } = useAction(upsertUserProfile, {
-    onSuccess: () => {
-      // Profile upserted, continue with redirect
+  const { execute: executeVerify } = useAction(verifyEmailOtp, {
+    onSuccess: (result) => {
+      if (result.data?.success) {
+        toast.success("Email vérifié !", {
+          description: "Bienvenue sur DBS Store.",
+        })
+        reset()
+        window.location.href = "/"
+      } else if (result.data?.error) {
+        setError(result.data.error)
+        setCode("")
+        setIsVerifying(false)
+      }
     },
-    onError: (err) => {
-      console.error("Upsert error:", err)
-      // Don't block login on upsert error
+    onError: () => {
+      setError("Une erreur est survenue. Veuillez réessayer.")
+      setCode("")
+      setIsVerifying(false)
     },
   })
 
-  const { execute: executeResend, status: resendStatus } = useAction(resendOTP, {
+  const { execute: executeResend, status: resendStatus } = useAction(resendEmailOtp, {
     onSuccess: (result) => {
       if (result.data?.success) {
         toast.success("Code renvoyé !", {
-          description: "Vérifiez votre téléphone.",
+          description: "Vérifiez votre boîte email.",
         })
         setCountdown(60)
         setError("")
@@ -61,71 +80,33 @@ export function VerifyOTPForm({ phone }: VerifyOTPFormProps) {
 
   const isResending = resendStatus === "executing"
 
-  const handleVerifyOTP = async (token: string) => {
-    setIsVerifying(true)
-    setError("")
-
-    try {
-      // Use browser client to verify OTP - this properly sets cookies
-      const supabase = createClient()
-      const { data, error: verifyError } = await supabase.auth.verifyOtp({
-        phone,
-        token,
-        type: "sms",
-      })
-
-      if (verifyError) {
-        console.error("Verify OTP error:", verifyError)
-        // Handle specific error messages
-        if (verifyError.message?.includes("expired") || verifyError.message?.includes("invalid")) {
-          setError("Code invalide ou expiré. Veuillez réessayer.")
-        } else if (verifyError.message?.includes("unexpected")) {
-          setError("Erreur de connexion au serveur. Veuillez réessayer.")
-        } else {
-          setError(verifyError.message || "Code invalide ou expiré. Veuillez réessayer.")
-        }
-        setCode("")
-        setIsVerifying(false)
-        return
-      }
-
-      if (data.user) {
-        // Upsert user profile in background (don't wait)
-        executeUpsert({ phone })
-
-        toast.success("Connexion réussie !", {
-          description: "Bienvenue sur DBS Store.",
-        })
-
-        // Use window.location for a full page reload to ensure cookies are properly sent
-        // This avoids race conditions between router.push() and middleware redirects
-        window.location.href = "/"
-      }
-    } catch {
-      setError("Une erreur est survenue. Veuillez réessayer.")
-      setCode("")
-    } finally {
-      setIsVerifying(false)
-    }
-  }
-
   const handleCodeChange = (newCode: string) => {
     setCode(newCode)
     setError("")
 
     // Auto-submit when code is complete
-    if (newCode.length === 6) {
-      handleVerifyOTP(newCode)
+    if (newCode.length === 6 && email) {
+      setIsVerifying(true)
+      executeVerify({ email, token: newCode })
     }
   }
 
   const handleResend = () => {
-    if (countdown > 0) return
-    executeResend({ phone })
+    if (countdown > 0 || !email) return
+    executeResend({ email })
+  }
+
+  if (!email) {
+    return null
   }
 
   return (
     <div className="space-y-6">
+      <div className="text-center text-sm text-muted-foreground">
+        Un code de vérification a été envoyé à{" "}
+        <span className="font-medium text-foreground">{maskEmail(email)}</span>
+      </div>
+
       <OTPInput
         value={code}
         onChange={handleCodeChange}
@@ -144,7 +125,7 @@ export function VerifyOTPForm({ phone }: VerifyOTPFormProps) {
 
         <div className="text-center">
           <p className="text-sm text-muted-foreground">
-            Vous n'avez pas reçu le code ?
+            Vous n&apos;avez pas reçu le code ?
           </p>
           <Button
             type="button"

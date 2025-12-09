@@ -15,37 +15,36 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { PhoneInput } from "./PhoneInput"
 import { LoadingSpinner } from "@/components/shared/Loading"
-import { signUp } from "@/actions/auth"
-import { registerSchema, type RegisterInput } from "@/lib/validations/auth"
+import { updatePassword } from "@/actions/auth"
+import { resetPasswordSchema, type ResetPasswordInput } from "@/lib/validations/auth"
 import { toast } from "sonner"
 
-export function RegisterForm() {
+export function ResetPasswordForm() {
   const router = useRouter()
 
-  const form = useForm<RegisterInput>({
-    resolver: zodResolver(registerSchema),
+  const form = useForm<ResetPasswordInput>({
+    resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
-      fullName: "",
-      phone: "",
+      password: "",
+      confirmPassword: "",
     },
   })
 
-  const { execute, status } = useAction(signUp, {
+  const { execute, status } = useAction(updatePassword, {
     onSuccess: (result) => {
-      if (result.data?.success && result.data.phone) {
-        toast.success("Compte créé !", {
-          description: "Vérifiez votre téléphone pour le code de vérification.",
+      if (result.data?.success) {
+        toast.success("Mot de passe mis à jour !", {
+          description: "Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
         })
-        router.push(`/verify-otp?phone=${encodeURIComponent(result.data.phone)}`)
+        router.push("/")
       } else if (result.data?.error) {
         toast.error("Erreur", {
           description: result.data.error,
         })
       }
     },
-    onError: (error) => {
+    onError: () => {
       toast.error("Erreur", {
         description: "Une erreur est survenue. Veuillez réessayer.",
       })
@@ -54,22 +53,20 @@ export function RegisterForm() {
 
   const isLoading = status === "executing"
 
-  const onSubmit = (data: RegisterInput) => {
-    execute(data)
-  }
-
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit((data) => execute(data))} className="space-y-4">
         <FormField
           control={form.control}
-          name="fullName"
+          name="password"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Nom complet</FormLabel>
+              <FormLabel>Nouveau mot de passe</FormLabel>
               <FormControl>
                 <Input
-                  placeholder="Jean Dupont"
+                  type="password"
+                  placeholder="Minimum 8 caractères"
+                  autoComplete="new-password"
                   disabled={isLoading}
                   {...field}
                 />
@@ -81,15 +78,17 @@ export function RegisterForm() {
 
         <FormField
           control={form.control}
-          name="phone"
+          name="confirmPassword"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Numéro de téléphone</FormLabel>
+              <FormLabel>Confirmer le mot de passe</FormLabel>
               <FormControl>
-                <PhoneInput
-                  value={field.value || ""}
-                  onChange={field.onChange}
+                <Input
+                  type="password"
+                  placeholder="Confirmez votre mot de passe"
+                  autoComplete="new-password"
                   disabled={isLoading}
+                  {...field}
                 />
               </FormControl>
               <FormMessage />
@@ -97,14 +96,18 @@ export function RegisterForm() {
           )}
         />
 
+        <div className="text-xs text-muted-foreground">
+          Le mot de passe doit contenir au moins 8 caractères, une majuscule, une minuscule et un chiffre.
+        </div>
+
         <Button type="submit" className="w-full" disabled={isLoading}>
           {isLoading ? (
             <>
               <LoadingSpinner size="sm" />
-              <span>Création en cours...</span>
+              <span>Mise à jour...</span>
             </>
           ) : (
-            "Créer mon compte"
+            "Mettre à jour le mot de passe"
           )}
         </Button>
       </form>
