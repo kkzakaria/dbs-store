@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { ArrowRight, Smartphone, Laptop, Headphones, Gamepad2 } from "lucide-react"
+import { ArrowRight, Smartphone, Tablet, Watch, Headphones, Laptop } from "lucide-react"
 import { HeroSection } from "@/components/store/HeroSection"
 import { PromotionsSection } from "@/components/store/PromotionsSection"
 import { NewArrivalsSection } from "@/components/store/NewArrivalsSection"
@@ -128,18 +128,25 @@ async function getNewProducts() {
 
 const categories = [
   {
-    name: "Smartphones",
+    name: "Smartphone",
     icon: Smartphone,
     href: "/categories/smartphones",
     color: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
     gradient: "from-blue-500 to-cyan-400",
   },
   {
-    name: "Ordinateurs",
-    icon: Laptop,
-    href: "/categories/ordinateurs",
+    name: "Tablette",
+    icon: Tablet,
+    href: "/categories/tablettes",
     color: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
     gradient: "from-purple-500 to-pink-500",
+  },
+  {
+    name: "Montre connectée",
+    icon: Watch,
+    href: "/categories/montres-connectees",
+    color: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+    gradient: "from-amber-500 to-orange-400",
   },
   {
     name: "Audio",
@@ -149,11 +156,11 @@ const categories = [
     gradient: "from-green-500 to-emerald-400",
   },
   {
-    name: "Gaming",
-    icon: Gamepad2,
-    href: "/categories/gaming",
+    name: "Ordinateur",
+    icon: Laptop,
+    href: "/categories/ordinateurs",
     color: "bg-red-500/10 text-red-600 dark:text-red-400",
-    gradient: "from-red-500 to-orange-500",
+    gradient: "from-red-500 to-rose-500",
   },
 ]
 
@@ -193,7 +200,7 @@ export default async function HomePage() {
             </div>
           </AnimateOnScroll>
 
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
             {categories.map((category, index) => {
               const Icon = category.icon
               return (
