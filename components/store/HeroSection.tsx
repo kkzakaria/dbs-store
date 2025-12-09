@@ -2,7 +2,7 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -19,17 +19,20 @@ interface HeroAction {
 }
 
 interface HeroSectionProps {
-  backgroundImage: string
+  backgroundImage?: string
+  backgroundVideo?: string
   featuredProducts?: FeaturedProduct[]
   action?: HeroAction
 }
 
 export function HeroSection({
   backgroundImage,
+  backgroundVideo,
   featuredProducts = [],
   action,
 }: HeroSectionProps) {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const videoRef = useRef<HTMLVideoElement>(null)
 
   // Products for carousel (3 per slide)
   const productsPerSlide = 3
@@ -64,15 +67,29 @@ export function HeroSection({
     <section className="pt-4">
       <div className="container">
         <div className="relative min-h-[500px] md:min-h-[600px] lg:min-h-[700px] overflow-hidden rounded-2xl md:rounded-3xl">
-        {/* Background Image */}
-        <Image
-          src={backgroundImage}
-          alt="Hero"
-          fill
-          className="object-cover"
-          priority
-          sizes="100vw"
-        />
+        {/* Background Video or Image */}
+        {backgroundVideo ? (
+          <div className="absolute inset-0 bg-black p-2 md:p-3">
+            <video
+              ref={videoRef}
+              autoPlay
+              muted
+              playsInline
+              className="w-full h-full object-contain"
+            >
+              <source src={backgroundVideo} type="video/mp4" />
+            </video>
+          </div>
+        ) : backgroundImage ? (
+          <Image
+            src={backgroundImage}
+            alt="Hero"
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
+          />
+        ) : null}
 
         {/* Gradient overlay for better readability at bottom */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
