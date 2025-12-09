@@ -64,7 +64,7 @@ export function HeroSection({
   }, [totalSlides, nextSlide])
 
   return (
-    <section className="pt-4">
+    <section className="pt-2">
       <div className="container">
         <div className="relative min-h-[500px] md:min-h-[600px] lg:min-h-[700px] overflow-hidden rounded-2xl md:rounded-3xl">
         {/* Background Video or Image */}
