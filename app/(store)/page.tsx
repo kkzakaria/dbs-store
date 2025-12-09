@@ -168,8 +168,12 @@ export default async function HomePage() {
     <div className="flex flex-col">
       {/* Hero Section */}
       <HeroSection
-        backgroundImage="/images/hero-bg.jpg"
+        backgroundVideo="/videos/iPhone 17 Pro and iPhone 17 Pro Max - Apple.mp4"
         featuredProducts={featuredProducts}
+        action={{
+          label: "Découvrir l'iPhone 17 Pro",
+          href: "/products/iphone-17-pro",
+        }}
       />
 
       {/* Categories Section - Enhanced */}
