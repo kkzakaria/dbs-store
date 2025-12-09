@@ -3,12 +3,9 @@
 import * as React from "react"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { LoadingSpinner } from "@/components/shared/Loading"
+import { createClient } from "@/lib/supabase/client"
+import { toast } from "sonner"
 
 // Custom icons for OAuth providers
 function GoogleIcon({ className }: { className?: string }) {
@@ -52,28 +49,62 @@ function AppleIcon({ className }: { className?: string }) {
   )
 }
 
-function MicrosoftIcon({ className }: { className?: string }) {
+function FacebookIcon({ className }: { className?: string }) {
   return (
     <svg
       className={className}
       viewBox="0 0 24 24"
-      fill="none"
+      fill="#1877F2"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <path d="M11.4 11.4H2V2h9.4v9.4z" fill="#F25022" />
-      <path d="M22 11.4h-9.4V2H22v9.4z" fill="#7FBA00" />
-      <path d="M11.4 22H2v-9.4h9.4V22z" fill="#00A4EF" />
-      <path d="M22 22h-9.4v-9.4H22V22z" fill="#FFB900" />
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
     </svg>
   )
 }
 
+type Provider = "google" | "apple" | "facebook"
+
+interface ProviderConfig {
+  name: string
+  provider: Provider
+  icon: React.FC<{ className?: string }>
+}
+
+const providers: ProviderConfig[] = [
+  { name: "Google", provider: "google", icon: GoogleIcon },
+  { name: "Apple", provider: "apple", icon: AppleIcon },
+  { name: "Facebook", provider: "facebook", icon: FacebookIcon },
+]
+
 export function OAuthButtons() {
-  const providers = [
-    { name: "Google", icon: GoogleIcon },
-    { name: "Apple", icon: AppleIcon },
-    { name: "Microsoft", icon: MicrosoftIcon },
-  ]
+  const [loadingProvider, setLoadingProvider] = React.useState<Provider | null>(null)
+
+  const handleOAuthSignIn = async (provider: Provider) => {
+    setLoadingProvider(provider)
+
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: {
+          redirectTo: `${window.location.origin}/api/auth/callback`,
+        },
+      })
+
+      if (error) {
+        toast.error("Erreur", {
+          description: "Impossible de se connecter. Veuillez réessayer.",
+        })
+        setLoadingProvider(null)
+      }
+      // If no error, the user will be redirected to the OAuth provider
+    } catch {
+      toast.error("Erreur", {
+        description: "Une erreur est survenue.",
+      })
+      setLoadingProvider(null)
+    }
+  }
 
   return (
     <div className="space-y-4">
@@ -88,34 +119,30 @@ export function OAuthButtons() {
         </div>
       </div>
 
-      <TooltipProvider>
-        <div className="grid grid-cols-3 gap-3">
-          {providers.map((provider) => {
-            const Icon = provider.icon
-            return (
-              <Tooltip key={provider.name}>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    disabled
-                    className="w-full opacity-50 cursor-not-allowed"
-                  >
-                    <Icon className="size-5" />
-                    <span className="sr-only">{provider.name}</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>{provider.name} - Bientôt disponible</p>
-                </TooltipContent>
-              </Tooltip>
-            )
-          })}
-        </div>
-      </TooltipProvider>
+      <div className="grid grid-cols-3 gap-3">
+        {providers.map((item) => {
+          const Icon = item.icon
+          const isLoading = loadingProvider === item.provider
+          const isDisabled = loadingProvider !== null
 
-      <p className="text-center text-xs text-muted-foreground">
-        L'authentification sociale sera disponible prochainement
-      </p>
+          return (
+            <Button
+              key={item.provider}
+              variant="outline"
+              onClick={() => handleOAuthSignIn(item.provider)}
+              disabled={isDisabled}
+              className="w-full"
+            >
+              {isLoading ? (
+                <LoadingSpinner size="sm" />
+              ) : (
+                <Icon className="size-5" />
+              )}
+              <span className="sr-only">{item.name}</span>
+            </Button>
+          )
+        })}
+      </div>
     </div>
   )
 }

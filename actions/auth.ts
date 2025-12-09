@@ -3,87 +3,87 @@
 import { createSafeActionClient } from "next-safe-action"
 import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
+import { z } from "zod"
 import { createClient } from "@/lib/supabase/server"
 import { supabaseAdmin } from "@/lib/supabase/admin"
 import {
-  loginSchema,
-  registerSchema,
-  verifyOtpSchema,
+  emailLoginSchema,
+  emailRegisterSchema,
+  emailOtpSchema,
+  forgotPasswordSchema,
+  resetPasswordSchema,
   profileSchema,
-  normalizePhone,
 } from "@/lib/validations/auth"
 
 const action = createSafeActionClient()
 
-// Send OTP to existing user (login)
-export const sendOTP = action
-  .schema(loginSchema)
+// ============================================
+// EMAIL/PASSWORD AUTHENTICATION
+// ============================================
+
+// Sign in with email and password
+export const signInWithEmail = action
+  .schema(emailLoginSchema)
   .action(async ({ parsedInput }) => {
     const supabase = await createClient()
-    const phone = normalizePhone(parsedInput.phone)
 
-    // Check if user exists in public.users
-    const { data: existingUser } = await supabaseAdmin
-      .from("users")
-      .select("id")
-      .eq("phone", phone)
-      .single()
-
-    // If user doesn't exist in public.users, return early with a friendly message
-    if (!existingUser) {
-      return {
-        error: "Aucun compte associé à ce numéro. Créez un compte d'abord.",
-      }
-    }
-
-    // Send OTP for existing user
-    // shouldCreateUser: true allows Supabase to handle the case where
-    // auth.users might be out of sync with public.users
-    const { error } = await supabase.auth.signInWithOtp({
-      phone,
-      options: {
-        shouldCreateUser: true,
-      },
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: parsedInput.email,
+      password: parsedInput.password,
     })
 
     if (error) {
-      console.error("Send OTP error:", error)
-      return {
-        error: "Impossible d'envoyer le code. Veuillez réessayer.",
+      console.error("Sign in error:", error)
+
+      if (error.message.includes("Invalid login credentials")) {
+        return { error: "Email ou mot de passe incorrect." }
       }
+      if (error.message.includes("Email not confirmed")) {
+        return { error: "Veuillez confirmer votre email avant de vous connecter." }
+      }
+
+      return { error: "Erreur de connexion. Veuillez réessayer." }
     }
 
-    return {
-      success: true,
-      phone,
+    // Ensure user profile exists
+    if (data.user) {
+      await supabaseAdmin.from("users").upsert(
+        {
+          id: data.user.id,
+          email: data.user.email,
+          full_name: data.user.user_metadata?.full_name || "Utilisateur",
+          role: "customer" as const,
+        },
+        { onConflict: "id" }
+      )
     }
+
+    revalidatePath("/", "layout")
+    return { success: true }
   })
 
-// Sign up new user and send OTP
-export const signUp = action
-  .schema(registerSchema)
+// Sign up with email and password (sends OTP email for verification)
+export const signUpWithEmail = action
+  .schema(emailRegisterSchema)
   .action(async ({ parsedInput }) => {
     const supabase = await createClient()
-    const phone = normalizePhone(parsedInput.phone)
 
-    // Check if phone already exists
+    // Check if email already exists
     const { data: existingUser } = await supabaseAdmin
       .from("users")
       .select("id")
-      .eq("phone", phone)
+      .eq("email", parsedInput.email)
       .single()
 
     if (existingUser) {
-      return {
-        error: "Ce numéro est déjà associé à un compte. Connectez-vous.",
-      }
+      return { error: "Cet email est déjà associé à un compte." }
     }
 
-    // Send OTP with user creation
-    const { error } = await supabase.auth.signInWithOtp({
-      phone,
+    // Sign up with email - Supabase will send OTP email
+    const { data, error } = await supabase.auth.signUp({
+      email: parsedInput.email,
+      password: parsedInput.password,
       options: {
-        shouldCreateUser: true,
         data: {
           full_name: parsedInput.fullName,
         },
@@ -92,91 +92,155 @@ export const signUp = action
 
     if (error) {
       console.error("Sign up error:", error)
-      return {
-        error: "Impossible de créer le compte. Veuillez réessayer.",
-      }
+      return { error: "Impossible de créer le compte. Veuillez réessayer." }
     }
+
+    // Check if email confirmation is required
+    const emailConfirmationRequired = !data.session
 
     return {
       success: true,
-      phone,
+      email: parsedInput.email,
       fullName: parsedInput.fullName,
+      emailConfirmationRequired,
     }
   })
 
-// Upsert user profile after OTP verification (called from client after verifyOtp)
-export const upsertUserProfile = action
-  .schema(loginSchema)
+// Verify email OTP (for email confirmation)
+export const verifyEmailOtp = action
+  .schema(emailOtpSchema)
   .action(async ({ parsedInput }) => {
     const supabase = await createClient()
-    const phone = normalizePhone(parsedInput.phone)
 
-    // Get the current authenticated user
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+    const { data, error } = await supabase.auth.verifyOtp({
+      email: parsedInput.email,
+      token: parsedInput.token,
+      type: "email",
+    })
 
-    if (!user) {
-      return {
-        error: "Non authentifié",
+    if (error) {
+      console.error("Verify OTP error:", error)
+
+      if (error.message.includes("expired")) {
+        return { error: "Le code a expiré. Veuillez en demander un nouveau." }
       }
+      if (error.message.includes("invalid")) {
+        return { error: "Code invalide. Veuillez vérifier et réessayer." }
+      }
+
+      return { error: "Erreur de vérification. Veuillez réessayer." }
     }
 
-    // Upsert user profile in public.users table
-    const { error: upsertError } = await supabaseAdmin
-      .from("users")
-      .upsert(
+    // Upsert user profile
+    if (data.user) {
+      await supabaseAdmin.from("users").upsert(
         {
-          id: user.id,
-          phone: phone,
-          full_name:
-            user.user_metadata?.full_name || user.phone || "Utilisateur",
+          id: data.user.id,
+          email: data.user.email,
+          full_name: data.user.user_metadata?.full_name || "Utilisateur",
           role: "customer" as const,
         },
-        {
-          onConflict: "id",
-        }
+        { onConflict: "id" }
       )
-
-    if (upsertError) {
-      console.error("Upsert user error:", upsertError)
-      return {
-        error: "Erreur lors de la création du profil",
-      }
     }
 
     revalidatePath("/", "layout")
-
-    return {
-      success: true,
-    }
+    return { success: true }
   })
 
-// Resend OTP
-export const resendOTP = action
-  .schema(loginSchema)
+// Resend email OTP
+export const resendEmailOtp = action
+  .schema(forgotPasswordSchema)
   .action(async ({ parsedInput }) => {
     const supabase = await createClient()
-    const phone = normalizePhone(parsedInput.phone)
 
-    const { error } = await supabase.auth.signInWithOtp({
-      phone,
-      options: {
-        shouldCreateUser: true, // Allow both new and existing users
-      },
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: parsedInput.email,
     })
 
     if (error) {
       console.error("Resend OTP error:", error)
-      return {
-        error: "Impossible de renvoyer le code. Veuillez réessayer.",
-      }
+      return { error: "Impossible de renvoyer le code. Veuillez réessayer." }
     }
 
-    return {
-      success: true,
-    }
+    return { success: true }
   })
+
+// Request password reset (sends email)
+export const requestPasswordReset = action
+  .schema(forgotPasswordSchema)
+  .action(async ({ parsedInput }) => {
+    const supabase = await createClient()
+
+    const { error } = await supabase.auth.resetPasswordForEmail(
+      parsedInput.email,
+      {
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"}/reset-password`,
+      }
+    )
+
+    if (error) {
+      console.error("Password reset error:", error)
+      // Don't reveal if email exists for security
+    }
+
+    // Always return success to prevent email enumeration
+    return { success: true }
+  })
+
+// Update password (after clicking reset link)
+export const updatePassword = action
+  .schema(resetPasswordSchema)
+  .action(async ({ parsedInput }) => {
+    const supabase = await createClient()
+
+    const { error } = await supabase.auth.updateUser({
+      password: parsedInput.password,
+    })
+
+    if (error) {
+      console.error("Update password error:", error)
+      return { error: "Impossible de mettre à jour le mot de passe." }
+    }
+
+    revalidatePath("/", "layout")
+    return { success: true }
+  })
+
+// ============================================
+// OAUTH AUTHENTICATION
+// ============================================
+
+const oauthSchema = z.object({
+  provider: z.enum(["google", "apple", "facebook"]),
+  redirectTo: z.string().optional(),
+})
+
+export const signInWithOAuth = action
+  .schema(oauthSchema)
+  .action(async ({ parsedInput }) => {
+    const supabase = await createClient()
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000"
+
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: parsedInput.provider,
+      options: {
+        redirectTo: `${siteUrl}/api/auth/callback?next=${parsedInput.redirectTo || "/"}`,
+      },
+    })
+
+    if (error) {
+      console.error("OAuth error:", error)
+      return { error: "Erreur d'authentification. Veuillez réessayer." }
+    }
+
+    return { success: true, url: data.url }
+  })
+
+// ============================================
+// SESSION MANAGEMENT
+// ============================================
 
 // Sign out
 export async function signOut() {
@@ -189,7 +253,7 @@ export async function signOut() {
   }
 
   revalidatePath("/", "layout")
-  redirect("/login")
+  redirect("/")
 }
 
 // Get current user (helper function, not an action)
@@ -212,6 +276,10 @@ export async function getCurrentUser() {
 
   return user
 }
+
+// ============================================
+// PROFILE MANAGEMENT
+// ============================================
 
 // Update user profile
 export const updateProfile = action

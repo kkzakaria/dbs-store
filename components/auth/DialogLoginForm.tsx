@@ -5,6 +5,9 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useAction } from "next-safe-action/hooks"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import {
   Form,
   FormControl,
@@ -13,30 +16,34 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { PhoneInput } from "./PhoneInput"
 import { LoadingSpinner } from "@/components/shared/Loading"
-import { sendOTP } from "@/actions/auth"
-import { loginSchema, type LoginInput } from "@/lib/validations/auth"
+import { signInWithEmail } from "@/actions/auth"
+import { emailLoginSchema, type EmailLoginInput } from "@/lib/validations/auth"
 import { useAuthStore } from "@/stores/auth-store"
+import { OAuthButtons } from "./OAuthButtons"
 import { toast } from "sonner"
 
 export function DialogLoginForm() {
-  const { openVerifyOTP } = useAuthStore()
+  const { close, setView, setEmail } = useAuthStore()
+  const id = React.useId()
 
-  const form = useForm<LoginInput>({
-    resolver: zodResolver(loginSchema),
+  const form = useForm<EmailLoginInput>({
+    resolver: zodResolver(emailLoginSchema),
     defaultValues: {
-      phone: "",
+      email: "",
+      password: "",
+      rememberMe: false,
     },
   })
 
-  const { execute, status } = useAction(sendOTP, {
+  const { execute, status } = useAction(signInWithEmail, {
     onSuccess: (result) => {
-      if (result.data?.success && result.data.phone) {
-        toast.success("Code envoyé !", {
-          description: "Vérifiez votre téléphone pour le code de vérification.",
+      if (result.data?.success) {
+        toast.success("Connexion réussie !", {
+          description: "Bienvenue sur DBS Store.",
         })
-        openVerifyOTP(result.data.phone)
+        close()
+        window.location.href = "/"
       } else if (result.data?.error) {
         toast.error("Erreur", {
           description: result.data.error,
@@ -52,42 +59,100 @@ export function DialogLoginForm() {
 
   const isLoading = status === "executing"
 
-  const onSubmit = (data: LoginInput) => {
-    execute(data)
+  const handleForgotPassword = () => {
+    const email = form.getValues("email")
+    setEmail(email || null)
+    setView("forgot-password")
   }
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Numéro de téléphone</FormLabel>
-              <FormControl>
-                <PhoneInput
-                  value={field.value || ""}
-                  onChange={field.onChange}
-                  disabled={isLoading}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <div className="space-y-6">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit((data) => execute(data))} className="space-y-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    placeholder="email@exemple.com"
+                    autoComplete="email"
+                    disabled={isLoading}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Button type="submit" className="w-full" disabled={isLoading}>
-          {isLoading ? (
-            <>
-              <LoadingSpinner size="sm" />
-              <span>Envoi en cours...</span>
-            </>
-          ) : (
-            "Recevoir le code"
-          )}
-        </Button>
-      </form>
-    </Form>
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Mot de passe</FormLabel>
+                <FormControl>
+                  <Input
+                    type="password"
+                    placeholder="Entrez votre mot de passe"
+                    autoComplete="current-password"
+                    disabled={isLoading}
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="flex items-center justify-between">
+            <FormField
+              control={form.control}
+              name="rememberMe"
+              render={({ field }) => (
+                <div className="flex items-center gap-2">
+                  <Checkbox
+                    id={`${id}-remember`}
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    disabled={isLoading}
+                  />
+                  <Label
+                    htmlFor={`${id}-remember`}
+                    className="text-sm font-normal text-muted-foreground cursor-pointer"
+                  >
+                    Se souvenir de moi
+                  </Label>
+                </div>
+              )}
+            />
+            <button
+              type="button"
+              className="text-sm text-primary hover:underline"
+              onClick={handleForgotPassword}
+            >
+              Mot de passe oublié ?
+            </button>
+          </div>
+
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <LoadingSpinner size="sm" />
+                <span>Connexion...</span>
+              </>
+            ) : (
+              "Se connecter"
+            )}
+          </Button>
+        </form>
+      </Form>
+
+      <OAuthButtons />
+    </div>
   )
 }

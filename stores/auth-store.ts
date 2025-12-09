@@ -1,32 +1,36 @@
 import { create } from "zustand"
 
-type AuthView = "login" | "register" | "verify-otp"
+type AuthView = "login" | "register" | "verify-email" | "forgot-password" | "reset-sent"
 
 interface AuthStore {
   isOpen: boolean
   view: AuthView
-  phone: string | null
+  email: string | null
 
   // Actions
   openLogin: () => void
   openRegister: () => void
-  openVerifyOTP: (phone: string) => void
+  openVerifyEmail: (email: string) => void
+  openForgotPassword: () => void
+  openResetSent: (email: string) => void
   close: () => void
   setView: (view: AuthView) => void
-  setPhone: (phone: string | null) => void
+  setEmail: (email: string | null) => void
   reset: () => void
 }
 
 export const useAuthStore = create<AuthStore>()((set) => ({
   isOpen: false,
   view: "login",
-  phone: null,
+  email: null,
 
   openLogin: () => set({ isOpen: true, view: "login" }),
   openRegister: () => set({ isOpen: true, view: "register" }),
-  openVerifyOTP: (phone: string) => set({ isOpen: true, view: "verify-otp", phone }),
+  openVerifyEmail: (email: string) => set({ isOpen: true, view: "verify-email", email }),
+  openForgotPassword: () => set({ isOpen: true, view: "forgot-password" }),
+  openResetSent: (email: string) => set({ isOpen: true, view: "reset-sent", email }),
   close: () => set({ isOpen: false }),
   setView: (view: AuthView) => set({ view }),
-  setPhone: (phone: string | null) => set({ phone }),
-  reset: () => set({ isOpen: false, view: "login", phone: null }),
+  setEmail: (email: string | null) => set({ email }),
+  reset: () => set({ isOpen: false, view: "login", email: null }),
 }))

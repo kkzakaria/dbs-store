@@ -1,10 +1,15 @@
+// UI Components
 export { PhoneInput } from "./PhoneInput"
 export { OTPInput } from "./OTPInput"
-export { LoginForm } from "./LoginForm"
-export { RegisterForm } from "./RegisterForm"
-export { VerifyOTPForm } from "./VerifyOTPForm"
 export { OAuthButtons } from "./OAuthButtons"
+
+// Dialog Components
 export { AuthDialog } from "./AuthDialog"
 export { DialogLoginForm } from "./DialogLoginForm"
 export { DialogRegisterForm } from "./DialogRegisterForm"
-export { DialogVerifyOTPForm } from "./DialogVerifyOTPForm"
+export { DialogVerifyEmailForm } from "./DialogVerifyEmailForm"
+export { DialogForgotPasswordForm } from "./DialogForgotPasswordForm"
+export { DialogResetSentView } from "./DialogResetSentView"
+
+// Standalone Forms
+export { ResetPasswordForm } from "./ResetPasswordForm"
