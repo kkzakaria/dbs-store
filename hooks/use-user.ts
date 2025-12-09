@@ -61,14 +61,20 @@ export function useUser(): UseUserReturn {
         error: authError,
       } = await supabase.auth.getUser();
 
-      // Handle AuthSessionMissingError - this is expected when not logged in
+      // Handle auth errors - treat as logged out, not an error
       if (authError) {
-        // Check if it's an "Auth session missing" error - treat as logged out, not an error
-        if (
+        // Check for common auth errors that mean "not logged in" or "invalid session"
+        const isExpectedError =
           authError.name === "AuthSessionMissingError" ||
           authError.message?.includes("session") ||
-          authError.message?.includes("Auth session missing")
-        ) {
+          authError.message?.includes("Auth session missing") ||
+          authError.message?.includes("User from sub claim in JWT does not exist") ||
+          authError.message?.includes("invalid JWT") ||
+          authError.message?.includes("JWT expired");
+
+        if (isExpectedError) {
+          // Clear any stale session data
+          await supabase.auth.signOut();
           setAuthUser(null);
           setUser(null);
           return;
