@@ -21,6 +21,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { ThemeToggle } from "./theme-toggle"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { useAuthStore } from "@/stores/auth-store"
 import type { User as AuthUser } from "@supabase/supabase-js"
 import type { User } from "@/types"
 import {
@@ -68,6 +69,7 @@ export function MobileNav({
   onSignOut,
 }: MobileNavProps) {
   const pathname = usePathname()
+  const { openLogin, openRegister } = useAuthStore()
 
   // Close menu on navigation
   React.useEffect(() => {
@@ -119,17 +121,27 @@ export function MobileNav({
               </div>
             ) : (
               <div className="flex gap-2">
-                <Button asChild variant="default" className="flex-1">
-                  <Link href="/login">
-                    <LogIn className="mr-2 size-4" />
-                    Connexion
-                  </Link>
+                <Button
+                  variant="default"
+                  className="flex-1"
+                  onClick={() => {
+                    onOpenChange(false)
+                    openLogin()
+                  }}
+                >
+                  <LogIn className="mr-2 size-4" />
+                  Connexion
                 </Button>
-                <Button asChild variant="outline" className="flex-1">
-                  <Link href="/register">
-                    <UserPlus className="mr-2 size-4" />
-                    Inscription
-                  </Link>
+                <Button
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    onOpenChange(false)
+                    openRegister()
+                  }}
+                >
+                  <UserPlus className="mr-2 size-4" />
+                  Inscription
                 </Button>
               </div>
             )}

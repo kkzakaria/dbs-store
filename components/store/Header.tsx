@@ -27,8 +27,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { SearchCommand } from "./SearchCommand"
 import { MobileNav } from "./MobileNav"
 import { ThemeToggle } from "./theme-toggle"
+import { AuthDialog } from "@/components/auth"
 import { useUser } from "@/hooks/use-user"
 import { useCart } from "@/hooks/use-cart"
+import { useAuthStore } from "@/stores/auth-store"
 import { useTheme } from "next-themes"
 import {
   Search,
@@ -109,6 +111,7 @@ export function Header() {
   const pathname = usePathname()
   const { user, authUser, signOut, isLoading } = useUser()
   const { totalItems, openCart, isHydrated } = useCart()
+  const { openLogin } = useAuthStore()
   const { resolvedTheme } = useTheme()
   const [searchOpen, setSearchOpen] = React.useState(false)
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false)
@@ -183,72 +186,89 @@ export function Header() {
           </div>
 
           {/* Desktop Navigation */}
-          <NavigationMenu className="hidden md:flex" viewport={false}>
-            <NavigationMenuList className="gap-1">
-              {navigation.map((item) => (
-                <NavigationMenuItem key={item.name}>
-                  {item.submenu ? (
-                    <>
-                      <NavigationMenuTrigger
+          {mounted ? (
+            <NavigationMenu className="hidden md:flex" viewport={false}>
+              <NavigationMenuList className="gap-1">
+                {navigation.map((item) => (
+                  <NavigationMenuItem key={item.name}>
+                    {item.submenu ? (
+                      <>
+                        <NavigationMenuTrigger
+                          className={cn(
+                            "relative !bg-transparent text-base font-semibold transition-colors px-3 py-2",
+                            "hover:!bg-primary/10 hover:!text-primary focus:!bg-primary/10 focus:!text-primary",
+                            "data-[state=open]:!bg-primary/10 data-[state=open]:!text-primary data-[state=open]:hover:!bg-primary/15 data-[state=open]:focus:!bg-primary/15",
+                            "after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
+                            pathname?.startsWith("/categories/" + item.name.toLowerCase().replace(/ /g, "-"))
+                              ? "!text-primary after:w-full"
+                              : "text-foreground/80"
+                          )}
+                        >
+                          {item.name}
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent
+                          className="p-2 backdrop-blur-xl !rounded-xl"
+                          style={glassStyles.submenu}
+                        >
+                          <ul className="grid w-[280px] gap-0.5">
+                            {item.items?.map((subItem) => (
+                              <li key={subItem.href}>
+                                <NavigationMenuLink asChild>
+                                  <Link
+                                    href={subItem.href}
+                                    className={cn(
+                                      "block select-none rounded-md px-3 py-2 no-underline outline-none transition-colors hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary",
+                                      pathname === subItem.href && "bg-primary/10 text-primary"
+                                    )}
+                                  >
+                                    <div className="text-sm font-semibold">
+                                      {subItem.name}
+                                    </div>
+                                    {subItem.description && (
+                                      <p className="text-xs text-muted-foreground mt-0.5">
+                                        {subItem.description}
+                                      </p>
+                                    )}
+                                  </Link>
+                                </NavigationMenuLink>
+                              </li>
+                            ))}
+                          </ul>
+                        </NavigationMenuContent>
+                      </>
+                    ) : (
+                      <Link
+                        href={item.href!}
                         className={cn(
-                          "relative !bg-transparent text-base font-semibold transition-colors px-3 py-2",
-                          "hover:!bg-primary/10 hover:!text-primary focus:!bg-primary/10 focus:!text-primary",
-                          "data-[state=open]:!bg-primary/10 data-[state=open]:!text-primary data-[state=open]:hover:!bg-primary/15 data-[state=open]:focus:!bg-primary/15",
-                          "after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
-                          pathname?.startsWith("/categories/" + item.name.toLowerCase().replace(/ /g, "-"))
-                            ? "!text-primary after:w-full"
-                            : "text-foreground/80"
+                          "relative text-base font-semibold transition-colors hover:text-primary hover:bg-primary/10 rounded-md px-3 py-2 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
+                          pathname === item.href
+                            ? "text-primary after:w-full"
+                            : "text-foreground/80 hover:text-foreground"
                         )}
                       >
                         {item.name}
-                      </NavigationMenuTrigger>
-                      <NavigationMenuContent
-                        className="p-2 backdrop-blur-xl !rounded-xl"
-                        style={glassStyles.submenu}
-                      >
-                        <ul className="grid w-[280px] gap-0.5">
-                          {item.items?.map((subItem) => (
-                            <li key={subItem.href}>
-                              <NavigationMenuLink asChild>
-                                <Link
-                                  href={subItem.href}
-                                  className={cn(
-                                    "block select-none rounded-md px-3 py-2 no-underline outline-none transition-colors hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary",
-                                    pathname === subItem.href && "bg-primary/10 text-primary"
-                                  )}
-                                >
-                                  <div className="text-sm font-semibold">
-                                    {subItem.name}
-                                  </div>
-                                  {subItem.description && (
-                                    <p className="text-xs text-muted-foreground mt-0.5">
-                                      {subItem.description}
-                                    </p>
-                                  )}
-                                </Link>
-                              </NavigationMenuLink>
-                            </li>
-                          ))}
-                        </ul>
-                      </NavigationMenuContent>
-                    </>
-                  ) : (
-                    <Link
-                      href={item.href!}
-                      className={cn(
-                        "relative text-base font-semibold transition-colors hover:text-primary hover:bg-primary/10 rounded-md px-3 py-2 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
-                        pathname === item.href
-                          ? "text-primary after:w-full"
-                          : "text-foreground/80 hover:text-foreground"
-                      )}
-                    >
-                      {item.name}
-                    </Link>
+                      </Link>
+                    )}
+                  </NavigationMenuItem>
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
+          ) : (
+            <nav className="hidden md:flex items-center gap-1">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href || `/categories/${item.name.toLowerCase().replace(/ /g, "-")}`}
+                  className={cn(
+                    "relative text-base font-semibold transition-colors hover:text-primary hover:bg-primary/10 rounded-md px-3 py-2",
+                    "text-foreground/80 hover:text-foreground"
                   )}
-                </NavigationMenuItem>
+                >
+                  {item.name}
+                </Link>
               ))}
-            </NavigationMenuList>
-          </NavigationMenu>
+            </nav>
+          )}
 
           {/* Actions */}
           <div className="flex items-center gap-2">
@@ -285,7 +305,7 @@ export function Header() {
             </Button>
 
             {/* User Menu / Login */}
-            {isLoading ? (
+            {!mounted || isLoading ? (
               <Button variant="ghost" size="icon" disabled>
                 <User className="size-5" />
               </Button>
@@ -348,8 +368,8 @@ export function Header() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button asChild variant="default" size="sm" className="hidden sm:flex">
-                <Link href="/login">Connexion</Link>
+              <Button variant="default" size="sm" className="hidden sm:flex" onClick={openLogin}>
+                Connexion
               </Button>
             )}
 
@@ -378,6 +398,9 @@ export function Header() {
         authUser={authUser}
         onSignOut={signOut}
       />
+
+      {/* Auth Dialog */}
+      <AuthDialog />
     </>
   )
 }
