@@ -306,6 +306,11 @@ export function ProductFormWizard({ product, categories }: ProductFormWizardProp
   )
 
   const onSubmit = async (data: AdminProductWithVariantsInput) => {
+    // Only allow submission on the last step
+    if (!isLastStep(currentStep)) {
+      return
+    }
+
     // Validate current step first
     const isValid = await validateStep(currentStep)
     if (!isValid) return
@@ -848,7 +853,16 @@ export function ProductFormWizard({ product, categories }: ProductFormWizardProp
       />
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form
+          onSubmit={form.handleSubmit(onSubmit)}
+          onKeyDown={(e) => {
+            // Prevent Enter key from submitting the form (except in textareas)
+            if (e.key === "Enter" && e.target instanceof HTMLInputElement) {
+              e.preventDefault()
+            }
+          }}
+          className="space-y-6"
+        >
           <div className="grid gap-6 lg:grid-cols-3">
             {/* Main Content */}
             <div className="lg:col-span-2 space-y-6">
