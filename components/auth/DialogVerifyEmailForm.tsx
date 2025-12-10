@@ -43,7 +43,7 @@ export function DialogVerifyEmailForm() {
           description: "Bienvenue sur DBS Store.",
         })
         reset()
-        window.location.href = "/"
+        window.location.reload()
       } else if (result.data?.error) {
         setError(result.data.error)
         setCode("")

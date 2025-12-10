@@ -43,7 +43,7 @@ export function DialogLoginForm() {
           description: "Bienvenue sur DBS Store.",
         })
         close()
-        window.location.href = "/"
+        window.location.reload()
       } else if (result.data?.error) {
         toast.error("Erreur", {
           description: result.data.error,
