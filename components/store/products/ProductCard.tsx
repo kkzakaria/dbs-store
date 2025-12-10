@@ -3,7 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Heart, Loader2 } from "lucide-react"
+import { Heart, Loader2, ShoppingCart } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -133,7 +133,7 @@ export function ProductCard({
         <CardContent className="p-3">
           {/* Product Image */}
           <div className="relative mb-3">
-            <div className="bg-muted rounded-xl h-[280px] relative overflow-hidden">
+            <div className="bg-muted rounded-xl h-[200px] relative overflow-hidden">
               <Image
                 src={imageUrl}
                 alt={primaryImage?.alt || product.name}
@@ -211,12 +211,12 @@ export function ProductCard({
           </div>
 
           {/* Price and Add to Cart */}
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex flex-col gap-2">
             <div className="flex flex-col">
               {hasVariants && (
                 <span className="text-[10px] text-muted-foreground">À partir de</span>
               )}
-              <div className="flex items-baseline gap-1.5">
+              <div className="flex items-baseline gap-1.5 flex-wrap">
                 <p className="text-base font-bold">{formatPrice(product.price)}</p>
                 {hasDiscount && product.compare_price && !hasVariants && (
                   <p className="text-xs text-muted-foreground line-through">
@@ -226,14 +226,29 @@ export function ProductCard({
               </div>
             </div>
 
-            <Button
-              onClick={handleAddToCart}
-              disabled={isOutOfStock && !hasVariants}
-              size="sm"
-              className="h-7 px-2 text-xs"
-            >
-              {hasVariants ? "Voir" : isOutOfStock ? "Indisponible" : "Acheter"}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleAddToCart}
+                disabled={isOutOfStock && !hasVariants}
+                variant="outline"
+                size="sm"
+                className="h-8 px-2"
+                aria-label="Ajouter au panier"
+              >
+                <ShoppingCart className="w-4 h-4" />
+              </Button>
+              <Button
+                onClick={(e) => {
+                  e.preventDefault()
+                  e.stopPropagation()
+                  window.location.href = `/products/${product.slug}`
+                }}
+                size="sm"
+                className="flex-1 h-8 text-xs"
+              >
+                {isOutOfStock && !hasVariants ? "Indisponible" : "Acheter"}
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Link>
