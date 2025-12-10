@@ -93,13 +93,14 @@ export function ProductGallery({
       )}
 
       {/* Main Image */}
-      <div className="flex-1 relative aspect-[4/5] overflow-hidden rounded-lg bg-muted">
+      <div className="flex-1 relative min-h-[400px] max-h-[500px] overflow-hidden rounded-lg bg-muted flex items-center justify-center">
         <Image
           src={currentImage?.url || "/images/placeholder-product.png"}
           alt={currentImage?.alt || productName}
-          fill
-          sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover"
+          width={500}
+          height={500}
+          sizes="(max-width: 768px) 100vw, 500px"
+          className="max-w-full max-h-[500px] w-auto h-auto object-contain"
           priority
         />
 
