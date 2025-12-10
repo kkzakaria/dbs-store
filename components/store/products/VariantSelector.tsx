@@ -14,7 +14,7 @@ import {
 interface ProductOption {
   id: string
   name: string
-  values: unknown // Json from DB
+  values: unknown // Json from DB - can be string[] or ColorValue[]
   position: number | null
 }
 
@@ -38,13 +38,29 @@ interface VariantSelectorProps {
   selectedVariant: ProductVariant | null
 }
 
+// ColorValue type for new color format
+type ColorValue = {
+  name: string
+  hex: string
+}
+
+// Check if a value is a ColorValue object
+const isColorValueObject = (value: unknown): value is ColorValue => {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    "name" in value &&
+    "hex" in value
+  )
+}
+
 // Check if a color value looks like a color name
 const isColorOption = (name: string) => {
   const colorNames = ["couleur", "color", "colour"]
   return colorNames.includes(name.toLowerCase())
 }
 
-// Map common French color names to CSS colors
+// Map common French color names to CSS colors (fallback for old data)
 const colorMap: Record<string, string> = {
   noir: "#000000",
   blanc: "#FFFFFF",
@@ -64,6 +80,7 @@ const colorMap: Record<string, string> = {
   "titane bleu": "#5A7B9A",
   "titane blanc": "#F5F5F5",
   "titane noir": "#1C1C1C",
+  "or rose": "#E8B4B8",
   black: "#000000",
   white: "#FFFFFF",
   blue: "#0066CC",
@@ -76,6 +93,12 @@ const getColorValue = (colorName: string): string | null => {
   return colorMap[normalized] || null
 }
 
+// Parsed option value with name and optional hex
+type ParsedValue = {
+  name: string
+  hex: string | null
+}
+
 export function VariantSelector({
   options,
   variants,
@@ -83,12 +106,33 @@ export function VariantSelector({
   onSelectOption,
   selectedVariant,
 }: VariantSelectorProps) {
-  // Parse option values from Json
+  // Parse option values from Json - supports both string[] and ColorValue[]
   const parsedOptions = useMemo(() => {
-    return options.map((opt) => ({
-      ...opt,
-      values: Array.isArray(opt.values) ? (opt.values as string[]) : [],
-    }))
+    return options.map((opt) => {
+      const isColor = isColorOption(opt.name)
+      const rawValues = Array.isArray(opt.values) ? opt.values : []
+
+      // Parse values to extract name and hex
+      const values: ParsedValue[] = rawValues.map((val) => {
+        if (isColorValueObject(val)) {
+          // New format: ColorValue object with name and hex
+          return { name: val.name, hex: val.hex }
+        } else if (typeof val === "string") {
+          // Old format: plain string, use colorMap for colors
+          return {
+            name: val,
+            hex: isColor ? getColorValue(val) : null,
+          }
+        }
+        // Fallback
+        return { name: String(val), hex: null }
+      })
+
+      return {
+        ...opt,
+        values,
+      }
+    })
   }, [options])
 
   // Check which option combinations are available
@@ -147,15 +191,14 @@ export function VariantSelector({
               // Color swatches
               <div className="flex flex-wrap gap-2">
                 {option.values.map((value) => {
-                  const colorValue = getColorValue(value)
-                  const isSelected = selectedOptions[option.name] === value
-                  const isAvailable = availableValues.has(value)
+                  const isSelected = selectedOptions[option.name] === value.name
+                  const isAvailable = availableValues.has(value.name)
 
                   return (
                     <button
-                      key={value}
+                      key={value.name}
                       type="button"
-                      onClick={() => isAvailable && onSelectOption(option.name, value)}
+                      onClick={() => isAvailable && onSelectOption(option.name, value.name)}
                       disabled={!isAvailable}
                       className={cn(
                         "relative h-8 w-8 rounded-full border-2 transition-all",
@@ -165,9 +208,9 @@ export function VariantSelector({
                         !isAvailable && "opacity-40 cursor-not-allowed"
                       )}
                       style={{
-                        backgroundColor: colorValue || "#E5E5E5",
+                        backgroundColor: value.hex || "#E5E5E5",
                       }}
-                      title={value}
+                      title={value.name}
                     >
                       {!isAvailable && (
                         <span className="absolute inset-0 flex items-center justify-center">
@@ -182,14 +225,14 @@ export function VariantSelector({
               // Button group for few options
               <div className="flex flex-wrap gap-2">
                 {option.values.map((value) => {
-                  const isSelected = selectedOptions[option.name] === value
-                  const isAvailable = availableValues.has(value)
+                  const isSelected = selectedOptions[option.name] === value.name
+                  const isAvailable = availableValues.has(value.name)
 
                   return (
                     <button
-                      key={value}
+                      key={value.name}
                       type="button"
-                      onClick={() => isAvailable && onSelectOption(option.name, value)}
+                      onClick={() => isAvailable && onSelectOption(option.name, value.name)}
                       disabled={!isAvailable}
                       className={cn(
                         "px-3 py-1.5 text-sm border rounded-md transition-all",
@@ -199,7 +242,7 @@ export function VariantSelector({
                         !isAvailable && "opacity-40 cursor-not-allowed line-through"
                       )}
                     >
-                      {value}
+                      {value.name}
                     </button>
                   )
                 })}
@@ -208,22 +251,22 @@ export function VariantSelector({
               // Dropdown for many options
               <Select
                 value={selectedOptions[option.name] || ""}
-                onValueChange={(value) => onSelectOption(option.name, value)}
+                onValueChange={(val) => onSelectOption(option.name, val)}
               >
                 <SelectTrigger className="w-full">
-                  <SelectValue placeholder={`Selectionnez ${option.name.toLowerCase()}`} />
+                  <SelectValue placeholder={`Sélectionnez ${option.name.toLowerCase()}`} />
                 </SelectTrigger>
                 <SelectContent>
                   {option.values.map((value) => {
-                    const isAvailable = availableValues.has(value)
+                    const isAvailable = availableValues.has(value.name)
                     return (
                       <SelectItem
-                        key={value}
-                        value={value}
+                        key={value.name}
+                        value={value.name}
                         disabled={!isAvailable}
                         className={cn(!isAvailable && "opacity-50")}
                       >
-                        {value}
+                        {value.name}
                         {!isAvailable && " (Indisponible)"}
                       </SelectItem>
                     )

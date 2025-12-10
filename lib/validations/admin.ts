@@ -85,8 +85,57 @@ export type AdminProductInput = z.input<typeof adminProductSchema>
 export type AdminProductOutput = z.infer<typeof adminProductSchema>
 
 // ===========================================
+// Color Value Schema (for color variant options)
+// ===========================================
+
+export const colorValueSchema = z.object({
+  name: z.string().min(1, "Le nom de la couleur est requis"),
+  hex: z.string().regex(/^#[0-9A-Fa-f]{6}$/, "Format hex invalide (ex: #FF0000)"),
+})
+
+export type ColorValue = z.infer<typeof colorValueSchema>
+
+// Predefined colors palette for electronics products
+export const PREDEFINED_COLORS: ColorValue[] = [
+  // Basic colors
+  { name: "Noir", hex: "#000000" },
+  { name: "Blanc", hex: "#FFFFFF" },
+  { name: "Gris", hex: "#808080" },
+  { name: "Argent", hex: "#C0C0C0" },
+  // Gold tones
+  { name: "Or", hex: "#FFD700" },
+  { name: "Or Rose", hex: "#E8B4B8" },
+  // Apple Titanium colors
+  { name: "Titane Naturel", hex: "#B4B4B4" },
+  { name: "Titane Bleu", hex: "#5A7B9A" },
+  { name: "Titane Blanc", hex: "#F5F5F5" },
+  { name: "Titane Noir", hex: "#1C1C1C" },
+  // Common product colors
+  { name: "Bleu", hex: "#0066CC" },
+  { name: "Rouge", hex: "#CC0000" },
+  { name: "Vert", hex: "#008000" },
+  { name: "Violet", hex: "#8B00FF" },
+  { name: "Rose", hex: "#FF69B4" },
+  { name: "Orange", hex: "#FF8C00" },
+]
+
+// Helper to check if an option is a color option
+export function isColorOptionName(name: string): boolean {
+  const colorNames = ["couleur", "color", "colour"]
+  return colorNames.includes(name.toLowerCase().trim())
+}
+
+// ===========================================
 // Product Options Schema (for variants)
 // ===========================================
+
+// Option values can be either simple strings OR color objects
+export const productOptionValueSchema = z.union([
+  z.string().min(1, "La valeur ne peut pas être vide"),
+  colorValueSchema,
+])
+
+export type ProductOptionValue = z.infer<typeof productOptionValueSchema>
 
 export const productOptionSchema = z.object({
   id: z.string().uuid().optional(),
@@ -95,12 +144,22 @@ export const productOptionSchema = z.object({
     .min(1, "Le nom de l'option est requis")
     .max(100, "Le nom ne peut pas dépasser 100 caractères"),
   values: z
-    .array(z.string().min(1, "La valeur ne peut pas être vide"))
+    .array(productOptionValueSchema)
     .min(1, "Au moins une valeur requise"),
   position: z.number().min(0).default(0),
 })
 
 export type ProductOptionInput = z.infer<typeof productOptionSchema>
+
+// Helper to extract value name (works for both string and ColorValue)
+export function getOptionValueName(value: ProductOptionValue): string {
+  return typeof value === "string" ? value : value.name
+}
+
+// Helper to get color hex if value is ColorValue
+export function getOptionValueHex(value: ProductOptionValue): string | null {
+  return typeof value === "object" && "hex" in value ? value.hex : null
+}
 
 // ===========================================
 // Product Variant Schema

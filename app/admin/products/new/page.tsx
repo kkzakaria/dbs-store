@@ -1,9 +1,9 @@
 import { getCategories } from "@/actions/admin/products"
-import { ProductForm } from "@/components/admin/products/ProductForm"
+import { ProductFormWizard } from "@/components/admin/products/ProductFormWizard"
 
 export const metadata = {
   title: "Nouveau produit | Administration DBS Store",
-  description: "Creer un nouveau produit",
+  description: "Créer un nouveau produit",
 }
 
 export default async function NewProductPage() {
@@ -19,5 +19,5 @@ export default async function NewProductPage() {
 
   const categories = result.categories || []
 
-  return <ProductForm categories={categories} />
+  return <ProductFormWizard categories={categories} />
 }
