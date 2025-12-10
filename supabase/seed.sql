@@ -28,12 +28,16 @@ DELETE FROM auth.users WHERE email IN ('superadmin@dbs-store.ci', 'admin@dbs-sto
 -- ===========================================
 -- Créer les utilisateurs de test
 -- ===========================================
--- Note: Le trigger handle_new_user() crée automatiquement le profil
--- dans public.users avec role='customer'. On UPDATE ensuite pour
--- définir le rôle et le nom correct.
+-- Stratégie:
+-- 1. Insérer dans auth.users (le trigger handle_new_user() crée automatiquement
+--    le profil dans public.users avec role='customer')
+-- 2. Insérer dans auth.identities (REQUIS pour l'authentification email/password)
+-- 3. UPDATE public.users pour définir le bon rôle
 -- Mot de passe pour tous: password123
 
+-- ========================
 -- Super Admin: superadmin@dbs-store.ci
+-- ========================
 INSERT INTO auth.users (
   id,
   instance_id,
@@ -68,12 +72,29 @@ INSERT INTO auth.users (
   ''
 );
 
-UPDATE public.users SET
-  full_name = 'Super Admin DBS',
-  role = 'super_admin'
-WHERE id = 'a0000000-0000-0000-0000-000000000001';
+INSERT INTO auth.identities (
+  id,
+  user_id,
+  provider_id,
+  provider,
+  identity_data,
+  last_sign_in_at,
+  created_at,
+  updated_at
+) VALUES (
+  'a0000000-0000-0000-0000-000000000001',
+  'a0000000-0000-0000-0000-000000000001',
+  'superadmin@dbs-store.ci',
+  'email',
+  '{"sub": "a0000000-0000-0000-0000-000000000001", "email": "superadmin@dbs-store.ci", "email_verified": true, "phone_verified": false}',
+  NOW(),
+  NOW(),
+  NOW()
+);
 
+-- ========================
 -- Admin: admin@dbs-store.ci
+-- ========================
 INSERT INTO auth.users (
   id,
   instance_id,
@@ -108,12 +129,29 @@ INSERT INTO auth.users (
   ''
 );
 
-UPDATE public.users SET
-  full_name = 'Admin DBS',
-  role = 'admin'
-WHERE id = 'a0000000-0000-0000-0000-000000000002';
+INSERT INTO auth.identities (
+  id,
+  user_id,
+  provider_id,
+  provider,
+  identity_data,
+  last_sign_in_at,
+  created_at,
+  updated_at
+) VALUES (
+  'a0000000-0000-0000-0000-000000000002',
+  'a0000000-0000-0000-0000-000000000002',
+  'admin@dbs-store.ci',
+  'email',
+  '{"sub": "a0000000-0000-0000-0000-000000000002", "email": "admin@dbs-store.ci", "email_verified": true, "phone_verified": false}',
+  NOW(),
+  NOW(),
+  NOW()
+);
 
+-- ========================
 -- Client standard: client@dbs-store.ci
+-- ========================
 INSERT INTO auth.users (
   id,
   instance_id,
@@ -147,6 +185,39 @@ INSERT INTO auth.users (
   '',
   ''
 );
+
+INSERT INTO auth.identities (
+  id,
+  user_id,
+  provider_id,
+  provider,
+  identity_data,
+  last_sign_in_at,
+  created_at,
+  updated_at
+) VALUES (
+  'a0000000-0000-0000-0000-000000000003',
+  'a0000000-0000-0000-0000-000000000003',
+  'client@dbs-store.ci',
+  'email',
+  '{"sub": "a0000000-0000-0000-0000-000000000003", "email": "client@dbs-store.ci", "email_verified": true, "phone_verified": false}',
+  NOW(),
+  NOW(),
+  NOW()
+);
+
+-- ========================
+-- Mettre à jour les rôles et les points de fidélité
+-- ========================
+UPDATE public.users SET
+  full_name = 'Super Admin DBS',
+  role = 'super_admin'
+WHERE id = 'a0000000-0000-0000-0000-000000000001';
+
+UPDATE public.users SET
+  full_name = 'Admin DBS',
+  role = 'admin'
+WHERE id = 'a0000000-0000-0000-0000-000000000002';
 
 UPDATE public.users SET
   full_name = 'Client Test',
