@@ -3,16 +3,10 @@
 -- ===========================================
 -- Ce fichier crée des données de test pour le développement local
 --
--- IMPORTANT: Les utilisateurs de test sont créés automatiquement lors
--- de la première connexion OTP. Ce seed ne crée PAS d'utilisateurs
--- dans auth.users pour éviter les conflits de format de numéro.
---
--- Numéros de test OTP configurés dans config.toml:
--- +2250700000000, +2250700000001, +2250700000002, +2250707070707
--- Code OTP pour tous: 123456
---
--- Lors de la première connexion avec ces numéros, un utilisateur
--- sera créé automatiquement dans auth.users et public.users.
+-- Utilisateurs de test (email/mot de passe):
+-- - superadmin@dbs-store.ci / password123 (super_admin)
+-- - admin@dbs-store.ci / password123 (admin)
+-- - client@dbs-store.ci / password123 (customer)
 -- ===========================================
 
 -- Nettoyer les données existantes (dans l'ordre des dépendances)
@@ -28,24 +22,26 @@ TRUNCATE public.promotions CASCADE;
 TRUNCATE public.categories CASCADE;
 TRUNCATE public.shipping_zones CASCADE;
 
--- Nettoyer auth.users pour les numéros de test (éviter les conflits)
-DELETE FROM auth.users WHERE phone IN ('+2250700000000', '+2250700000001', '+2250700000002', '+2250707070707', '2250700000000', '2250700000001', '2250700000002', '2250707070707');
+-- Nettoyer auth.users pour les emails de test (éviter les conflits)
+DELETE FROM auth.users WHERE email IN ('superadmin@dbs-store.ci', 'admin@dbs-store.ci', 'client@dbs-store.ci');
 
 -- ===========================================
--- Créer les utilisateurs admin et super_admin
+-- Créer les utilisateurs de test
 -- ===========================================
 -- Note: Le trigger handle_new_user() crée automatiquement le profil
 -- dans public.users avec role='customer'. On UPDATE ensuite pour
 -- définir le rôle et le nom correct.
+-- Mot de passe pour tous: password123
 
--- Super Admin: 07 07 07 07 07
+-- Super Admin: superadmin@dbs-store.ci
 INSERT INTO auth.users (
   id,
   instance_id,
   aud,
   role,
-  phone,
-  phone_confirmed_at,
+  email,
+  encrypted_password,
+  email_confirmed_at,
   raw_app_meta_data,
   raw_user_meta_data,
   created_at,
@@ -59,10 +55,11 @@ INSERT INTO auth.users (
   '00000000-0000-0000-0000-000000000000',
   'authenticated',
   'authenticated',
-  '+2250707070707',
+  'superadmin@dbs-store.ci',
+  crypt('password123', gen_salt('bf')),
   NOW(),
-  '{"provider": "phone", "providers": ["phone"]}',
-  '{"phone": "+2250707070707", "full_name": "Super Admin DBS"}',
+  '{"provider": "email", "providers": ["email"]}',
+  '{"full_name": "Super Admin DBS"}',
   NOW(),
   NOW(),
   '',
@@ -76,14 +73,15 @@ UPDATE public.users SET
   role = 'super_admin'
 WHERE id = 'a0000000-0000-0000-0000-000000000001';
 
--- Admin: 07 00 00 00 02
+-- Admin: admin@dbs-store.ci
 INSERT INTO auth.users (
   id,
   instance_id,
   aud,
   role,
-  phone,
-  phone_confirmed_at,
+  email,
+  encrypted_password,
+  email_confirmed_at,
   raw_app_meta_data,
   raw_user_meta_data,
   created_at,
@@ -97,10 +95,11 @@ INSERT INTO auth.users (
   '00000000-0000-0000-0000-000000000000',
   'authenticated',
   'authenticated',
-  '+2250700000002',
+  'admin@dbs-store.ci',
+  crypt('password123', gen_salt('bf')),
   NOW(),
-  '{"provider": "phone", "providers": ["phone"]}',
-  '{"phone": "+2250700000002", "full_name": "Admin DBS"}',
+  '{"provider": "email", "providers": ["email"]}',
+  '{"full_name": "Admin DBS"}',
   NOW(),
   NOW(),
   '',
@@ -114,14 +113,15 @@ UPDATE public.users SET
   role = 'admin'
 WHERE id = 'a0000000-0000-0000-0000-000000000002';
 
--- Client standard: 07 00 00 00 00 (pour les tests)
+-- Client standard: client@dbs-store.ci
 INSERT INTO auth.users (
   id,
   instance_id,
   aud,
   role,
-  phone,
-  phone_confirmed_at,
+  email,
+  encrypted_password,
+  email_confirmed_at,
   raw_app_meta_data,
   raw_user_meta_data,
   created_at,
@@ -135,10 +135,11 @@ INSERT INTO auth.users (
   '00000000-0000-0000-0000-000000000000',
   'authenticated',
   'authenticated',
-  '+2250700000000',
+  'client@dbs-store.ci',
+  crypt('password123', gen_salt('bf')),
   NOW(),
-  '{"provider": "phone", "providers": ["phone"]}',
-  '{"phone": "+2250700000000", "full_name": "Client Test"}',
+  '{"provider": "email", "providers": ["email"]}',
+  '{"full_name": "Client Test"}',
   NOW(),
   NOW(),
   '',
@@ -268,14 +269,14 @@ INSERT INTO public.promotions (id, code, name, description, type, value, min_pur
 -- Résumé des utilisateurs de test
 -- ===========================================
 --
--- | Téléphone       | OTP    | Rôle        | Nom              |
--- |-----------------|--------|-------------|------------------|
--- | 07 00 00 00 00  | 123456 | customer    | Client Test      |
--- | 07 00 00 00 02  | 123456 | admin       | Admin DBS        |
--- | 07 07 07 07 07  | 123456 | super_admin | Super Admin DBS  |
+-- | Email                    | Mot de passe | Rôle        | Nom              |
+-- |--------------------------|--------------|-------------|------------------|
+-- | client@dbs-store.ci      | password123  | customer    | Client Test      |
+-- | admin@dbs-store.ci       | password123  | admin       | Admin DBS        |
+-- | superadmin@dbs-store.ci  | password123  | super_admin | Super Admin DBS  |
 --
 -- Ces utilisateurs sont créés automatiquement par le seed.
--- Connectez-vous avec le numéro et le code OTP 123456.
+-- Connectez-vous avec l'email et le mot de passe.
 --
 -- Pour accéder au dashboard admin: /admin
 -- ===========================================
