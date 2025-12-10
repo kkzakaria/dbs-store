@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation"
 import { getAdminProduct, getCategories } from "@/actions/admin/products"
-import { ProductForm } from "@/components/admin/products/ProductForm"
+import { ProductFormWizard } from "@/components/admin/products/ProductFormWizard"
 
 interface EditProductPageProps {
   params: Promise<{
@@ -40,5 +40,5 @@ export default async function EditProductPage({ params }: EditProductPageProps) 
     notFound()
   }
 
-  return <ProductForm product={product} categories={categories} />
+  return <ProductFormWizard product={product} categories={categories} />
 }

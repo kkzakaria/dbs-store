@@ -26,7 +26,12 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import type { ProductOptionInput, ProductVariantInput } from "@/lib/validations/admin"
-import { generateSlug } from "@/lib/validations/admin"
+import {
+  generateSlug,
+  getOptionValueName,
+  getOptionValueHex,
+  isColorOptionName,
+} from "@/lib/validations/admin"
 
 interface ProductVariantsEditorProps {
   options: ProductOptionInput[]
@@ -57,11 +62,22 @@ export function ProductVariantsEditor({
     const results: Record<string, string>[] = []
 
     for (const value of option.values) {
-      const newCurrent = { ...current, [option.name]: value }
+      // Extract the name from ColorValue or use string directly
+      const valueName = getOptionValueName(value)
+      const newCurrent = { ...current, [option.name]: valueName }
       results.push(...generateCombinations(opts, newCurrent, index + 1))
     }
 
     return results
+  }
+
+  // Get color hex for a given option value name
+  const getColorHexForValue = (optionName: string, valueName: string): string | null => {
+    if (!isColorOptionName(optionName)) return null
+    const option = options.find((o) => o.name === optionName)
+    if (!option) return null
+    const colorValue = option.values.find((v) => getOptionValueName(v) === valueName)
+    return colorValue ? getOptionValueHex(colorValue) : null
   }
 
   const generateVariants = () => {
@@ -116,7 +132,9 @@ export function ProductVariantsEditor({
       stock_quantity: 0,
       low_stock_threshold: 5,
       options: options.reduce((acc, opt) => {
-        acc[opt.name] = opt.values[0] || ""
+        // Extract the name from the first value (could be string or ColorValue)
+        const firstValue = opt.values[0]
+        acc[opt.name] = firstValue ? getOptionValueName(firstValue) : ""
         return acc
       }, {} as Record<string, string>),
       position: variants.length,
@@ -195,11 +213,20 @@ export function ProductVariantsEditor({
                 <TableRow key={index}>
                   <TableCell>
                     <div className="flex flex-wrap gap-1">
-                      {Object.entries(variant.options).map(([key, value]) => (
-                        <Badge key={key} variant="outline" className="text-xs">
-                          {key}: {value}
-                        </Badge>
-                      ))}
+                      {Object.entries(variant.options).map(([key, value]) => {
+                        const colorHex = getColorHexForValue(key, value)
+                        return (
+                          <Badge key={key} variant="outline" className="text-xs gap-1">
+                            {colorHex && (
+                              <span
+                                className="h-3 w-3 rounded-full border border-border/50 flex-shrink-0"
+                                style={{ backgroundColor: colorHex }}
+                              />
+                            )}
+                            {key}: {value}
+                          </Badge>
+                        )
+                      })}
                     </div>
                   </TableCell>
                   <TableCell>

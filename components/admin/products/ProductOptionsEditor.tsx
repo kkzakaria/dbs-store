@@ -7,7 +7,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent } from "@/components/ui/card"
-import type { ProductOptionInput } from "@/lib/validations/admin"
+import { ColorOptionsEditor } from "./ColorOptionsEditor"
+import {
+  type ProductOptionInput,
+  type ColorValue,
+  type ProductOptionValue,
+  isColorOptionName,
+  getOptionValueName,
+  getOptionValueHex,
+} from "@/lib/validations/admin"
 
 interface ProductOptionsEditorProps {
   options: ProductOptionInput[]
@@ -40,10 +48,30 @@ export function ProductOptionsEditor({ options, onChange }: ProductOptionsEditor
 
   const updateOptionName = (index: number, name: string) => {
     const updated = [...options]
-    updated[index] = { ...updated[index], name }
+    const wasColor = isColorOptionName(updated[index].name)
+    const isNowColor = isColorOptionName(name)
+
+    // If switching between color and non-color, clear values
+    if (wasColor !== isNowColor) {
+      updated[index] = { ...updated[index], name, values: [] }
+    } else {
+      updated[index] = { ...updated[index], name }
+    }
+
     onChange(updated)
   }
 
+  // Handle color values change
+  const updateColorValues = (optionIndex: number, colors: ColorValue[]) => {
+    const updated = [...options]
+    updated[optionIndex] = {
+      ...updated[optionIndex],
+      values: colors,
+    }
+    onChange(updated)
+  }
+
+  // Handle string value add
   const addValue = (optionIndex: number) => {
     const value = newValues[optionIndex]?.trim()
     if (!value) return
@@ -51,8 +79,9 @@ export function ProductOptionsEditor({ options, onChange }: ProductOptionsEditor
     const updated = [...options]
     const currentValues = updated[optionIndex].values || []
 
-    // Don't add duplicate values
-    if (currentValues.includes(value)) return
+    // Don't add duplicate values (check by name)
+    const existingNames = currentValues.map((v) => getOptionValueName(v).toLowerCase())
+    if (existingNames.includes(value.toLowerCase())) return
 
     updated[optionIndex] = {
       ...updated[optionIndex],
@@ -79,87 +108,125 @@ export function ProductOptionsEditor({ options, onChange }: ProductOptionsEditor
     }
   }
 
+  // Helper to extract ColorValue[] from values array
+  const getColorsFromValues = (values: ProductOptionValue[]): ColorValue[] => {
+    return values.filter(
+      (v): v is ColorValue => typeof v === "object" && "hex" in v
+    )
+  }
+
   return (
     <div className="space-y-4">
       {/* Existing Options */}
-      {options.map((option, optionIndex) => (
-        <Card key={optionIndex}>
-          <CardContent className="pt-4">
-            <div className="flex items-start gap-2">
-              <div className="flex items-center pt-2 text-muted-foreground cursor-grab">
-                <GripVertical className="h-4 w-4" />
-              </div>
+      {options.map((option, optionIndex) => {
+        const isColor = isColorOptionName(option.name)
 
-              <div className="flex-1 space-y-3">
-                {/* Option Name */}
-                <div className="flex items-center gap-2">
-                  <Input
-                    value={option.name}
-                    onChange={(e) => updateOptionName(optionIndex, e.target.value)}
-                    placeholder="Nom de l'option (ex: Couleur)"
-                    className="font-medium"
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => removeOption(optionIndex)}
-                    className="text-destructive hover:text-destructive"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+        return (
+          <Card key={optionIndex}>
+            <CardContent className="pt-4">
+              <div className="flex items-start gap-2">
+                <div className="flex items-center pt-2 text-muted-foreground cursor-grab">
+                  <GripVertical className="h-4 w-4" />
                 </div>
 
-                {/* Option Values */}
-                <div className="space-y-2">
-                  <Label className="text-sm text-muted-foreground">Valeurs</Label>
-
-                  {/* Existing values as badges */}
-                  <div className="flex flex-wrap gap-2">
-                    {option.values.map((value, valueIndex) => (
-                      <Badge
-                        key={valueIndex}
-                        variant="secondary"
-                        className="gap-1 pr-1"
-                      >
-                        {value}
-                        <button
-                          type="button"
-                          onClick={() => removeValue(optionIndex, valueIndex)}
-                          className="ml-1 hover:bg-muted rounded-full p-0.5"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-
-                  {/* Add new value */}
-                  <div className="flex gap-2">
+                <div className="flex-1 space-y-3">
+                  {/* Option Name */}
+                  <div className="flex items-center gap-2">
                     <Input
-                      value={newValues[optionIndex] || ""}
-                      onChange={(e) =>
-                        setNewValues({ ...newValues, [optionIndex]: e.target.value })
-                      }
-                      onKeyDown={(e) => handleKeyDown(e, optionIndex)}
-                      placeholder="Ajouter une valeur..."
-                      className="text-sm"
+                      value={option.name}
+                      onChange={(e) => updateOptionName(optionIndex, e.target.value)}
+                      placeholder="Nom de l'option (ex: Couleur)"
+                      className="font-medium"
                     />
                     <Button
                       type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => addValue(optionIndex)}
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => removeOption(optionIndex)}
+                      className="text-destructive hover:text-destructive"
                     >
-                      <Plus className="h-4 w-4" />
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
+
+                  {/* Option Values - Different UI for color vs regular options */}
+                  {isColor ? (
+                    // Color option - use ColorOptionsEditor
+                    <ColorOptionsEditor
+                      colors={getColorsFromValues(option.values)}
+                      onChange={(colors) => updateColorValues(optionIndex, colors)}
+                    />
+                  ) : (
+                    // Regular option - use badge-based input
+                    <div className="space-y-2">
+                      <Label className="text-sm text-muted-foreground">Valeurs</Label>
+
+                      {/* Existing values as badges */}
+                      <div className="flex flex-wrap gap-2">
+                        {option.values.map((value, valueIndex) => {
+                          const name = getOptionValueName(value)
+                          const hex = getOptionValueHex(value)
+
+                          return (
+                            <Badge
+                              key={valueIndex}
+                              variant="secondary"
+                              className="gap-1 pr-1"
+                            >
+                              {hex && (
+                                <span
+                                  className="h-3 w-3 rounded-full border border-border/50 mr-1"
+                                  style={{ backgroundColor: hex }}
+                                />
+                              )}
+                              {name}
+                              <button
+                                type="button"
+                                onClick={() => removeValue(optionIndex, valueIndex)}
+                                className="ml-1 hover:bg-muted rounded-full p-0.5"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </Badge>
+                          )
+                        })}
+                      </div>
+
+                      {/* Add new value */}
+                      <div className="flex gap-2">
+                        <Input
+                          value={newValues[optionIndex] || ""}
+                          onChange={(e) =>
+                            setNewValues({ ...newValues, [optionIndex]: e.target.value })
+                          }
+                          onKeyDown={(e) => handleKeyDown(e, optionIndex)}
+                          placeholder="Ajouter une valeur..."
+                          className="text-sm"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => addValue(optionIndex)}
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Hint for color option */}
+                  {isColor && option.values.length === 0 && (
+                    <p className="text-sm text-muted-foreground">
+                      Sélectionnez des couleurs dans la palette ci-dessus ou ajoutez des couleurs personnalisées.
+                    </p>
+                  )}
                 </div>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      ))}
+            </CardContent>
+          </Card>
+        )
+      })}
 
       {/* Add New Option */}
       <div className="flex gap-2">
@@ -182,7 +249,14 @@ export function ProductOptionsEditor({ options, onChange }: ProductOptionsEditor
 
       {options.length === 0 && (
         <p className="text-sm text-muted-foreground text-center py-4">
-          Aucune option definie. Ajoutez des options comme Couleur, Taille, Stockage, etc.
+          Aucune option définie. Ajoutez des options comme Couleur, Taille, Stockage, etc.
+        </p>
+      )}
+
+      {/* Tip for color options */}
+      {options.length > 0 && (
+        <p className="text-xs text-muted-foreground">
+          Astuce : Nommez une option "Couleur" pour afficher le sélecteur de couleur avec palette visuelle.
         </p>
       )}
     </div>
