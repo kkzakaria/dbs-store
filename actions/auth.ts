@@ -45,17 +45,23 @@ export const signInWithEmail = action
       return { error: "Erreur de connexion. Veuillez réessayer." }
     }
 
-    // Ensure user profile exists
+    // Ensure user profile exists (only create if not exists, don't overwrite role)
     if (data.user) {
-      await supabaseAdmin.from("users").upsert(
-        {
+      const { data: existingProfile } = await supabaseAdmin
+        .from("users")
+        .select("id")
+        .eq("id", data.user.id)
+        .single()
+
+      if (!existingProfile) {
+        // Only create profile for new users, don't overwrite existing profiles
+        await supabaseAdmin.from("users").insert({
           id: data.user.id,
           email: data.user.email,
           full_name: data.user.user_metadata?.full_name || "Utilisateur",
           role: "customer" as const,
-        },
-        { onConflict: "id" }
-      )
+        })
+      }
     }
 
     revalidatePath("/", "layout")
