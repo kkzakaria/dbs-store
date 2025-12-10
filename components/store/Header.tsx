@@ -30,6 +30,7 @@ import { ThemeToggle } from "./theme-toggle"
 import { AuthDialog } from "@/components/auth"
 import { useUser } from "@/hooks/use-user"
 import { useCart } from "@/hooks/use-cart"
+import { useHasActivePromotions } from "@/hooks/use-promotions"
 import { useAuthStore } from "@/stores/auth-store"
 import { useTheme } from "next-themes"
 import {
@@ -56,7 +57,6 @@ type NavigationItem = {
 }
 
 const navigation: NavigationItem[] = [
-  { name: "Offre", href: "/promotions" },
   {
     name: "Smartphone",
     submenu: true,
@@ -111,12 +111,21 @@ export function Header() {
   const pathname = usePathname()
   const { user, authUser, signOut, isLoading } = useUser()
   const { totalItems, openCart, isHydrated } = useCart()
+  const { hasPromotions } = useHasActivePromotions()
   const { openLogin } = useAuthStore()
   const { resolvedTheme } = useTheme()
   const [searchOpen, setSearchOpen] = React.useState(false)
   const [mobileNavOpen, setMobileNavOpen] = React.useState(false)
   const [isScrolled, setIsScrolled] = React.useState(false)
   const [mounted, setMounted] = React.useState(false)
+
+  // Build navigation with optional "Offre" item
+  const fullNavigation = React.useMemo(() => {
+    if (hasPromotions) {
+      return [{ name: "Offre", href: "/promotions" }, ...navigation]
+    }
+    return navigation
+  }, [hasPromotions])
 
   React.useEffect(() => {
     setMounted(true)
@@ -189,7 +198,7 @@ export function Header() {
           {mounted ? (
             <NavigationMenu className="hidden md:flex" viewport={false}>
               <NavigationMenuList className="gap-1">
-                {navigation.map((item) => (
+                {fullNavigation.map((item) => (
                   <NavigationMenuItem key={item.name}>
                     {item.submenu ? (
                       <>
@@ -255,7 +264,7 @@ export function Header() {
             </NavigationMenu>
           ) : (
             <nav className="hidden md:flex items-center gap-1">
-              {navigation.map((item) => (
+              {fullNavigation.map((item) => (
                 <Link
                   key={item.name}
                   href={item.href || `/categories/${item.name.toLowerCase().replace(/ /g, "-")}`}
@@ -397,6 +406,7 @@ export function Header() {
         user={user}
         authUser={authUser}
         onSignOut={signOut}
+        hasPromotions={hasPromotions}
       />
 
       {/* Auth Dialog */}
