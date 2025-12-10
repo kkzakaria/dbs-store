@@ -41,11 +41,8 @@ interface MobileNavProps {
   user: User | null
   authUser: AuthUser | null
   onSignOut: () => Promise<void>
+  hasPromotions?: boolean
 }
-
-const navigation = [
-  { name: "Offre", href: "/promotions", icon: Percent },
-]
 
 const categories = [
   { name: "Smartphone", slug: "smartphones" },
@@ -67,9 +64,15 @@ export function MobileNav({
   user,
   authUser,
   onSignOut,
+  hasPromotions = false,
 }: MobileNavProps) {
   const pathname = usePathname()
   const { openLogin, openRegister } = useAuthStore()
+
+  // Build navigation with optional "Offre" item
+  const navigation = hasPromotions
+    ? [{ name: "Offre", href: "/promotions", icon: Percent }]
+    : []
 
   // Close menu on navigation
   React.useEffect(() => {
