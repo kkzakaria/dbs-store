@@ -13,6 +13,7 @@ interface WizardNavigationProps {
   currentStep: ProductFormStep
   onPrevious: () => void
   onNext: () => void
+  onSubmit?: () => void
   isValidating?: boolean
   isSubmitting?: boolean
   canGoNext?: boolean
@@ -23,6 +24,7 @@ export function WizardNavigation({
   currentStep,
   onPrevious,
   onNext,
+  onSubmit,
   isValidating = false,
   isSubmitting = false,
   canGoNext = true,
@@ -58,7 +60,8 @@ export function WizardNavigation({
         {/* Next/Submit button */}
         {isLast ? (
           <Button
-            type="submit"
+            type="button"
+            onClick={onSubmit}
             disabled={!canGoNext || isValidating || isSubmitting}
             className="gap-2"
           >

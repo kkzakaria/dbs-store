@@ -306,11 +306,6 @@ export function ProductFormWizard({ product, categories }: ProductFormWizardProp
   )
 
   const onSubmit = async (data: AdminProductWithVariantsInput) => {
-    // Only allow submission on the last step
-    if (!isLastStep(currentStep)) {
-      return
-    }
-
     // Validate current step first
     const isValid = await validateStep(currentStep)
     if (!isValid) return
@@ -334,6 +329,11 @@ export function ProductFormWizard({ product, categories }: ProductFormWizardProp
       executeCreate(submitData)
     }
   }
+
+  // Handler for explicit form submission from button click
+  const handleFormSubmit = useCallback(() => {
+    form.handleSubmit(onSubmit)()
+  }, [form, onSubmit])
 
   const handleAssignImage = (imageId: string, variantId: string | null) => {
     if (isEditing && product) {
@@ -854,12 +854,9 @@ export function ProductFormWizard({ product, categories }: ProductFormWizardProp
 
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSubmit)}
-          onKeyDown={(e) => {
-            // Prevent Enter key from submitting the form (except in textareas)
-            if (e.key === "Enter" && e.target instanceof HTMLInputElement) {
-              e.preventDefault()
-            }
+          onSubmit={(e) => {
+            // Prevent default form submission - we handle it explicitly via button click
+            e.preventDefault()
           }}
           className="space-y-6"
         >
@@ -873,6 +870,7 @@ export function ProductFormWizard({ product, categories }: ProductFormWizardProp
                 currentStep={currentStep}
                 onPrevious={goToPrevious}
                 onNext={goToNext}
+                onSubmit={handleFormSubmit}
                 isValidating={isValidating}
                 isSubmitting={isLoading}
               />
