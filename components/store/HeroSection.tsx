@@ -7,8 +7,6 @@ import {
   ArrowRight,
   ChevronLeft,
   ChevronRight,
-  Play,
-  Pause,
   Sparkles,
   Zap,
   Shield,
@@ -34,7 +32,6 @@ interface HeroAction {
 
 interface HeroSectionProps {
   backgroundImage?: string
-  backgroundVideo?: string
   featuredProducts?: FeaturedProduct[]
   action?: HeroAction
   headline?: string
@@ -55,17 +52,14 @@ const features = [
 
 export function HeroSection({
   backgroundImage,
-  backgroundVideo,
   featuredProducts = [],
   action,
   headline = "La Technologie Premium",
   subheadline = "Découvrez notre collection exclusive d'appareils électroniques haut de gamme",
 }: HeroSectionProps) {
   const [currentProduct, setCurrentProduct] = useState(0)
-  const [isPlaying, setIsPlaying] = useState(true)
   const [isLoaded, setIsLoaded] = useState(false)
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
-  const videoRef = useRef<HTMLVideoElement>(null)
   const heroRef = useRef<HTMLDivElement>(null)
 
   // Handle mouse move for parallax effect
@@ -87,18 +81,6 @@ export function HeroSection({
       prev === 0 ? Math.max(featuredProducts.length - 1, 0) : prev - 1
     )
   }, [featuredProducts.length])
-
-  // Toggle video playback
-  const togglePlayback = () => {
-    if (videoRef.current) {
-      if (isPlaying) {
-        videoRef.current.pause()
-      } else {
-        videoRef.current.play()
-      }
-      setIsPlaying(!isPlaying)
-    }
-  }
 
   // Auto-rotate products
   useEffect(() => {
@@ -127,42 +109,7 @@ export function HeroSection({
     >
       {/* === Background Layer === */}
       <div className="absolute inset-0">
-        {backgroundVideo ? (
-          <div className="absolute inset-0 bg-gradient-to-br from-[#023e8a] via-[#0077b6] to-[#4dc4e8]">
-            <video
-              ref={videoRef}
-              autoPlay
-              muted
-              loop
-              playsInline
-              className={cn(
-                "w-full h-full object-cover transition-opacity duration-1000",
-                isLoaded ? "opacity-60" : "opacity-0"
-              )}
-            >
-              <source src={backgroundVideo} type="video/mp4" />
-            </video>
-            {/* Video Controls */}
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={togglePlayback}
-              className={cn(
-                "absolute top-6 right-6 z-30",
-                "h-12 w-12 rounded-full",
-                "bg-white/10 hover:bg-white/20 text-white",
-                "backdrop-blur-xl border border-white/20",
-                "transition-all duration-300 hover:scale-110"
-              )}
-            >
-              {isPlaying ? (
-                <Pause className="h-5 w-5" />
-              ) : (
-                <Play className="h-5 w-5 ml-0.5" />
-              )}
-            </Button>
-          </div>
-        ) : backgroundImage ? (
+        {backgroundImage ? (
           <Image
             src={backgroundImage}
             alt="Hero"
@@ -259,8 +206,7 @@ export function HeroSection({
                   "px-4 py-2 text-sm font-medium",
                   "bg-gradient-to-r from-[#4dc4e8]/10 to-[#0077b6]/10",
                   "border border-[#4dc4e8]/30",
-                  "text-[#0077b6] dark:text-[#4dc4e8]",
-                  "backdrop-blur-sm"
+                  "text-[#0077b6] dark:text-[#4dc4e8]"
                 )}
               >
                 <Sparkles className="w-4 h-4 mr-2" />
@@ -362,7 +308,7 @@ export function HeroSection({
                   className={cn(
                     "flex items-center gap-2 px-4 py-2",
                     "bg-white/60 dark:bg-white/5",
-                    "backdrop-blur-sm rounded-full",
+                    "rounded-full",
                     "border border-[#0077b6]/10 dark:border-[#4dc4e8]/10",
                     "text-sm text-muted-foreground"
                   )}
@@ -446,9 +392,8 @@ export function HeroSection({
                         className={cn(
                           "absolute bottom-0 left-0 right-0",
                           "p-6 lg:p-8",
-                          "bg-gradient-to-t from-white/90 via-white/70 to-transparent",
-                          "dark:from-[#0f1629]/90 dark:via-[#0f1629]/70",
-                          "backdrop-blur-sm"
+                          "bg-gradient-to-t from-white via-white/80 to-transparent",
+                          "dark:from-[#0f1629] dark:via-[#0f1629]/80"
                         )}
                       >
                         {activeProduct.category && (
@@ -509,7 +454,7 @@ export function HeroSection({
                       onClick={prevProduct}
                       className={cn(
                         "h-10 w-10 rounded-xl",
-                        "bg-white/50 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20",
+                        "bg-muted hover:bg-muted/80",
                         "text-[#0077b6] dark:text-[#4dc4e8]",
                         "transition-all duration-300"
                       )}
@@ -550,7 +495,7 @@ export function HeroSection({
                       onClick={nextProduct}
                       className={cn(
                         "h-10 w-10 rounded-xl",
-                        "bg-white/50 dark:bg-white/10 hover:bg-white dark:hover:bg-white/20",
+                        "bg-muted hover:bg-muted/80",
                         "text-[#0077b6] dark:text-[#4dc4e8]",
                         "transition-all duration-300"
                       )}
