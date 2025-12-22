@@ -40,13 +40,9 @@ import {
   LogOut,
   Package,
   Heart,
-  Smartphone,
-  Watch,
-  Tablet,
-  Laptop,
-  Headphones,
   Menu,
-  Percent,
+  Sparkles,
+  ChevronRight,
 } from "lucide-react"
 
 type NavigationItem = {
@@ -122,7 +118,7 @@ export function Header() {
   // Build navigation with optional "Offre" item
   const fullNavigation = React.useMemo(() => {
     if (hasPromotions) {
-      return [{ name: "Offre", href: "/promotions" }, ...navigation]
+      return [{ name: "Offres", href: "/promotions" }, ...navigation]
     }
     return navigation
   }, [hasPromotions])
@@ -161,83 +157,84 @@ export function Header() {
 
   const isDark = mounted && resolvedTheme === "dark"
 
-  const glassStyles = {
-    header: {
-      background: isDark ? 'rgba(15, 15, 20, 0.85)' : 'rgba(255, 255, 255, 0.75)',
-      boxShadow: isDark
-        ? `inset 0 1px 1px 0 rgba(255, 255, 255, 0.05),
-           0 2px 8px rgba(0, 0, 0, 0.2)`
-        : `inset 0 1px 2px 0 rgba(255, 255, 255, 0.3),
-           0 2px 8px rgba(0, 0, 0, 0.05)`,
-      borderBottom: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
-    },
-    submenu: {
-      background: isDark ? 'rgba(20, 20, 25, 0.92)' : 'rgba(255, 255, 255, 0.88)',
-      boxShadow: isDark
-        ? `inset 0 1px 1px 0 rgba(255, 255, 255, 0.05),
-           0 4px 16px rgba(0, 0, 0, 0.3)`
-        : `inset 0 1px 2px 0 rgba(255, 255, 255, 0.4),
-           0 4px 16px rgba(0, 0, 0, 0.08)`,
-      border: isDark ? '1px solid rgba(255, 255, 255, 0.08)' : '1px solid rgba(0, 0, 0, 0.08)',
-    },
-  }
-
   return (
     <>
       <header
-        className="sticky top-0 z-40 w-full backdrop-blur-xl transition-all duration-300"
-        style={glassStyles.header}
+        className={cn(
+          "sticky top-0 z-40 w-full transition-all duration-500",
+          isScrolled
+            ? "glass-strong shadow-soft"
+            : "bg-background/80 backdrop-blur-md"
+        )}
       >
+        {/* Top gradient line */}
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-primary opacity-80" />
+
         <div className="container flex h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
           {/* Logo */}
-          <div className="flex items-center gap-4 ml-2">
+          <Link href="/" className="flex items-center gap-2 group">
             <Logo variant="default" />
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           {mounted ? (
-            <NavigationMenu className="hidden md:flex" viewport={false}>
-              <NavigationMenuList className="gap-1">
+            <NavigationMenu className="hidden lg:flex" viewport={false}>
+              <NavigationMenuList className="gap-0.5">
                 {fullNavigation.map((item) => (
                   <NavigationMenuItem key={item.name}>
                     {item.submenu ? (
                       <>
                         <NavigationMenuTrigger
                           className={cn(
-                            "relative !bg-transparent text-base font-semibold transition-colors px-3 py-2",
-                            "hover:!bg-primary/10 hover:!text-primary focus:!bg-primary/10 focus:!text-primary",
-                            "data-[state=open]:!bg-primary/10 data-[state=open]:!text-primary data-[state=open]:hover:!bg-primary/15 data-[state=open]:focus:!bg-primary/15",
-                            "after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
+                            "relative !bg-transparent text-sm font-medium transition-all duration-300 px-4 py-2 rounded-full",
+                            "hover:!bg-primary/8 hover:!text-primary",
+                            "data-[state=open]:!bg-primary/10 data-[state=open]:!text-primary",
                             pathname?.startsWith("/categories/" + item.name.toLowerCase().replace(/ /g, "-"))
-                              ? "!text-primary after:w-full"
-                              : "text-foreground/80"
+                              ? "!text-primary !bg-primary/10"
+                              : "text-foreground/70"
                           )}
                         >
                           {item.name}
                         </NavigationMenuTrigger>
                         <NavigationMenuContent
-                          className="p-2 backdrop-blur-xl !rounded-xl"
-                          style={glassStyles.submenu}
+                          className={cn(
+                            "p-3 !rounded-2xl border-0",
+                            "bg-card/95 backdrop-blur-xl",
+                            "shadow-elevated",
+                            "animate-fade-in"
+                          )}
                         >
-                          <ul className="grid w-[280px] gap-0.5">
-                            {item.items?.map((subItem) => (
+                          <ul className="grid w-[300px] gap-1">
+                            {item.items?.map((subItem, idx) => (
                               <li key={subItem.href}>
                                 <NavigationMenuLink asChild>
                                   <Link
                                     href={subItem.href}
                                     className={cn(
-                                      "block select-none rounded-md px-3 py-2 no-underline outline-none transition-colors hover:bg-primary/10 hover:text-primary focus:bg-primary/10 focus:text-primary",
-                                      pathname === subItem.href && "bg-primary/10 text-primary"
+                                      "group flex items-center gap-3 select-none rounded-xl px-4 py-3",
+                                      "outline-none transition-all duration-200",
+                                      "hover:bg-primary/8 hover:translate-x-1",
+                                      pathname === subItem.href && "bg-primary/10"
                                     )}
+                                    style={{ animationDelay: `${idx * 50}ms` }}
                                   >
-                                    <div className="text-sm font-semibold">
-                                      {subItem.name}
+                                    <div className="flex-1">
+                                      <div className={cn(
+                                        "text-sm font-semibold transition-colors",
+                                        pathname === subItem.href ? "text-primary" : "group-hover:text-primary"
+                                      )}>
+                                        {subItem.name}
+                                      </div>
+                                      {subItem.description && (
+                                        <p className="text-xs text-muted-foreground mt-0.5">
+                                          {subItem.description}
+                                        </p>
+                                      )}
                                     </div>
-                                    {subItem.description && (
-                                      <p className="text-xs text-muted-foreground mt-0.5">
-                                        {subItem.description}
-                                      </p>
-                                    )}
+                                    <ChevronRight className={cn(
+                                      "size-4 text-muted-foreground/50 transition-all duration-200",
+                                      "opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0"
+                                    )} />
                                   </Link>
                                 </NavigationMenuLink>
                               </li>
@@ -249,13 +246,24 @@ export function Header() {
                       <Link
                         href={item.href!}
                         className={cn(
-                          "relative text-base font-semibold transition-colors hover:text-primary hover:bg-primary/10 rounded-md px-3 py-2 after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-0 after:bg-primary after:transition-all after:duration-300 hover:after:w-full",
+                          "relative flex items-center gap-2 text-sm font-medium transition-all duration-300",
+                          "px-4 py-2 rounded-full",
+                          "hover:bg-primary/8 hover:text-primary",
                           pathname === item.href
-                            ? "text-primary after:w-full"
-                            : "text-foreground/80 hover:text-foreground"
+                            ? "text-primary bg-primary/10"
+                            : "text-foreground/70"
                         )}
                       >
-                        {item.name}
+                        {item.name === "Offres" && (
+                          <Sparkles className="size-4 text-amber-500 animate-pulse-soft" />
+                        )}
+                        <span>{item.name}</span>
+                        {item.name === "Offres" && (
+                          <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                          </span>
+                        )}
                       </Link>
                     )}
                   </NavigationMenuItem>
@@ -263,30 +271,31 @@ export function Header() {
               </NavigationMenuList>
             </NavigationMenu>
           ) : (
-            <nav className="hidden md:flex items-center gap-1">
-              {fullNavigation.map((item) => (
-                <Link
+            <nav className="hidden lg:flex items-center gap-1">
+              {fullNavigation.slice(0, 4).map((item) => (
+                <span
                   key={item.name}
-                  href={item.href || `/categories/${item.name.toLowerCase().replace(/ /g, "-")}`}
-                  className={cn(
-                    "relative text-base font-semibold transition-colors hover:text-primary hover:bg-primary/10 rounded-md px-3 py-2",
-                    "text-foreground/80 hover:text-foreground"
-                  )}
+                  className="text-sm font-medium text-foreground/50 px-4 py-2 rounded-full"
                 >
                   {item.name}
-                </Link>
+                </span>
               ))}
             </nav>
           )}
 
           {/* Actions */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 sm:gap-2">
             {/* Search Button */}
             <Button
               variant="ghost"
               size="icon"
               onClick={() => setSearchOpen(true)}
               aria-label="Rechercher"
+              className={cn(
+                "relative rounded-full transition-all duration-300",
+                "hover:bg-primary/10 hover:text-primary hover:scale-105",
+                "active:scale-95"
+              )}
             >
               <Search className="size-5" />
             </Button>
@@ -298,15 +307,23 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="relative"
+              className={cn(
+                "relative rounded-full transition-all duration-300",
+                "hover:bg-primary/10 hover:text-primary hover:scale-105",
+                "active:scale-95"
+              )}
               onClick={openCart}
               aria-label="Panier"
             >
               <ShoppingCart className="size-5" />
               {isHydrated && totalItems > 0 && (
                 <Badge
-                  variant="default"
-                  className="absolute -top-1 -right-1 size-5 p-0 flex items-center justify-center text-[10px]"
+                  className={cn(
+                    "absolute -top-1 -right-1 size-5 p-0 flex items-center justify-center",
+                    "text-[10px] font-bold border-2 border-background",
+                    "bg-gradient-primary text-white",
+                    "animate-scale-in"
+                  )}
                 >
                   {totalItems > 99 ? "99+" : totalItems}
                 </Badge>
@@ -315,7 +332,7 @@ export function Header() {
 
             {/* User Menu / Login */}
             {!mounted || isLoading ? (
-              <Button variant="ghost" size="icon" disabled>
+              <Button variant="ghost" size="icon" disabled className="rounded-full">
                 <User className="size-5" />
               </Button>
             ) : authUser ? (
@@ -323,61 +340,102 @@ export function Header() {
                 <DropdownMenuTrigger asChild>
                   <Button
                     variant="ghost"
-                    className="relative h-9 w-9 rounded-full"
+                    className={cn(
+                      "relative h-10 w-10 rounded-full p-0",
+                      "ring-2 ring-transparent hover:ring-primary/30",
+                      "transition-all duration-300"
+                    )}
                   >
                     <Avatar className="h-9 w-9">
                       <AvatarImage
                         src={user?.avatar_url || undefined}
                         alt={user?.full_name || "Avatar"}
                       />
-                      <AvatarFallback className="bg-primary text-primary-foreground">
+                      <AvatarFallback className="bg-gradient-primary text-white font-semibold text-sm">
                         {userInitials}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel className="font-normal">
-                    <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">
-                        {user?.full_name || "Utilisateur"}
-                      </p>
-                      <p className="text-xs leading-none text-muted-foreground">
-                        {user?.phone}
-                      </p>
+                <DropdownMenuContent
+                  className={cn(
+                    "w-60 p-2 rounded-2xl border-0",
+                    "bg-card/95 backdrop-blur-xl",
+                    "shadow-elevated",
+                    "animate-fade-in"
+                  )}
+                  align="end"
+                  forceMount
+                >
+                  <DropdownMenuLabel className="font-normal px-3 py-2">
+                    <div className="flex items-center gap-3">
+                      <Avatar className="h-10 w-10">
+                        <AvatarImage src={user?.avatar_url || undefined} />
+                        <AvatarFallback className="bg-gradient-primary text-white font-semibold">
+                          {userInitials}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col space-y-0.5">
+                        <p className="text-sm font-semibold">
+                          {user?.full_name || "Utilisateur"}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {user?.phone}
+                        </p>
+                      </div>
                     </div>
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/account">
-                      <User className="mr-2 size-4" />
-                      Mon compte
+                  <DropdownMenuSeparator className="my-2 bg-border/50" />
+                  <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5 cursor-pointer">
+                    <Link href="/account" className="flex items-center gap-3">
+                      <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary">
+                        <User className="size-4" />
+                      </div>
+                      <span className="font-medium">Mon compte</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/orders">
-                      <Package className="mr-2 size-4" />
-                      Mes commandes
+                  <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5 cursor-pointer">
+                    <Link href="/orders" className="flex items-center gap-3">
+                      <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary">
+                        <Package className="size-4" />
+                      </div>
+                      <span className="font-medium">Mes commandes</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link href="/wishlist">
-                      <Heart className="mr-2 size-4" />
-                      Liste de souhaits
+                  <DropdownMenuItem asChild className="rounded-xl px-3 py-2.5 cursor-pointer">
+                    <Link href="/wishlist" className="flex items-center gap-3">
+                      <div className="flex items-center justify-center size-8 rounded-lg bg-pink-500/10 text-pink-500">
+                        <Heart className="size-4" />
+                      </div>
+                      <span className="font-medium">Liste de souhaits</span>
                     </Link>
                   </DropdownMenuItem>
-                  <DropdownMenuSeparator />
+                  <DropdownMenuSeparator className="my-2 bg-border/50" />
                   <DropdownMenuItem
                     onClick={signOut}
-                    className="text-destructive focus:text-destructive"
+                    className="rounded-xl px-3 py-2.5 cursor-pointer text-destructive focus:text-destructive"
                   >
-                    <LogOut className="mr-2 size-4" />
-                    Déconnexion
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center size-8 rounded-lg bg-destructive/10">
+                        <LogOut className="size-4" />
+                      </div>
+                      <span className="font-medium">Déconnexion</span>
+                    </div>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button variant="default" size="sm" className="hidden sm:flex" onClick={openLogin}>
+              <Button
+                size="sm"
+                className={cn(
+                  "hidden sm:flex rounded-full px-5 font-semibold",
+                  "bg-gradient-primary hover:opacity-90",
+                  "shadow-soft hover:shadow-glow-sm",
+                  "transition-all duration-300",
+                  "active:scale-95"
+                )}
+                onClick={openLogin}
+              >
                 Connexion
               </Button>
             )}
@@ -386,7 +444,11 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="md:hidden"
+              className={cn(
+                "lg:hidden rounded-full",
+                "hover:bg-primary/10 hover:text-primary",
+                "transition-all duration-300"
+              )}
               onClick={() => setMobileNavOpen(true)}
               aria-label="Menu"
             >

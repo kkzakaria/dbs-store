@@ -2,7 +2,7 @@
 
 import { useCallback } from "react"
 import { useQueryState, parseAsString, parseAsInteger } from "nuqs"
-import { SlidersHorizontal, X } from "lucide-react"
+import { SlidersHorizontal, X, Tag, Building2, Coins, ArrowUpDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -21,7 +21,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { Separator } from "@/components/ui/separator"
+import { Badge } from "@/components/ui/badge"
 import { sortLabels, type SortOption } from "@/lib/validations/product"
 
 interface Category {
@@ -67,6 +67,14 @@ export function ProductFilters({
   const hasActiveFilters =
     category || brand || minPrice > 0 || maxPrice > 0 || sort !== "newest"
 
+  // Count active filters
+  const activeFilterCount = [
+    category,
+    brand,
+    minPrice > 0,
+    maxPrice > 0,
+  ].filter(Boolean).length
+
   // Clear all filters
   const clearFilters = useCallback(async () => {
     await Promise.all([
@@ -82,16 +90,24 @@ export function ProductFilters({
   const FilterContent = () => (
     <div className="space-y-6">
       {/* Category Filter */}
-      <div className="space-y-2">
-        <Label htmlFor="category">Catégorie</Label>
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary">
+            <Tag className="size-4" />
+          </div>
+          <Label htmlFor="category" className="font-semibold">Catégorie</Label>
+        </div>
         <Select
           value={category || "all"}
           onValueChange={(value) => setCategory(value === "all" ? null : value)}
         >
-          <SelectTrigger id="category">
+          <SelectTrigger
+            id="category"
+            className="rounded-xl border-border/50 focus:border-primary"
+          >
             <SelectValue placeholder="Toutes les catégories" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="rounded-xl">
             <SelectItem value="all">Toutes les catégories</SelectItem>
             {categories.map((cat) => (
               <SelectItem key={cat.id} value={cat.slug}>
@@ -104,16 +120,24 @@ export function ProductFilters({
 
       {/* Brand Filter */}
       {brands.length > 0 && (
-        <div className="space-y-2">
-          <Label htmlFor="brand">Marque</Label>
+        <div className="space-y-3">
+          <div className="flex items-center gap-2">
+            <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary">
+              <Building2 className="size-4" />
+            </div>
+            <Label htmlFor="brand" className="font-semibold">Marque</Label>
+          </div>
           <Select
             value={brand || "all"}
             onValueChange={(value) => setBrand(value === "all" ? null : value)}
           >
-            <SelectTrigger id="brand">
+            <SelectTrigger
+              id="brand"
+              className="rounded-xl border-border/50 focus:border-primary"
+            >
               <SelectValue placeholder="Toutes les marques" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl">
               <SelectItem value="all">Toutes les marques</SelectItem>
               {brands.map((b) => (
                 <SelectItem key={b} value={b}>
@@ -125,12 +149,18 @@ export function ProductFilters({
         </div>
       )}
 
-      <Separator />
+      {/* Divider */}
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       {/* Price Range */}
-      <div className="space-y-4">
-        <Label>Prix (FCFA)</Label>
+      <div className="space-y-3">
         <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary">
+            <Coins className="size-4" />
+          </div>
+          <Label className="font-semibold">Prix (FCFA)</Label>
+        </div>
+        <div className="flex items-center gap-3">
           <Input
             type="number"
             placeholder="Min"
@@ -139,9 +169,9 @@ export function ProductFilters({
               setMinPrice(e.target.value ? parseInt(e.target.value) : null)
             }
             min={0}
-            className="w-full"
+            className="rounded-xl border-border/50 focus:border-primary"
           />
-          <span className="text-muted-foreground">-</span>
+          <span className="text-muted-foreground font-medium">—</span>
           <Input
             type="number"
             placeholder="Max"
@@ -150,24 +180,33 @@ export function ProductFilters({
               setMaxPrice(e.target.value ? parseInt(e.target.value) : null)
             }
             min={0}
-            className="w-full"
+            className="rounded-xl border-border/50 focus:border-primary"
           />
         </div>
       </div>
 
-      <Separator />
+      {/* Divider */}
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       {/* Sort */}
-      <div className="space-y-2">
-        <Label htmlFor="sort">Trier par</Label>
+      <div className="space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary">
+            <ArrowUpDown className="size-4" />
+          </div>
+          <Label htmlFor="sort" className="font-semibold">Trier par</Label>
+        </div>
         <Select
           value={sort}
           onValueChange={(value) => setSort(value as SortOption)}
         >
-          <SelectTrigger id="sort">
+          <SelectTrigger
+            id="sort"
+            className="rounded-xl border-border/50 focus:border-primary"
+          >
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="rounded-xl">
             {Object.entries(sortLabels).map(([value, label]) => (
               <SelectItem key={value} value={value}>
                 {label}
@@ -180,10 +219,14 @@ export function ProductFilters({
       {/* Clear Filters */}
       {hasActiveFilters && (
         <>
-          <Separator />
+          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
           <Button
             variant="outline"
-            className="w-full"
+            className={cn(
+              "w-full rounded-xl",
+              "border-destructive/30 text-destructive",
+              "hover:bg-destructive/10 hover:border-destructive"
+            )}
             onClick={clearFilters}
           >
             <X className="mr-2 h-4 w-4" />
@@ -195,25 +238,44 @@ export function ProductFilters({
   )
 
   return (
-    <div className={cn("flex items-center gap-4", className)}>
+    <div className={cn("flex items-center gap-3", className)}>
       {/* Mobile Filter Button */}
       <Sheet>
         <SheetTrigger asChild>
-          <Button variant="outline" size="sm" className="lg:hidden">
+          <Button
+            variant="outline"
+            size="sm"
+            className={cn(
+              "lg:hidden rounded-xl",
+              "border-border/50 hover:border-primary/50",
+              "transition-all duration-300"
+            )}
+          >
             <SlidersHorizontal className="mr-2 h-4 w-4" />
             Filtres
-            {hasActiveFilters && (
-              <span className="ml-2 rounded-full bg-primary px-1.5 py-0.5 text-xs text-primary-foreground">
-                !
-              </span>
+            {activeFilterCount > 0 && (
+              <Badge
+                className={cn(
+                  "ml-2 h-5 px-1.5",
+                  "bg-gradient-primary text-white border-0"
+                )}
+              >
+                {activeFilterCount}
+              </Badge>
             )}
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="w-80">
-          <SheetHeader>
-            <SheetTitle>Filtres</SheetTitle>
+        <SheetContent
+          side="left"
+          className={cn(
+            "w-80 p-0",
+            "bg-background/95 backdrop-blur-xl"
+          )}
+        >
+          <SheetHeader className="p-6 pb-4">
+            <SheetTitle className="text-lg font-bold font-display">Filtres</SheetTitle>
           </SheetHeader>
-          <div className="mt-6">
+          <div className="px-6 pb-6">
             <FilterContent />
           </div>
         </SheetContent>
@@ -221,17 +283,24 @@ export function ProductFilters({
 
       {/* Desktop Sort Select (always visible) */}
       <div className="flex items-center gap-2">
-        <Label htmlFor="sort-desktop" className="hidden sm:block text-sm whitespace-nowrap">
+        <Label htmlFor="sort-desktop" className="hidden sm:block text-sm text-muted-foreground whitespace-nowrap">
           Trier par:
         </Label>
         <Select
           value={sort}
           onValueChange={(value) => setSort(value as SortOption)}
         >
-          <SelectTrigger id="sort-desktop" className="w-[160px]">
+          <SelectTrigger
+            id="sort-desktop"
+            className={cn(
+              "w-[180px] rounded-xl",
+              "border-border/50 hover:border-primary/50",
+              "transition-all duration-300"
+            )}
+          >
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="rounded-xl">
             {Object.entries(sortLabels).map(([value, label]) => (
               <SelectItem key={value} value={value}>
                 {label}
@@ -274,6 +343,13 @@ export function ProductFiltersSidebar({
   const hasActiveFilters =
     category || brand || minPrice > 0 || maxPrice > 0 || sort !== "newest"
 
+  const activeFilterCount = [
+    category,
+    brand,
+    minPrice > 0,
+    maxPrice > 0,
+  ].filter(Boolean).length
+
   const clearFilters = useCallback(async () => {
     await Promise.all([
       setCategory(null),
@@ -285,14 +361,32 @@ export function ProductFiltersSidebar({
   }, [setCategory, setBrand, setMinPrice, setMaxPrice, setSort])
 
   return (
-    <aside className={cn("space-y-6", className)}>
+    <aside
+      className={cn(
+        "p-5 rounded-2xl",
+        "bg-card/80 backdrop-blur-sm",
+        "border border-border/50",
+        "space-y-5",
+        className
+      )}
+    >
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold">Filtres</h2>
+        <h2 className="text-lg font-bold font-display flex items-center gap-2">
+          <SlidersHorizontal className="size-5 text-primary" />
+          Filtres
+          {activeFilterCount > 0 && (
+            <Badge className="bg-gradient-primary text-white border-0">
+              {activeFilterCount}
+            </Badge>
+          )}
+        </h2>
         {hasActiveFilters && (
           <Button
             variant="ghost"
             size="sm"
             onClick={clearFilters}
+            className="text-muted-foreground hover:text-destructive"
           >
             <X className="mr-1 h-4 w-4" />
             Effacer
@@ -300,17 +394,26 @@ export function ProductFiltersSidebar({
         )}
       </div>
 
+      {/* Divider */}
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+
       {/* Category Filter */}
-      <div className="space-y-2">
-        <Label htmlFor="sidebar-category">Catégorie</Label>
+      <div className="space-y-3">
+        <Label htmlFor="sidebar-category" className="text-sm font-semibold flex items-center gap-2">
+          <Tag className="size-4 text-primary" />
+          Catégorie
+        </Label>
         <Select
           value={category || "all"}
           onValueChange={(value) => setCategory(value === "all" ? null : value)}
         >
-          <SelectTrigger id="sidebar-category">
+          <SelectTrigger
+            id="sidebar-category"
+            className="rounded-xl border-border/50 focus:border-primary"
+          >
             <SelectValue placeholder="Toutes les catégories" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="rounded-xl">
             <SelectItem value="all">Toutes les catégories</SelectItem>
             {categories.map((cat) => (
               <SelectItem key={cat.id} value={cat.slug}>
@@ -323,16 +426,22 @@ export function ProductFiltersSidebar({
 
       {/* Brand Filter */}
       {brands.length > 0 && (
-        <div className="space-y-2">
-          <Label htmlFor="sidebar-brand">Marque</Label>
+        <div className="space-y-3">
+          <Label htmlFor="sidebar-brand" className="text-sm font-semibold flex items-center gap-2">
+            <Building2 className="size-4 text-primary" />
+            Marque
+          </Label>
           <Select
             value={brand || "all"}
             onValueChange={(value) => setBrand(value === "all" ? null : value)}
           >
-            <SelectTrigger id="sidebar-brand">
+            <SelectTrigger
+              id="sidebar-brand"
+              className="rounded-xl border-border/50 focus:border-primary"
+            >
               <SelectValue placeholder="Toutes les marques" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="rounded-xl">
               <SelectItem value="all">Toutes les marques</SelectItem>
               {brands.map((b) => (
                 <SelectItem key={b} value={b}>
@@ -344,11 +453,15 @@ export function ProductFiltersSidebar({
         </div>
       )}
 
-      <Separator />
+      {/* Divider */}
+      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
 
       {/* Price Range */}
-      <div className="space-y-4">
-        <Label>Prix (FCFA)</Label>
+      <div className="space-y-3">
+        <Label className="text-sm font-semibold flex items-center gap-2">
+          <Coins className="size-4 text-primary" />
+          Prix (FCFA)
+        </Label>
         <div className="space-y-2">
           <Input
             type="number"
@@ -358,6 +471,7 @@ export function ProductFiltersSidebar({
               setMinPrice(e.target.value ? parseInt(e.target.value) : null)
             }
             min={0}
+            className="rounded-xl border-border/50 focus:border-primary"
           />
           <Input
             type="number"
@@ -367,6 +481,7 @@ export function ProductFiltersSidebar({
               setMaxPrice(e.target.value ? parseInt(e.target.value) : null)
             }
             min={0}
+            className="rounded-xl border-border/50 focus:border-primary"
           />
         </div>
       </div>
