@@ -164,7 +164,7 @@
   --sidebar-ring: #0077b6;
 
   /* === Custom Variables === */
-  --glass-bg: rgba(255, 255, 255, 0.8);
+  --glass-bg: rgba(255, 255, 255, 0.92);
   --glass-border: rgba(255, 255, 255, 0.2);
   --shadow-color: 210 40% 50%;
 }
@@ -238,7 +238,7 @@
   --sidebar-ring: #4dc4e8;
 
   /* === Custom Variables === */
-  --glass-bg: rgba(15, 22, 41, 0.8);
+  --glass-bg: rgba(15, 22, 41, 0.92);
   --glass-border: rgba(77, 196, 232, 0.15);
   --shadow-color: 210 50% 10%;
 }
@@ -323,22 +323,22 @@
 /* === Glass Morphism === */
 @utility glass {
   background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border: 1px solid var(--glass-border);
 }
 
 @utility glass-strong {
   background: var(--glass-bg);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
 }
 
 @utility glass-subtle {
-  background: rgba(255, 255, 255, 0.5);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
 }
 
 /* === Shadows === */
@@ -867,21 +867,21 @@
   left: 100%;
 }
 
-/* Glassmorphism Card */
+/* Glassmorphism Card - Reduced effect for better readability */
 .glass-card {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   box-shadow:
-    0 8px 32px rgba(0, 119, 182, 0.1),
-    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    0 4px 20px rgba(0, 0, 0, 0.08),
+    0 8px 32px rgba(0, 119, 182, 0.06);
 }
 
 .dark .glass-card {
-  background: rgba(15, 22, 41, 0.7);
-  border: 1px solid rgba(77, 196, 232, 0.1);
+  background: rgba(15, 22, 41, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.3),
-    inset 0 0 0 1px rgba(77, 196, 232, 0.05);
+    0 4px 20px rgba(0, 0, 0, 0.3),
+    0 8px 32px rgba(0, 0, 0, 0.2);
 }
