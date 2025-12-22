@@ -164,8 +164,6 @@
   --sidebar-ring: #0077b6;
 
   /* === Custom Variables === */
-  --glass-bg: rgba(255, 255, 255, 0.92);
-  --glass-border: rgba(255, 255, 255, 0.2);
   --shadow-color: 210 40% 50%;
 }
 
@@ -238,8 +236,6 @@
   --sidebar-ring: #4dc4e8;
 
   /* === Custom Variables === */
-  --glass-bg: rgba(15, 22, 41, 0.92);
-  --glass-border: rgba(77, 196, 232, 0.15);
   --shadow-color: 210 50% 10%;
 }
 
@@ -320,25 +316,21 @@
   color: transparent;
 }
 
-/* === Glass Morphism === */
+/* === Card Variants === */
 @utility glass {
-  background: var(--glass-bg);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid var(--glass-border);
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
 }
 
 @utility glass-strong {
-  background: var(--glass-bg);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--glass-border);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 @utility glass-subtle {
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
+  background: hsl(var(--muted) / 0.5);
+  border: 1px solid hsl(var(--border) / 0.5);
 }
 
 /* === Shadows === */
@@ -642,7 +634,7 @@
 
 /* Dark mode glass subtle override */
 .dark .glass-subtle {
-  background: rgba(15, 22, 41, 0.5);
+  background: hsl(var(--muted) / 0.5);
 }
 
 /* Dark mode gradient subtle */
@@ -867,21 +859,19 @@
   left: 100%;
 }
 
-/* Glassmorphism Card - Reduced effect for better readability */
+/* Outline Card - Clean solid style */
 .glass-card {
-  background: rgba(255, 255, 255, 0.95);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
   box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.08),
-    0 8px 32px rgba(0, 119, 182, 0.06);
+    0 4px 12px rgba(0, 0, 0, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
 .dark .glass-card {
-  background: rgba(15, 22, 41, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
   box-shadow:
-    0 4px 20px rgba(0, 0, 0, 0.3),
-    0 8px 32px rgba(0, 0, 0, 0.2);
+    0 4px 12px rgba(0, 0, 0, 0.2),
+    0 1px 3px rgba(0, 0, 0, 0.3);
 }
