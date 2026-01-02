@@ -209,7 +209,7 @@ export function Header() {
             className={cn(
               "transition-all duration-500 ease-out mx-auto",
               isScrolled
-                ? "max-w-5xl bg-background/95 backdrop-blur-xl rounded-full shadow-google-md border border-border/40"
+                ? "max-w-6xl bg-background/95 backdrop-blur-xl rounded-full shadow-google-md border border-border/40"
                 : "max-w-none bg-background border-b border-border/30"
             )}
           >
