@@ -26,10 +26,10 @@ export function CTASection({
 }: CTASectionProps) {
 
   return (
-    <section className="py-24 md:py-32 bg-white dark:bg-background overflow-hidden px-4">
+    <section className="py-32 md:py-48 bg-white dark:bg-background overflow-hidden px-4">
       <div className="container-google">
         <AnimateOnScroll animation="scale-in">
-          <div className="relative rounded-[48px] bg-primary overflow-hidden p-12 md:p-20 lg:p-24 text-center shadow-google-lg">
+          <div className="relative rounded-[48px] bg-primary overflow-hidden p-16 md:p-32 lg:p-40 text-center shadow-google-lg">
             {/* Background elements - very subtle */}
             <div className="absolute inset-0 bg-[url('/images/grid-pattern.svg')] opacity-5" />
             <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/5 to-transparent pointer-events-none" />

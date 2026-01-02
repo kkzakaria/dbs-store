@@ -55,10 +55,10 @@ const defaultTestimonials: Testimonial[] = [
 export function TestimonialsSection({ testimonials = defaultTestimonials }: TestimonialsSectionProps) {
 
   return (
-    <section className="py-24 md:py-32 bg-[#f8f9fa] dark:bg-muted/10 relative overflow-hidden">
+    <section className="py-32 md:py-48 bg-[#f8f9fa] dark:bg-muted/10 relative overflow-hidden">
       <div className="container-google relative">
         <AnimateOnScroll animation="fade-up">
-          <div className="text-center mb-16 md:mb-24 px-4">
+          <div className="text-center mb-20 md:mb-32 px-4">
             <div className="flex items-center justify-center gap-1.5 mb-6">
               {[1, 2, 3, 4, 5].map((star) => (
                 <Star key={star} className="size-6 fill-amber-400 text-amber-400" />

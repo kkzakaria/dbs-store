@@ -61,18 +61,18 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   return (
     <NuqsAdapter>
       <div className="bg-white dark:bg-background min-h-screen">
-        <div className="container-google py-12 md:py-20">
+        <div className="container-google py-20 md:py-32">
           {/* Header */}
-          <div className="mb-12 md:mb-16">
-            <h1 className="text-4xl md:text-5xl font-bold font-display tracking-tight text-foreground mb-4">
+          <div className="mb-20 md:mb-32">
+            <h1 className="text-5xl md:text-6xl font-bold font-display tracking-tight text-foreground mb-8">
               Nos Produits
             </h1>
-            <p className="text-lg text-muted-foreground max-w-2xl">
+            <p className="text-xl text-muted-foreground max-w-3xl leading-relaxed">
               Découvrez notre sélection exclusive d'appareils électroniques premium. {total} produit{total !== 1 ? "s" : ""} disponible{total !== 1 ? "s" : ""} pour vous.
             </p>
           </div>
-
-          <div className="flex flex-col gap-12 lg:flex-row">
+ 
+          <div className="flex flex-col gap-16 lg:flex-row">
             {/* Desktop Sidebar Filters */}
             <aside className="hidden lg:block lg:w-72 lg:flex-shrink-0">
               <ProductFiltersSidebar categories={categories} brands={brands} />

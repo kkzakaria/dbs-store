@@ -31,7 +31,7 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
 
 
   return (
-    <section className="py-24 md:py-32 bg-white dark:bg-background relative overflow-hidden">
+    <section className="py-32 md:py-48 bg-white dark:bg-background relative overflow-hidden">
       <div className="container-google relative">
         <AnimateOnScroll animation="fade-up">
           <div className="text-center mb-16 md:mb-24 px-4">
@@ -109,7 +109,7 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
         </div>
 
         <AnimateOnScroll animation="fade-up" delay={500}>
-          <div className="flex justify-center mt-20">
+          <div className="flex justify-center mt-28">
             <Button
               asChild
               variant="outline"

@@ -34,10 +34,10 @@ export function PromotionsSection({
 
 
   return (
-    <section className="py-24 md:py-32 bg-[#f8f9fa] dark:bg-muted/10 relative overflow-hidden">
+    <section className="py-32 md:py-48 bg-[#f8f9fa] dark:bg-muted/10 relative overflow-hidden">
       <div className="container-google relative">
         <AnimateOnScroll animation="fade-up">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12 mb-16 px-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-16 md:gap-24 mb-20 md:mb-32 px-4">
             <div className="max-w-2xl">
               <div className="flex items-center gap-3 mb-6">
                 <div className="p-2.5 rounded-2xl bg-primary text-white shadow-google-sm">

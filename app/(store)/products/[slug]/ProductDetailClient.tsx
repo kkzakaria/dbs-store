@@ -177,8 +177,8 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
       </div>
 
       {/* Product Info */}
-      <div className="space-y-10 lg:sticky lg:top-32 h-fit">
-        <div className="space-y-4">
+      <div className="space-y-16 lg:sticky lg:top-32 h-fit">
+        <div className="space-y-8">
           {/* Brand/Category */}
           <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-primary">
             {product.brand && <span>{product.brand}</span>}
@@ -192,14 +192,14 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
               </Link>
             )}
           </div>
-
+ 
           {/* Name */}
-          <h1 className="text-4xl lg:text-5xl font-display font-bold leading-tight text-foreground">
+          <h1 className="text-4xl lg:text-6xl font-display font-bold leading-[1.1] text-foreground">
             {product.name}
           </h1>
-
+ 
           {/* Price */}
-          <div className="flex items-baseline gap-4 pt-2">
+          <div className="flex items-baseline gap-4 pt-4">
             <PriceDisplay
               price={currentPrice}
               comparePrice={currentComparePrice}
@@ -212,42 +212,42 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
             )}
           </div>
         </div>
-
+ 
         {/* Description */}
         {product.description && (
-          <div className="space-y-4">
-            <h3 className="text-sm font-semibold uppercase tracking-wider text-foreground">Présentation</h3>
-            <p className="text-lg text-muted-foreground leading-relaxed font-light">
+          <div className="space-y-8">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-foreground">Présentation</h3>
+            <p className="text-xl text-muted-foreground leading-relaxed font-light">
               {product.description}
             </p>
           </div>
         )}
-
+ 
         {/* Stock Status & Badges */}
-        <div className="flex items-center gap-3 flex-wrap">
+        <div className="flex items-center gap-4 flex-wrap">
           {isOutOfStock ? (
-            <div className="px-4 py-2 rounded-full border border-destructive/20 bg-destructive/5 text-destructive text-xs font-bold uppercase tracking-wider">
+            <div className="px-5 py-2.5 rounded-full border border-destructive/20 bg-destructive/5 text-destructive text-xs font-bold uppercase tracking-widest">
               Bientôt disponible
             </div>
           ) : isLowStock ? (
-            <div className="px-4 py-2 rounded-full border border-amber-500/20 bg-amber-500/5 text-amber-600 text-xs font-bold uppercase tracking-wider">
+            <div className="px-5 py-2.5 rounded-full border border-amber-500/20 bg-amber-500/5 text-amber-600 text-xs font-bold uppercase tracking-widest">
               Seulement {currentStock} restants
             </div>
           ) : (
-            <div className="px-4 py-2 rounded-full border border-green-500/20 bg-green-500/5 text-green-600 text-xs font-bold uppercase tracking-wider">
+            <div className="px-5 py-2.5 rounded-full border border-green-500/20 bg-green-500/5 text-green-600 text-xs font-bold uppercase tracking-widest">
               Disponible en stock
             </div>
           )}
           {product.is_featured && (
-            <div className="px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-bold uppercase tracking-wider">
+            <div className="px-5 py-2.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-bold uppercase tracking-widest">
               Exclusivité DBS
             </div>
           )}
         </div>
-
+ 
         {/* Variant Selector */}
         {hasVariants && (
-          <div className="pt-4">
+          <div className="pt-8">
             <VariantSelector
               options={options}
               variants={variants}
@@ -257,9 +257,9 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
             />
           </div>
         )}
-
+ 
         {/* Add to Cart */}
-        <div className="pt-6">
+        <div className="pt-12">
           <AddToCartButton
             product={{
               id: product.id,
@@ -291,9 +291,9 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
             requiresVariant={requiresVariant}
           />
         </div>
-
+ 
         {/* Trust Badges */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-10 border-t border-border/10">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 pt-20 border-t border-border/10">
           <div className="flex flex-col items-center sm:items-start gap-3">
             <Truck className="h-6 w-6 text-primary" />
             <div className="text-center sm:text-left">

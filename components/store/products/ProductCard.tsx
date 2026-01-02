@@ -140,24 +140,24 @@ export function ProductCard({
       <Link href={`/products/${product.slug}`} className="block h-full">
         <div
           className={cn(
-            "relative h-full bg-white dark:bg-card rounded-3xl overflow-hidden",
+            "relative h-full bg-white dark:bg-card rounded-[40px] overflow-hidden",
             "border border-border/40 shadow-google-sm",
             "transition-all duration-300"
           )}
         >
           {/* Product Image */}
-          <div className="relative aspect-square overflow-hidden bg-[#f8f9fa] dark:bg-muted/10 p-6">
+          <div className="relative aspect-square overflow-hidden bg-[#f8f9fa] dark:bg-muted/10 p-8">
             {!imageLoaded && (
               <div className="absolute inset-0 bg-secondary animate-pulse" />
             )}
-
+ 
             <Image
               src={imageUrl}
               alt={primaryImage?.alt || product.name}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className={cn(
-                "object-contain p-4 transition-all duration-700",
+                "object-contain p-6 transition-all duration-700",
                 isHovered && "scale-105",
                 isOutOfStock && "opacity-50 grayscale",
                 imageLoaded ? "opacity-100" : "opacity-0"
@@ -165,28 +165,28 @@ export function ProductCard({
               priority={priority}
               onLoad={() => setImageLoaded(true)}
             />
-
+ 
             {/* Badges - Top Left */}
-            <div className="absolute left-4 top-4 flex flex-col gap-2 z-10">
+            <div className="absolute left-6 top-6 flex flex-col gap-2 z-10">
               {hasDiscount && (
-                <span className="px-2.5 py-1 text-[11px] font-bold bg-primary text-white rounded-full shadow-google-sm">
+                <span className="px-3 py-1 text-[11px] font-bold bg-primary text-white rounded-full shadow-google-sm">
                   -{discountPercentage}%
                 </span>
               )}
               {product.is_featured && !hasDiscount && (
-                <span className="px-2.5 py-1 text-[11px] font-bold bg-secondary text-foreground rounded-full shadow-google-sm">
+                <span className="px-3 py-1 text-[11px] font-bold bg-secondary text-foreground rounded-full shadow-google-sm">
                   Vedette
                 </span>
               )}
             </div>
-
+ 
             {/* Wishlist Button - Top Right */}
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "absolute top-3 right-3 z-10",
-                "h-10 w-10 rounded-full",
+                "absolute top-5 right-5 z-10",
+                "h-11 w-11 rounded-full",
                 "bg-white/80 dark:bg-black/20 backdrop-blur-md",
                 "hover:bg-white dark:hover:bg-black/40",
                 "transition-all duration-300",
@@ -207,46 +207,46 @@ export function ProductCard({
               )}
             </Button>
           </div>
-
+ 
           {/* Product Info */}
-          <div className="p-6 flex flex-col flex-1">
-            <div className="flex-1 min-h-[4rem]">
-              <h3 className="font-display font-semibold text-base md:text-lg leading-tight text-foreground line-clamp-2 mb-2">
+          <div className="p-10 flex flex-col flex-1">
+            <div className="flex-1 min-h-[4.5rem]">
+              <h3 className="font-display font-bold text-lg md:text-xl leading-snug text-foreground line-clamp-2 mb-3">
                 {product.name}
               </h3>
               {product.category && (
-                <p className="text-xs text-muted-foreground uppercase tracking-wider">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
                   {product.category.name}
                 </p>
               )}
             </div>
-
+ 
             {/* Price Section */}
-            <div className="mt-4 flex flex-col">
-              <div className="flex items-center gap-2">
+            <div className="mt-8 flex flex-col">
+              <div className="flex items-center gap-3">
                 <p className={cn(
-                  "text-lg font-bold",
+                  "text-xl font-bold font-display",
                   hasDiscount ? "text-primary" : "text-foreground"
                 )}>
                   {formatPrice(product.price)}
                 </p>
                 {hasDiscount && product.compare_price && (
-                  <p className="text-sm text-muted-foreground line-through decoration-muted-foreground">
+                  <p className="text-sm text-muted-foreground line-through decoration-muted-foreground/40 font-medium font-display">
                     {formatPrice(product.compare_price)}
                   </p>
                 )}
               </div>
             </div>
-
+ 
             {/* Action Buttons */}
-            <div className="mt-6 flex flex-col sm:flex-row gap-2">
+            <div className="mt-10 flex flex-col sm:flex-row gap-3">
               <Button
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
                   window.location.href = `/products/${product.slug}`
                 }}
-                className="flex-1 rounded-full h-11 font-semibold text-sm bg-primary hover:bg-primary-hover text-white transition-google shadow-google-sm hover:shadow-google-md"
+                className="flex-1 rounded-full h-14 font-bold text-base bg-primary hover:bg-primary-hover text-white transition-google shadow-google-sm hover:shadow-google-md"
                 disabled={isOutOfStock && !hasVariants}
               >
                 {isOutOfStock && !hasVariants ? "Bientôt disponible" : "Acheter"}
@@ -257,10 +257,10 @@ export function ProductCard({
                   onClick={handleAddToCart}
                   variant="outline"
                   size="icon"
-                  className="h-11 w-11 rounded-full border-border hover:bg-secondary transition-google shrink-0"
+                  className="h-14 w-14 rounded-full border-border hover:bg-secondary transition-google shrink-0 shadow-google-sm hover:shadow-google-md"
                   aria-label="Ajouter au panier"
                 >
-                  <ShoppingCart className="w-4 h-4" />
+                  <ShoppingCart className="w-5 h-5" />
                 </Button>
               )}
             </div>

@@ -44,9 +44,9 @@ const defaultStats: Stat[] = [
 export function StatsSection({ stats = defaultStats }: StatsSectionProps) {
 
   return (
-    <section className="py-24 md:py-32 bg-primary relative overflow-hidden">
+    <section className="py-32 md:py-48 bg-primary relative overflow-hidden">
       <div className="container-google relative">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-12 md:gap-16">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-16 md:gap-24">
           {stats.map((stat, index) => (
             <AnimateOnScroll 
               key={stat.label} 

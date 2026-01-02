@@ -54,10 +54,10 @@ const defaultFeatures: Feature[] = [
 export function FeaturesSection({ features = defaultFeatures }: FeaturesSectionProps) {
 
   return (
-    <section className="py-24 md:py-32 bg-white dark:bg-background relative overflow-hidden">
+    <section className="py-32 md:py-48 bg-white dark:bg-background relative overflow-hidden">
       <div className="container-google relative">
         <AnimateOnScroll animation="fade-up">
-          <div className="text-center mb-16 md:mb-24 px-4">
+          <div className="text-center mb-20 md:mb-32 px-4">
             <div className="flex items-center justify-center gap-3 mb-6">
               <div className="p-2.5 rounded-2xl bg-secondary text-primary shadow-google-sm font-bold">
                 <CheckCircle2 className="size-5" />
