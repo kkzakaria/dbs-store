@@ -53,52 +53,42 @@ const defaultTestimonials: Testimonial[] = [
 ]
 
 export function TestimonialsSection({ testimonials = defaultTestimonials }: TestimonialsSectionProps) {
-  return (
-    <section className="py-16 md:py-24 bg-muted/30 relative overflow-hidden">
-      {/* Decorative background */}
-      <div className="absolute inset-0">
-        <div className="absolute top-1/4 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-0 w-80 h-80 bg-accent/5 rounded-full blur-3xl" />
-      </div>
 
-      <div className="container relative">
+  return (
+    <section className="py-32 md:py-48 bg-[#f8f9fa] dark:bg-muted/10 relative overflow-hidden">
+      <div className="container-google relative">
         <AnimateOnScroll animation="fade-up">
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center gap-2 mb-4">
-              <div className="flex">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <Star key={star} className="size-5 fill-accent text-accent" />
-                ))}
-              </div>
+          <div className="text-center mb-20 md:mb-32 px-4">
+            <div className="flex items-center justify-center gap-1.5 mb-6">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star key={star} className="size-6 fill-amber-400 text-amber-400" />
+              ))}
             </div>
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-              Ce que disent nos clients
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-6 leading-tight max-w-3xl mx-auto">
+              La parole est à vous.
             </h2>
-            <p className="mt-3 text-muted-foreground text-lg max-w-2xl mx-auto">
-              Plus de 5000 clients satisfaits nous font confiance
+            <p className="text-xl text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto">
+              Rejoignez plus de 5000 clients qui nous font confiance pour leur équipement technologique.
             </p>
           </div>
         </AnimateOnScroll>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-4">
           {testimonials.map((testimonial, index) => (
             <AnimateOnScroll 
               key={testimonial.id} 
               animation="fade-up" 
               delay={index * 100}
             >
-              <div className="relative h-full p-6 rounded-2xl bg-card border hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-                {/* Quote icon */}
-                <Quote className="absolute top-4 right-4 size-8 text-primary/10" />
-
+              <div className="group relative flex flex-col h-full p-8 md:p-10 rounded-[40px] bg-white dark:bg-card transition-google hover-google-rise shadow-google-sm">
                 {/* Rating */}
-                <div className="flex gap-0.5 mb-4">
+                <div className="flex gap-1 mb-6">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
                       className={`size-4 ${
                         i < testimonial.rating
-                          ? "fill-accent text-accent"
+                          ? "fill-amber-400 text-amber-400"
                           : "fill-muted text-muted"
                       }`}
                     />
@@ -106,26 +96,27 @@ export function TestimonialsSection({ testimonials = defaultTestimonials }: Test
                 </div>
 
                 {/* Comment */}
-                <p className="text-sm text-foreground/80 leading-relaxed mb-6 line-clamp-4">
+                <p className="text-lg text-foreground/80 leading-relaxed mb-8 font-medium italic">
                   "{testimonial.comment}"
                 </p>
 
                 {/* Author */}
-                <div className="mt-auto pt-4 border-t">
-                  <div className="flex items-center gap-3">
-                    {/* Avatar placeholder */}
-                    <div className="size-10 rounded-full bg-gradient-to-br from-primary to-primary-light flex items-center justify-center text-white font-semibold text-sm">
+                <div className="mt-auto pt-6 border-t border-border/10 flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="size-12 rounded-full bg-secondary text-primary flex items-center justify-center font-display font-bold text-lg shadow-google-sm transition-google group-hover:scale-110">
                       {testimonial.name.split(" ").map(n => n[0]).join("")}
                     </div>
                     <div>
-                      <p className="font-medium text-sm">{testimonial.name}</p>
-                      <p className="text-xs text-muted-foreground">{testimonial.location}</p>
+                      <p className="font-display font-bold text-base leading-tight">{testimonial.name}</p>
+                      <p className="text-xs text-muted-foreground font-semibold uppercase tracking-widest mt-1">{testimonial.location}</p>
                     </div>
                   </div>
-                  {testimonial.date && (
-                    <p className="text-xs text-muted-foreground mt-2">{testimonial.date}</p>
-                  )}
                 </div>
+                {testimonial.date && (
+                  <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mt-4 opacity-60">
+                    {testimonial.date}
+                  </p>
+                )}
               </div>
             </AnimateOnScroll>
           ))}

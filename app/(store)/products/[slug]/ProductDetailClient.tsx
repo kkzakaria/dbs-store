@@ -157,83 +157,97 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
   // Requires variant selection if has_variants but no variant selected
   const requiresVariant = hasVariants && !selectedVariant
 
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24">
       {/* Gallery - Desktop: vertical thumbnails, Mobile: horizontal */}
-      <div className="hidden md:block">
-        <ProductGallery
-          images={displayImages.length > 0 ? displayImages : product.images}
-          productName={product.name}
-        />
-      </div>
-      <div className="md:hidden">
-        <ProductGalleryHorizontal
-          images={displayImages.length > 0 ? displayImages : product.images}
-          productName={product.name}
-        />
+      <div className="space-y-6">
+        <div className="hidden md:block">
+          <ProductGallery
+            images={displayImages.length > 0 ? displayImages : product.images}
+            productName={product.name}
+          />
+        </div>
+        <div className="md:hidden">
+          <ProductGalleryHorizontal
+            images={displayImages.length > 0 ? displayImages : product.images}
+            productName={product.name}
+          />
+        </div>
       </div>
 
       {/* Product Info */}
-      <div className="space-y-6">
-        {/* Category Link */}
-        {product.category && (
-          <Link
-            href={`/categories/${product.category.slug}`}
-            className="text-muted-foreground hover:text-primary transition-colors text-sm inline-block"
-          >
-            {product.category.name}
-          </Link>
-        )}
-
-        {/* Name */}
-        <h1 className="text-2xl font-bold tracking-tight lg:text-3xl">
-          {product.name}
-        </h1>
-
+      <div className="space-y-16 lg:sticky lg:top-32 h-fit">
+        <div className="space-y-8">
+          {/* Brand/Category */}
+          <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-primary">
+            {product.brand && <span>{product.brand}</span>}
+            {product.brand && product.category && <span className="text-border">•</span>}
+            {product.category && (
+              <Link
+                href={`/categories/${product.category.slug}`}
+                className="hover:underline"
+              >
+                {product.category.name}
+              </Link>
+            )}
+          </div>
+ 
+          {/* Name */}
+          <h1 className="text-4xl lg:text-6xl font-display font-bold leading-[1.1] text-foreground">
+            {product.name}
+          </h1>
+ 
+          {/* Price */}
+          <div className="flex items-baseline gap-4 pt-4">
+            <PriceDisplay
+              price={currentPrice}
+              comparePrice={currentComparePrice}
+              size="xl"
+            />
+            {hasVariants && !selectedVariant && (
+              <span className="text-sm font-medium text-muted-foreground">
+                À partir de
+              </span>
+            )}
+          </div>
+        </div>
+ 
         {/* Description */}
         {product.description && (
-          <p className="text-muted-foreground leading-relaxed">
-            {product.description}
-          </p>
+          <div className="space-y-8">
+            <h3 className="text-sm font-bold uppercase tracking-widest text-foreground">Présentation</h3>
+            <p className="text-xl text-muted-foreground leading-relaxed font-light">
+              {product.description}
+            </p>
+          </div>
         )}
-
-        {/* Price */}
-        <div className="flex items-end gap-3">
-          <PriceDisplay
-            price={currentPrice}
-            comparePrice={currentComparePrice}
-            size="lg"
-          />
-          {hasVariants && !selectedVariant && (
-            <span className="text-sm text-muted-foreground mb-1">
-              A partir de
-            </span>
-          )}
-        </div>
-
-        {/* Stock Status */}
-        <div className="flex items-center gap-2 flex-wrap">
+ 
+        {/* Stock Status & Badges */}
+        <div className="flex items-center gap-4 flex-wrap">
           {isOutOfStock ? (
-            <Badge variant="destructive">Rupture de stock</Badge>
+            <div className="px-5 py-2.5 rounded-full border border-destructive/20 bg-destructive/5 text-destructive text-xs font-bold uppercase tracking-widest">
+              Bientôt disponible
+            </div>
           ) : isLowStock ? (
-            <Badge variant="outline" className="border-orange-500 text-orange-500">
-              Plus que {currentStock} en stock - Faites vite !
-            </Badge>
+            <div className="px-5 py-2.5 rounded-full border border-amber-500/20 bg-amber-500/5 text-amber-600 text-xs font-bold uppercase tracking-widest">
+              Seulement {currentStock} restants
+            </div>
           ) : (
-            <Badge variant="outline" className="border-green-500 text-green-500">
-              En stock
-            </Badge>
+            <div className="px-5 py-2.5 rounded-full border border-green-500/20 bg-green-500/5 text-green-600 text-xs font-bold uppercase tracking-widest">
+              Disponible en stock
+            </div>
           )}
-          {product.brand && <Badge variant="secondary">{product.brand}</Badge>}
           {product.is_featured && (
-            <Badge className="bg-accent text-accent-foreground">Vedette</Badge>
+            <div className="px-5 py-2.5 rounded-full border border-primary/20 bg-primary/5 text-primary text-xs font-bold uppercase tracking-widest">
+              Exclusivité DBS
+            </div>
           )}
         </div>
-
+ 
         {/* Variant Selector */}
         {hasVariants && (
-          <>
-            <Separator />
+          <div className="pt-8">
             <VariantSelector
               options={options}
               variants={variants}
@@ -241,72 +255,72 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
               onSelectOption={handleSelectOption}
               selectedVariant={selectedVariant}
             />
-          </>
+          </div>
         )}
-
-        <Separator />
-
+ 
         {/* Add to Cart */}
-        <AddToCartButton
-          product={{
-            id: product.id,
-            name: product.name,
-            price: currentPrice,
-            slug: product.slug,
-            image:
-              displayImages[0]?.url ||
-              product.images?.[0]?.url ||
-              "/images/placeholder-product.png",
-            stock_quantity: currentStock,
-          }}
-          variant={
-            selectedVariant
-              ? {
-                  id: selectedVariant.id,
-                  sku: selectedVariant.sku,
-                  price: selectedVariant.price,
-                  stock_quantity: selectedVariant.stock_quantity ?? 0,
-                  options:
-                    typeof selectedVariant.options === "object" &&
-                    selectedVariant.options !== null
-                      ? (selectedVariant.options as Record<string, string>)
-                      : {},
-                }
-              : null
-          }
-          isOutOfStock={isOutOfStock}
-          requiresVariant={requiresVariant}
-        />
-
+        <div className="pt-12">
+          <AddToCartButton
+            product={{
+              id: product.id,
+              name: product.name,
+              price: currentPrice,
+              slug: product.slug,
+              image:
+                displayImages[0]?.url ||
+                product.images?.[0]?.url ||
+                "/images/placeholder-product.png",
+              stock_quantity: currentStock,
+            }}
+            variant={
+              selectedVariant
+                ? {
+                    id: selectedVariant.id,
+                    sku: selectedVariant.sku,
+                    price: selectedVariant.price,
+                    stock_quantity: selectedVariant.stock_quantity ?? 0,
+                    options:
+                      typeof selectedVariant.options === "object" &&
+                      selectedVariant.options !== null
+                        ? (selectedVariant.options as Record<string, string>)
+                        : {},
+                  }
+                : null
+            }
+            isOutOfStock={isOutOfStock}
+            requiresVariant={requiresVariant}
+          />
+        </div>
+ 
         {/* Trust Badges */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-4">
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-            <Truck className="h-5 w-5 text-primary flex-shrink-0" />
-            <div className="text-sm">
-              <p className="font-medium">Livraison rapide</p>
-              <p className="text-muted-foreground text-xs">24-48h Abidjan</p>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-12 pt-20 border-t border-border/10">
+          <div className="flex flex-col items-center sm:items-start gap-3">
+            <Truck className="h-6 w-6 text-primary" />
+            <div className="text-center sm:text-left">
+              <p className="font-bold text-sm">Livraison rapide</p>
+              <p className="text-muted-foreground text-xs mt-1">Gratuite dès 50.000 FCFA</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-            <Shield className="h-5 w-5 text-primary flex-shrink-0" />
-            <div className="text-sm">
-              <p className="font-medium">Paiement securise</p>
-              <p className="text-muted-foreground text-xs">Mobile Money</p>
+          <div className="flex flex-col items-center sm:items-start gap-3">
+            <Shield className="h-6 w-6 text-primary" />
+            <div className="text-center sm:text-left">
+              <p className="font-bold text-sm">Garantie DBS</p>
+              <p className="text-muted-foreground text-xs mt-1">SAV disponible 7j/7</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 p-3 rounded-lg bg-muted/50">
-            <RotateCcw className="h-5 w-5 text-primary flex-shrink-0" />
-            <div className="text-sm">
-              <p className="font-medium">Retour facile</p>
-              <p className="text-muted-foreground text-xs">Sous 7 jours</p>
+          <div className="flex flex-col items-center sm:items-start gap-3">
+            <RotateCcw className="h-6 w-6 text-primary" />
+            <div className="text-center sm:text-left">
+              <p className="font-bold text-sm">Satisfait ou remboursé</p>
+              <p className="text-muted-foreground text-xs mt-1">Retour facile sous 7 jours</p>
             </div>
           </div>
         </div>
 
         {/* SKU */}
         {currentSku && (
-          <p className="text-xs text-muted-foreground pt-2">
-            Reference: {currentSku}
+          <p className="text-[10px] text-muted-foreground uppercase tracking-widest pt-4">
+            SKU: {currentSku}
           </p>
         )}
       </div>

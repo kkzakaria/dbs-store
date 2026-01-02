@@ -127,239 +127,142 @@ export function ProductCard({
     }).format(price)
   }
 
+
   return (
     <article
       className={cn(
-        "group relative w-full",
+        "group relative w-full transition-google hover-google-rise",
         className
       )}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <Link href={`/products/${product.slug}`} className="block">
+      <Link href={`/products/${product.slug}`} className="block h-full">
         <div
           className={cn(
-            "relative bg-card rounded-2xl overflow-hidden",
-            "border border-border/50",
-            "transition-all duration-500 ease-out",
-            "hover:border-primary/30 hover:shadow-card-hover",
-            "hover:-translate-y-1"
+            "relative h-full bg-white dark:bg-card rounded-[40px] overflow-hidden",
+            "border border-border/40 shadow-google-sm",
+            "transition-all duration-300"
           )}
         >
           {/* Product Image */}
-          <div className="relative aspect-square overflow-hidden bg-muted/30">
-            {/* Loading skeleton */}
+          <div className="relative aspect-square overflow-hidden bg-[#f8f9fa] dark:bg-muted/10 p-8">
             {!imageLoaded && (
-              <div className="absolute inset-0 bg-muted animate-pulse" />
+              <div className="absolute inset-0 bg-secondary animate-pulse" />
             )}
-
+ 
             <Image
               src={imageUrl}
               alt={primaryImage?.alt || product.name}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className={cn(
-                "object-cover transition-all duration-700",
-                isHovered && "scale-110",
+                "object-contain p-6 transition-all duration-700",
+                isHovered && "scale-105",
                 isOutOfStock && "opacity-50 grayscale",
                 imageLoaded ? "opacity-100" : "opacity-0"
               )}
               priority={priority}
               onLoad={() => setImageLoaded(true)}
             />
-
-            {/* Hover Overlay */}
-            <div
-              className={cn(
-                "absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0",
-                "transition-opacity duration-300",
-                isHovered ? "opacity-100" : "opacity-0"
-              )}
-            />
-
-            {/* Quick View Button - Appears on hover */}
-            <div
-              className={cn(
-                "absolute inset-0 flex items-center justify-center",
-                "transition-all duration-300",
-                isHovered ? "opacity-100" : "opacity-0 pointer-events-none"
-              )}
-            >
-              <div
-                className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-full",
-                  "bg-white/90 backdrop-blur-sm text-foreground",
-                  "font-medium text-sm",
-                  "transform transition-all duration-300",
-                  isHovered ? "translate-y-0 scale-100" : "translate-y-4 scale-95"
-                )}
-              >
-                <Eye className="w-4 h-4" />
-                <span>Voir le produit</span>
-              </div>
-            </div>
-
+ 
             {/* Badges - Top Left */}
-            <div className="absolute left-2 top-2 flex flex-col gap-1.5 z-10">
+            <div className="absolute left-6 top-6 flex flex-col gap-2 z-10">
               {hasDiscount && (
-                <Badge
-                  className={cn(
-                    "px-2 py-1 text-xs font-bold",
-                    "bg-gradient-to-r from-red-500 to-rose-500 text-white",
-                    "border-0 shadow-sm"
-                  )}
-                >
+                <span className="px-3 py-1 text-[11px] font-bold bg-primary text-white rounded-full shadow-google-sm">
                   -{discountPercentage}%
-                </Badge>
+                </span>
               )}
               {product.is_featured && !hasDiscount && (
-                <Badge
-                  className={cn(
-                    "px-2 py-1 text-xs font-medium",
-                    "bg-gradient-primary text-white",
-                    "border-0 shadow-sm",
-                    "flex items-center gap-1"
-                  )}
-                >
-                  <Sparkles className="w-3 h-3" />
+                <span className="px-3 py-1 text-[11px] font-bold bg-secondary text-foreground rounded-full shadow-google-sm">
                   Vedette
-                </Badge>
-              )}
-              {isOutOfStock && (
-                <Badge
-                  variant="secondary"
-                  className="px-2 py-1 text-xs font-medium bg-muted/90 backdrop-blur-sm"
-                >
-                  Rupture
-                </Badge>
-              )}
-              {isLowStock && !isOutOfStock && (
-                <Badge
-                  className={cn(
-                    "px-2 py-1 text-xs font-medium",
-                    "bg-amber-500/90 text-white border-0"
-                  )}
-                >
-                  Stock limité
-                </Badge>
+                </span>
               )}
             </div>
-
+ 
             {/* Wishlist Button - Top Right */}
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "absolute top-2 right-2 z-10",
-                "h-9 w-9 rounded-full",
-                "bg-white/80 backdrop-blur-sm",
-                "hover:bg-white hover:scale-110",
+                "absolute top-5 right-5 z-10",
+                "h-11 w-11 rounded-full",
+                "bg-white/80 dark:bg-black/20 backdrop-blur-md",
+                "hover:bg-white dark:hover:bg-black/40",
                 "transition-all duration-300",
-                "shadow-sm",
-                isInWishlist && "text-rose-500 bg-rose-50 hover:bg-rose-100"
+                isInWishlist && "text-rose-500"
               )}
               onClick={handleToggleWishlist}
               disabled={isWishlistLoading}
-              aria-label={isInWishlist ? "Retirer des favoris" : "Ajouter aux favoris"}
             >
               {isWishlistLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
                 <Heart
                   className={cn(
-                    "w-4 h-4 transition-all duration-300",
-                    isInWishlist
-                      ? "fill-rose-500 text-rose-500 scale-110"
-                      : "text-muted-foreground hover:text-rose-500"
+                    "w-5 h-5 transition-all duration-300",
+                    isInWishlist ? "fill-rose-500 text-rose-500" : "text-foreground"
                   )}
                 />
               )}
             </Button>
           </div>
-
+ 
           {/* Product Info */}
-          <div className="p-4">
-            {/* Category */}
-            {product.category && (
-              <p className="text-[11px] text-primary/80 font-medium uppercase tracking-wider mb-1">
-                {product.category.name}
-              </p>
-            )}
-
-            {/* Product Name */}
-            <h3
-              className={cn(
-                "font-semibold text-sm leading-snug line-clamp-2 mb-3",
-                "text-foreground/90 group-hover:text-foreground",
-                "transition-colors duration-300"
+          <div className="p-10 flex flex-col flex-1">
+            <div className="flex-1 min-h-[4.5rem]">
+              <h3 className="font-display font-bold text-lg md:text-xl leading-snug text-foreground line-clamp-2 mb-3">
+                {product.name}
+              </h3>
+              {product.category && (
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
+                  {product.category.name}
+                </p>
               )}
-            >
-              {product.name}
-            </h3>
-
+            </div>
+ 
             {/* Price Section */}
-            <div className="flex items-end justify-between gap-2 mb-3">
-              <div className="flex flex-col">
-                {hasVariants && (
-                  <span className="text-[10px] text-muted-foreground font-medium">
-                    À partir de
-                  </span>
-                )}
-                <div className="flex items-baseline gap-2 flex-wrap">
-                  <p
-                    className={cn(
-                      "text-lg font-bold",
-                      hasDiscount ? "text-rose-600" : "text-foreground"
-                    )}
-                  >
-                    {formatPrice(product.price)}
+            <div className="mt-8 flex flex-col">
+              <div className="flex items-center gap-3">
+                <p className={cn(
+                  "text-xl font-bold font-display",
+                  hasDiscount ? "text-primary" : "text-foreground"
+                )}>
+                  {formatPrice(product.price)}
+                </p>
+                {hasDiscount && product.compare_price && (
+                  <p className="text-sm text-muted-foreground line-through decoration-muted-foreground/40 font-medium font-display">
+                    {formatPrice(product.compare_price)}
                   </p>
-                  {hasDiscount && product.compare_price && !hasVariants && (
-                    <p className="text-sm text-muted-foreground line-through">
-                      {formatPrice(product.compare_price)}
-                    </p>
-                  )}
-                </div>
+                )}
               </div>
             </div>
-
+ 
             {/* Action Buttons */}
-            <div className="flex gap-2">
-              <Button
-                onClick={handleAddToCart}
-                disabled={isOutOfStock && !hasVariants}
-                variant="outline"
-                size="sm"
-                className={cn(
-                  "h-10 w-10 p-0 rounded-xl shrink-0",
-                  "border-border/50 hover:border-primary/50",
-                  "hover:bg-primary/5 hover:text-primary",
-                  "transition-all duration-300",
-                  "active:scale-95"
-                )}
-                aria-label="Ajouter au panier"
-              >
-                <ShoppingCart className="w-4 h-4" />
-              </Button>
+            <div className="mt-10 flex flex-col sm:flex-row gap-3">
               <Button
                 onClick={(e) => {
                   e.preventDefault()
                   e.stopPropagation()
                   window.location.href = `/products/${product.slug}`
                 }}
-                size="sm"
-                className={cn(
-                  "flex-1 h-10 rounded-xl font-semibold text-sm",
-                  "bg-gradient-primary hover:opacity-90",
-                  "shadow-soft hover:shadow-glow-sm",
-                  "transition-all duration-300",
-                  "active:scale-[0.98]",
-                  isOutOfStock && !hasVariants && "opacity-50 cursor-not-allowed"
-                )}
+                className="flex-1 rounded-full h-14 font-bold text-base bg-primary hover:bg-primary-hover text-white transition-google shadow-google-sm hover:shadow-google-md"
                 disabled={isOutOfStock && !hasVariants}
               >
-                {isOutOfStock && !hasVariants ? "Indisponible" : "Acheter"}
+                {isOutOfStock && !hasVariants ? "Bientôt disponible" : "Acheter"}
               </Button>
+              
+              {!hasVariants && !isOutOfStock && (
+                <Button
+                  onClick={handleAddToCart}
+                  variant="outline"
+                  size="icon"
+                  className="h-14 w-14 rounded-full border-border hover:bg-secondary transition-google shrink-0 shadow-google-sm hover:shadow-google-md"
+                  aria-label="Ajouter au panier"
+                >
+                  <ShoppingCart className="w-5 h-5" />
+                </Button>
+              )}
             </div>
           </div>
         </div>

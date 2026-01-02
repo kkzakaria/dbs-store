@@ -7,7 +7,7 @@ interface PriceDisplayProps {
   price: number
   comparePrice?: number | null
   className?: string
-  size?: "sm" | "md" | "lg"
+  size?: "sm" | "md" | "lg" | "xl"
   showBadge?: boolean
 }
 
@@ -57,10 +57,16 @@ export function PriceDisplay({
       compare: "text-sm",
       badge: "text-xs",
     },
+
     lg: {
       price: "text-2xl font-bold",
       compare: "text-base",
       badge: "text-sm",
+    },
+    xl: {
+      price: "text-4xl lg:text-5xl font-bold font-display",
+      compare: "text-lg",
+      badge: "text-base",
     },
   }
 

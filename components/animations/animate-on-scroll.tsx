@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils"
 interface AnimateOnScrollProps {
   children: React.ReactNode
   className?: string
-  animation?: "fade-up" | "fade-down" | "fade-left" | "fade-right" | "zoom-in" | "blur-in"
+  animation?: "fade-up" | "fade-down" | "fade-left" | "fade-right" | "zoom-in" | "blur-in" | "scale-in"
   delay?: number
   duration?: number
   threshold?: number
@@ -71,6 +71,10 @@ export function AnimateOnScroll({
     "blur-in": {
       initial: "opacity-0 blur-sm",
       visible: "opacity-100 blur-0",
+    },
+    "scale-in": {
+      initial: "opacity-0 scale-110 translate-y-4",
+      visible: "opacity-100 scale-100 translate-y-0",
     },
   }
 

@@ -57,39 +57,44 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   const categories = categoriesResult?.categories || []
   const brands = brandsResult?.brands || []
 
+
   return (
     <NuqsAdapter>
-      <div className="container py-8">
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">Nos Produits</h1>
-          <p className="mt-2 text-muted-foreground">
-            {total} produit{total !== 1 ? "s" : ""} disponible{total !== 1 ? "s" : ""}
-          </p>
-        </div>
+      <div className="bg-white dark:bg-background min-h-screen">
+        <div className="container-google py-20 md:py-32">
+          {/* Header */}
+          <div className="mb-20 md:mb-32">
+            <h1 className="text-5xl md:text-6xl font-bold font-display tracking-tight text-foreground mb-8">
+              Nos Produits
+            </h1>
+            <p className="text-xl text-muted-foreground max-w-3xl leading-relaxed">
+              Découvrez notre sélection exclusive d'appareils électroniques premium. {total} produit{total !== 1 ? "s" : ""} disponible{total !== 1 ? "s" : ""} pour vous.
+            </p>
+          </div>
+ 
+          <div className="flex flex-col gap-16 lg:flex-row">
+            {/* Desktop Sidebar Filters */}
+            <aside className="hidden lg:block lg:w-72 lg:flex-shrink-0">
+              <ProductFiltersSidebar categories={categories} brands={brands} />
+            </aside>
 
-        <div className="flex flex-col gap-8 lg:flex-row">
-          {/* Desktop Sidebar Filters */}
-          <aside className="hidden lg:block lg:w-64 lg:flex-shrink-0">
-            <ProductFiltersSidebar categories={categories} brands={brands} />
-          </aside>
+            {/* Main Content */}
+            <main className="flex-1">
+              {/* Mobile Filters + Sort */}
+              <div className="mb-8 flex items-center justify-between gap-4">
+                <ProductFilters categories={categories} brands={brands} />
+              </div>
 
-          {/* Main Content */}
-          <main className="flex-1">
-            {/* Mobile Filters + Sort */}
-            <div className="mb-6 flex items-center justify-between gap-4">
-              <ProductFilters categories={categories} brands={brands} />
-            </div>
-
-            {/* Products Grid */}
-            <Suspense fallback={<ProductGridLoader />}>
-              <ProductGrid
-                initialProducts={products}
-                initialTotal={total}
-                filters={filters}
-              />
-            </Suspense>
-          </main>
+              {/* Products Grid */}
+              <Suspense fallback={<ProductGridLoader />}>
+                <ProductGrid
+                  initialProducts={products}
+                  initialTotal={total}
+                  filters={filters}
+                />
+              </Suspense>
+            </main>
+          </div>
         </div>
       </div>
     </NuqsAdapter>

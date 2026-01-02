@@ -59,20 +59,21 @@ export function CountdownTimer({
     return () => clearInterval(timer)
   }, [targetDate, onComplete])
 
+
   if (!mounted) {
     return (
-      <div className={cn("flex gap-2 md:gap-3", className)}>
+      <div className={cn("flex gap-3 md:gap-4", className)}>
         {["J", "H", "M", "S"].map((label) => (
           <div
             key={label}
             className="flex flex-col items-center"
           >
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2 md:p-3 min-w-[50px] md:min-w-[70px] border border-white/20">
-              <span className="text-xl md:text-3xl font-bold text-white tabular-nums">
+            <div className="bg-[#f8f9fa] dark:bg-muted/20 rounded-[20px] p-3 md:p-4 min-w-[60px] md:min-w-[80px] border border-border/40 shadow-google-sm">
+              <span className="text-2xl md:text-3xl font-display font-bold text-foreground tabular-nums">
                 00
               </span>
             </div>
-            <span className="text-[10px] md:text-xs text-white/70 mt-1 uppercase tracking-wider">
+            <span className="text-[10px] md:text-xs text-muted-foreground mt-2 font-bold uppercase tracking-widest">
               {label}
             </span>
           </div>
@@ -82,25 +83,25 @@ export function CountdownTimer({
   }
 
   const timeUnits = [
-    { value: timeLeft.days, label: "J" },
-    { value: timeLeft.hours, label: "H" },
-    { value: timeLeft.minutes, label: "M" },
-    { value: timeLeft.seconds, label: "S" },
+    { value: timeLeft.days, label: "Jours" },
+    { value: timeLeft.hours, label: "Heures" },
+    { value: timeLeft.minutes, label: "Min" },
+    { value: timeLeft.seconds, label: "Sec" },
   ]
 
   return (
-    <div className={cn("flex gap-2 md:gap-3", className)}>
+    <div className={cn("flex gap-3 md:gap-4", className)}>
       {timeUnits.map(({ value, label }) => (
         <div
           key={label}
           className="flex flex-col items-center"
         >
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-2 md:p-3 min-w-[50px] md:min-w-[70px] border border-white/20 shadow-lg">
-            <span className="text-xl md:text-3xl font-bold text-white tabular-nums block text-center">
+          <div className="bg-[#f8f9fa] dark:bg-muted/20 rounded-[20px] p-3 md:p-4 min-w-[60px] md:min-w-[80px] border border-border/40 shadow-google-sm">
+            <span className="text-2xl md:text-3xl font-display font-bold text-foreground tabular-nums block text-center">
               {value.toString().padStart(2, "0")}
             </span>
           </div>
-          <span className="text-[10px] md:text-xs text-white/70 mt-1 uppercase tracking-wider">
+          <span className="text-[10px] md:text-xs text-muted-foreground mt-2 font-bold uppercase tracking-widest">
             {label}
           </span>
         </div>

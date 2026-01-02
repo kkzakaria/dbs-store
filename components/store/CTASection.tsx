@@ -24,49 +24,34 @@ export function CTASection({
   primaryAction = { label: "Commencer mes achats", href: "/products" },
   secondaryAction = { label: "Voir les promotions", href: "/products?promo=true" },
 }: CTASectionProps) {
+
   return (
-    <section className="py-16 md:py-24 relative overflow-hidden">
-      <div className="container relative">
-        <AnimateOnScroll animation="zoom-in">
-          <div className="relative rounded-3xl overflow-hidden">
-            {/* Animated gradient background */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary via-primary to-primary-light animate-gradient" />
-            
-            {/* Decorative elements */}
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute -top-24 -right-24 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-pulse-soft" />
-              <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-white/10 rounded-full blur-3xl animate-pulse-soft" style={{ animationDelay: "1s" }} />
-              
-              {/* Floating icons */}
-              <div className="absolute top-8 right-8 md:top-12 md:right-12 p-3 rounded-full bg-white/10 backdrop-blur-sm animate-float">
-                <Zap className="size-6 text-accent" />
-              </div>
-              <div className="absolute bottom-8 left-8 md:bottom-12 md:left-12 p-3 rounded-full bg-white/10 backdrop-blur-sm animate-float" style={{ animationDelay: "0.5s" }}>
-                <Gift className="size-6 text-white" />
-              </div>
-            </div>
-            
-            {/* Grid pattern overlay */}
+    <section className="py-32 md:py-48 bg-white dark:bg-background overflow-hidden px-4">
+      <div className="container-google">
+        <AnimateOnScroll animation="scale-in">
+          <div className="relative rounded-[48px] bg-primary overflow-hidden p-16 md:p-32 lg:p-40 text-center shadow-google-lg">
+            {/* Background elements - very subtle */}
             <div className="absolute inset-0 bg-[url('/images/grid-pattern.svg')] opacity-5" />
+            <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/5 to-transparent pointer-events-none" />
 
             {/* Content */}
-            <div className="relative z-10 px-6 py-12 md:px-12 md:py-16 lg:py-20 text-center">
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-white max-w-3xl mx-auto leading-tight">
+            <div className="relative z-10 space-y-10">
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-[1.1] max-w-4xl mx-auto">
                 {title}
               </h2>
-              <p className="mt-4 md:mt-6 text-white/80 text-base md:text-lg max-w-xl mx-auto">
+              <p className="text-xl text-white/80 font-medium max-w-2xl mx-auto leading-relaxed">
                 {description}
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8 md:mt-10">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-6">
                 <Button
                   asChild
                   size="lg"
-                  className="rounded-full bg-white text-primary hover:bg-white/90 shadow-lg hover:shadow-xl transition-all group min-w-[200px]"
+                  className="h-16 px-10 rounded-full bg-white text-primary hover:bg-[#f8f9fa] shadow-google-sm hover:shadow-google-md transition-google text-lg font-bold min-w-[240px]"
                 >
-                  <Link href={primaryAction.href}>
+                  <Link href={primaryAction.href} className="flex items-center gap-3">
                     {primaryAction.label}
-                    <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
+                    <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
 
@@ -74,10 +59,10 @@ export function CTASection({
                   asChild
                   size="lg"
                   variant="outline"
-                  className="rounded-full bg-transparent border-white/30 text-white hover:bg-white/10 hover:border-white/50 transition-all group min-w-[200px]"
+                  className="h-16 px-10 rounded-full bg-transparent border-white/20 text-white hover:bg-white/10 hover:border-white/40 transition-google text-lg font-bold min-w-[240px]"
                 >
-                  <Link href={secondaryAction.href}>
-                    <Gift className="mr-2 size-4" />
+                  <Link href={secondaryAction.href} className="flex items-center gap-3">
+                    <Gift className="size-5" />
                     {secondaryAction.label}
                   </Link>
                 </Button>
