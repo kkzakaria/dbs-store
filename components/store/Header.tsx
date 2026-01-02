@@ -120,12 +120,12 @@ export function Header() {
     setMounted(true)
   }, [])
 
-  // Handle scroll effect
+  // Handle scroll effect - detect when to transform to pill
   React.useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20)
+      setIsScrolled(window.scrollY > 50)
     }
-    window.addEventListener("scroll", handleScroll)
+    window.addEventListener("scroll", handleScroll, { passive: true })
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
@@ -174,230 +174,303 @@ export function Header() {
 
   return (
     <>
+      {/* Floating Menu Button - Mobile only, appears when scrolled */}
+      <button
+        onClick={() => setMobileNavOpen(true)}
+        className={cn(
+          "fixed left-4 z-[51] flex lg:hidden items-center justify-center",
+          "w-12 h-12 rounded-full bg-primary text-primary-foreground",
+          "shadow-google-lg hover:shadow-google-lg hover:scale-105",
+          "transition-all duration-500 ease-out",
+          isScrolled
+            ? "top-4 opacity-100 translate-y-0"
+            : "top-4 opacity-0 -translate-y-4 pointer-events-none"
+        )}
+        aria-label="Menu"
+      >
+        <Menu className="size-5" />
+      </button>
+
       <header
         className={cn(
-          "sticky top-0 z-50 w-full transition-all duration-300",
-          isScrolled
-            ? "bg-background/95 backdrop-blur-md border-b border-border shadow-google-sm"
-            : "bg-background/50 backdrop-blur-sm border-transparent"
+          "sticky top-0 z-50 w-full transition-all duration-500 ease-out"
         )}
       >
-        <div className="container-google">
-          <div className="flex h-16 md:h-18 items-center justify-between gap-4">
-            {/* Logo */}
-            <Link
-              href="/"
-              className="relative flex items-center gap-3 shrink-0"
+        {/* Outer wrapper for positioning */}
+        <div
+          className={cn(
+            "transition-all duration-500 ease-out",
+            isScrolled ? "py-3 px-4" : "py-0 px-0"
+          )}
+        >
+          {/* The actual header bar that transforms to pill */}
+          <div
+            ref={megaMenuRef}
+            className={cn(
+              "transition-all duration-500 ease-out mx-auto",
+              isScrolled
+                ? "max-w-5xl bg-background/95 backdrop-blur-xl rounded-full shadow-google-md border border-border/40"
+                : "max-w-none bg-background border-b border-border/30"
+            )}
+          >
+            <div
+              className={cn(
+                "flex items-center justify-between gap-2 transition-all duration-500 ease-out",
+                isScrolled
+                  ? "h-14 px-2 lg:px-4"
+                  : "h-16 md:h-18 container-google"
+              )}
             >
-              <Logo variant="default" className="h-8 w-auto" />
-            </Link>
-
-            {/* Desktop Navigation */}
-            <nav
-              ref={megaMenuRef}
-              className="hidden lg:flex items-center gap-1"
-            >
-              {/* Category Links */}
-              {categories.map((category) => {
-                const isActive = pathname?.startsWith(category.href) || activeCategory === category.name
-
-                return (
-                  <div
-                    key={category.name}
-                    className="relative"
-                    onMouseEnter={() => setActiveCategory(category.name)}
-                  >
-                    <Link
-                      href={category.href}
-                      className={cn(
-                        "flex items-center gap-1.5 px-4 py-2 rounded-full text-[15px] font-medium transition-google",
-                        isActive
-                          ? "text-primary bg-primary/5"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                      )}
-                    >
-                      <span>{category.name}</span>
-                      <ChevronDown
-                        className={cn(
-                          "size-3.5 transition-transform duration-300",
-                          activeCategory === category.name && "rotate-180"
-                        )}
-                      />
-                    </Link>
-                  </div>
-                )
-              })}
-
-              {/* Mega Menu Dropdown */}
-              {activeCategory && activeCategoryData && (
-                <div
+              {/* Left section: Menu (mobile) + Logo */}
+              <div className="flex items-center gap-2 shrink-0">
+                {/* Mobile Menu Button - visible only on mobile when not scrolled */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setMobileNavOpen(true)}
                   className={cn(
-                    "absolute top-full left-0 right-0 mt-0",
-                    "bg-background border-b border-border shadow-google-lg animate-slide-up"
+                    "lg:hidden rounded-full transition-all duration-300",
+                    isScrolled ? "opacity-0 w-0 p-0 overflow-hidden" : "opacity-100"
                   )}
-                  onMouseLeave={() => setActiveCategory(null)}
                 >
-                  <div className="container-google py-10">
-                    <div className="grid grid-cols-4 gap-12">
-                      <div className="col-span-1">
-                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.1em] mb-6">
-                          Explorer
-                        </h3>
-                        <ul className="space-y-4">
-                          {activeCategoryData.brands.map((brand) => (
-                            <li key={brand}>
-                              <Link
-                                href={`${activeCategoryData.href}?brand=${brand.toLowerCase()}`}
-                                className="text-[17px] font-medium text-foreground hover:text-primary transition-google"
-                                onClick={() => setActiveCategory(null)}
-                              >
-                                {brand}
-                              </Link>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
+                  <Menu className="size-5" />
+                </Button>
 
-                      <div className="col-span-3">
-                        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.1em] mb-6">
-                          En vedette
-                        </h3>
-                        <div className="grid grid-cols-3 gap-6">
-                          {activeCategoryData.featured.map((product) => (
+                {/* Logo */}
+                <Link
+                  href="/"
+                  className="relative flex items-center shrink-0"
+                >
+                  <Logo variant="default" className={cn(
+                    "transition-all duration-300",
+                    isScrolled ? "h-6 w-auto" : "h-7 w-auto"
+                  )} />
+                </Link>
+              </div>
+
+              {/* Center: Desktop Navigation - Always visible on desktop */}
+              <nav className="hidden lg:flex items-center gap-0.5 flex-1 justify-center overflow-hidden">
+                {categories.map((category) => {
+                  const isActive = pathname?.startsWith(category.href) || activeCategory === category.name
+
+                  return (
+                    <div
+                      key={category.name}
+                      className="relative"
+                      onMouseEnter={() => setActiveCategory(category.name)}
+                    >
+                      <Link
+                        href={category.href}
+                        className={cn(
+                          "flex items-center gap-1 px-3 py-2 rounded-full text-sm font-medium transition-google whitespace-nowrap",
+                          isScrolled ? "px-2.5 py-1.5 text-[13px]" : "px-3 py-2 text-[14px]",
+                          isActive
+                            ? "text-primary bg-primary/5"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        )}
+                      >
+                        <span>{category.name}</span>
+                        <ChevronDown
+                          className={cn(
+                            "size-3 transition-transform duration-300",
+                            activeCategory === category.name && "rotate-180"
+                          )}
+                        />
+                      </Link>
+                    </div>
+                  )
+                })}
+              </nav>
+
+              {/* Right section: Actions */}
+              <div className="flex items-center gap-0.5 md:gap-1 shrink-0">
+                {/* Search */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSearchOpen(true)}
+                  className={cn(
+                    "rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5",
+                    isScrolled ? "h-9 w-9" : "h-10 w-10"
+                  )}
+                >
+                  <Search className={cn(isScrolled ? "size-4" : "size-5")} />
+                  <span className="sr-only">Rechercher</span>
+                </Button>
+
+                {/* Theme Toggle - hidden on smaller screens when scrolled */}
+                <div className={cn(
+                  "transition-all duration-300",
+                  isScrolled ? "hidden lg:block" : ""
+                )}>
+                  <ThemeToggle />
+                </div>
+
+                {/* Cart */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={openCart}
+                  className={cn(
+                    "relative rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5",
+                    isScrolled ? "h-9 w-9" : "h-10 w-10"
+                  )}
+                >
+                  <ShoppingCart className={cn(isScrolled ? "size-4" : "size-5")} />
+                  {isHydrated && totalItems > 0 && (
+                    <span className={cn(
+                      "absolute flex items-center justify-center rounded-full bg-primary text-white font-bold",
+                      isScrolled 
+                        ? "top-0.5 right-0.5 h-4 w-4 text-[9px]" 
+                        : "top-1 right-1 h-4 w-4 text-[10px]"
+                    )}>
+                      {totalItems > 99 ? "99+" : totalItems}
+                    </span>
+                  )}
+                </Button>
+
+                {/* User Menu */}
+                {!mounted || isLoading ? (
+                  <div className={cn(
+                    "rounded-full bg-muted animate-pulse",
+                    isScrolled ? "h-8 w-8" : "h-9 w-9"
+                  )} />
+                ) : authUser ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className={cn(
+                          "relative rounded-full p-0 hover:bg-muted",
+                          isScrolled ? "h-8 w-8" : "h-9 w-9"
+                        )}
+                      >
+                        <Avatar className={cn(isScrolled ? "h-7 w-7" : "h-8 w-8")}>
+                          <AvatarImage src={user?.avatar_url || undefined} />
+                          <AvatarFallback className="bg-primary/10 text-primary font-medium text-xs">
+                            {userInitials}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      className="w-56 p-2 rounded-xl shadow-google-lg animate-slide-up"
+                      align="end"
+                    >
+                      <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
+                        <Link href="/account" className="flex items-center gap-2 p-2">
+                          <User className="size-4" />
+                          <span>Mon compte</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
+                        <Link href="/orders" className="flex items-center gap-2 p-2">
+                          <Package className="size-4" />
+                          <span>Mes commandes</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
+                        <Link href="/wishlist" className="flex items-center gap-2 p-2 text-rose-500">
+                          <Heart className="size-4" />
+                          <span>Favoris</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={signOut}
+                        className="rounded-lg cursor-pointer text-destructive p-2"
+                      >
+                        <div className="flex items-center gap-2">
+                          <LogOut className="size-4" />
+                          <span>Déconnexion</span>
+                        </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Button
+                    onClick={openLogin}
+                    className={cn(
+                      "rounded-full bg-primary hover:bg-primary-hover text-white font-medium transition-google shadow-google-sm hover:shadow-google-md",
+                      isScrolled ? "px-4 py-1.5 text-sm h-8" : "px-5 py-2 h-10"
+                    )}
+                  >
+                    Connexion
+                  </Button>
+                )}
+              </div>
+            </div>
+
+            {/* Mega Menu Dropdown - Desktop only */}
+            {activeCategory && activeCategoryData && (
+              <div
+                className={cn(
+                  "hidden lg:block absolute left-0 right-0 z-50",
+                  isScrolled ? "top-[calc(100%+0.75rem)]" : "top-full",
+                  "bg-background border border-border/50 shadow-google-lg animate-slide-up",
+                  isScrolled ? "mx-4 rounded-2xl" : "border-t-0"
+                )}
+                onMouseLeave={() => setActiveCategory(null)}
+              >
+                <div className={cn(
+                  isScrolled ? "p-6" : "container-google py-10"
+                )}>
+                  <div className="grid grid-cols-4 gap-8">
+                    <div className="col-span-1">
+                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.1em] mb-4">
+                        Explorer
+                      </h3>
+                      <ul className="space-y-3">
+                        {activeCategoryData.brands.map((brand) => (
+                          <li key={brand}>
                             <Link
-                              key={product.href}
-                              href={product.href}
-                              className="group flex flex-col gap-4 p-4 rounded-2xl hover:bg-muted/50 transition-google"
+                              href={`${activeCategoryData.href}?brand=${brand.toLowerCase()}`}
+                              className="text-base font-medium text-foreground hover:text-primary transition-google"
                               onClick={() => setActiveCategory(null)}
                             >
-                              <div className="aspect-square relative rounded-xl overflow-hidden bg-muted">
-                                <Image
-                                  src={product.image}
-                                  alt={product.name}
-                                  fill
-                                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                />
-                              </div>
-                              <div>
-                                <p className="font-semibold text-base">
-                                  {product.name}
-                                </p>
-                                <p className="text-sm text-muted-foreground mt-1 flex items-center gap-1 group-hover:text-primary">
-                                  En savoir plus <ArrowRight className="size-3" />
-                                </p>
-                              </div>
+                              {brand}
                             </Link>
-                          ))}
-                        </div>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    <div className="col-span-3">
+                      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-[0.1em] mb-4">
+                        En vedette
+                      </h3>
+                      <div className="grid grid-cols-3 gap-4">
+                        {activeCategoryData.featured.map((product) => (
+                          <Link
+                            key={product.href}
+                            href={product.href}
+                            className="group flex flex-col gap-3 p-3 rounded-xl hover:bg-muted/50 transition-google"
+                            onClick={() => setActiveCategory(null)}
+                          >
+                            <div className="aspect-square relative rounded-lg overflow-hidden bg-muted">
+                              <Image
+                                src={product.image}
+                                alt={product.name}
+                                fill
+                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                              />
+                            </div>
+                            <div>
+                              <p className="font-medium text-sm">
+                                {product.name}
+                              </p>
+                              <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1 group-hover:text-primary">
+                                En savoir plus <ArrowRight className="size-3" />
+                              </p>
+                            </div>
+                          </Link>
+                        ))}
                       </div>
                     </div>
                   </div>
                 </div>
-              )}
-            </nav>
-
-            {/* Right Actions */}
-            <div className="flex items-center gap-1 md:gap-2">
-              {/* Search */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setSearchOpen(true)}
-                className="rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5"
-              >
-                <Search className="size-5" />
-                <span className="sr-only">Rechercher</span>
-              </Button>
-
-              {/* Theme Toggle */}
-              <ThemeToggle />
-
-              {/* Cart */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={openCart}
-                className="relative rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5"
-              >
-                <ShoppingCart className="size-5" />
-                {isHydrated && totalItems > 0 && (
-                  <span className="absolute top-1.5 right-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-white">
-                    {totalItems > 99 ? "99+" : totalItems}
-                  </span>
-                )}
-              </Button>
-
-              {/* User Menu */}
-              {!mounted || isLoading ? (
-                <div className="size-10 rounded-full bg-muted animate-pulse" />
-              ) : authUser ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="relative h-10 w-10 rounded-full p-0 hover:bg-muted"
-                    >
-                      <Avatar className="h-8 w-8">
-                        <AvatarImage src={user?.avatar_url || undefined} />
-                        <AvatarFallback className="bg-primary/10 text-primary font-medium text-xs">
-                          {userInitials}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent
-                    className="w-56 p-2 rounded-xl shadow-google-lg animate-slide-up"
-                    align="end"
-                  >
-                    <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
-                      <Link href="/account" className="flex items-center gap-2 p-2">
-                        <User className="size-4" />
-                        <span>Mon compte</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
-                      <Link href="/orders" className="flex items-center gap-2 p-2">
-                        <Package className="size-4" />
-                        <span>Mes commandes</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
-                      <Link href="/wishlist" className="flex items-center gap-2 p-2 text-rose-500">
-                        <Heart className="size-4" />
-                        <span>Favoris</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem
-                      onClick={signOut}
-                      className="rounded-lg cursor-pointer text-destructive p-2"
-                    >
-                      <div className="flex items-center gap-2">
-                        <LogOut className="size-4" />
-                        <span>Déconnexion</span>
-                      </div>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              ) : (
-                <Button
-                  onClick={openLogin}
-                  className="rounded-full px-6 bg-primary hover:bg-primary-hover text-white font-medium transition-google shadow-google-sm hover:shadow-google-md"
-                >
-                  Connexion
-                </Button>
-              )}
-
-              {/* Mobile Menu */}
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setMobileNavOpen(true)}
-                className="lg:hidden rounded-full"
-              >
-                <Menu className="size-5" />
-              </Button>
-            </div>
+              </div>
+            )}
           </div>
         </div>
       </header>
