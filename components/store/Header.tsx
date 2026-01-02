@@ -178,13 +178,13 @@ export function Header() {
       <button
         onClick={() => setMobileNavOpen(true)}
         className={cn(
-          "fixed left-4 z-[51] flex lg:hidden items-center justify-center",
-          "w-12 h-12 rounded-full bg-primary text-primary-foreground",
+          "fixed z-[51] flex lg:hidden items-center justify-center",
+          "w-10 h-10 rounded-full bg-primary text-primary-foreground",
           "shadow-google-lg hover:shadow-google-lg hover:scale-105",
           "transition-all duration-500 ease-out",
           isScrolled
-            ? "top-4 opacity-100 translate-y-0"
-            : "top-4 opacity-0 -translate-y-4 pointer-events-none"
+            ? "top-[15px] left-4 opacity-100 translate-x-0"
+            : "top-[15px] left-4 opacity-0 -translate-x-4 pointer-events-none"
         )}
         aria-label="Menu"
       >
@@ -200,7 +200,7 @@ export function Header() {
         <div
           className={cn(
             "transition-all duration-500 ease-out",
-            isScrolled ? "py-3 px-4" : "py-0 px-0"
+            isScrolled ? "py-3 px-4 lg:px-4 pl-[60px] lg:pl-4" : "py-0 px-0"
           )}
         >
           {/* The actual header bar that transforms to pill */}
@@ -215,14 +215,14 @@ export function Header() {
           >
             <div
               className={cn(
-                "flex items-center justify-between gap-2 transition-all duration-500 ease-out",
+                "flex items-center justify-between gap-1 transition-all duration-500 ease-out",
                 isScrolled
-                  ? "h-14 px-2 lg:px-4"
+                  ? "h-12 px-3 lg:px-4"
                   : "h-16 md:h-18 container-google"
               )}
             >
               {/* Left section: Menu (mobile) + Logo */}
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex items-center gap-3 shrink-0">
                 {/* Mobile Menu Button - visible only on mobile when not scrolled */}
                 <Button
                   variant="ghost"
@@ -243,7 +243,7 @@ export function Header() {
                 >
                   <Logo variant="default" className={cn(
                     "transition-all duration-300",
-                    isScrolled ? "h-6 w-auto" : "h-7 w-auto"
+                    isScrolled ? "h-8 w-auto" : "h-8 w-auto"
                   )} />
                 </Link>
               </div>
@@ -291,20 +291,15 @@ export function Header() {
                   onClick={() => setSearchOpen(true)}
                   className={cn(
                     "rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5",
-                    isScrolled ? "h-9 w-9" : "h-10 w-10"
+                    isScrolled ? "h-8 w-8" : "h-10 w-10"
                   )}
                 >
                   <Search className={cn(isScrolled ? "size-4" : "size-5")} />
                   <span className="sr-only">Rechercher</span>
                 </Button>
 
-                {/* Theme Toggle - hidden on smaller screens when scrolled */}
-                <div className={cn(
-                  "transition-all duration-300",
-                  isScrolled ? "hidden lg:block" : ""
-                )}>
-                  <ThemeToggle />
-                </div>
+                {/* Theme Toggle - always visible */}
+                <ThemeToggle />
 
                 {/* Cart */}
                 <Button
@@ -313,7 +308,7 @@ export function Header() {
                   onClick={openCart}
                   className={cn(
                     "relative rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5",
-                    isScrolled ? "h-9 w-9" : "h-10 w-10"
+                    isScrolled ? "h-8 w-8" : "h-10 w-10"
                   )}
                 >
                   <ShoppingCart className={cn(isScrolled ? "size-4" : "size-5")} />
@@ -388,15 +383,30 @@ export function Header() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 ) : (
-                  <Button
-                    onClick={openLogin}
-                    className={cn(
-                      "rounded-full bg-primary hover:bg-primary-hover text-white font-medium transition-google shadow-google-sm hover:shadow-google-md",
-                      isScrolled ? "px-4 py-1.5 text-sm h-8" : "px-5 py-2 h-10"
-                    )}
-                  >
-                    Connexion
-                  </Button>
+                  <>
+                    {/* Desktop: full button */}
+                    <Button
+                      onClick={openLogin}
+                      className={cn(
+                        "hidden md:flex rounded-full bg-primary hover:bg-primary-hover text-white font-medium transition-google shadow-google-sm hover:shadow-google-md",
+                        isScrolled ? "px-4 py-1.5 text-sm h-8" : "px-5 py-2 h-10"
+                      )}
+                    >
+                      Connexion
+                    </Button>
+                    {/* Mobile: icon only */}
+                    <Button
+                      onClick={openLogin}
+                      variant="ghost"
+                      size="icon"
+                      className={cn(
+                        "md:hidden rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5",
+                        isScrolled ? "h-8 w-8" : "h-10 w-10"
+                      )}
+                    >
+                      <User className={cn(isScrolled ? "size-4" : "size-5")} />
+                    </Button>
+                  </>
                 )}
               </div>
             </div>

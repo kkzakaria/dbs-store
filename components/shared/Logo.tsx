@@ -27,7 +27,7 @@ function Logo({
   const content = (
     <div
       data-slot="logo"
-      className={cn("flex items-center p-2", className)}
+      className={cn("flex items-center", className)}
       {...props}
     >
       <Image
@@ -35,7 +35,7 @@ function Logo({
         alt="DBS Store"
         width={size.width}
         height={size.height}
-        className="shrink-0 object-contain"
+        className="shrink-0 object-contain h-full w-auto"
         priority
       />
     </div>
