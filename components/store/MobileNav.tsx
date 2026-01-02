@@ -88,57 +88,54 @@ export function MobileNav({
     .toUpperCase()
     .slice(0, 2) || "U"
 
+
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent
         side="left"
         className={cn(
-          "w-[320px] p-0 border-r-0",
-          "bg-background/95 backdrop-blur-xl"
+          "w-[310px] p-0 border-r border-border/40",
+          "bg-background/98 backdrop-blur-xl"
         )}
       >
-        <SheetHeader className="p-5 pb-0">
-          <SheetTitle className="sr-only">Menu de navigation</SheetTitle>
+        <SheetHeader className="p-6 border-b border-border/10">
+          <SheetTitle className="sr-only">Menu</SheetTitle>
           <Logo variant="default" asLink={false} />
         </SheetHeader>
 
-        <div className="flex flex-col h-full overflow-y-auto hide-scrollbar">
+        <div className="flex flex-col h-full overflow-y-auto hide-scrollbar pb-10">
           {/* User Section */}
-          <div className="p-5">
+          <div className="p-6">
             {authUser && user ? (
-              <div
+              <Link
+                href="/account"
                 className={cn(
-                  "flex items-center gap-3 p-3 rounded-2xl",
-                  "bg-gradient-to-r from-primary/10 to-accent/5",
-                  "border border-primary/10"
+                  "flex items-center gap-4 p-4 rounded-3xl",
+                  "bg-secondary/30 transition-google hover:bg-secondary/50"
                 )}
               >
-                <Avatar className="h-12 w-12 ring-2 ring-primary/20">
+                <Avatar className="h-12 w-12 border-2 border-background shadow-google-sm">
                   <AvatarImage
                     src={user.avatar_url || undefined}
                     alt={user.full_name || "Avatar"}
                   />
-                  <AvatarFallback className="bg-gradient-primary text-white font-semibold">
+                  <AvatarFallback className="bg-primary text-white font-semibold">
                     {userInitials}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-semibold truncate">
+                  <p className="text-sm font-bold truncate">
                     {user.full_name || "Utilisateur"}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">
-                    {user.phone}
+                    Compte client
                   </p>
                 </div>
-              </div>
+              </Link>
             ) : (
-              <div className="flex gap-2">
+              <div className="flex flex-col gap-3">
                 <Button
-                  className={cn(
-                    "flex-1 rounded-xl font-semibold",
-                    "bg-gradient-primary hover:opacity-90",
-                    "shadow-soft"
-                  )}
+                  className="w-full rounded-2xl h-12 font-bold bg-primary hover:bg-primary-hover text-white transition-google shadow-google-sm"
                   onClick={() => {
                     onOpenChange(false)
                     openLogin()
@@ -149,74 +146,63 @@ export function MobileNav({
                 </Button>
                 <Button
                   variant="outline"
-                  className="flex-1 rounded-xl font-semibold border-primary/30 hover:bg-primary/5"
+                  className="w-full rounded-2xl h-12 font-bold border-border hover:bg-secondary transition-google"
                   onClick={() => {
                     onOpenChange(false)
                     openRegister()
                   }}
                 >
-                  <UserPlus className="mr-2 size-4" />
                   Inscription
                 </Button>
               </div>
             )}
           </div>
 
-          {/* Divider */}
-          <div className="mx-5 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+          {/* Navigation */}
+          <nav className="p-4 space-y-1">
+            <Link
+              href="/products"
+              className={cn(
+                "flex items-center gap-4 rounded-2xl px-4 py-4 text-[15px] font-medium transition-google",
+                pathname === "/products"
+                  ? "bg-primary/5 text-primary"
+                  : "text-foreground hover:bg-muted"
+              )}
+            >
+              <ShoppingBag className="size-5" />
+              <span>Tous les produits</span>
+            </Link>
 
-          {/* Main Navigation */}
-          <nav className="flex-1 p-5 space-y-1">
-            {/* Promotions Link */}
             {hasPromotions && (
               <Link
                 href="/promotions"
                 className={cn(
-                  "group flex items-center gap-3 rounded-xl px-4 py-3",
-                  "transition-all duration-300",
+                  "flex items-center gap-4 rounded-2xl px-4 py-4 text-[15px] font-medium transition-google",
                   pathname === "/promotions"
-                    ? "bg-gradient-primary text-white shadow-soft"
-                    : "text-foreground hover:bg-primary/10"
+                    ? "bg-primary/5 text-primary font-bold"
+                    : "text-foreground hover:bg-muted"
                 )}
               >
-                <div
-                  className={cn(
-                    "flex items-center justify-center size-9 rounded-lg",
-                    pathname === "/promotions"
-                      ? "bg-white/20"
-                      : "bg-amber-500/10 text-amber-500"
-                  )}
-                >
-                  <Sparkles className="size-5" />
-                </div>
-                <span className="font-medium flex-1">Offres</span>
-                {pathname !== "/promotions" && (
-                  <span className="flex h-2 w-2">
-                    <span className="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-amber-400 opacity-75" />
-                    <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
-                  </span>
-                )}
+                <Sparkles className="size-5 text-amber-500" />
+                <span>Offres spéciales</span>
               </Link>
             )}
 
-            {/* Categories Accordion */}
-            <Accordion type="single" collapsible className="w-full">
+            <Accordion type="single" collapsible className="w-full px-0">
               <AccordionItem value="categories" className="border-none">
                 <AccordionTrigger
                   className={cn(
-                    "flex items-center gap-3 rounded-xl px-4 py-3",
-                    "text-foreground hover:bg-primary/10",
-                    "hover:no-underline transition-all duration-300",
-                    "[&[data-state=open]]:bg-primary/10"
+                    "flex items-center gap-4 rounded-2xl px-4 py-4 hover:no-underline transition-google",
+                    "text-foreground hover:bg-muted"
                   )}
                 >
-                  <div className="flex items-center justify-center size-9 rounded-lg bg-primary/10 text-primary">
+                  <div className="flex items-center gap-4 w-full text-[15px] font-medium">
                     <FolderOpen className="size-5" />
+                    <span>Catégories</span>
                   </div>
-                  <span className="font-medium flex-1 text-left">Catégories</span>
                 </AccordionTrigger>
-                <AccordionContent className="pb-0 pt-1">
-                  <div className="ml-4 space-y-1 pl-8 border-l-2 border-primary/20">
+                <AccordionContent className="pb-2 pt-1 px-4">
+                  <div className="space-y-1 pl-9 border-l border-border/60">
                     {categories.map((category) => {
                       const isActive = pathname === `/categories/${category.slug}`
                       return (
@@ -224,22 +210,14 @@ export function MobileNav({
                           key={category.slug}
                           href={`/categories/${category.slug}`}
                           className={cn(
-                            "group flex items-center gap-2 rounded-lg px-3 py-2.5",
-                            "transition-all duration-300",
+                            "flex items-center justify-between rounded-xl px-4 py-3 text-sm transition-google",
                             isActive
-                              ? "bg-primary/10 text-primary font-medium"
+                              ? "bg-primary/5 text-primary font-bold"
                               : "text-muted-foreground hover:bg-muted hover:text-foreground"
                           )}
                         >
-                          <span className="flex-1">{category.name}</span>
-                          <ChevronRight
-                            className={cn(
-                              "size-4 transition-all duration-300",
-                              isActive
-                                ? "opacity-100"
-                                : "opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0"
-                            )}
-                          />
+                          <span>{category.name}</span>
+                          <ChevronRight className="size-4 opacity-40" />
                         </Link>
                       )
                     })}
@@ -249,84 +227,46 @@ export function MobileNav({
             </Accordion>
           </nav>
 
-          {/* User Navigation (if logged in) */}
+          {/* User Specific Nav */}
           {authUser && (
-            <>
-              {/* Divider */}
-              <div className="mx-5 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-
-              <nav className="p-5 space-y-1">
-                {userNavigation.map((item) => {
-                  const Icon = item.icon
-                  const isActive = pathname === item.href
-                  return (
-                    <Link
-                      key={item.href}
-                      href={item.href}
-                      className={cn(
-                        "group flex items-center gap-3 rounded-xl px-4 py-3",
-                        "transition-all duration-300",
-                        isActive
-                          ? "bg-gradient-primary text-white shadow-soft"
-                          : "text-foreground hover:bg-primary/10"
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          "flex items-center justify-center size-9 rounded-lg",
-                          isActive ? "bg-white/20" : "bg-primary/10 text-primary",
-                          item.href === "/wishlist" && !isActive && "bg-rose-500/10 text-rose-500"
-                        )}
-                      >
-                        <Icon className="size-5" />
-                      </div>
-                      <span className="font-medium flex-1">{item.name}</span>
-                      <ChevronRight
-                        className={cn(
-                          "size-4 transition-all duration-300",
-                          isActive
-                            ? "opacity-100"
-                            : "opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0"
-                        )}
-                      />
-                    </Link>
-                  )
-                })}
-
-                <button
-                  onClick={handleSignOut}
-                  className={cn(
-                    "group flex w-full items-center gap-3 rounded-xl px-4 py-3",
-                    "text-destructive hover:bg-destructive/10",
-                    "transition-all duration-300"
-                  )}
-                >
-                  <div className="flex items-center justify-center size-9 rounded-lg bg-destructive/10">
-                    <LogOut className="size-5" />
-                  </div>
-                  <span className="font-medium flex-1 text-left">Déconnexion</span>
-                </button>
-              </nav>
-            </>
+            <div className="p-4 pt-0 space-y-1">
+              <div className="h-px bg-border/40 mx-4 my-4" />
+              {userNavigation.map((item) => {
+                const Icon = item.icon
+                const isActive = pathname === item.href
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center gap-4 rounded-2xl px-4 py-4 text-[15px] font-medium transition-google",
+                      isActive
+                        ? "bg-primary/5 text-primary font-bold"
+                        : "text-foreground hover:bg-muted"
+                    )}
+                  >
+                    <Icon className="size-5" />
+                    <span>{item.name}</span>
+                  </Link>
+                )
+              })}
+              
+              <button
+                onClick={handleSignOut}
+                className="flex w-full items-center gap-4 rounded-2xl px-4 py-4 text-[15px] font-medium text-destructive hover:bg-destructive/5 transition-google"
+              >
+                <LogOut className="size-5" />
+                <span>Déconnexion</span>
+              </button>
+            </div>
           )}
 
-          {/* Divider */}
-          <div className="mx-5 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-
-          {/* Theme Toggle */}
-          <div className="p-5">
-            <div
-              className={cn(
-                "flex items-center justify-between",
-                "p-3 rounded-xl bg-muted/50"
-              )}
-            >
+          {/* Footer of Mobile Nav */}
+          <div className="mt-auto p-6 space-y-6">
+            <div className="flex items-center justify-between p-4 rounded-3xl bg-secondary/20">
               <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center size-9 rounded-lg bg-primary/10 text-primary">
-                  <Sun className="size-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
-                  <Moon className="absolute size-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
-                </div>
-                <span className="text-sm font-medium">Thème</span>
+                {pathname.includes('dark') ? <Moon className="size-5" /> : <Sun className="size-5" />}
+                <span className="text-sm font-medium">Apparence</span>
               </div>
               <ThemeToggle />
             </div>

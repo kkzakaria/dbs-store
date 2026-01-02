@@ -24,53 +24,42 @@ const defaultBrands: Brand[] = [
 ]
 
 export function BrandsSection({ brands = defaultBrands }: BrandsSectionProps) {
+
   return (
-    <section className="py-12 md:py-16 border-y bg-muted/20">
-      <div className="container">
+    <section className="py-20 md:py-32 bg-white dark:bg-background border-y border-border/10">
+      <div className="container-google">
         <AnimateOnScroll animation="fade-up">
-          <div className="text-center mb-10">
-            <p className="text-sm text-muted-foreground uppercase tracking-wider font-medium">
-              Nos partenaires de confiance
-            </p>
-            <h2 className="text-2xl md:text-3xl font-bold tracking-tight mt-2">
-              Marques officielles
+          <div className="text-center mb-16 px-4">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">
+              Les plus grandes marques nous font confiance.
             </h2>
           </div>
         </AnimateOnScroll>
 
         <AnimateOnScroll animation="fade-up" delay={100}>
-          <div className="relative overflow-hidden">
-            {/* Gradient overlays for seamless scroll effect */}
-            <div className="absolute left-0 top-0 bottom-0 w-20 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
-            <div className="absolute right-0 top-0 bottom-0 w-20 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
-
+          <div className="relative overflow-hidden group">
             {/* Scrolling container */}
-            <div className="flex animate-marquee gap-12 md:gap-16 py-4">
+            <div className="flex animate-marquee gap-20 md:gap-32 py-8 items-center">
               {/* First set */}
               {brands.map((brand, index) => (
                 <div
                   key={`${brand.name}-1-${index}`}
-                  className="flex-shrink-0 flex items-center justify-center w-24 h-12 md:w-32 md:h-16 grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300"
+                  className="flex-shrink-0 flex items-center justify-center grayscale opacity-40 hover:opacity-100 hover:grayscale-0 transition-google"
                 >
-                  <div className="relative w-full h-full flex items-center justify-center">
-                    {/* Fallback text if logo doesn't load */}
-                    <span className="text-lg md:text-xl font-bold text-muted-foreground/50 select-none">
-                      {brand.name}
-                    </span>
-                  </div>
+                  <span className="text-xl md:text-2xl font-display font-bold text-foreground/40 select-none tracking-tight">
+                    {brand.name}
+                  </span>
                 </div>
               ))}
               {/* Duplicate for seamless loop */}
               {brands.map((brand, index) => (
                 <div
                   key={`${brand.name}-2-${index}`}
-                  className="flex-shrink-0 flex items-center justify-center w-24 h-12 md:w-32 md:h-16 grayscale hover:grayscale-0 opacity-60 hover:opacity-100 transition-all duration-300"
+                  className="flex-shrink-0 flex items-center justify-center grayscale opacity-40 hover:opacity-100 hover:grayscale-0 transition-google"
                 >
-                  <div className="relative w-full h-full flex items-center justify-center">
-                    <span className="text-lg md:text-xl font-bold text-muted-foreground/50 select-none">
-                      {brand.name}
-                    </span>
-                  </div>
+                  <span className="text-xl md:text-2xl font-display font-bold text-foreground/40 select-none tracking-tight">
+                    {brand.name}
+                  </span>
                 </div>
               ))}
             </div>

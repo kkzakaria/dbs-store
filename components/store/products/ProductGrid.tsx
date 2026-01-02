@@ -80,9 +80,10 @@ export function ProductGrid({
   }
 
   return (
-    <div className={cn("space-y-8", className)}>
+
+    <div className={cn("space-y-12 md:space-y-16", className)}>
       {/* Products Grid */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:gap-6">
+      <div className="grid grid-cols-2 gap-6 sm:grid-cols-2 md:grid-cols-3 xl:gap-8">
         {products.map((product, index) => (
           <ProductCard
             key={product.id}
@@ -94,21 +95,22 @@ export function ProductGrid({
 
       {/* Load More Button */}
       {hasMore && (
-        <div className="flex justify-center">
+        <div className="flex justify-center pt-4">
           <Button
             variant="outline"
             size="lg"
             onClick={loadMore}
             disabled={isPending}
+            className="h-14 px-10 rounded-full border-border hover:bg-secondary text-base font-semibold transition-google shadow-google-sm hover:shadow-google-md"
           >
             {isPending ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Loader2 className="mr-3 h-5 w-5 animate-spin" />
                 Chargement...
               </>
             ) : (
               <>
-                Charger plus ({products.length} / {total})
+                Afficher plus de produits
               </>
             )}
           </Button>

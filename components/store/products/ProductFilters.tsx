@@ -86,16 +86,15 @@ export function ProductFilters({
     ])
   }, [setCategory, setBrand, setMinPrice, setMaxPrice, setSort])
 
+
   // Filter content (shared between desktop and mobile)
   const FilterContent = () => (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Category Filter */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary">
-            <Tag className="size-4" />
-          </div>
-          <Label htmlFor="category" className="font-semibold">Catégorie</Label>
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <Tag className="size-4 text-primary" />
+          <Label htmlFor="category" className="font-display font-semibold text-sm uppercase tracking-wider">Catégorie</Label>
         </div>
         <Select
           value={category || "all"}
@@ -103,11 +102,11 @@ export function ProductFilters({
         >
           <SelectTrigger
             id="category"
-            className="rounded-xl border-border/50 focus:border-primary"
+            className="h-12 rounded-2xl border-border/40 bg-white dark:bg-muted/10 focus:ring-primary/20 transition-google"
           >
             <SelectValue placeholder="Toutes les catégories" />
           </SelectTrigger>
-          <SelectContent className="rounded-xl">
+          <SelectContent className="rounded-2xl shadow-google-lg border-border/40">
             <SelectItem value="all">Toutes les catégories</SelectItem>
             {categories.map((cat) => (
               <SelectItem key={cat.id} value={cat.slug}>
@@ -120,12 +119,10 @@ export function ProductFilters({
 
       {/* Brand Filter */}
       {brands.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary">
-              <Building2 className="size-4" />
-            </div>
-            <Label htmlFor="brand" className="font-semibold">Marque</Label>
+        <div className="space-y-4">
+          <div className="flex items-center gap-3">
+            <Building2 className="size-4 text-primary" />
+            <Label htmlFor="brand" className="font-display font-semibold text-sm uppercase tracking-wider">Marque</Label>
           </div>
           <Select
             value={brand || "all"}
@@ -133,11 +130,11 @@ export function ProductFilters({
           >
             <SelectTrigger
               id="brand"
-              className="rounded-xl border-border/50 focus:border-primary"
+              className="h-12 rounded-2xl border-border/40 bg-white dark:bg-muted/10 focus:ring-primary/20 transition-google"
             >
               <SelectValue placeholder="Toutes les marques" />
             </SelectTrigger>
-            <SelectContent className="rounded-xl">
+            <SelectContent className="rounded-2xl shadow-google-lg border-border/40">
               <SelectItem value="all">Toutes les marques</SelectItem>
               {brands.map((b) => (
                 <SelectItem key={b} value={b}>
@@ -149,18 +146,13 @@ export function ProductFilters({
         </div>
       )}
 
-      {/* Divider */}
-      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-
       {/* Price Range */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary">
-            <Coins className="size-4" />
-          </div>
-          <Label className="font-semibold">Prix (FCFA)</Label>
-        </div>
+      <div className="space-y-4">
         <div className="flex items-center gap-3">
+          <Coins className="size-4 text-primary" />
+          <Label className="font-display font-semibold text-sm uppercase tracking-wider">Prix (FCFA)</Label>
+        </div>
+        <div className="flex flex-col gap-3">
           <Input
             type="number"
             placeholder="Min"
@@ -169,9 +161,8 @@ export function ProductFilters({
               setMinPrice(e.target.value ? parseInt(e.target.value) : null)
             }
             min={0}
-            className="rounded-xl border-border/50 focus:border-primary"
+            className="h-11 rounded-2xl border-border/40 bg-white dark:bg-muted/10 transition-google"
           />
-          <span className="text-muted-foreground font-medium">—</span>
           <Input
             type="number"
             placeholder="Max"
@@ -180,59 +171,21 @@ export function ProductFilters({
               setMaxPrice(e.target.value ? parseInt(e.target.value) : null)
             }
             min={0}
-            className="rounded-xl border-border/50 focus:border-primary"
+            className="h-11 rounded-2xl border-border/40 bg-white dark:bg-muted/10 transition-google"
           />
         </div>
       </div>
 
-      {/* Divider */}
-      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-
-      {/* Sort */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary">
-            <ArrowUpDown className="size-4" />
-          </div>
-          <Label htmlFor="sort" className="font-semibold">Trier par</Label>
-        </div>
-        <Select
-          value={sort}
-          onValueChange={(value) => setSort(value as SortOption)}
-        >
-          <SelectTrigger
-            id="sort"
-            className="rounded-xl border-border/50 focus:border-primary"
-          >
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            {Object.entries(sortLabels).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
       {/* Clear Filters */}
       {hasActiveFilters && (
-        <>
-          <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-          <Button
-            variant="outline"
-            className={cn(
-              "w-full rounded-xl",
-              "border-destructive/30 text-destructive",
-              "hover:bg-destructive/10 hover:border-destructive"
-            )}
-            onClick={clearFilters}
-          >
-            <X className="mr-2 h-4 w-4" />
-            Effacer les filtres
-          </Button>
-        </>
+        <Button
+          variant="outline"
+          className="w-full h-11 rounded-2xl border-destructive/20 text-destructive hover:bg-destructive/5 transition-google"
+          onClick={clearFilters}
+        >
+          <X className="mr-2 h-4 w-4" />
+          Effacer les filtres
+        </Button>
       )}
     </div>
   )
@@ -244,47 +197,34 @@ export function ProductFilters({
         <SheetTrigger asChild>
           <Button
             variant="outline"
-            size="sm"
-            className={cn(
-              "lg:hidden rounded-xl",
-              "border-border/50 hover:border-primary/50",
-              "transition-all duration-300"
-            )}
+            className="lg:hidden h-11 px-5 rounded-full border-border/60 hover:bg-secondary transition-google shadow-google-sm"
           >
             <SlidersHorizontal className="mr-2 h-4 w-4" />
             Filtres
             {activeFilterCount > 0 && (
-              <Badge
-                className={cn(
-                  "ml-2 h-5 px-1.5",
-                  "bg-gradient-primary text-white border-0"
-                )}
-              >
+              <span className="ml-2 size-5 flex items-center justify-center rounded-full bg-primary text-[10px] text-white font-bold">
                 {activeFilterCount}
-              </Badge>
+              </span>
             )}
           </Button>
         </SheetTrigger>
         <SheetContent
           side="left"
-          className={cn(
-            "w-80 p-0",
-            "bg-background/95 backdrop-blur-xl"
-          )}
+          className="w-[320px] p-0 border-r border-border/40 bg-background/98 backdrop-blur-xl"
         >
-          <SheetHeader className="p-6 pb-4">
-            <SheetTitle className="text-lg font-bold font-display">Filtres</SheetTitle>
+          <SheetHeader className="p-6 border-b border-border/10">
+            <SheetTitle className="text-xl font-display font-bold">Filtres</SheetTitle>
           </SheetHeader>
-          <div className="px-6 pb-6">
+          <div className="p-8">
             <FilterContent />
           </div>
         </SheetContent>
       </Sheet>
 
       {/* Desktop Sort Select (always visible) */}
-      <div className="flex items-center gap-2">
-        <Label htmlFor="sort-desktop" className="hidden sm:block text-sm text-muted-foreground whitespace-nowrap">
-          Trier par:
+      <div className="flex items-center gap-4 bg-[#f8f9fa] dark:bg-muted/10 pl-6 p-1 rounded-full border border-border/40 shadow-google-sm">
+        <Label htmlFor="sort-desktop" className="hidden sm:block text-xs font-semibold uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+          Trier par
         </Label>
         <Select
           value={sort}
@@ -292,15 +232,11 @@ export function ProductFilters({
         >
           <SelectTrigger
             id="sort-desktop"
-            className={cn(
-              "w-[180px] rounded-xl",
-              "border-border/50 hover:border-primary/50",
-              "transition-all duration-300"
-            )}
+            className="w-[180px] h-10 border-none bg-transparent focus:ring-0 shadow-none"
           >
             <SelectValue />
           </SelectTrigger>
-          <SelectContent className="rounded-xl">
+          <SelectContent className="rounded-2xl shadow-google-lg border-border/40">
             {Object.entries(sortLabels).map(([value, label]) => (
               <SelectItem key={value} value={value}>
                 {label}
@@ -363,126 +299,103 @@ export function ProductFiltersSidebar({
   return (
     <aside
       className={cn(
-        "p-5 rounded-2xl",
-        "bg-card/80 backdrop-blur-sm",
-        "border border-border/50",
-        "space-y-5",
+        "p-8 rounded-[32px] bg-[#f8f9fa] dark:bg-card border border-border/40 shadow-google-sm space-y-8",
         className
       )}
     >
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-bold font-display flex items-center gap-2">
-          <SlidersHorizontal className="size-5 text-primary" />
+        <h2 className="text-xl font-display font-bold flex items-center gap-3">
           Filtres
-          {activeFilterCount > 0 && (
-            <Badge className="bg-gradient-primary text-white border-0">
-              {activeFilterCount}
-            </Badge>
-          )}
         </h2>
         {hasActiveFilters && (
           <Button
             variant="ghost"
             size="sm"
             onClick={clearFilters}
-            className="text-muted-foreground hover:text-destructive"
+            className="h-8 px-2 text-xs font-semibold text-destructive hover:bg-destructive/5 rounded-full"
           >
-            <X className="mr-1 h-4 w-4" />
             Effacer
           </Button>
         )}
       </div>
 
-      {/* Divider */}
-      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
-
-      {/* Category Filter */}
-      <div className="space-y-3">
-        <Label htmlFor="sidebar-category" className="text-sm font-semibold flex items-center gap-2">
-          <Tag className="size-4 text-primary" />
-          Catégorie
-        </Label>
-        <Select
-          value={category || "all"}
-          onValueChange={(value) => setCategory(value === "all" ? null : value)}
-        >
-          <SelectTrigger
-            id="sidebar-category"
-            className="rounded-xl border-border/50 focus:border-primary"
-          >
-            <SelectValue placeholder="Toutes les catégories" />
-          </SelectTrigger>
-          <SelectContent className="rounded-xl">
-            <SelectItem value="all">Toutes les catégories</SelectItem>
-            {categories.map((cat) => (
-              <SelectItem key={cat.id} value={cat.slug}>
-                {cat.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Brand Filter */}
-      {brands.length > 0 && (
-        <div className="space-y-3">
-          <Label htmlFor="sidebar-brand" className="text-sm font-semibold flex items-center gap-2">
-            <Building2 className="size-4 text-primary" />
-            Marque
-          </Label>
-          <Select
-            value={brand || "all"}
-            onValueChange={(value) => setBrand(value === "all" ? null : value)}
-          >
-            <SelectTrigger
-              id="sidebar-brand"
-              className="rounded-xl border-border/50 focus:border-primary"
+      {/* Content */}
+      <div className="space-y-8">
+        {/* Category Filter */}
+        <div className="space-y-4">
+          <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Catégorie</Label>
+          <div className="flex flex-col gap-2">
+            <button
+              onClick={() => setCategory(null)}
+              className={cn(
+                "flex items-center justify-between px-4 py-2.5 rounded-xl text-sm transition-google",
+                !category ? "bg-white dark:bg-muted text-primary font-bold shadow-google-sm" : "text-muted-foreground hover:bg-white dark:hover:bg-muted"
+              )}
             >
-              <SelectValue placeholder="Toutes les marques" />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="all">Toutes les marques</SelectItem>
-              {brands.map((b) => (
-                <SelectItem key={b} value={b}>
-                  {b}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+              Toutes les catégories
+            </button>
+            {categories.slice(0, 8).map((cat) => (
+              <button
+                key={cat.id}
+                onClick={() => setCategory(cat.slug)}
+                className={cn(
+                  "flex items-center justify-between px-4 py-2.5 rounded-xl text-sm transition-google text-left",
+                  category === cat.slug ? "bg-white dark:bg-muted text-primary font-bold shadow-google-sm" : "text-muted-foreground hover:bg-white dark:hover:bg-muted"
+                )}
+              >
+                {cat.name}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
 
-      {/* Divider */}
-      <div className="h-px bg-gradient-to-r from-transparent via-border to-transparent" />
+        {/* Brand Filter */}
+        {brands.length > 0 && (
+          <div className="space-y-4">
+            <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Marque</Label>
+            <Select
+              value={brand || "all"}
+              onValueChange={(value) => setBrand(value === "all" ? null : value)}
+            >
+              <SelectTrigger className="h-11 rounded-2xl border-border/40 bg-white dark:bg-muted/10 transition-google">
+                <SelectValue placeholder="Toutes les marques" />
+              </SelectTrigger>
+              <SelectContent className="rounded-2xl shadow-google-lg">
+                <SelectItem value="all">Toutes les marques</SelectItem>
+                {brands.map((b) => (
+                  <SelectItem key={b} value={b}>
+                    {b}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
-      {/* Price Range */}
-      <div className="space-y-3">
-        <Label className="text-sm font-semibold flex items-center gap-2">
-          <Coins className="size-4 text-primary" />
-          Prix (FCFA)
-        </Label>
-        <div className="space-y-2">
-          <Input
-            type="number"
-            placeholder="Prix minimum"
-            value={minPrice || ""}
-            onChange={(e) =>
-              setMinPrice(e.target.value ? parseInt(e.target.value) : null)
-            }
-            min={0}
-            className="rounded-xl border-border/50 focus:border-primary"
-          />
-          <Input
-            type="number"
-            placeholder="Prix maximum"
-            value={maxPrice || ""}
-            onChange={(e) =>
-              setMaxPrice(e.target.value ? parseInt(e.target.value) : null)
-            }
-            min={0}
-            className="rounded-xl border-border/50 focus:border-primary"
-          />
+        {/* Price Range */}
+        <div className="space-y-4">
+          <Label className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">Budget (FCFA)</Label>
+          <div className="flex flex-col gap-3">
+             <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">Min</span>
+              <Input
+                type="number"
+                value={minPrice || ""}
+                onChange={(e) => setMinPrice(e.target.value ? parseInt(e.target.value) : null)}
+                className="pl-12 h-11 rounded-2xl border-border/40 bg-white dark:bg-muted/10"
+              />
+            </div>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-bold text-muted-foreground">Max</span>
+              <Input
+                type="number"
+                value={maxPrice || ""}
+                onChange={(e) => setMaxPrice(e.target.value ? parseInt(e.target.value) : null)}
+                className="pl-12 h-11 rounded-2xl border-border/40 bg-white dark:bg-muted/10"
+              />
+            </div>
+          </div>
         </div>
       </div>
     </aside>

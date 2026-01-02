@@ -32,76 +32,71 @@ export function PromotionsSection({
     return new Intl.NumberFormat("fr-FR").format(price) + " FCFA"
   }
 
+
   return (
-    <section className="py-16 md:py-24 relative overflow-hidden">
-      {/* Animated background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 via-orange-500/5 to-yellow-500/5 dark:from-red-500/10 dark:via-orange-500/10 dark:to-yellow-500/10" />
-      <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-accent/20 to-transparent rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-      
-      <div className="container relative">
+    <section className="py-24 md:py-32 bg-[#f8f9fa] dark:bg-muted/10 relative overflow-hidden">
+      <div className="container-google relative">
         <AnimateOnScroll animation="fade-up">
-          <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-12">
-            <div>
-              <div className="flex items-center gap-2 mb-3">
-                <div className="p-2 rounded-full bg-gradient-to-r from-red-500 to-orange-500 animate-pulse">
-                  <Flame className="size-5 text-white" />
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-12 mb-16 px-4">
+            <div className="max-w-2xl">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2.5 rounded-2xl bg-primary text-white shadow-google-sm">
+                  <Flame className="size-5" />
                 </div>
-                <Badge variant="destructive" className="text-sm font-semibold">
-                  Offre limitée
-                </Badge>
+                <span className="text-sm font-bold uppercase tracking-widest text-primary">
+                  Offres à durée limitée
+                </span>
               </div>
-              <h2 className="text-3xl md:text-4xl font-bold tracking-tight bg-gradient-to-r from-red-500 via-orange-500 to-yellow-500 bg-clip-text text-transparent">
-                Promotions Flash
+              <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-6 leading-tight">
+                Économisez sur la technologie que vous aimez.
               </h2>
-              <p className="mt-2 text-muted-foreground text-lg">
-                Profitez de réductions exceptionnelles sur une sélection de produits
+              <p className="text-xl text-muted-foreground font-light leading-relaxed">
+                Des réductions exceptionnelles sur une sélection de nos produits les plus populaires.
               </p>
             </div>
 
-            <div className="flex flex-col items-start md:items-end gap-3">
-              <span className="text-sm text-muted-foreground">Se termine dans :</span>
+            <div className="flex flex-col items-start lg:items-end gap-4 p-8 rounded-[32px] bg-white dark:bg-card border border-border/40 shadow-google-sm">
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">L'offre se termine dans :</span>
               <CountdownTimer targetDate={promoEndDate} />
             </div>
           </div>
         </AnimateOnScroll>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 px-4">
           {products.slice(0, 4).map((product, index) => (
             <AnimateOnScroll key={product.id} animation="fade-up" delay={index * 100}>
               <Link
                 href={`/products/${product.slug}`}
-                className="group relative flex flex-col rounded-2xl border bg-card overflow-hidden hover:shadow-xl transition-all duration-300 hover:-translate-y-1"
+                className="group relative flex flex-col rounded-[32px] bg-white dark:bg-card overflow-hidden transition-google hover-google-rise shadow-google-sm"
               >
                 {/* Discount badge */}
-                <div className="absolute top-3 left-3 z-10">
-                  <Badge className="bg-gradient-to-r from-red-500 to-orange-500 text-white border-0 shadow-lg">
-                    <Percent className="size-3 mr-1" />
+                <div className="absolute top-5 left-5 z-10">
+                  <div className="px-3 py-1 rounded-full bg-primary text-white text-xs font-bold shadow-google-sm">
                     -{product.discountPercent}%
-                  </Badge>
+                  </div>
                 </div>
 
                 {/* Image container */}
-                <div className="relative aspect-square bg-muted/30 overflow-hidden">
+                <div className="relative aspect-square bg-[#f8f9fa] dark:bg-muted/10 m-4 rounded-[24px] overflow-hidden">
                   <Image
                     src={product.image}
                     alt={product.name}
                     fill
-                    className="object-cover transition-transform duration-500 group-hover:scale-110"
+                    className="object-contain p-8 transition-transform duration-500 group-hover:scale-105"
                     sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
 
                 {/* Content */}
-                <div className="p-4 flex flex-col gap-2">
-                  <h3 className="font-medium text-sm line-clamp-2 group-hover:text-primary transition-colors">
+                <div className="p-6 pt-2 flex flex-col gap-3">
+                  <h3 className="font-display font-semibold text-lg line-clamp-1 group-hover:text-primary transition-google">
                     {product.name}
                   </h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg font-bold text-primary">
+                  <div className="flex items-center gap-3">
+                    <span className="text-xl font-bold text-primary">
                       {formatPrice(product.salePrice)}
                     </span>
-                    <span className="text-sm text-muted-foreground line-through">
+                    <span className="text-sm text-muted-foreground line-through decoration-muted-foreground/40 font-medium">
                       {formatPrice(product.originalPrice)}
                     </span>
                   </div>
@@ -112,11 +107,11 @@ export function PromotionsSection({
         </div>
 
         <AnimateOnScroll animation="fade-up" delay={400}>
-          <div className="flex justify-center mt-10">
-            <Button asChild size="lg" className="rounded-full group">
-              <Link href="/products?promo=true">
+          <div className="flex justify-center mt-20">
+            <Button asChild variant="outline" size="lg" className="h-14 px-10 rounded-full border-border hover:bg-white dark:hover:bg-muted text-base font-semibold transition-google shadow-google-sm hover:shadow-google-md">
+              <Link href="/products?promo=true" className="flex items-center gap-3">
                 Voir toutes les promotions
-                <ArrowRight className="ml-2 size-4 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
           </div>

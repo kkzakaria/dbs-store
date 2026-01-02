@@ -10,6 +10,7 @@ import { StatsSection } from "@/components/store/StatsSection"
 import { CTASection } from "@/components/store/CTASection"
 import { AnimateOnScroll } from "@/components/animations"
 import { createClient } from "@/lib/supabase/server"
+import { cn } from "@/lib/utils"
 
 async function getFeaturedProducts() {
   const supabase = await createClient()
@@ -182,10 +183,20 @@ export default async function HomePage() {
         }}
       />
 
+
       {/* Categories Section */}
-      <section className="py-4 md:py-6">
-        <div className="container">
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-6">
+      <section className="py-20 md:py-32 bg-white dark:bg-background">
+        <div className="container-google">
+          <div className="text-center mb-16 px-4">
+            <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4">
+              Explorez par catégorie
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Retrouvez les meilleures technologies adaptées à votre style de vie.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8">
             {categories.map((category, index) => {
               const Icon = category.icon
               return (
@@ -196,24 +207,19 @@ export default async function HomePage() {
                 >
                   <Link
                     href={category.href}
-                    className="group relative flex flex-col items-center gap-4 p-6 md:p-8 rounded-2xl border bg-card hover:shadow-xl transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+                    className="group flex flex-col items-center gap-6 p-8 rounded-3xl bg-[#f8f9fa] dark:bg-muted/10 transition-google hover-google-rise shadow-google-sm"
                   >
-                    {/* Gradient background on hover */}
-                    <div className={`absolute inset-0 bg-gradient-to-br ${category.gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`} />
-                    
                     <div
-                      className={`relative p-4 md:p-5 rounded-2xl ${category.color} group-hover:scale-110 transition-transform duration-300`}
+                      className={cn(
+                        "p-5 rounded-2xl bg-white dark:bg-card text-foreground transition-all duration-300 group-hover:scale-110 shadow-google-sm",
+                        category.color.split(' ')[1] // Keep the text color but remove the bg-XX-500/10
+                      )}
                     >
-                      <Icon className="size-7 md:size-8" />
+                      <Icon className="size-8 md:size-9" />
                     </div>
-                    <span className="font-semibold text-base md:text-lg group-hover:text-primary transition-colors">
+                    <span className="font-display font-semibold text-base md:text-lg">
                       {category.name}
                     </span>
-                    
-                    {/* Arrow indicator */}
-                    <div className="absolute bottom-4 right-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <ArrowRight className="size-4 text-primary" />
-                    </div>
                   </Link>
                 </AnimateOnScroll>
               )

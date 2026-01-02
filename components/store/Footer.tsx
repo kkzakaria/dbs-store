@@ -43,218 +43,117 @@ export function Footer() {
   const currentYear = new Date().getFullYear()
 
   return (
-    <footer className="relative overflow-hidden">
-      {/* Top gradient line */}
-      <div className="h-1 bg-gradient-primary" />
-
-      {/* Main footer content */}
-      <div className="bg-gradient-to-b from-muted/50 to-muted/80">
-        {/* Newsletter Section */}
-        <div className="border-b border-border/50">
-          <div className="container py-10 md:py-12">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-              <div className="text-center md:text-left">
-                <h3 className="text-xl font-bold font-display mb-2">
-                  Restez informé
-                </h3>
-                <p className="text-muted-foreground text-sm">
-                  Inscrivez-vous pour recevoir nos offres exclusives et nouveautés
-                </p>
-              </div>
-              <form className="flex w-full max-w-md gap-2">
-                <div className="relative flex-1">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                  <Input
-                    type="email"
-                    placeholder="Votre email"
-                    className={cn(
-                      "pl-10 h-11 rounded-full",
-                      "bg-background/80 backdrop-blur-sm",
-                      "border-border/50 focus:border-primary",
-                      "transition-all duration-300"
-                    )}
-                  />
-                </div>
-                <Button
-                  type="submit"
-                  size="lg"
-                  className={cn(
-                    "h-11 px-6 rounded-full",
-                    "bg-gradient-primary hover:opacity-90",
-                    "shadow-soft hover:shadow-glow-sm",
-                    "transition-all duration-300"
-                  )}
+    <footer className="bg-[#f8f9fa] dark:bg-card border-t border-border/40 transition-colors duration-300">
+      <div className="container-google py-16 md:py-24">
+        {/* Main Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-12 lg:gap-8">
+          
+          {/* Brand/Logo Column */}
+          <div className="col-span-2 lg:col-span-2 space-y-8">
+            <Logo variant="default" asLink={false} className="h-8 w-auto" />
+            <p className="text-[15px] text-muted-foreground leading-relaxed max-w-sm">
+              Découvrez le futur de la technologie. DBS Store vous propose une sélection rigoureuse d'appareils électroniques premium, alliant design innovant et performance exceptionnelle.
+            </p>
+            <div className="flex items-center gap-4">
+              {socialLinks.map((social) => (
+                <a
+                  key={social.name}
+                  href={social.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-2 rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5 transition-google"
+                  aria-label={social.name}
                 >
-                  <Send className="size-4 mr-2" />
-                  <span className="hidden sm:inline">S'inscrire</span>
-                </Button>
-              </form>
+                  <social.icon className="size-5" />
+                </a>
+              ))}
             </div>
           </div>
-        </div>
 
-        {/* Links Section */}
-        <div className="container py-12 md:py-16">
-          <div className="grid grid-cols-2 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            {/* Logo & Description */}
-            <div className="col-span-2 sm:col-span-2 lg:col-span-1 space-y-5">
-              <Logo variant="default" asLink={false} />
-              <p className="text-sm text-muted-foreground leading-relaxed max-w-xs">
-                Votre boutique en ligne de produits électroniques premium en Côte
-                d'Ivoire. Qualité garantie, livraison rapide.
-              </p>
-              <div className="flex items-center gap-2">
-                {socialLinks.map((social) => (
-                  <a
-                    key={social.name}
-                    href={social.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={cn(
-                      "flex items-center justify-center",
-                      "size-10 rounded-full",
-                      "bg-background/80 text-muted-foreground",
-                      "border border-border/50",
-                      "hover:bg-primary hover:text-white hover:border-primary",
-                      "transition-all duration-300",
-                      "hover:scale-110"
-                    )}
-                    aria-label={social.name}
+          {/* Quick Links */}
+          <div className="space-y-6">
+            <h3 className="font-display font-semibold text-sm uppercase tracking-wider text-foreground">
+              Magasin
+            </h3>
+            <ul className="space-y-4">
+              {quickLinks.map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-[15px] text-muted-foreground hover:text-primary transition-google"
                   >
-                    <social.icon className="size-4" />
-                  </a>
-                ))}
-              </div>
-            </div>
-
-            {/* Quick Links */}
-            <div>
-              <h3 className="font-bold text-sm uppercase tracking-wider text-foreground mb-4">
-                Liens rapides
-              </h3>
-              <ul className="space-y-3">
-                {quickLinks.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className={cn(
-                        "group flex items-center gap-2 text-sm text-muted-foreground",
-                        "hover:text-primary transition-colors duration-300"
-                      )}
-                    >
-                      <ArrowRight className="size-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                      <span>{link.name}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Customer Service */}
-            <div>
-              <h3 className="font-bold text-sm uppercase tracking-wider text-foreground mb-4">
-                Service client
-              </h3>
-              <ul className="space-y-3">
-                {customerService.map((link) => (
-                  <li key={link.href}>
-                    <Link
-                      href={link.href}
-                      className={cn(
-                        "group flex items-center gap-2 text-sm text-muted-foreground",
-                        "hover:text-primary transition-colors duration-300"
-                      )}
-                    >
-                      <ArrowRight className="size-3 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
-                      <span>{link.name}</span>
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Contact Info */}
-            <div>
-              <h3 className="font-bold text-sm uppercase tracking-wider text-foreground mb-4">
-                Contact
-              </h3>
-              <ul className="space-y-4">
-                <li>
-                  <a
-                    href="tel:+2250700000000"
-                    className={cn(
-                      "flex items-start gap-3 text-sm text-muted-foreground",
-                      "hover:text-primary transition-colors duration-300 group"
-                    )}
-                  >
-                    <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary shrink-0 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-                      <Phone className="size-4" />
-                    </div>
-                    <span className="pt-1">+225 07 00 00 00 00</span>
-                  </a>
+                    {link.name}
+                  </Link>
                 </li>
-                <li>
-                  <a
-                    href="mailto:contact@dbsstore.ci"
-                    className={cn(
-                      "flex items-start gap-3 text-sm text-muted-foreground",
-                      "hover:text-primary transition-colors duration-300 group"
-                    )}
-                  >
-                    <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary shrink-0 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
-                      <Mail className="size-4" />
-                    </div>
-                    <span className="pt-1">contact@dbsstore.ci</span>
-                  </a>
-                </li>
-                <li className="flex items-start gap-3 text-sm text-muted-foreground">
-                  <div className="flex items-center justify-center size-8 rounded-lg bg-primary/10 text-primary shrink-0">
-                    <MapPin className="size-4" />
-                  </div>
-                  <span className="pt-1">Abidjan, Côte d'Ivoire</span>
-                </li>
-              </ul>
-            </div>
+              ))}
+            </ul>
           </div>
-        </div>
-      </div>
 
-      {/* Bottom Bar */}
-      <div className="bg-muted/80 border-t border-border/50">
-        <div className="container py-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            {/* Payment Methods */}
-            <div className="flex items-center gap-3 flex-wrap justify-center">
-              <span className="text-xs text-muted-foreground font-medium">
-                Paiements sécurisés:
-              </span>
-              <div className="flex items-center gap-2">
-                {paymentMethods.map((method) => (
-                  <span
-                    key={method}
-                    className={cn(
-                      "text-xs font-semibold px-3 py-1.5 rounded-full",
-                      "bg-background text-muted-foreground",
-                      "border border-border/50"
-                    )}
+          {/* Customer Service */}
+          <div className="space-y-6">
+            <h3 className="font-display font-semibold text-sm uppercase tracking-wider text-foreground">
+              Aide
+            </h3>
+            <ul className="space-y-4">
+              {customerService.slice(0, 4).map((link) => (
+                <li key={link.href}>
+                  <Link
+                    href={link.href}
+                    className="text-[15px] text-muted-foreground hover:text-primary transition-google"
                   >
-                    {method}
-                  </span>
-                ))}
-              </div>
-            </div>
+                    {link.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
 
-            {/* Copyright */}
-            <p className="text-xs text-muted-foreground text-center md:text-right">
-              © {currentYear} DBS Store. Tous droits réservés.
+          {/* Newsletter / Contact */}
+          <div className="col-span-2 md:col-span-1 space-y-6">
+            <h3 className="font-display font-semibold text-sm uppercase tracking-wider text-foreground">
+              Newsletter
+            </h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Inscrivez-vous pour nos actualités et offres spéciales.
+            </p>
+            <form className="flex flex-col gap-3">
+              <Input
+                type="email"
+                placeholder="Votre email"
+                className="h-11 rounded-xl bg-background border-border/60 focus:border-primary transition-google"
+              />
+              <Button
+                type="submit"
+                className="h-11 rounded-xl bg-primary hover:bg-primary-hover text-white font-semibold transition-google"
+              >
+                S'abonner
+              </Button>
+            </form>
+          </div>
+
+        </div>
+
+        {/* Bottom Bar */}
+        <div className="mt-20 pt-8 border-t border-border/20 flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex items-center gap-6">
+            {customerService.slice(4).map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="text-xs text-muted-foreground hover:text-primary transition-google"
+              >
+                {link.name}
+              </Link>
+            ))}
+          </div>
+          
+          <div className="flex flex-col md:flex-row items-center gap-4">
+             <p className="text-xs text-muted-foreground">
+              © {currentYear} DBS Store. Abidjan, Côte d'Ivoire.
             </p>
           </div>
         </div>
       </div>
-
-      {/* Decorative background elements */}
-      <div className="absolute bottom-0 left-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/2 right-0 w-48 h-48 bg-accent/5 rounded-full blur-3xl pointer-events-none" />
     </footer>
   )
 }

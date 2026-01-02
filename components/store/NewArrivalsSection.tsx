@@ -29,45 +29,30 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
     return new Intl.NumberFormat("fr-FR").format(price) + " FCFA"
   }
 
-  return (
-    <section className="py-16 md:py-24 relative overflow-hidden">
-      {/* Decorative elements */}
-      <div className="absolute top-0 left-0 w-96 h-96 bg-gradient-radial opacity-30 -translate-x-1/2 -translate-y-1/2" />
-      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] bg-gradient-radial opacity-20 translate-x-1/3 translate-y-1/3" />
 
-      <div className="container relative">
+  return (
+    <section className="py-24 md:py-32 bg-white dark:bg-background relative overflow-hidden">
+      <div className="container-google relative">
         <AnimateOnScroll animation="fade-up">
-          <div className="text-center mb-12 md:mb-16">
-            <div className="inline-flex items-center gap-3 mb-4">
-              <div
-                className={cn(
-                  "p-2.5 rounded-xl",
-                  "bg-gradient-primary",
-                  "shadow-soft shadow-primary/30"
-                )}
-              >
-                <Sparkles className="size-5 text-white" />
+          <div className="text-center mb-16 md:mb-24 px-4">
+            <div className="flex items-center justify-center gap-3 mb-6">
+              <div className="p-2.5 rounded-2xl bg-secondary text-primary shadow-google-sm font-bold">
+                <Sparkles className="size-5" />
               </div>
-              <Badge
-                className={cn(
-                  "text-sm font-semibold px-4 py-1.5",
-                  "bg-primary/10 text-primary border-primary/20",
-                  "hover:bg-primary/15"
-                )}
-              >
-                Nouveautés
-              </Badge>
+              <span className="text-sm font-bold uppercase tracking-widest text-primary">
+                Derniers arrivages
+              </span>
             </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight font-display">
-              Derniers <span className="text-gradient-primary">arrivages</span>
+            <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-6 leading-tight max-w-3xl mx-auto">
+              Le meilleur de l'innovation, disponible dès maintenant.
             </h2>
-            <p className="mt-4 text-muted-foreground text-lg max-w-2xl mx-auto text-balance">
-              Découvrez les derniers produits ajoutés à notre catalogue
+            <p className="text-xl text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto">
+              Découvrez les produits les plus récents sélectionnés pour leur excellence et leur performance.
             </p>
           </div>
         </AnimateOnScroll>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8 px-4">
           {products.slice(0, 5).map((product, index) => (
             <AnimateOnScroll
               key={product.id}
@@ -76,94 +61,46 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
             >
               <Link
                 href={`/products/${product.slug}`}
-                className="group relative flex flex-col"
+                className="group relative flex flex-col rounded-[32px] bg-white dark:bg-card overflow-hidden transition-google hover-google-rise shadow-google-sm"
               >
-                <div
-                  className={cn(
-                    "relative rounded-2xl overflow-hidden",
-                    "bg-card border border-border/50",
-                    "transition-all duration-500",
-                    "hover:border-primary/30 hover:shadow-card-hover",
-                    "hover:-translate-y-1"
+                {/* New badge */}
+                <div className="absolute top-5 left-5 z-10">
+                  <div className="px-3 py-1 rounded-full bg-secondary text-primary text-[10px] font-bold uppercase tracking-widest shadow-google-sm">
+                    Nouveau
+                  </div>
+                </div>
+
+                {/* Image container */}
+                <div className="relative aspect-square bg-[#f8f9fa] dark:bg-muted/10 m-4 rounded-[24px] overflow-hidden">
+                  <Image
+                    src={product.image}
+                    alt={product.name}
+                    fill
+                    className="object-contain p-8 transition-transform duration-500 group-hover:scale-105"
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 20vw"
+                  />
+                </div>
+
+                {/* Content */}
+                <div className="p-6 pt-2 flex flex-col gap-3">
+                  {product.category && (
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">
+                      {product.category}
+                    </span>
                   )}
-                >
-                  {/* New badge */}
-                  <div className="absolute top-3 left-3 z-10">
-                    <Badge
-                      className={cn(
-                        "px-2.5 py-1",
-                        "bg-gradient-primary text-white border-0",
-                        "shadow-soft shadow-primary/30",
-                        "flex items-center gap-1"
-                      )}
-                    >
-                      <Sparkles className="size-3" />
-                      <span className="text-xs font-semibold">Nouveau</span>
-                    </Badge>
-                  </div>
-
-                  {/* Image container */}
-                  <div className="relative aspect-square bg-muted/20 overflow-hidden">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                      sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
-                    />
-
-                    {/* Hover overlay */}
-                    <div
-                      className={cn(
-                        "absolute inset-0",
-                        "bg-gradient-to-t from-black/60 via-black/20 to-transparent",
-                        "opacity-0 group-hover:opacity-100",
-                        "transition-opacity duration-300",
-                        "flex items-center justify-center"
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          "flex items-center gap-2 px-4 py-2 rounded-full",
-                          "bg-white/90 backdrop-blur-sm text-foreground",
-                          "font-medium text-sm",
-                          "transform transition-all duration-300",
-                          "translate-y-4 group-hover:translate-y-0"
-                        )}
-                      >
-                        <Eye className="size-4" />
-                        <span>Voir</span>
+                  <h3 className="font-display font-semibold text-lg line-clamp-1 group-hover:text-primary transition-google">
+                    {product.name}
+                  </h3>
+                  <div className="flex items-center justify-between mt-auto">
+                    <span className="text-xl font-bold text-primary">
+                      {formatPrice(product.price)}
+                    </span>
+                    {product.rating && (
+                      <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-secondary/50">
+                        <Star className="size-3 fill-amber-400 text-amber-400" />
+                        <span className="text-xs font-bold text-foreground">{product.rating}</span>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="p-4 flex flex-col gap-2">
-                    {product.category && (
-                      <span className="text-[10px] text-primary/80 uppercase tracking-wider font-semibold">
-                        {product.category}
-                      </span>
                     )}
-                    <h3
-                      className={cn(
-                        "font-semibold text-sm leading-snug line-clamp-2",
-                        "text-foreground/90 group-hover:text-foreground",
-                        "transition-colors duration-300"
-                      )}
-                    >
-                      {product.name}
-                    </h3>
-                    <div className="flex items-center justify-between gap-2 mt-1">
-                      <span className="text-base font-bold text-primary">
-                        {formatPrice(product.price)}
-                      </span>
-                      {product.rating && (
-                        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/10">
-                          <Star className="size-3 fill-amber-500 text-amber-500" />
-                          <span className="text-xs font-medium text-amber-600">{product.rating}</span>
-                        </div>
-                      )}
-                    </div>
                   </div>
                 </div>
               </Link>
@@ -172,21 +109,16 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
         </div>
 
         <AnimateOnScroll animation="fade-up" delay={500}>
-          <div className="flex justify-center mt-12">
+          <div className="flex justify-center mt-20">
             <Button
               asChild
-              size="lg"
               variant="outline"
-              className={cn(
-                "rounded-full group px-8",
-                "border-primary/30 hover:border-primary",
-                "hover:bg-primary/5",
-                "transition-all duration-300"
-              )}
+              size="lg"
+              className="h-14 px-10 rounded-full border-border hover:bg-muted dark:hover:bg-muted/50 text-base font-semibold transition-google shadow-google-sm hover:shadow-google-md"
             >
-              <Link href="/products?sort=newest">
+              <Link href="/products?sort=newest" className="flex items-center gap-3">
                 Découvrir toutes les nouveautés
-                <ArrowRight className="ml-2 size-4 transition-transform duration-300 group-hover:translate-x-1" />
+                <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>
           </div>

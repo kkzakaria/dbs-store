@@ -63,58 +63,73 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   const relatedProducts = relatedResult?.data?.products || []
 
+
   return (
-    <div className="container py-6 lg:py-10">
-      {/* Breadcrumb */}
-      <nav className="mb-8 flex items-center text-sm text-muted-foreground">
-        <Link href="/" className="hover:text-foreground transition-colors">
-          Accueil
-        </Link>
-        <ChevronRight className="mx-2 h-4 w-4" />
-        <Link href="/products" className="hover:text-foreground transition-colors">
-          Produits
-        </Link>
-        {product.category && (
-          <>
-            <ChevronRight className="mx-2 h-4 w-4" />
-            <Link
-              href={`/categories/${product.category.slug}`}
-              className="hover:text-foreground transition-colors"
-            >
-              {product.category.name}
-            </Link>
-          </>
-        )}
-        <ChevronRight className="mx-2 h-4 w-4" />
-        <span className="text-foreground font-medium truncate max-w-[200px]">{product.name}</span>
-      </nav>
+    <div className="bg-white dark:bg-background min-h-screen">
+      <div className="container-google py-8 md:py-16">
+        {/* Breadcrumb */}
+        <nav className="mb-12 flex items-center text-sm font-medium text-muted-foreground/60">
+          <Link href="/" className="hover:text-primary transition-google">
+            Accueil
+          </Link>
+          <ChevronRight className="mx-3 h-3 w-3" />
+          <Link href="/products" className="hover:text-primary transition-google">
+            Boutique
+          </Link>
+          {product.category && (
+            <>
+              <ChevronRight className="mx-3 h-3 w-3" />
+              <Link
+                href={`/categories/${product.category.slug}`}
+                className="hover:text-primary transition-google"
+              >
+                {product.category.name}
+              </Link>
+            </>
+          )}
+          <ChevronRight className="mx-3 h-3 w-3" />
+          <span className="text-foreground font-semibold truncate max-w-[200px]">{product.name}</span>
+        </nav>
 
-      {/* Product Details - Client component for variant interaction */}
-      <ProductDetailClient product={product} />
+        {/* Product Details - Client component for variant interaction */}
+        <ProductDetailClient product={product} />
 
-      {/* Specifications */}
-      {product.specifications &&
-        Object.keys(product.specifications).length > 0 && (
-          <section className="mt-12">
-            <h2 className="mb-6 text-xl font-semibold">Caractéristiques</h2>
-            <ProductSpecifications
-              specifications={product.specifications as Record<string, unknown>}
-              columns={2}
-            />
+        {/* Specifications */}
+        {product.specifications &&
+          Object.keys(product.specifications).length > 0 && (
+            <section className="mt-24 pt-16 border-t border-border/10">
+              <h2 className="mb-12 text-3xl font-display font-bold text-foreground">
+                Caractéristiques techniques
+              </h2>
+              <ProductSpecifications
+                specifications={product.specifications as Record<string, unknown>}
+                columns={2}
+              />
+            </section>
+          )}
+
+        {/* Related Products */}
+        {relatedProducts.length > 0 && (
+          <section className="mt-24 pt-16 border-t border-border/10">
+            <div className="flex items-center justify-between mb-12">
+              <h2 className="text-3xl font-display font-bold text-foreground">
+                Découvrez aussi
+              </h2>
+              <Link
+                href="/products"
+                className="text-primary font-semibold hover:underline transition-google"
+              >
+                Tout voir
+              </Link>
+            </div>
+            <div className="grid grid-cols-2 gap-6 sm:grid-cols-2 md:grid-cols-4 lg:gap-8">
+              {relatedProducts.map((relatedProduct: any) => (
+                <ProductCard key={relatedProduct.id} product={relatedProduct} />
+              ))}
+            </div>
           </section>
         )}
-
-      {/* Related Products */}
-      {relatedProducts.length > 0 && (
-        <section className="mt-12">
-          <h2 className="mb-6 text-xl font-semibold">Produits similaires</h2>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:gap-6">
-            {relatedProducts.map((relatedProduct: any) => (
-              <ProductCard key={relatedProduct.id} product={relatedProduct} />
-            ))}
-          </div>
-        </section>
-      )}
+      </div>
     </div>
   )
 }
