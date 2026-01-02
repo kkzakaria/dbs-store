@@ -1,0 +1,172 @@
+"use client"
+
+import Link from "next/link"
+import { cn } from "@/lib/utils"
+import { Logo } from "@/components/shared/Logo"
+import { Button } from "@/components/ui/button"
+import { Menu } from "lucide-react"
+
+import { SearchCommand } from "../SearchCommand"
+import { MobileNav } from "../MobileNav"
+import { AuthDialog } from "@/components/auth"
+
+import { useHeader } from "./hooks/use-header"
+import {
+  FloatingMenuButton,
+  DesktopNav,
+  MegaMenu,
+  ActionButtons,
+  UserMenu,
+} from "./components"
+
+export function Header() {
+  const {
+    pathname,
+    user,
+    authUser,
+    signOut,
+    isLoading,
+    userInitials,
+    openLogin,
+    totalItems,
+    openCart,
+    isHydrated,
+    hasPromotions,
+    searchOpen,
+    setSearchOpen,
+    mobileNavOpen,
+    setMobileNavOpen,
+    isScrolled,
+    mounted,
+    activeCategory,
+    setActiveCategory,
+    megaMenuRef,
+  } = useHeader()
+
+  return (
+    <>
+      {/* Floating Menu Button - Mobile only, appears when scrolled */}
+      <FloatingMenuButton
+        isScrolled={isScrolled}
+        onClick={() => setMobileNavOpen(true)}
+      />
+
+      <header
+        className={cn(
+          "sticky top-0 z-50 w-full transition-all duration-500 ease-out"
+        )}
+      >
+        {/* Outer wrapper for positioning */}
+        <div
+          className={cn(
+            "transition-all duration-500 ease-out",
+            isScrolled ? "py-3 px-4 lg:px-4 pl-[60px] lg:pl-4" : "py-0 px-0"
+          )}
+        >
+          {/* The actual header bar that transforms to pill */}
+          <div
+            ref={megaMenuRef}
+            className={cn(
+              "transition-all duration-500 ease-out mx-auto",
+              isScrolled
+                ? "max-w-6xl bg-background/95 backdrop-blur-xl rounded-full shadow-google-md border border-border/40"
+                : "max-w-none bg-background border-b border-border/30"
+            )}
+          >
+            <div
+              className={cn(
+                "flex items-center justify-between gap-1 transition-all duration-500 ease-out",
+                isScrolled
+                  ? "h-12 px-3 lg:px-4"
+                  : "h-16 md:h-18 container-google"
+              )}
+            >
+              {/* Left section: Menu (mobile) + Logo */}
+              <div className="flex items-center gap-3 shrink-0">
+                {/* Mobile Menu Button - visible only on mobile when not scrolled */}
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setMobileNavOpen(true)}
+                  className={cn(
+                    "lg:hidden rounded-full transition-all duration-300",
+                    isScrolled ? "opacity-0 w-0 p-0 overflow-hidden" : "opacity-100"
+                  )}
+                >
+                  <Menu className="size-5" />
+                </Button>
+
+                {/* Logo */}
+                <Link
+                  href="/"
+                  className="relative flex items-center shrink-0"
+                >
+                  <Logo
+                    variant="default"
+                    className={cn(
+                      "transition-all duration-300",
+                      isScrolled ? "h-8 w-auto" : "h-8 w-auto"
+                    )}
+                  />
+                </Link>
+              </div>
+
+              {/* Center: Desktop Navigation */}
+              <DesktopNav
+                pathname={pathname}
+                activeCategory={activeCategory}
+                isScrolled={isScrolled}
+                onCategoryHover={setActiveCategory}
+              />
+
+              {/* Right section: Actions */}
+              <div className="flex items-center gap-0.5 md:gap-1 shrink-0">
+                <ActionButtons
+                  isScrolled={isScrolled}
+                  totalItems={totalItems}
+                  isHydrated={isHydrated}
+                  onSearchOpen={() => setSearchOpen(true)}
+                  onCartOpen={openCart}
+                />
+
+                <UserMenu
+                  isScrolled={isScrolled}
+                  mounted={mounted}
+                  isLoading={isLoading}
+                  authUser={authUser}
+                  user={user}
+                  userInitials={userInitials}
+                  onSignOut={signOut}
+                  onLogin={openLogin}
+                />
+              </div>
+            </div>
+
+            {/* Mega Menu Dropdown - Desktop only */}
+            <MegaMenu
+              activeCategory={activeCategory}
+              isScrolled={isScrolled}
+              onClose={() => setActiveCategory(null)}
+            />
+          </div>
+        </div>
+      </header>
+
+      {/* Search Command Dialog */}
+      <SearchCommand open={searchOpen} onOpenChange={setSearchOpen} />
+
+      {/* Mobile Navigation */}
+      <MobileNav
+        open={mobileNavOpen}
+        onOpenChange={setMobileNavOpen}
+        user={user}
+        authUser={authUser}
+        onSignOut={signOut}
+        hasPromotions={hasPromotions}
+      />
+
+      {/* Auth Dialog */}
+      <AuthDialog />
+    </>
+  )
+}
