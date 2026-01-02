@@ -103,6 +103,7 @@ export function Header() {
                 >
                   <Logo
                     variant="default"
+                    asLink={false}
                     className={cn(
                       "transition-all duration-300",
                       isScrolled ? "h-8 w-auto" : "h-8 w-auto"
