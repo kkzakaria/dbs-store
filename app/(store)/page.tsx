@@ -2,6 +2,7 @@ import Link from "next/link"
 import { ArrowRight } from "lucide-react"
 import { HeroSection } from "@/components/store/HeroSection"
 import { PromotionsSection } from "@/components/store/PromotionsSection"
+import { PopularProductsSection } from "@/components/store/PopularProductsSection"
 import { NewArrivalsSection } from "@/components/store/NewArrivalsSection"
 import { FeaturesSection } from "@/components/store/FeaturesSection"
 import { TestimonialsSection } from "@/components/store/TestimonialsSection"
@@ -127,12 +128,52 @@ async function getNewProducts() {
   )
 }
 
+async function getPopularProducts() {
+  const supabase = await createClient()
+
+  const { data: products } = await supabase
+    .from("products")
+    .select(`
+      id,
+      name,
+      slug,
+      price,
+      compare_price,
+      product_images (
+        url,
+        is_primary
+      )
+    `)
+    .eq("is_active", true)
+    .eq("is_featured", true) // Using featured as popular for now
+    .order("created_at", { ascending: false })
+    .limit(8)
+
+  return (
+    products?.map((product) => {
+      const primaryImage =
+        product.product_images?.find((img) => img.is_primary) || product.product_images?.[0]
+      
+      return {
+        id: product.id,
+        name: product.name,
+        slug: product.slug,
+        image: primaryImage?.url || "/images/placeholder-product.png",
+        price: product.price,
+        compare_price: product.compare_price,
+        status: "Nouveau", // Example status
+      }
+    }) || []
+  )
+}
+
 
 export default async function HomePage() {
-  const [featuredProducts, /* promoProducts, */ newProducts] = await Promise.all([
+  const [featuredProducts, /* promoProducts, */ newProducts, popularProducts] = await Promise.all([
     getFeaturedProducts(),
     // getPromoProducts(),
     getNewProducts(),
+    getPopularProducts(),
   ])
 
   return (
@@ -153,6 +194,9 @@ export default async function HomePage() {
 
       {/* Brands Section */}
       <BrandsSection />
+
+      {/* Popular Products Section */}
+      <PopularProductsSection products={popularProducts} />
 
       {/* New Arrivals Section */}
       <NewArrivalsSection products={newProducts} />
