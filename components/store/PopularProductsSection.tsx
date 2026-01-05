@@ -79,20 +79,25 @@ export function PopularProductsSection({ products }: PopularProductsSectionProps
             <CarouselContent className="-ml-4 md:-ml-6">
               {products.map((product) => (
                 <CarouselItem key={product.id} className="pl-4 md:pl-6 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
-                  <div className="group flex flex-col h-full">
-                    {/* Image Container */}
+                  <div className="group flex flex-col h-full bg-white dark:bg-card border border-border/40 rounded-3xl sm:rounded-[32px] overflow-hidden transition-all duration-300 hover:border-border/80">
+                    {/* Image Container with Floating Effect */}
                     <Link
                       href={`/products/${product.slug}`}
-                      className="relative aspect-square mb-6 rounded-[32px] bg-[#f8f9fa] dark:bg-muted/10 overflow-hidden flex items-center justify-center transition-google group-hover:shadow-google-md"
+                      className={cn(
+                        "relative aspect-square overflow-hidden bg-[#f8f9fa] dark:bg-muted/10 rounded-2xl sm:rounded-[24px]",
+                        "transition-all duration-500 ease-out",
+                        "group-hover:shadow-google-md"
+                      )}
                     >
                       {product.status && (
-                        <div className="absolute top-6 left-6 z-10">
+                        <div className="absolute left-6 top-6 z-10">
                           <span className="px-3 py-1 rounded-full bg-[#e8f0fe] dark:bg-primary/20 text-[#1967d2] dark:text-primary-foreground text-[10px] font-bold uppercase tracking-wider">
                             {product.status}
                           </span>
                         </div>
                       )}
-                      <div className="relative w-4/5 h-4/5 transition-transform duration-500 group-hover:scale-105">
+                      
+                      <div className="relative w-full h-full p-10 sm:p-14 transition-transform duration-700 ease-out group-hover:scale-105">
                         <Image
                           src={product.image}
                           alt={product.name}
@@ -103,46 +108,49 @@ export function PopularProductsSection({ products }: PopularProductsSectionProps
                       </div>
                     </Link>
 
-                    {/* Content */}
-                    <div className="flex flex-col flex-grow">
-                      <Link href={`/products/${product.slug}`}>
-                        <h3 className="text-lg font-display font-semibold mb-4 line-clamp-2 min-h-[3.5rem] group-hover:text-primary transition-google">
-                          {product.name}
-                        </h3>
-                      </Link>
+                    {/* Content Section - Clean & Typography Focused */}
+                    <div className="flex flex-col px-6 sm:px-8 pt-6 sm:pt-8 pb-8 flex-grow">
+                      <div className="space-y-2 mb-4">
+                        <Link href={`/products/${product.slug}`}>
+                          <h3 className="font-display font-medium text-lg sm:text-xl text-foreground line-clamp-2 transition-colors duration-300">
+                            {product.name}
+                          </h3>
+                        </Link>
+                      </div>
 
-                      <div className="mt-auto space-y-3">
-                        <div className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                      <div className="mt-auto space-y-4">
+                        {/* Price Row */}
+                        <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
                           {product.compare_price ? (
                             <>
-                              <span className="text-base font-medium text-foreground">
+                              <span className="text-lg font-medium text-foreground">
                                 {formatPrice(product.price)}
                               </span>
-                              <span className="text-sm text-muted-foreground line-through">
+                              <span className="text-sm text-muted-foreground line-through opacity-60">
                                 {formatPrice(product.compare_price)}
                               </span>
                             </>
                           ) : (
-                            <span className="text-base font-medium text-foreground">
-                              À partir de {formatPrice(product.price)}
+                            <span className="text-lg font-medium text-foreground">
+                              {formatPrice(product.price)}
                             </span>
                           )}
                         </div>
 
                         {getSavings(product.price, product.compare_price) && (
-                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#e6f4ea] dark:bg-green-500/10 text-[#137333] dark:text-green-400 text-xs font-bold">
-                            <span className="shrink-0 leading-none">🏷️</span>
-                            Économisez {formatPrice(getSavings(product.price, product.compare_price)!)}
+                          <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#e6f4ea] dark:bg-green-500/10 text-[#137333] dark:text-green-400 text-[11px] font-bold self-start">
+                             Économisez {formatPrice(getSavings(product.price, product.compare_price)!)}
                           </div>
                         )}
 
+                        {/* Minimalist Action Link */}
                         <div className="pt-2">
                           <Link
                             href={`/products/${product.slug}`}
-                            className="inline-flex items-center text-primary font-semibold hover:underline group/link"
+                            className="inline-flex items-center text-[#1a73e8] dark:text-[#8ab4f8] font-bold text-sm tracking-wide group-hover:underline"
                           >
                             Acheter
-                            <ChevronRight className="ml-1 size-4 transition-transform group-hover/link:translate-x-0.5" />
+                            <ChevronRight className="ml-1 size-4 transition-transform group-hover:translate-x-1" />
                           </Link>
                         </div>
                       </div>
