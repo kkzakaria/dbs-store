@@ -39,7 +39,7 @@ export function LogoMarquee({
   return (
     <div
       className={cn(
-        "group flex overflow-hidden p-2 [--gap:4rem] [gap:var(--gap)] flex-row",
+        "group flex overflow-hidden p-2 [--gap:5rem] [gap:var(--gap)] flex-row",
         className
       )}
       style={
@@ -63,9 +63,9 @@ export function LogoMarquee({
             <Image
               src={logo.path}
               alt={logo.name}
-              width={120}
-              height={48}
-              className="h-8 md:h-10 w-auto object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+              width={140}
+              height={56}
+              className="h-10 md:h-14 w-auto max-w-[100px] md:max-w-[150px] object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
             />
           </div>
         ))}
@@ -86,9 +86,9 @@ export function LogoMarquee({
             <Image
               src={logo.path}
               alt={logo.name}
-              width={120}
-              height={48}
-              className="h-8 md:h-10 w-auto object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+              width={140}
+              height={56}
+              className="h-10 md:h-14 w-auto max-w-[100px] md:max-w-[150px] object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
             />
           </div>
         ))}
