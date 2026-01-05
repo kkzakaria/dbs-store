@@ -37,7 +37,7 @@ export function ActionButtons({
       </Button>
 
       {/* Theme Toggle */}
-      <ThemeToggle />
+      <ThemeToggle isScrolled={isScrolled} />
 
       {/* Cart */}
       <Button

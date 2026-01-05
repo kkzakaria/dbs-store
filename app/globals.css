@@ -79,11 +79,11 @@
   --muted: #f1f3f4;
   --muted-foreground: #5f6368;
 
-  /* === Accent (DBS Gold) === */
-  --accent: #d4a853;
+  /* === Accent (DBS Blue) === */
+  --accent: #3b82f6;
   --accent-foreground: #ffffff;
-  --accent-hover: #c49a48;
-  --accent-light: #e8c068;
+  --accent-hover: #2563eb;
+  --accent-light: #60a5fa;
 
   /* === Destructive === */
   --destructive: #d93025;
@@ -130,7 +130,7 @@
   --muted-foreground: #9aa0a6;
 
   /* === Accent === */
-  --accent: #e8c068;
+  --accent: #60a5fa;
   --accent-foreground: #121212;
 
   /* === Border === */
