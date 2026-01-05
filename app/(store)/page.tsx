@@ -129,9 +129,9 @@ async function getNewProducts() {
 
 
 export default async function HomePage() {
-  const [featuredProducts, promoProducts, newProducts] = await Promise.all([
+  const [featuredProducts, /* promoProducts, */ newProducts] = await Promise.all([
     getFeaturedProducts(),
-    getPromoProducts(),
+    // getPromoProducts(),
     getNewProducts(),
   ])
 
@@ -148,8 +148,8 @@ export default async function HomePage() {
 
 
 
-      {/* Promotions Section */}
-      <PromotionsSection products={promoProducts} />
+      {/* Promotions Section - Removed for now */}
+      {/* <PromotionsSection products={promoProducts} /> */}
 
       {/* Brands Section */}
       <BrandsSection />
