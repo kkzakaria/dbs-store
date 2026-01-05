@@ -5,7 +5,8 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { CountdownTimer, AnimateOnScroll } from "@/components/animations"
-import { ArrowRight, Flame, Percent } from "lucide-react"
+import { ArrowRight, Flame } from "lucide-react"
+import { ProductCard } from "./products/ProductCard"
 
 interface PromoProduct {
   id: string
@@ -63,47 +64,21 @@ export function PromotionsSection({
         </AnimateOnScroll>
 
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8 px-4">
-          {products.slice(0, 4).map((product, index) => (
-            <AnimateOnScroll key={product.id} animation="fade-up" delay={index * 100}>
-              <Link
-                href={`/products/${product.slug}`}
-                className="group relative flex flex-col rounded-[32px] bg-white dark:bg-card overflow-hidden transition-google hover-google-rise shadow-google-sm"
-              >
-                {/* Discount badge */}
-                <div className="absolute top-5 left-5 z-10">
-                  <div className="px-3 py-1 rounded-full bg-primary text-white text-xs font-bold shadow-google-sm">
-                    -{product.discountPercent}%
-                  </div>
-                </div>
+          {products.slice(0, 4).map((product, index) => {
+            // Adapt local product to ProductCard's expected type
+            const adaptedProduct: any = {
+              ...product,
+              price: product.salePrice,
+              compare_price: product.originalPrice,
+              images: [{ url: product.image, is_primary: true }],
+            };
 
-                {/* Image container */}
-                <div className="relative aspect-square bg-[#f8f9fa] dark:bg-muted/10 m-3 rounded-[24px] overflow-hidden">
-                  <Image
-                    src={product.image}
-                    alt={product.name}
-                    fill
-                    className="object-contain p-8 transition-transform duration-500 group-hover:scale-105"
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-                  />
-                </div>
-
-                {/* Content */}
-                <div className="p-5 pt-1 flex flex-col gap-3">
-                  <h3 className="font-display font-semibold text-lg line-clamp-1 group-hover:text-primary transition-google">
-                    {product.name}
-                  </h3>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl font-bold text-primary">
-                      {formatPrice(product.salePrice)}
-                    </span>
-                    <span className="text-sm text-muted-foreground line-through decoration-muted-foreground/40 font-medium">
-                      {formatPrice(product.originalPrice)}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            </AnimateOnScroll>
-          ))}
+            return (
+              <AnimateOnScroll key={product.id} animation="fade-up" delay={index * 100}>
+                <ProductCard product={adaptedProduct} />
+              </AnimateOnScroll>
+            );
+          })}
         </div>
 
         <AnimateOnScroll animation="fade-up" delay={400}>
