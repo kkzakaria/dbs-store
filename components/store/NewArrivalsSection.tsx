@@ -52,7 +52,7 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
           </div>
         </AnimateOnScroll>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-8 px-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-8 px-4">
           {products.slice(0, 5).map((product, index) => (
             <AnimateOnScroll
               key={product.id}
