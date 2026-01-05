@@ -49,6 +49,26 @@
   --animate-fade-in: fadeIn 0.4s ease-out forwards;
   --animate-fade-up: fadeUp 0.5s ease-out forwards;
   --animate-slide-up: slideUp 0.3s ease-out;
+  --animate-marquee: marquee var(--duration) linear infinite;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
 }
 
 :root {
@@ -256,9 +276,15 @@
   }
 
   /* === Shadow Utilities (reusing variables) === */
-  .shadow-google-sm { box-shadow: var(--shadow-sm); }
-  .shadow-google-md { box-shadow: var(--shadow-md); }
-  .shadow-google-lg { box-shadow: var(--shadow-lg); }
+  .shadow-google-sm {
+    box-shadow: var(--shadow-sm);
+  }
+  .shadow-google-md {
+    box-shadow: var(--shadow-md);
+  }
+  .shadow-google-lg {
+    box-shadow: var(--shadow-lg);
+  }
 
   /* === Transitions --- */
   .transition-google {
@@ -285,8 +311,12 @@
    ============================================ */
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeUp {
@@ -361,7 +391,8 @@
 
 /* Focus Ring */
 .focus-ring {
-  @apply outline-none ring-2 ring-primary/40 ring-offset-2 ring-offset-background;
+  @apply outline-none ring-2 ring-primary/40 ring-offset-2
+    ring-offset-background;
 }
 
 /* Button Active State */
