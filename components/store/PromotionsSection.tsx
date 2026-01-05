@@ -34,12 +34,12 @@ export function PromotionsSection({
 
 
   return (
-    <section className="py-32 md:py-48 bg-[#f8f9fa] dark:bg-muted/10 relative overflow-hidden">
+    <section className="py-20 md:py-16 bg-[#f8f9fa] dark:bg-muted/10 relative overflow-hidden">
       <div className="container-google relative">
         <AnimateOnScroll animation="fade-up">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-16 md:gap-24 mb-20 md:mb-32 px-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 md:gap-12 mb-12 md:mb-16 px-4">
             <div className="max-w-2xl">
-              <div className="flex items-center gap-3 mb-6">
+              <div className="flex items-center gap-3 mb-4">
                 <div className="p-2.5 rounded-2xl bg-primary text-white shadow-google-sm">
                   <Flame className="size-5" />
                 </div>
@@ -47,7 +47,7 @@ export function PromotionsSection({
                   Offres à durée limitée
                 </span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-6 leading-tight">
+              <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-4 leading-tight">
                 Économisez sur la technologie que vous aimez.
               </h2>
               <p className="text-xl text-muted-foreground font-light leading-relaxed">
@@ -77,7 +77,7 @@ export function PromotionsSection({
                 </div>
 
                 {/* Image container */}
-                <div className="relative aspect-square bg-[#f8f9fa] dark:bg-muted/10 m-4 rounded-[24px] overflow-hidden">
+                <div className="relative aspect-square bg-[#f8f9fa] dark:bg-muted/10 m-3 rounded-[24px] overflow-hidden">
                   <Image
                     src={product.image}
                     alt={product.name}
@@ -88,7 +88,7 @@ export function PromotionsSection({
                 </div>
 
                 {/* Content */}
-                <div className="p-6 pt-2 flex flex-col gap-3">
+                <div className="p-5 pt-1 flex flex-col gap-3">
                   <h3 className="font-display font-semibold text-lg line-clamp-1 group-hover:text-primary transition-google">
                     {product.name}
                   </h3>
@@ -107,7 +107,7 @@ export function PromotionsSection({
         </div>
 
         <AnimateOnScroll animation="fade-up" delay={400}>
-          <div className="flex justify-center mt-20">
+          <div className="flex justify-center mt-12 md:mt-16">
             <Button asChild variant="outline" size="lg" className="h-14 px-10 rounded-full border-border hover:bg-white dark:hover:bg-muted text-base font-semibold transition-google shadow-google-sm hover:shadow-google-md">
               <Link href="/products?promo=true" className="flex items-center gap-3">
                 Voir toutes les promotions
