@@ -23,7 +23,7 @@ const logos: Logo[] = [
   { name: "Canon", path: "/images/logo-maquee/canon-wordmark-1.svg" },
   { name: "DJI", path: "/images/logo-maquee/dji-1.svg" },
   { name: "HP", path: "/images/logo-maquee/hp-5.svg", scale: 1.4 },
-  { name: "Huawei", path: "/images/logo-maquee/huawei-2.svg", scale: 1.4 },
+  { name: "Huawei", path: "/images/logo-maquee/huawei-2.svg", scale: 1.8 },
   { name: "Honor", path: "/images/logo-maquee/huawei-honor-logo.svg" },
   { name: "Lenovo", path: "/images/logo-maquee/lenovo-2.svg" },
   { name: "Nintendo", path: "/images/logo-maquee/nintendo-4.svg" },
@@ -32,7 +32,7 @@ const logos: Logo[] = [
   { name: "Ray-Ban", path: "/images/logo-maquee/ray-ban.svg", scale: 1.5 },
   { name: "Samsung", path: "/images/logo-maquee/samsung-electronics.svg" },
   { name: "SanDisk", path: "/images/logo-maquee/sandisk.svg" },
-  { name: "Sony", path: "/images/logo-maquee/sony-2.svg", scale: 1.5 },
+  { name: "Sony", path: "/images/logo-maquee/sony-2.svg", scale: 1.8 },
   { name: "Xiaomi", path: "/images/logo-maquee/xiaomi-1.svg" },
 ]
 
