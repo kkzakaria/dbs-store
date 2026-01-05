@@ -104,16 +104,16 @@ export function HeroSection({
   return (
     <section
       ref={heroRef}
-      className="relative min-h-[85vh] flex items-center overflow-hidden bg-secondary/30"
+      className="relative h-[420px] flex items-start overflow-hidden bg-secondary/30"
     >
-      <div className="container-google relative z-10 w-full py-12 md:py-20">
+      <div className="container-google relative z-10 w-full pt-2 pb-6">
         <div className="grid grid-cols-1 lg:grid-cols-2 items-center gap-12">
           
           {/* Text Content */}
           <div className="flex flex-col text-center lg:text-left">
             <h1
               className={cn(
-                "text-5xl md:text-6xl lg:text-7xl font-bold font-display leading-[1.05] tracking-tight mb-8",
+                "text-3xl md:text-4xl lg:text-5xl font-bold font-display leading-[1.05] tracking-tight mb-4",
                 "transition-all duration-1000",
                 isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
               )}
@@ -133,7 +133,7 @@ export function HeroSection({
 
             <p
               className={cn(
-                "text-lg md:text-xl text-muted-foreground max-w-lg mb-12 mx-auto lg:mx-0",
+                "text-base md:text-lg text-muted-foreground max-w-lg mb-6 mx-auto lg:mx-0",
                 "transition-all duration-1000 delay-200",
                 isLoaded ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
               )}
@@ -174,7 +174,7 @@ export function HeroSection({
             {featuredProducts.length > 1 && (
               <div
                 className={cn(
-                  "flex items-center gap-2 mt-16 justify-center lg:justify-start",
+                  "flex items-center gap-2 mt-6 justify-center lg:justify-start",
                   "transition-all duration-1000 delay-500",
                   isLoaded ? "opacity-100" : "opacity-0"
                 )}
@@ -198,7 +198,7 @@ export function HeroSection({
           {/* Product Image */}
           <div
             className={cn(
-              "relative aspect-square lg:aspect-auto lg:h-[600px] w-full max-w-xl mx-auto lg:max-w-none transition-all duration-1000 delay-400",
+              "relative aspect-square lg:aspect-auto lg:h-[350px] w-full max-w-xl mx-auto lg:max-w-none transition-all duration-1000 delay-400",
               isLoaded ? "opacity-100 scale-100 translate-x-0" : "opacity-0 scale-95 translate-x-10"
             )}
           >
