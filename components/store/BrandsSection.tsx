@@ -2,6 +2,7 @@
 
 import Image from "next/image"
 import { AnimateOnScroll } from "@/components/animations"
+import { LogoMarquee } from "./LogoMarquee"
 
 interface Brand {
   name: string
@@ -37,32 +38,12 @@ export function BrandsSection({ brands = defaultBrands }: BrandsSectionProps) {
         </AnimateOnScroll>
 
         <AnimateOnScroll animation="fade-up" delay={100}>
-          <div className="relative overflow-hidden group">
-            {/* Scrolling container */}
-            <div className="flex animate-marquee gap-20 md:gap-32 py-8 items-center">
-              {/* First set */}
-              {brands.map((brand, index) => (
-                <div
-                  key={`${brand.name}-1-${index}`}
-                  className="flex-shrink-0 flex items-center justify-center grayscale opacity-40 hover:opacity-100 hover:grayscale-0 transition-google"
-                >
-                  <span className="text-xl md:text-2xl font-display font-bold text-foreground/40 select-none tracking-tight">
-                    {brand.name}
-                  </span>
-                </div>
-              ))}
-              {/* Duplicate for seamless loop */}
-              {brands.map((brand, index) => (
-                <div
-                  key={`${brand.name}-2-${index}`}
-                  className="flex-shrink-0 flex items-center justify-center grayscale opacity-40 hover:opacity-100 hover:grayscale-0 transition-google"
-                >
-                  <span className="text-xl md:text-2xl font-display font-bold text-foreground/40 select-none tracking-tight">
-                    {brand.name}
-                  </span>
-                </div>
-              ))}
-            </div>
+          <div className="relative">
+            {/* Gradient Mask for smooth fade */}
+            <div className="absolute inset-y-0 left-0 w-20 md:w-32 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
+            <div className="absolute inset-y-0 right-0 w-20 md:w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
+            
+            <LogoMarquee speed={30} className="py-4" />
           </div>
         </AnimateOnScroll>
       </div>
