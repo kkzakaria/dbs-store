@@ -133,7 +133,7 @@ export function UserMenu({
         variant="ghost"
         size="icon"
         className={cn(
-          "md:hidden rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5",
+          "md:hidden rounded-full text-foreground hover:text-primary hover:bg-primary/5",
           isScrolled ? "h-8 w-8" : "h-10 w-10"
         )}
       >
