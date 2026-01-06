@@ -45,6 +45,8 @@ export function Header() {
 
   return (
     <>
+
+
       {/* Floating Menu Button - Mobile only, appears when scrolled */}
       <FloatingMenuButton
         isScrolled={isScrolled}
