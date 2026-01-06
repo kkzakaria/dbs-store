@@ -48,10 +48,12 @@ export function Header() {
 
 
       {/* Floating Menu Button - Mobile only, appears when scrolled */}
-      <FloatingMenuButton
-        isScrolled={isScrolled}
-        onClick={() => setMobileNavOpen(true)}
-      />
+      {!mobileNavOpen && (
+        <FloatingMenuButton
+          isScrolled={isScrolled}
+          onClick={() => setMobileNavOpen(true)}
+        />
+      )}
 
       <header
         className={cn(
@@ -62,7 +64,8 @@ export function Header() {
         <div
           className={cn(
             "transition-all duration-500 ease-out",
-            isScrolled ? "py-3 px-4 lg:px-4 pl-[60px] lg:pl-4" : "py-0 px-0"
+            isScrolled ? "py-3 px-4 lg:px-4 pl-[60px] lg:pl-4" : "py-0 px-0",
+            mobileNavOpen && "opacity-0 pointer-events-none"
           )}
         >
           {/* The actual header bar that transforms to pill */}
