@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect } from "react"
 import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Logo } from "@/components/shared/Logo"
@@ -45,6 +46,14 @@ export function Header() {
     megaMenuRef,
   } = useHeader()
 
+  // Close mobile menus when search opens
+  useEffect(() => {
+    if (searchOpen) {
+      setMobileNavOpen(false)
+      setMobileUserMenuOpen(false)
+    }
+  }, [searchOpen, setMobileNavOpen, setMobileUserMenuOpen])
+
   return (
     <>
 
@@ -53,7 +62,7 @@ export function Header() {
       {/* Floating Menu Button - Always present, handles visibility based on state */}
       <FloatingMenuButton
         isScrolled={isScrolled}
-        isVisible={isScrolled || mobileNavOpen || mobileUserMenuOpen}
+        isVisible={(isScrolled || mobileNavOpen || mobileUserMenuOpen) && !searchOpen}
         isOpen={mobileNavOpen || mobileUserMenuOpen}
         onClick={() => {
           if (mobileUserMenuOpen) {
@@ -80,10 +89,13 @@ export function Header() {
           <div
             ref={megaMenuRef}
             className={cn(
-              "transition-all duration-500 ease-out mx-auto",
-              (isScrolled || mobileNavOpen || mobileUserMenuOpen)
-                ? "max-w-6xl bg-background/95 backdrop-blur-xl rounded-full shadow-google-md border border-border/40"
-                : "max-w-none bg-background border-b border-border/30"
+              "transition-all ease-out mx-auto",
+              searchOpen ? "duration-0" : "duration-500",
+              searchOpen
+                ? "bg-transparent border-transparent shadow-none pointer-events-none"
+                : (isScrolled || mobileNavOpen || mobileUserMenuOpen)
+                  ? "max-w-6xl bg-background/95 backdrop-blur-xl rounded-full shadow-google-md border border-border/40"
+                  : "max-w-none bg-background border-b border-border/30"
             )}
           >
             <div
@@ -94,7 +106,7 @@ export function Header() {
                   : "h-16 md:h-18 container-google"
               )}
             >
-              <div className="flex items-center gap-3 shrink-0">
+              <div className={cn("flex items-center gap-3 shrink-0 transition-opacity duration-200", searchOpen ? "opacity-0 invisible" : "opacity-100")}>
                 {/* Mobile Menu Button - always visible in dock mode */}
                 <Button
                   variant="ghost"
@@ -135,37 +147,42 @@ export function Header() {
                 activeCategory={activeCategory}
                 isScrolled={isScrolled}
                 onCategoryHover={setActiveCategory}
+                className={cn("transition-opacity duration-200", searchOpen ? "opacity-0 invisible" : "opacity-100")}
               />
 
               {/* Right section: Actions */}
               <div className="flex items-center gap-0.5 md:gap-1 shrink-0">
-                {/* Inline Search - Google Store style */}
-                <InlineSearch
-                  isExpanded={searchOpen}
-                  onExpandedChange={setSearchOpen}
-                  isScrolled={isScrolled || mobileNavOpen || mobileUserMenuOpen}
-                />
+                {/* InlineSearch - Google Store style */}
+                <div className="pointer-events-auto">
+                  <InlineSearch
+                    isExpanded={searchOpen}
+                    onExpandedChange={setSearchOpen}
+                    isScrolled={isScrolled || mobileNavOpen || mobileUserMenuOpen}
+                  />
+                </div>
 
-                <ActionButtons
-                  isScrolled={isScrolled || mobileNavOpen || mobileUserMenuOpen}
-                  totalItems={totalItems}
-                  isHydrated={isHydrated}
-                  onCartOpen={openCart}
-                />
+                <div className={cn("flex items-center gap-0.5 md:gap-1 transition-opacity duration-200", searchOpen ? "opacity-0 invisible" : "opacity-100")}>
+                  <ActionButtons
+                    isScrolled={isScrolled || mobileNavOpen || mobileUserMenuOpen}
+                    totalItems={totalItems}
+                    isHydrated={isHydrated}
+                    onCartOpen={openCart}
+                  />
 
-                <UserMenu
-                  isScrolled={isScrolled || mobileNavOpen || mobileUserMenuOpen}
-                  mounted={mounted}
-                  isLoading={isLoading}
-                  authUser={authUser}
-                  user={user}
-                  userInitials={userInitials}
-                  onSignOut={signOut}
-                  onLogin={openLogin}
-                  mobileUserMenuOpen={mobileUserMenuOpen}
-                  setMobileUserMenuOpen={setMobileUserMenuOpen}
-                  setMobileNavOpen={setMobileNavOpen}
-                />
+                  <UserMenu
+                    isScrolled={isScrolled || mobileNavOpen || mobileUserMenuOpen}
+                    mounted={mounted}
+                    isLoading={isLoading}
+                    authUser={authUser}
+                    user={user}
+                    userInitials={userInitials}
+                    onSignOut={signOut}
+                    onLogin={openLogin}
+                    mobileUserMenuOpen={mobileUserMenuOpen}
+                    setMobileUserMenuOpen={setMobileUserMenuOpen}
+                    setMobileNavOpen={setMobileNavOpen}
+                  />
+                </div>
               </div>
             </div>
 

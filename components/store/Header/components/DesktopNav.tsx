@@ -10,6 +10,8 @@ interface DesktopNavProps {
   activeCategory: string | null
   isScrolled: boolean
   onCategoryHover: (name: string) => void
+  priority?: boolean
+  className?: string
 }
 
 export function DesktopNav({
@@ -17,9 +19,10 @@ export function DesktopNav({
   activeCategory,
   isScrolled,
   onCategoryHover,
+  className,
 }: DesktopNavProps) {
   return (
-    <nav className="hidden lg:flex items-center gap-0.5 flex-1 justify-center overflow-hidden">
+    <nav className={cn("hidden lg:flex items-center gap-0.5 flex-1 justify-center overflow-hidden", className)}>
       {categories.map((category) => {
         const isActive = pathname?.startsWith(category.href) || activeCategory === category.name
 
@@ -53,3 +56,4 @@ export function DesktopNav({
     </nav>
   )
 }
+
