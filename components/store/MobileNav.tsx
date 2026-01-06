@@ -147,8 +147,8 @@ export function MobileNav({
           {!activeCategory ? (
             // Main Menu
             <div className="p-4 space-y-3">
-              {/* Category List - Google Style */}
-              <div className="flex flex-col gap-1">
+              {/* Category List - Google Style Capsules */}
+              <div className="flex flex-col gap-3 px-4">
                 {categories.map((category) => {
                   const Icon = category.icon
                   return (
@@ -156,89 +156,124 @@ export function MobileNav({
                       key={category.slug}
                       onClick={() => setActiveCategory(category.slug)}
                       className={cn(
-                        "flex items-center justify-between w-full px-6 py-4 rounded-full",
-                        "hover:bg-secondary/50 transition-colors",
-                        "text-left group"
+                        "flex items-center justify-between w-full p-2 pl-6 rounded-full",
+                        "bg-secondary/20 hover:bg-secondary/40 transition-all duration-200", // Capsule background visible
+                        "text-left group min-h-[72px]" // Taller items like Google
                       )}
                     >
-                      <span className="text-lg font-medium tracking-tight">{category.name}</span>
-                      <div className="flex items-center gap-3">
-                        <Icon className="size-5 text-muted-foreground group-hover:text-foreground transition-colors" />
+                      <span className="text-lg font-semibold tracking-tight text-foreground/90">{category.name}</span>
+                      <div className="flex items-center justify-center p-2 mr-1 rounded-full bg-white dark:bg-black/20 shadow-sm h-12 w-12">
+                        <Icon className="size-6 text-foreground/80 group-hover:text-foreground transition-colors" />
                       </div>
                     </button>
                   )
                 })}
               </div>
 
-              {/* All Products Link */}
-              <Link
-                href="/products"
-                className={cn(
-                  "flex items-center justify-between px-6 py-4 rounded-full",
-                  "hover:bg-secondary/50 transition-colors"
-                )}
-              >
-                <span className="text-lg font-medium tracking-tight">Tous les produits</span>
-                <ShoppingBag className="size-5 text-muted-foreground" />
-              </Link>
-
-              {/* Promotions Link */}
-              {hasPromotions && (
+              {/* All Products Link - Google Capsule Style */}
+              <div className="px-4 flex flex-col gap-3">
                 <Link
-                  href="/promotions"
+                  href="/products"
                   className={cn(
-                    "flex items-center justify-between px-6 py-4 rounded-full",
-                    "hover:bg-secondary/50 transition-colors"
+                    "flex items-center justify-between w-full p-2 pl-6 rounded-full",
+                    "bg-secondary/20 hover:bg-secondary/40 transition-all duration-200",
+                    "min-h-[72px]"
                   )}
                 >
-                  <span className="text-lg font-medium tracking-tight text-amber-600 dark:text-amber-500">Offres spéciales</span>
-                  <Sparkles className="size-5 text-amber-600 dark:text-amber-500" />
+                  <span className="text-lg font-semibold tracking-tight text-foreground/90">Tous les produits</span>
+                  <div className="flex items-center justify-center p-2 mr-1 rounded-full bg-white dark:bg-black/20 shadow-sm h-12 w-12">
+                    <ShoppingBag className="size-6 text-foreground/80" />
+                  </div>
                 </Link>
-              )}
+
+                {/* Promotions Link */}
+                {hasPromotions && (
+                  <Link
+                    href="/promotions"
+                    className={cn(
+                      "flex items-center justify-between w-full p-2 pl-6 rounded-full",
+                      "bg-amber-500/10 hover:bg-amber-500/20 transition-all duration-200",
+                      "min-h-[72px]"
+                    )}
+                  >
+                    <span className="text-lg font-semibold tracking-tight text-amber-700 dark:text-amber-500">Offres spéciales</span>
+                    <div className="flex items-center justify-center p-2 mr-1 rounded-full bg-white dark:bg-black/20 shadow-sm h-12 w-12">
+                      <Sparkles className="size-6 text-amber-600 dark:text-amber-500" />
+                    </div>
+                  </Link>
+                )}
+              </div>
 
               {/* Divider */}
               <div className="h-px bg-border/50 my-4" />
 
-              {/* User Section Style Google */}
+              {/* User Section Style Google Capsules */}
+              <div className="px-4 flex flex-col gap-3">
               {authUser && user ? (
-                <div className="space-y-1">
+                <>
                   <Link
                     href="/account"
-                    className="flex items-center justify-between px-6 py-4 rounded-full hover:bg-secondary/50 transition-colors"
+                    className={cn(
+                      "flex items-center justify-between w-full p-2 pl-6 rounded-full",
+                      "bg-secondary/20 hover:bg-secondary/40 transition-all duration-200",
+                      "min-h-[72px]"
+                    )}
                   >
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-8 w-8">
+                    <span className="text-lg font-semibold tracking-tight text-foreground/90">Mon compte</span>
+                    <div className="flex items-center justify-center p-1 mr-1 rounded-full bg-white dark:bg-black/20 shadow-sm h-12 w-12 overflow-hidden">
+                      <Avatar className="h-full w-full">
                         <AvatarImage src={user.avatar_url || undefined} />
                         <AvatarFallback className="bg-primary/10 text-primary text-xs font-semibold">
                           {userInitials}
                         </AvatarFallback>
                       </Avatar>
-                      <span className="text-lg font-medium tracking-tight">Mon compte</span>
                     </div>
                   </Link>
 
-                  <Link href="/orders" className="flex items-center justify-between px-6 py-4 rounded-full hover:bg-secondary/50 transition-colors">
-                    <span className="text-lg font-medium tracking-tight">Commandes</span>
-                    <ShoppingBag className="size-5 text-muted-foreground" />
+                  <Link href="/orders" 
+                    className={cn(
+                      "flex items-center justify-between w-full p-2 pl-6 rounded-full",
+                      "bg-secondary/20 hover:bg-secondary/40 transition-all duration-200",
+                      "min-h-[72px]"
+                    )}
+                  >
+                    <span className="text-lg font-semibold tracking-tight text-foreground/90">Commandes</span>
+                    <div className="flex items-center justify-center p-2 mr-1 rounded-full bg-white dark:bg-black/20 shadow-sm h-12 w-12">
+                      <ShoppingBag className="size-6 text-foreground/80" />
+                    </div>
                   </Link>
                   
-                  <Link href="/wishlist" className="flex items-center justify-between px-6 py-4 rounded-full hover:bg-secondary/50 transition-colors">
-                    <span className="text-lg font-medium tracking-tight">Favoris</span>
-                    <Heart className="size-5 text-muted-foreground" />
+                  <Link href="/wishlist" 
+                    className={cn(
+                      "flex items-center justify-between w-full p-2 pl-6 rounded-full",
+                      "bg-secondary/20 hover:bg-secondary/40 transition-all duration-200",
+                      "min-h-[72px]"
+                    )}
+                  >
+                    <span className="text-lg font-semibold tracking-tight text-foreground/90">Favoris</span>
+                    <div className="flex items-center justify-center p-2 mr-1 rounded-full bg-white dark:bg-black/20 shadow-sm h-12 w-12">
+                      <Heart className="size-6 text-foreground/80" />
+                    </div>
                   </Link>
 
                   <button
                     onClick={handleSignOut}
-                    className="flex items-center justify-between w-full px-6 py-4 rounded-full hover:bg-secondary/50 transition-colors text-left text-destructive"
+                    className={cn(
+                      "flex items-center justify-between w-full p-2 pl-6 rounded-full",
+                      "bg-secondary/20 hover:bg-secondary/40 transition-all duration-200",
+                      "min-h-[72px] text-left"
+                    )}
                   >
-                    <span className="text-lg font-medium tracking-tight">Déconnexion</span>
-                    <LogOut className="size-5" />
+                    <span className="text-lg font-semibold tracking-tight text-destructive">Déconnexion</span>
+                    <div className="flex items-center justify-center p-2 mr-1 rounded-full bg-white dark:bg-black/20 shadow-sm h-12 w-12">
+                      <LogOut className="size-6 text-destructive" />
+                    </div>
                   </button>
-                </div>
+                </>
               ) : (
-                <div className="grid grid-cols-2 gap-3 px-2">
+                <div className="grid grid-cols-2 gap-3 pb-2">
                   <Button
-                    className="rounded-full h-12 font-medium"
+                    className="rounded-full h-14 font-bold text-lg"
                     onClick={() => {
                       onOpenChange(false)
                       openLogin()
@@ -248,7 +283,7 @@ export function MobileNav({
                   </Button>
                   <Button
                     variant="outline"
-                    className="rounded-full h-12 font-medium"
+                    className="rounded-full h-14 font-bold text-lg border-2"
                     onClick={() => {
                       onOpenChange(false)
                       openRegister()
@@ -259,10 +294,17 @@ export function MobileNav({
                 </div>
               )}
 
-              {/* Theme Toggle - Minimal */}
-              <div className="flex items-center justify-between px-6 py-4 rounded-full hover:bg-secondary/50 transition-colors">
-                <span className="text-lg font-medium tracking-tight">Apparence</span>
-                <ThemeToggle />
+              {/* Theme Toggle - Minimal Capsule */}
+              <div className={cn(
+                "flex items-center justify-between w-full p-2 pl-6 rounded-full",
+                "bg-secondary/20 hover:bg-secondary/40 transition-all duration-200",
+                "min-h-[72px]"
+              )}>
+                <span className="text-lg font-semibold tracking-tight text-foreground/90">Apparence</span>
+                <div className="mr-3">
+                   <ThemeToggle />
+                </div>
+              </div>
               </div>
             </div>
           ) : (
