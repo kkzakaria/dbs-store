@@ -6,7 +6,7 @@ import { Logo } from "@/components/shared/Logo"
 import { Button } from "@/components/ui/button"
 import { Menu, X } from "lucide-react"
 
-import { MobileNav } from "../MobileNav"
+import { MobileNav } from "./MobileNav"
 import { AuthDialog } from "@/components/auth"
 
 import { useHeader } from "./hooks/use-header"

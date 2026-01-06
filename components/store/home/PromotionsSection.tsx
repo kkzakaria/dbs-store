@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { CountdownTimer, AnimateOnScroll } from "@/components/animations"
 import { ArrowRight, Flame } from "lucide-react"
-import { ProductCard } from "./products/ProductCard"
+import { ProductCard } from "../products/ProductCard"
 
 interface PromoProduct {
   id: string

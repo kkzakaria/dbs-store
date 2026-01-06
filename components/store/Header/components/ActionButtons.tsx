@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { ThemeToggle } from "../../theme-toggle"
+import { ThemeToggle } from "@/components/shared/ThemeToggle"
 import { ShoppingCart } from "lucide-react"
 
 interface ActionButtonsProps {

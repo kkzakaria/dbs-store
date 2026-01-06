@@ -5,7 +5,7 @@ import Image from "next/image"
 import Link from "next/link"
 import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { ProductCard } from "./products/ProductCard"
+import { ProductCard } from "../products/ProductCard"
 import {
   Carousel,
   CarouselContent,

@@ -1,14 +1,17 @@
 import Link from "next/link"
 import { ArrowRight } from "lucide-react"
-import { HeroSection } from "@/components/store/HeroSection"
-import { PromotionsSection } from "@/components/store/PromotionsSection"
-import { PopularProductsSection } from "@/components/store/PopularProductsSection"
-import { NewArrivalsSection } from "@/components/store/NewArrivalsSection"
-import { FeaturesSection } from "@/components/store/FeaturesSection"
-import { TestimonialsSection } from "@/components/store/TestimonialsSection"
-import { BrandsSection } from "@/components/store/BrandsSection"
-import { StatsSection } from "@/components/store/StatsSection"
-import { CTASection } from "@/components/store/CTASection"
+
+import { 
+  HeroSection,
+  PromotionsSection,
+  PopularProductsSection,
+  NewArrivalsSection,
+  FeaturesSection,
+  TestimonialsSection,
+  BrandsSection,
+  StatsSection,
+  CTASection
+} from "@/components/store"
 import { AnimateOnScroll } from "@/components/animations"
 import { createClient } from "@/lib/supabase/server"
 import { cn } from "@/lib/utils"

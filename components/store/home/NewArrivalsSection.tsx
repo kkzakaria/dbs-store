@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { AnimateOnScroll } from "@/components/animations"
 import { cn } from "@/lib/utils"
 import { ArrowRight, Sparkles } from "lucide-react"
-import { ProductCard } from "./products/ProductCard"
+import { ProductCard } from "../products/ProductCard"
 import type { Product, Category } from "@/types"
 
 interface NewProduct {

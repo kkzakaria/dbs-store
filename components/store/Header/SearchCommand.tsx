@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/command"
 import { Search, Package, FolderOpen, TrendingUp, Loader2 } from "lucide-react"
 import { searchProducts } from "@/actions/products"
-import { formatPrice } from "./products/PriceDisplay"
+import { formatPrice } from "../products/PriceDisplay"
 import { useDebounce } from "@/hooks/use-debounce"
 
 interface SearchCommandProps {

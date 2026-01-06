@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { AdminSidebarMobile } from "./AdminSidebarMobile"
-import { ThemeToggle } from "@/components/store/theme-toggle"
+import { ThemeToggle } from "@/components/shared/ThemeToggle"
 import { useAdminHeader } from "./AdminHeaderContext"
 import { ClientOnly } from "@/components/shared/ClientOnly"
 import { createClient } from "@/lib/supabase/client"
