@@ -54,9 +54,12 @@ export function Header() {
       <FloatingMenuButton
         isScrolled={isScrolled}
         isVisible={isScrolled || mobileNavOpen || mobileUserMenuOpen}
-        isOpen={mobileNavOpen}
+        isOpen={mobileNavOpen || mobileUserMenuOpen}
         onClick={() => {
-          if (mobileUserMenuOpen) setMobileUserMenuOpen(false)
+          if (mobileUserMenuOpen) {
+            setMobileUserMenuOpen(false)
+            return
+          }
           setMobileNavOpen(!mobileNavOpen)
         }}
       />
