@@ -19,7 +19,7 @@ export function ThemeToggle({ isScrolled }: ThemeToggleProps) {
   }, [])
 
   const buttonClasses = cn(
-    "rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5 transition-google",
+    "rounded-full text-foreground hover:text-primary hover:bg-primary/5 transition-google",
     isScrolled ? "h-8 w-8" : "h-10 w-10"
   )
 

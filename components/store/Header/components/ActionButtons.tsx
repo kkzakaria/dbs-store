@@ -29,7 +29,7 @@ export function ActionButtons({
         size="icon"
         onClick={onCartOpen}
         className={cn(
-          "relative rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5",
+          "relative rounded-full text-foreground hover:text-primary hover:bg-primary/5",
           isScrolled ? "h-8 w-8" : "h-10 w-10"
         )}
       >
