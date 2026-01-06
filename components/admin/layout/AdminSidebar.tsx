@@ -21,7 +21,7 @@ export function AdminSidebar() {
       {/* Logo */}
       <div
         className={cn(
-          "flex h-16 items-center border-b px-4",
+          "flex h-16 items-center justify-center border-b px-4",
           collapsed && "justify-center px-2"
         )}
       >
@@ -29,7 +29,7 @@ export function AdminSidebar() {
           {collapsed ? (
             <span className="text-xl font-bold text-primary">D</span>
           ) : (
-            <Logo asLink={false} />
+            <Logo asLink={false} variant="default" />
           )}
         </Link>
       </div>
