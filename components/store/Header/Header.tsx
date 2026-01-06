@@ -6,7 +6,6 @@ import { Logo } from "@/components/shared/Logo"
 import { Button } from "@/components/ui/button"
 import { Menu } from "lucide-react"
 
-import { SearchCommand } from "../SearchCommand"
 import { MobileNav } from "../MobileNav"
 import { AuthDialog } from "@/components/auth"
 
@@ -17,6 +16,7 @@ import {
   MegaMenu,
   ActionButtons,
   UserMenu,
+  InlineSearch,
 } from "./components"
 
 export function Header() {
@@ -122,11 +122,17 @@ export function Header() {
 
               {/* Right section: Actions */}
               <div className="flex items-center gap-0.5 md:gap-1 shrink-0">
+                {/* Inline Search - Google Store style */}
+                <InlineSearch
+                  isExpanded={searchOpen}
+                  onExpandedChange={setSearchOpen}
+                  isScrolled={isScrolled}
+                />
+
                 <ActionButtons
                   isScrolled={isScrolled}
                   totalItems={totalItems}
                   isHydrated={isHydrated}
-                  onSearchOpen={() => setSearchOpen(true)}
                   onCartOpen={openCart}
                 />
 
@@ -152,9 +158,6 @@ export function Header() {
           </div>
         </div>
       </header>
-
-      {/* Search Command Dialog */}
-      <SearchCommand open={searchOpen} onOpenChange={setSearchOpen} />
 
       {/* Mobile Navigation */}
       <MobileNav
