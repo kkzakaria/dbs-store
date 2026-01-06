@@ -4,12 +4,13 @@ import Image from "next/image"
 import { cn } from "@/lib/utils"
 
 interface LogoProps extends React.ComponentProps<"div"> {
-  variant?: "default" | "small" | "large" | "icon-only"
+  variant?: "default" | "small" | "large" | "icon-only" | "admin"
   showText?: boolean
   asLink?: boolean
 }
 
 const sizeMap = {
+  admin: { width: 40, height: 24 },
   small: { width: 60, height: 36 },
   default: { width: 90, height: 54 },
   large: { width: 160, height: 96 },
@@ -28,6 +29,7 @@ function Logo({
     <div
       data-slot="logo"
       className={cn("flex items-center", className)}
+      style={{ maxHeight: `${size.height}px` }}
       {...props}
     >
       <Image
@@ -35,7 +37,7 @@ function Logo({
         alt="DBS Store"
         width={size.width}
         height={size.height}
-        className="shrink-0 object-contain h-full w-auto"
+        className="shrink-0 object-contain max-w-full max-h-full"
         priority
       />
     </div>

@@ -35,10 +35,10 @@ export function AdminSidebarMobile() {
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-64 p-0">
-          <SheetHeader className="h-16 border-b px-4">
+          <SheetHeader className="h-16 border-b px-4 flex items-center justify-center">
             <SheetTitle className="flex items-center">
               <Link href="/admin" onClick={() => setOpen(false)}>
-                <Logo asLink={false} />
+                <Logo asLink={false} variant="default" />
               </Link>
             </SheetTitle>
           </SheetHeader>
