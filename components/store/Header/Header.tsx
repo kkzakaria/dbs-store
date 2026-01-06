@@ -4,7 +4,7 @@ import Link from "next/link"
 import { cn } from "@/lib/utils"
 import { Logo } from "@/components/shared/Logo"
 import { Button } from "@/components/ui/button"
-import { Menu } from "lucide-react"
+import { Menu, X } from "lucide-react"
 
 import { MobileNav } from "../MobileNav"
 import { AuthDialog } from "@/components/auth"
@@ -57,15 +57,14 @@ export function Header() {
 
       <header
         className={cn(
-          "sticky top-0 z-50 w-full transition-all duration-500 ease-out"
+          "sticky top-0 z-[101] w-full transition-all duration-500 ease-out"
         )}
       >
         {/* Outer wrapper for positioning */}
         <div
           className={cn(
             "transition-all duration-500 ease-out",
-            isScrolled ? "py-3 px-4 lg:px-4 pl-[60px] lg:pl-4" : "py-0 px-0",
-            mobileNavOpen && "opacity-0 pointer-events-none"
+            (isScrolled || mobileNavOpen) ? "py-3 px-4 lg:px-4 pl-[60px] lg:pl-4" : "py-0 px-0"
           )}
         >
           {/* The actual header bar that transforms to pill */}
@@ -73,7 +72,7 @@ export function Header() {
             ref={megaMenuRef}
             className={cn(
               "transition-all duration-500 ease-out mx-auto",
-              isScrolled
+              (isScrolled || mobileNavOpen)
                 ? "max-w-6xl bg-background/95 backdrop-blur-xl rounded-full shadow-google-md border border-border/40"
                 : "max-w-none bg-background border-b border-border/30"
             )}
@@ -86,19 +85,25 @@ export function Header() {
                   : "h-16 md:h-18 container-google"
               )}
             >
-              {/* Left section: Menu (mobile) + Logo */}
               <div className="flex items-center gap-3 shrink-0">
-                {/* Mobile Menu Button - visible only on mobile when not scrolled */}
+                {/* Mobile Menu Button - always visible in dock mode */}
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={() => setMobileNavOpen(true)}
+                  onClick={() => setMobileNavOpen(!mobileNavOpen)}
                   className={cn(
                     "lg:hidden rounded-full transition-all duration-300",
-                    isScrolled ? "opacity-0 w-0 p-0 overflow-hidden" : "opacity-100"
+                    // Hide ONLY if scrolled AND menu is closed (to leave space for dock effect if desired, or keep visible)
+                    // Actually Google keeps it visible. But user has floating button.
+                    // Let's make it visible if menu is open OR not scrolled.
+                    (isScrolled && !mobileNavOpen) ? "opacity-0 w-0 p-0 overflow-hidden" : "opacity-100"
                   )}
                 >
-                  <Menu className="size-5" />
+                  {mobileNavOpen ? (
+                    <X className="size-5" />
+                  ) : (
+                    <Menu className="size-5" />
+                  )}
                 </Button>
 
                 {/* Logo */}

@@ -137,23 +137,12 @@ export function MobileNav({
         className={cn(
           "fixed inset-x-0 top-0 z-[100] bg-background",
           "animate-in slide-in-from-top duration-400 ease-out",
-          "max-h-[85vh] overflow-hidden rounded-b-3xl shadow-google-lg"
+          "h-[100dvh] overflow-hidden shadow-none pt-20"
         )}
       >
-        {/* Header with Close Button */}
-        <div className="flex items-center justify-between p-4 border-b border-border/30">
-          <Logo variant="default" className="h-7" />
-          <button
-            onClick={() => onOpenChange(false)}
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-muted hover:bg-muted/80 transition-colors"
-            aria-label="Fermer le menu"
-          >
-            <X className="size-5" />
-          </button>
-        </div>
 
         {/* Menu Content */}
-        <div className="overflow-y-auto max-h-[calc(85vh-60px)] hide-scrollbar">
+        <div className="overflow-y-auto h-full hide-scrollbar pb-24">
           {/* Main Categories or Sub-menu */}
           {!activeCategory ? (
             // Main Menu
