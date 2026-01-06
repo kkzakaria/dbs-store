@@ -21,7 +21,9 @@ export function ActionButtons({
   return (
     <>
       {/* Theme Toggle */}
-      <ThemeToggle isScrolled={isScrolled} />
+      <div className="hidden md:block">
+        <ThemeToggle isScrolled={isScrolled} />
+      </div>
 
       {/* Cart */}
       <Button

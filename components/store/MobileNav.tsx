@@ -133,16 +133,22 @@ export function MobileNav({
       />
 
       {/* Menu Overlay */}
+      {/* Menu Overlay */}
       <div 
         className={cn(
-          "fixed inset-x-0 top-0 z-[100] bg-background",
-          "animate-in slide-in-from-top duration-400 ease-out",
-          "h-[100dvh] overflow-hidden shadow-none pt-20"
+          "fixed inset-x-0 top-0 z-[100]",
+          "animate-in slide-in-from-bottom-[5%] duration-500 ease-out", // Slightly modified animation to feel like it rises/settles or slides
+          "h-[100dvh] flex flex-col"
         )}
       >
+        {/* Transparent Spacer for Appbar */}
+        <div className="h-[72px] shrink-0 bg-transparent" onClick={() => onOpenChange(false)} />
 
-        {/* Menu Content */}
-        <div className="overflow-y-auto h-full hide-scrollbar pb-24">
+        {/* Menu Sheet - Rounded Top */}
+        <div className="flex-1 bg-background rounded-t-[32px] overflow-hidden shadow-[0_-10px_40px_rgba(0,0,0,0.1)] relative">
+          
+          {/* Menu Content */}
+          <div className="overflow-y-auto h-full hide-scrollbar pb-24 pt-8">
           {/* Main Categories or Sub-menu */}
           {!activeCategory ? (
             // Main Menu
@@ -357,6 +363,7 @@ export function MobileNav({
               </div>
             </div>
           )}
+          </div>
         </div>
       </div>
     </>

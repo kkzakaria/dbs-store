@@ -48,12 +48,12 @@ export function Header() {
 
 
       {/* Floating Menu Button - Mobile only, appears when scrolled */}
-      {!mobileNavOpen && (
-        <FloatingMenuButton
-          isScrolled={isScrolled}
-          onClick={() => setMobileNavOpen(true)}
-        />
-      )}
+      {/* Floating Menu Button - Always present, handles visibility based on state */}
+      <FloatingMenuButton
+        isScrolled={isScrolled}
+        isOpen={mobileNavOpen}
+        onClick={() => setMobileNavOpen(!mobileNavOpen)}
+      />
 
       <header
         className={cn(
@@ -80,7 +80,7 @@ export function Header() {
             <div
               className={cn(
                 "flex items-center justify-between gap-1 transition-all duration-500 ease-out",
-                isScrolled
+                (isScrolled || mobileNavOpen)
                   ? "h-12 px-3 lg:px-4"
                   : "h-16 md:h-18 container-google"
               )}
@@ -93,10 +93,8 @@ export function Header() {
                   onClick={() => setMobileNavOpen(!mobileNavOpen)}
                   className={cn(
                     "lg:hidden rounded-full transition-all duration-300",
-                    // Hide ONLY if scrolled AND menu is closed (to leave space for dock effect if desired, or keep visible)
-                    // Actually Google keeps it visible. But user has floating button.
-                    // Let's make it visible if menu is open OR not scrolled.
-                    (isScrolled && !mobileNavOpen) ? "opacity-0 w-0 p-0 overflow-hidden" : "opacity-100"
+                    // Hide if Scrolled OR Menu Open (Floating Button takes over)
+                    (isScrolled || mobileNavOpen) ? "opacity-0 w-0 p-0 overflow-hidden" : "opacity-100"
                   )}
                 >
                   {mobileNavOpen ? (
@@ -116,7 +114,7 @@ export function Header() {
                     asLink={false}
                     className={cn(
                       "transition-all duration-300",
-                      isScrolled ? "scale-90" : "scale-100"
+                      (isScrolled || mobileNavOpen) ? "scale-75 origin-left" : "scale-100"
                     )}
                   />
                 </Link>
@@ -136,18 +134,18 @@ export function Header() {
                 <InlineSearch
                   isExpanded={searchOpen}
                   onExpandedChange={setSearchOpen}
-                  isScrolled={isScrolled}
+                  isScrolled={isScrolled || mobileNavOpen}
                 />
 
                 <ActionButtons
-                  isScrolled={isScrolled}
+                  isScrolled={isScrolled || mobileNavOpen}
                   totalItems={totalItems}
                   isHydrated={isHydrated}
                   onCartOpen={openCart}
                 />
 
                 <UserMenu
-                  isScrolled={isScrolled}
+                  isScrolled={isScrolled || mobileNavOpen}
                   mounted={mounted}
                   isLoading={isLoading}
                   authUser={authUser}
