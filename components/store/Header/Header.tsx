@@ -36,6 +36,8 @@ export function Header() {
     setSearchOpen,
     mobileNavOpen,
     setMobileNavOpen,
+    mobileUserMenuOpen,
+    setMobileUserMenuOpen,
     isScrolled,
     mounted,
     activeCategory,
@@ -51,8 +53,12 @@ export function Header() {
       {/* Floating Menu Button - Always present, handles visibility based on state */}
       <FloatingMenuButton
         isScrolled={isScrolled}
+        isVisible={isScrolled || mobileNavOpen || mobileUserMenuOpen}
         isOpen={mobileNavOpen}
-        onClick={() => setMobileNavOpen(!mobileNavOpen)}
+        onClick={() => {
+          if (mobileUserMenuOpen) setMobileUserMenuOpen(false)
+          setMobileNavOpen(!mobileNavOpen)
+        }}
       />
 
       <header
@@ -64,7 +70,7 @@ export function Header() {
         <div
           className={cn(
             "transition-all duration-500 ease-out",
-            (isScrolled || mobileNavOpen) ? "py-3 px-4 lg:px-4 pl-[60px] lg:pl-4" : "py-0 px-0"
+            (isScrolled || mobileNavOpen || mobileUserMenuOpen) ? "py-3 px-4 lg:px-4 pl-[60px] lg:pl-4" : "py-0 px-0"
           )}
         >
           {/* The actual header bar that transforms to pill */}
@@ -72,7 +78,7 @@ export function Header() {
             ref={megaMenuRef}
             className={cn(
               "transition-all duration-500 ease-out mx-auto",
-              (isScrolled || mobileNavOpen)
+              (isScrolled || mobileNavOpen || mobileUserMenuOpen)
                 ? "max-w-6xl bg-background/95 backdrop-blur-xl rounded-full shadow-google-md border border-border/40"
                 : "max-w-none bg-background border-b border-border/30"
             )}
@@ -80,7 +86,7 @@ export function Header() {
             <div
               className={cn(
                 "flex items-center justify-between gap-1 transition-all duration-500 ease-out",
-                (isScrolled || mobileNavOpen)
+                (isScrolled || mobileNavOpen || mobileUserMenuOpen)
                   ? "h-12 px-3 lg:px-4"
                   : "h-16 md:h-18 container-google"
               )}
@@ -94,7 +100,7 @@ export function Header() {
                   className={cn(
                     "lg:hidden rounded-full transition-all duration-300",
                     // Hide if Scrolled OR Menu Open (Floating Button takes over)
-                    (isScrolled || mobileNavOpen) ? "opacity-0 w-0 p-0 overflow-hidden" : "opacity-100"
+                    (isScrolled || mobileNavOpen || mobileUserMenuOpen) ? "opacity-0 w-0 p-0 overflow-hidden" : "opacity-100"
                   )}
                 >
                   {mobileNavOpen ? (
@@ -114,7 +120,7 @@ export function Header() {
                     asLink={false}
                     className={cn(
                       "transition-all duration-300",
-                      (isScrolled || mobileNavOpen) ? "scale-75 origin-left" : "scale-100"
+                      (isScrolled || mobileNavOpen || mobileUserMenuOpen) ? "scale-75 origin-left" : "scale-100"
                     )}
                   />
                 </Link>
@@ -134,18 +140,18 @@ export function Header() {
                 <InlineSearch
                   isExpanded={searchOpen}
                   onExpandedChange={setSearchOpen}
-                  isScrolled={isScrolled || mobileNavOpen}
+                  isScrolled={isScrolled || mobileNavOpen || mobileUserMenuOpen}
                 />
 
                 <ActionButtons
-                  isScrolled={isScrolled || mobileNavOpen}
+                  isScrolled={isScrolled || mobileNavOpen || mobileUserMenuOpen}
                   totalItems={totalItems}
                   isHydrated={isHydrated}
                   onCartOpen={openCart}
                 />
 
                 <UserMenu
-                  isScrolled={isScrolled || mobileNavOpen}
+                  isScrolled={isScrolled || mobileNavOpen || mobileUserMenuOpen}
                   mounted={mounted}
                   isLoading={isLoading}
                   authUser={authUser}
@@ -153,6 +159,8 @@ export function Header() {
                   userInitials={userInitials}
                   onSignOut={signOut}
                   onLogin={openLogin}
+                  mobileUserMenuOpen={mobileUserMenuOpen}
+                  setMobileUserMenuOpen={setMobileUserMenuOpen}
                 />
               </div>
             </div>

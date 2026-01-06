@@ -18,6 +18,7 @@ export function useHeader() {
 
     const [searchOpen, setSearchOpen] = React.useState(false);
     const [mobileNavOpen, setMobileNavOpen] = React.useState(false);
+    const [mobileUserMenuOpen, setMobileUserMenuOpen] = React.useState(false);
     const [isScrolled, setIsScrolled] = React.useState(false);
     const [mounted, setMounted] = React.useState(false);
     const [activeCategory, setActiveCategory] = React.useState<string | null>(
@@ -106,6 +107,8 @@ export function useHeader() {
         setSearchOpen,
         mobileNavOpen,
         setMobileNavOpen,
+        mobileUserMenuOpen,
+        setMobileUserMenuOpen,
         isScrolled,
         mounted,
         activeCategory,
