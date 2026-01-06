@@ -59,7 +59,7 @@ export function UserMenu({
       <div
         className={cn(
           "rounded-full bg-muted animate-pulse",
-          isScrolled ? "h-8 w-8" : "h-9 w-9"
+          isScrolled ? "h-10 w-10" : "h-9 w-9"
         )}
       />
     )
@@ -71,19 +71,19 @@ export function UserMenu({
       onClick={onClick}
       className={cn(
         "rounded-full hover:bg-muted relative",
-        isScrolled ? "h-8 w-8" : "h-10 w-10 p-0",
+        isScrolled ? "h-10 w-10" : "h-10 w-10 p-0",
         className
       )}
     >
       {authUser ? (
-        <Avatar className={cn(isScrolled ? "h-7 w-7" : "h-8 w-8")}>
+        <Avatar className={cn(isScrolled ? "h-8 w-8" : "h-8 w-8")}>
           <AvatarImage src={user?.avatar_url || undefined} />
           <AvatarFallback className="bg-primary/10 text-primary font-medium text-xs">
             {userInitials}
           </AvatarFallback>
         </Avatar>
       ) : (
-        <UserIcon className={cn(isScrolled ? "size-5" : "size-6")} />
+        <UserIcon className={cn(isScrolled ? "size-[22px]" : "size-6")} />
       )}
     </Button>
   )

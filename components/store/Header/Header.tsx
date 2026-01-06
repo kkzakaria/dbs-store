@@ -90,7 +90,7 @@ export function Header() {
               className={cn(
                 "flex items-center justify-between gap-1 transition-all duration-500 ease-out",
                 (isScrolled || mobileNavOpen || mobileUserMenuOpen)
-                  ? "h-12 px-3 lg:px-4"
+                  ? "h-12 md:h-14 px-3 lg:px-4"
                   : "h-16 md:h-18 container-google"
               )}
             >
@@ -123,7 +123,7 @@ export function Header() {
                     asLink={false}
                     className={cn(
                       "transition-all duration-300",
-                      (isScrolled || mobileNavOpen || mobileUserMenuOpen) ? "scale-75 origin-left" : "scale-100"
+                      (isScrolled || mobileNavOpen || mobileUserMenuOpen) ? "scale-90 origin-left" : "scale-100"
                     )}
                   />
                 </Link>

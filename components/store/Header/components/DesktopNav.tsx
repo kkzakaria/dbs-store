@@ -33,7 +33,7 @@ export function DesktopNav({
               href={category.href}
               className={cn(
                 "flex items-center gap-1 px-3 py-2 rounded-full text-sm font-medium transition-google whitespace-nowrap",
-                isScrolled ? "px-2.5 py-1.5 text-[13px]" : "px-3 py-2 text-[14px]",
+                isScrolled ? "px-3 py-2 text-[13.5px]" : "px-3 py-2 text-[14px]",
                 isActive
                   ? "text-primary bg-primary/5"
                   : "text-foreground hover:text-primary hover:bg-muted/50"

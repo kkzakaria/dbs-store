@@ -115,10 +115,10 @@ export function InlineSearch({ isExpanded, onExpandedChange, isScrolled }: Inlin
         onClick={() => onExpandedChange(true)}
         className={cn(
           "rounded-full text-foreground hover:text-primary hover:bg-primary/5 transition-colors flex items-center justify-center",
-          isScrolled ? "h-8 w-8" : "h-10 w-10"
+          isScrolled ? "h-10 w-10" : "h-10 w-10"
         )}
       >
-        <Search className={cn(isScrolled ? "size-4" : "size-5")} />
+        <Search className={cn(isScrolled ? "size-[18px]" : "size-5")} />
         <span className="sr-only">Rechercher</span>
       </button>
     )
