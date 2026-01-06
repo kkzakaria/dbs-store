@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { User as UserIcon, Package, Heart, LogOut } from "lucide-react"
+import { User as UserIcon, Package, Heart, LogOut, Shield } from "lucide-react"
 import type { User as AuthUser } from "@supabase/supabase-js"
 import type { User } from "@/types"
 
@@ -78,6 +78,15 @@ export function UserMenu({
               <span>Mon compte</span>
             </Link>
           </DropdownMenuItem>
+          {/* Admin link - only show for admin or super_admin users */}
+          {user?.role && (user.role === 'admin' || user.role === 'super_admin') && (
+            <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
+              <Link href="/admin" className="flex items-center gap-2 p-2 text-blue-600">
+                <Shield className="size-4" />
+                <span>Administration</span>
+              </Link>
+            </DropdownMenuItem>
+          )}
           <DropdownMenuItem asChild className="rounded-lg cursor-pointer">
             <Link href="/orders" className="flex items-center gap-2 p-2">
               <Package className="size-4" />
