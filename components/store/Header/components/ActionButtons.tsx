@@ -3,13 +3,12 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "../../theme-toggle"
-import { Search, ShoppingCart } from "lucide-react"
+import { ShoppingCart } from "lucide-react"
 
 interface ActionButtonsProps {
   isScrolled: boolean
   totalItems: number
   isHydrated: boolean
-  onSearchOpen: () => void
   onCartOpen: () => void
 }
 
@@ -17,25 +16,10 @@ export function ActionButtons({
   isScrolled,
   totalItems,
   isHydrated,
-  onSearchOpen,
   onCartOpen,
 }: ActionButtonsProps) {
   return (
     <>
-      {/* Search */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={onSearchOpen}
-        className={cn(
-          "rounded-full text-muted-foreground hover:text-primary hover:bg-primary/5",
-          isScrolled ? "h-8 w-8" : "h-10 w-10"
-        )}
-      >
-        <Search className={cn(isScrolled ? "size-4" : "size-5")} />
-        <span className="sr-only">Rechercher</span>
-      </Button>
-
       {/* Theme Toggle */}
       <ThemeToggle isScrolled={isScrolled} />
 
