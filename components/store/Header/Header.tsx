@@ -106,7 +106,7 @@ export function Header() {
                     asLink={false}
                     className={cn(
                       "transition-all duration-300",
-                      isScrolled ? "h-8 w-auto" : "h-8 w-auto"
+                      isScrolled ? "scale-90" : "scale-100"
                     )}
                   />
                 </Link>
