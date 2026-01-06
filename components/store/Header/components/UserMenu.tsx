@@ -28,6 +28,7 @@ interface UserMenuProps {
   onLogin: () => void
   mobileUserMenuOpen: boolean
   setMobileUserMenuOpen: (open: boolean) => void
+  setMobileNavOpen?: (open: boolean) => void
 }
 
 import { MobileUserMenu } from "./MobileUserMenu"
@@ -43,6 +44,7 @@ export function UserMenu({
   onLogin,
   mobileUserMenuOpen,
   setMobileUserMenuOpen,
+  setMobileNavOpen,
 }: UserMenuProps) {
   const pathname = usePathname()
 
@@ -187,7 +189,12 @@ export function UserMenu({
 
       {/* --- MOBILE VIEW (Sheet/Overlay) --- */}
       <div className="md:hidden">
-        <TriggerButton onClick={() => setMobileUserMenuOpen(!mobileUserMenuOpen)} />
+        <TriggerButton onClick={() => {
+          if (!mobileUserMenuOpen) {
+            setMobileNavOpen?.(false)
+          }
+          setMobileUserMenuOpen(!mobileUserMenuOpen)
+        }} />
         
         <MobileUserMenu 
           open={mobileUserMenuOpen}

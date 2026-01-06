@@ -161,6 +161,7 @@ export function Header() {
                   onLogin={openLogin}
                   mobileUserMenuOpen={mobileUserMenuOpen}
                   setMobileUserMenuOpen={setMobileUserMenuOpen}
+                  setMobileNavOpen={setMobileNavOpen}
                 />
               </div>
             </div>
