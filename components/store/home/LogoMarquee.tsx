@@ -45,7 +45,7 @@ export function LogoMarquee({
   return (
     <div
       className={cn(
-        "group flex overflow-hidden p-2 [--gap:5rem] [gap:var(--gap)] flex-row",
+        "group flex overflow-hidden p-4 [--gap:6rem] [gap:var(--gap)] flex-row",
         className
       )}
       style={
@@ -56,7 +56,7 @@ export function LogoMarquee({
     >
       <div
         className={cn(
-          "flex shrink-0 justify-around [gap:var(--gap)] animate-marquee",
+          "flex shrink-0 [gap:var(--gap)] animate-marquee",
           reverse && "[animation-direction:reverse]",
           pauseOnHover && "group-hover:[animation-play-state:paused]"
         )}
@@ -64,14 +64,14 @@ export function LogoMarquee({
         {logos.map((logo, idx) => (
           <div
             key={`${logo.name}-${idx}`}
-            className="flex h-12 w-auto items-center justify-center"
+            className="flex h-16 w-auto min-w-[120px] items-center justify-center p-2"
           >
             <Image
               src={logo.path}
               alt={logo.name}
               width={140}
               height={56}
-              className="h-10 md:h-14 w-auto max-w-[100px] md:max-w-[150px] object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+              className="h-10 md:h-14 w-auto max-w-[100px] md:max-w-[150px] object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
               style={logo.scale ? { transform: `scale(${logo.scale})` } : undefined}
             />
           </div>
@@ -79,7 +79,7 @@ export function LogoMarquee({
       </div>
       <div
         className={cn(
-          "flex shrink-0 justify-around [gap:var(--gap)] animate-marquee",
+          "flex shrink-0 [gap:var(--gap)] animate-marquee",
           reverse && "[animation-direction:reverse]",
           pauseOnHover && "group-hover:[animation-play-state:paused]"
         )}
@@ -88,14 +88,14 @@ export function LogoMarquee({
         {logos.map((logo, idx) => (
           <div
             key={`${logo.name}-clone-${idx}`}
-            className="flex h-12 w-auto items-center justify-center"
+            className="flex h-16 w-auto min-w-[120px] items-center justify-center p-2"
           >
             <Image
               src={logo.path}
               alt={logo.name}
               width={140}
               height={56}
-              className="h-10 md:h-14 w-auto max-w-[100px] md:max-w-[150px] object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
+              className="h-10 md:h-14 w-auto max-w-[100px] md:max-w-[150px] object-contain grayscale opacity-60 hover:grayscale-0 hover:opacity-100 transition-all duration-300"
               style={logo.scale ? { transform: `scale(${logo.scale})` } : undefined}
             />
           </div>
