@@ -5,29 +5,19 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { Logo } from "@/components/shared/Logo"
-import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/shared/ThemeToggle"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { useAuthStore } from "@/stores/auth-store"
 import type { User as AuthUser } from "@supabase/supabase-js"
 import type { User } from "@/types"
 import {
   Sparkles,
-  Heart,
-  User as UserIcon,
-  LogOut,
-  LogIn,
   ShoppingBag,
   ChevronRight,
   ChevronLeft,
-  X,
   Smartphone,
   Watch,
   Tablet,
   Laptop,
   Headphones,
-  Sun,
-  Moon,
 } from "lucide-react"
 
 interface MobileNavProps {
@@ -72,22 +62,12 @@ const categories = [
   },
 ]
 
-const userNavigation = [
-  { name: "Mon compte", href: "/account", icon: UserIcon },
-  { name: "Mes commandes", href: "/orders", icon: ShoppingBag },
-  { name: "Liste de souhaits", href: "/wishlist", icon: Heart },
-]
-
 export function MobileNav({
   open,
   onOpenChange,
-  user,
-  authUser,
-  onSignOut,
   hasPromotions = false,
 }: MobileNavProps) {
   const pathname = usePathname()
-  const { openLogin, openRegister } = useAuthStore()
   const [activeCategory, setActiveCategory] = React.useState<string | null>(null)
 
   // Close menu on navigation
@@ -107,18 +87,6 @@ export function MobileNav({
       document.body.style.overflow = ''
     }
   }, [open])
-
-  const handleSignOut = async () => {
-    await onSignOut()
-    onOpenChange(false)
-  }
-
-  const userInitials = user?.full_name
-    ?.split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2) || "U"
 
   const activeCategoryData = categories.find(c => c.slug === activeCategory)
 

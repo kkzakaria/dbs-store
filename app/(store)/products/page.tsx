@@ -68,7 +68,7 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               Nos Produits
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl leading-relaxed">
-              Découvrez notre sélection exclusive d'appareils électroniques premium. {total} produit{total !== 1 ? "s" : ""} disponible{total !== 1 ? "s" : ""} pour vous.
+              Découvrez notre sélection exclusive d&apos;appareils électroniques premium. {total} produit{total !== 1 ? "s" : ""} disponible{total !== 1 ? "s" : ""} pour vous.
             </p>
           </div>
  

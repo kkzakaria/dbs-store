@@ -3,16 +3,10 @@ import Link from "next/link"
 import { Logo } from "@/components/shared/Logo"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
 import {
-  Phone,
-  Mail,
-  MapPin,
   Facebook,
   Instagram,
   Twitter,
-  ArrowRight,
-  Send,
 } from "lucide-react"
 
 const quickLinks = [
@@ -37,7 +31,6 @@ const socialLinks = [
   { name: "Twitter", icon: Twitter, href: "https://twitter.com" },
 ]
 
-const paymentMethods = ["Wave", "Orange Money", "MTN Money"]
 
 export function Footer() {
   const currentYear = new Date().getFullYear()
@@ -52,7 +45,7 @@ export function Footer() {
           <div className="col-span-2 lg:col-span-2 space-y-8">
             <Logo variant="default" asLink={false} className="h-8 w-auto" />
             <p className="text-[15px] text-muted-foreground leading-relaxed max-w-sm">
-              Découvrez le futur de la technologie. DBS Store vous propose une sélection rigoureuse d'appareils électroniques premium, alliant design innovant et performance exceptionnelle.
+              Découvrez le futur de la technologie. DBS Store vous propose une sélection rigoureuse d&apos;appareils électroniques premium, alliant design innovant et performance exceptionnelle.
             </p>
             <div className="flex items-center gap-4">
               {socialLinks.map((social) => (
@@ -126,7 +119,7 @@ export function Footer() {
                 type="submit"
                 className="h-11 rounded-xl bg-primary hover:bg-primary-hover text-white font-semibold transition-google"
               >
-                S'abonner
+                S&apos;abonner
               </Button>
             </form>
           </div>
@@ -149,7 +142,7 @@ export function Footer() {
           
           <div className="flex flex-col md:flex-row items-center gap-4">
              <p className="text-xs text-muted-foreground">
-              © {currentYear} DBS Store. Abidjan, Côte d'Ivoire.
+              © {currentYear} DBS Store. Abidjan, Côte d&apos;Ivoire.
             </p>
           </div>
         </div>

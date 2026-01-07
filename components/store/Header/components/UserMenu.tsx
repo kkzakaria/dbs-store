@@ -10,7 +10,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { User as UserIcon, Package, Heart, LogOut, Shield, ChevronRight, Settings } from "lucide-react"
@@ -32,6 +31,43 @@ interface UserMenuProps {
 }
 
 import { MobileUserMenu } from "./MobileUserMenu"
+
+const TriggerButton = ({ 
+  onClick, 
+  className, 
+  isScrolled, 
+  authUser, 
+  user, 
+  userInitials 
+}: { 
+  onClick?: () => void, 
+  className?: string,
+  isScrolled: boolean,
+  authUser: AuthUser | null,
+  user: User | null,
+  userInitials: string
+}) => (
+  <Button
+    variant="ghost"
+    onClick={onClick}
+    className={cn(
+      "rounded-full hover:bg-muted relative",
+      isScrolled ? "h-10 w-10" : "h-10 w-10 p-0",
+      className
+    )}
+  >
+    {authUser ? (
+      <Avatar className={cn(isScrolled ? "h-8 w-8" : "h-8 w-8")}>
+        <AvatarImage src={user?.avatar_url || undefined} />
+        <AvatarFallback className="bg-primary/10 text-primary font-medium text-xs">
+          {userInitials}
+        </AvatarFallback>
+      </Avatar>
+    ) : (
+      <UserIcon className={cn(isScrolled ? "size-[22px]" : "size-6")} />
+    )}
+  </Button>
+)
 
 export function UserMenu({
   isScrolled,
@@ -65,28 +101,7 @@ export function UserMenu({
     )
   }
 
-  const TriggerButton = ({ onClick, className }: { onClick?: () => void, className?: string }) => (
-    <Button
-      variant="ghost"
-      onClick={onClick}
-      className={cn(
-        "rounded-full hover:bg-muted relative",
-        isScrolled ? "h-10 w-10" : "h-10 w-10 p-0",
-        className
-      )}
-    >
-      {authUser ? (
-        <Avatar className={cn(isScrolled ? "h-8 w-8" : "h-8 w-8")}>
-          <AvatarImage src={user?.avatar_url || undefined} />
-          <AvatarFallback className="bg-primary/10 text-primary font-medium text-xs">
-            {userInitials}
-          </AvatarFallback>
-        </Avatar>
-      ) : (
-        <UserIcon className={cn(isScrolled ? "size-[22px]" : "size-6")} />
-      )}
-    </Button>
-  )
+  const triggerProps = { isScrolled, authUser, user, userInitials };
 
   return (
     <>
@@ -94,7 +109,7 @@ export function UserMenu({
       <div className="hidden md:block">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <span><TriggerButton /></span>
+            <span><TriggerButton {...triggerProps} /></span>
           </DropdownMenuTrigger>
           <DropdownMenuContent
             className="w-80 p-0 rounded-xl shadow-google-lg animate-slide-up border-none bg-background overflow-hidden"
@@ -189,12 +204,15 @@ export function UserMenu({
 
       {/* --- MOBILE VIEW (Sheet/Overlay) --- */}
       <div className="md:hidden">
-        <TriggerButton onClick={() => {
-          if (!mobileUserMenuOpen) {
-            setMobileNavOpen?.(false)
-          }
-          setMobileUserMenuOpen(!mobileUserMenuOpen)
-        }} />
+        <TriggerButton 
+          {...triggerProps}
+          onClick={() => {
+            if (!mobileUserMenuOpen) {
+              setMobileNavOpen?.(false)
+            }
+            setMobileUserMenuOpen(!mobileUserMenuOpen)
+          }} 
+        />
         
         <MobileUserMenu 
           open={mobileUserMenuOpen}

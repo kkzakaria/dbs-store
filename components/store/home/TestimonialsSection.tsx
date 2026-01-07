@@ -97,7 +97,7 @@ export function TestimonialsSection({ testimonials = defaultTestimonials }: Test
 
                 {/* Comment */}
                 <p className="text-lg text-foreground/80 leading-relaxed mb-8 font-medium italic">
-                  "{testimonial.comment}"
+                  &quot;{testimonial.comment}&quot;
                 </p>
 
                 {/* Author */}

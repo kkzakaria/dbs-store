@@ -3,17 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { useState, useEffect, useCallback, useRef } from "react"
-import {
-  ArrowRight,
-  ChevronLeft,
-  ChevronRight,
-  Sparkles,
-  Zap,
-  Shield,
-  Truck
-} from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { cn } from "@/lib/utils"
 
 interface FeaturedProduct {
@@ -31,56 +21,26 @@ interface HeroAction {
 }
 
 interface HeroSectionProps {
-  backgroundImage?: string
   featuredProducts?: FeaturedProduct[]
   action?: HeroAction
-  headline?: string
   subheadline?: string
 }
 
-// Format price in FCFA
-const formatPrice = (price: number) => {
-  return new Intl.NumberFormat("fr-FR").format(price) + " FCFA"
-}
-
-// Feature badges for hero
-const features = [
-  { icon: Zap, label: "Livraison Express" },
-  { icon: Shield, label: "Garantie Premium" },
-  { icon: Truck, label: "Retour Gratuit" },
-]
-
 export function HeroSection({
-  backgroundImage,
   featuredProducts = [],
   action,
-  headline = "La Technologie Premium",
   subheadline = "Découvrez notre collection exclusive d'appareils électroniques haut de gamme",
 }: HeroSectionProps) {
   const [currentProduct, setCurrentProduct] = useState(0)
   const [isLoaded, setIsLoaded] = useState(false)
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
   const heroRef = useRef<HTMLDivElement>(null)
 
-  // Handle mouse move for parallax effect
-  const handleMouseMove = useCallback((e: React.MouseEvent) => {
-    if (!heroRef.current) return
-    const rect = heroRef.current.getBoundingClientRect()
-    const x = (e.clientX - rect.left - rect.width / 2) / rect.width
-    const y = (e.clientY - rect.top - rect.height / 2) / rect.height
-    setMousePosition({ x: x * 20, y: y * 20 })
-  }, [])
 
   // Navigate products
   const nextProduct = useCallback(() => {
     setCurrentProduct((prev) => (prev + 1) % Math.max(featuredProducts.length, 1))
   }, [featuredProducts.length])
 
-  const prevProduct = useCallback(() => {
-    setCurrentProduct((prev) =>
-      prev === 0 ? Math.max(featuredProducts.length - 1, 0) : prev - 1
-    )
-  }, [featuredProducts.length])
 
   // Auto-rotate products
   useEffect(() => {
@@ -138,7 +98,7 @@ export function HeroSection({
               ) : (
                 <>
                   <span className="block text-foreground text-[10px] min-[375px]:text-xs sm:text-3xl md:text-4xl lg:text-5xl">La technologie</span>
-                  <span className="block text-primary mt-0.5 sm:mt-2 text-[8px] min-[375px]:text-[10px] sm:text-3xl md:text-4xl lg:text-5xl">au service de l'élégance.</span>
+                  <span className="block text-primary mt-0.5 sm:mt-2 text-[8px] min-[375px]:text-[10px] sm:text-3xl md:text-4xl lg:text-5xl">au service de l&apos;élégance.</span>
                 </>
               )}
             </h1>
@@ -177,7 +137,7 @@ export function HeroSection({
                 className="hidden sm:inline-flex w-full sm:w-auto h-9 sm:h-12 px-3 sm:px-8 rounded-full border-border hover:bg-muted text-xs sm:text-base font-semibold transition-google whitespace-nowrap"
               >
                 <Link href="/products">
-                  Plus d'infos
+                  Plus d&apos;infos
                 </Link>
               </Button>
             </div>

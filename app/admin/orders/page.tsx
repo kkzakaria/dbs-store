@@ -3,8 +3,7 @@ import { getAdminOrders, getOrderStats } from "@/actions/admin/orders"
 import { OrdersDataTable } from "@/components/admin/orders/OrdersDataTable"
 import { DataTableSkeleton } from "@/components/data-table"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Package, Clock, Truck, CheckCircle, XCircle, CreditCard } from "lucide-react"
+import { Package, Clock, Truck, CheckCircle, XCircle } from "lucide-react"
 
 interface OrdersPageProps {
   searchParams: Promise<{

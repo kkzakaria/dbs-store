@@ -1,11 +1,7 @@
 "use client"
 
 import * as React from "react"
-import Image from "next/image"
-import Link from "next/link"
-import { ChevronLeft, ChevronRight, ArrowRight } from "lucide-react"
-import { cn } from "@/lib/utils"
-import { ProductCard } from "../products/ProductCard"
+import { ProductCard, type Product } from "../products/ProductCard"
 import {
   Carousel,
   CarouselContent,
@@ -32,32 +28,8 @@ interface PopularProductsSectionProps {
 
 export function PopularProductsSection({ products }: PopularProductsSectionProps) {
   const [api, setApi] = React.useState<CarouselApi>()
-  const [current, setCurrent] = React.useState(0)
-  const [count, setCount] = React.useState(0)
-
-  React.useEffect(() => {
-    if (!api) {
-      return
-    }
-
-    setCount(api.scrollSnapList().length)
-    setCurrent(api.selectedScrollSnap() + 1)
-
-    api.on("select", () => {
-      setCurrent(api.selectedScrollSnap() + 1)
-    })
-  }, [api])
 
   if (products.length === 0) return null
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("fr-FR").format(price) + " FCFA"
-  }
-
-  const getSavings = (price: number, comparePrice?: number | null) => {
-    if (!comparePrice || comparePrice <= price) return null
-    return comparePrice - price
-  }
 
   return (
     <section className="py-24 md:py-32 bg-white dark:bg-background overflow-hidden">
@@ -82,9 +54,9 @@ export function PopularProductsSection({ products }: PopularProductsSectionProps
                 <CarouselItem key={product.id} className="pl-4 md:pl-6 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4">
                   <ProductCard 
                     product={{
-                      ...product as any,
-                      images: [{ url: product.image, is_primary: true }],
-                    }} 
+                      ...product,
+                      images: [{ url: product.image, is_primary: true, id: "primary", alt: product.name, position: 0 }],
+                    } as unknown as Product} 
                   />
                 </CarouselItem>
               ))}

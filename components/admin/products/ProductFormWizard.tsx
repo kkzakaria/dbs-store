@@ -582,7 +582,7 @@ export function ProductFormWizard({ product, categories }: ProductFormWizardProp
                     name="low_stock_threshold"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Seuil d'alerte</FormLabel>
+                        <FormLabel>Seuil d&apos;alerte</FormLabel>
                         <FormControl>
                           <Input
                             type="number"
@@ -662,7 +662,7 @@ export function ProductFormWizard({ product, categories }: ProductFormWizardProp
                   <div className="space-y-2">
                     <Label className="text-base">Options</Label>
                     <p className="text-sm text-muted-foreground mb-4">
-                      Définissez les types d'options (ex: Couleur, Taille) et
+                      Définissez les types d&apos;options (ex: Couleur, Taille) et
                       leurs valeurs
                     </p>
                     <ProductOptionsEditor
@@ -913,7 +913,7 @@ export function ProductFormWizard({ product, categories }: ProductFormWizardProp
                         <div className="space-y-0.5">
                           <FormLabel>Produit vedette</FormLabel>
                           <FormDescription>
-                            Affiché sur la page d'accueil
+                            Affiché sur la page d&apos;accueil
                           </FormDescription>
                         </div>
                         <FormControl>
