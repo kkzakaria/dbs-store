@@ -50,7 +50,7 @@ export function VariantImageAssignment({
         <ImageIcon className="h-8 w-8 mx-auto mb-2 opacity-50" />
         <p>Aucune image telechargee.</p>
         <p className="text-sm mt-1">
-          Ajoutez d'abord des images au produit pour pouvoir les assigner aux variantes.
+          Ajoutez d&apos;abord des images au produit pour pouvoir les assigner aux variantes.
         </p>
       </div>
     )
@@ -61,7 +61,7 @@ export function VariantImageAssignment({
       <div className="text-center py-8 text-muted-foreground border rounded-lg">
         <p>Aucune variante definie.</p>
         <p className="text-sm mt-1">
-          Creez d'abord des variantes pour pouvoir assigner des images.
+          Creez d&apos;abord des variantes pour pouvoir assigner des images.
         </p>
       </div>
     )

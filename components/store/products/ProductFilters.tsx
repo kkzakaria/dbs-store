@@ -36,6 +36,148 @@ interface ProductFiltersProps {
   className?: string
 }
 
+interface FilterContentProps {
+  category: string | null
+  setCategory: (value: string | null) => Promise<URLSearchParams>
+  brand: string | null
+  setBrand: (value: string | null) => Promise<URLSearchParams>
+  minPrice: number
+  setMinPrice: (value: number | null) => Promise<URLSearchParams>
+  maxPrice: number
+  setMaxPrice: (value: number | null) => Promise<URLSearchParams>
+  hasActiveFilters: boolean
+  clearFilters: () => Promise<void>
+  categories: Category[]
+  brands: string[]
+}
+
+const FilterContent = ({
+  category,
+  setCategory,
+  brand,
+  setBrand,
+  minPrice,
+  setMinPrice,
+  maxPrice,
+  setMaxPrice,
+  hasActiveFilters,
+  clearFilters,
+  categories,
+  brands,
+}: FilterContentProps) => (
+  <div className="space-y-8">
+    {/* Category Filter */}
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <Tag className="size-4 text-primary" />
+        <Label
+          htmlFor="category"
+          className="font-display font-semibold text-sm uppercase tracking-wider"
+        >
+          Catégorie
+        </Label>
+      </div>
+      <Select
+        value={category || "all"}
+        onValueChange={(value) => setCategory(value === "all" ? null : value)}
+      >
+        <SelectTrigger
+          id="category"
+          className="h-12 rounded-2xl border-border/40 bg-white dark:bg-muted/10 focus:ring-primary/20 transition-google"
+        >
+          <SelectValue placeholder="Toutes les catégories" />
+        </SelectTrigger>
+        <SelectContent className="rounded-2xl shadow-google-lg border-border/40">
+          <SelectItem value="all">Toutes les catégories</SelectItem>
+          {categories.map((cat) => (
+            <SelectItem key={cat.id} value={cat.slug}>
+              {cat.name}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+
+    {/* Brand Filter */}
+    {brands.length > 0 && (
+      <div className="space-y-4">
+        <div className="flex items-center gap-3">
+          <Building2 className="size-4 text-primary" />
+          <Label
+            htmlFor="brand"
+            className="font-display font-semibold text-sm uppercase tracking-wider"
+          >
+            Marque
+          </Label>
+        </div>
+        <Select
+          value={brand || "all"}
+          onValueChange={(value) => setBrand(value === "all" ? null : value)}
+        >
+          <SelectTrigger
+            id="brand"
+            className="h-12 rounded-2xl border-border/40 bg-white dark:bg-muted/10 focus:ring-primary/20 transition-google"
+          >
+            <SelectValue placeholder="Toutes les marques" />
+          </SelectTrigger>
+          <SelectContent className="rounded-2xl shadow-google-lg border-border/40">
+            <SelectItem value="all">Toutes les marques</SelectItem>
+            {brands.map((b) => (
+              <SelectItem key={b} value={b}>
+                {b}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    )}
+
+    {/* Price Range */}
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <Coins className="size-4 text-primary" />
+        <Label className="font-display font-semibold text-sm uppercase tracking-wider">
+          Prix (FCFA)
+        </Label>
+      </div>
+      <div className="flex flex-col gap-3">
+        <Input
+          type="number"
+          placeholder="Min"
+          value={minPrice || ""}
+          onChange={(e) =>
+            setMinPrice(e.target.value ? parseInt(e.target.value) : null)
+          }
+          min={0}
+          className="h-11 rounded-2xl border-border/40 bg-white dark:bg-muted/10 transition-google"
+        />
+        <Input
+          type="number"
+          placeholder="Max"
+          value={maxPrice || ""}
+          onChange={(e) =>
+            setMaxPrice(e.target.value ? parseInt(e.target.value) : null)
+          }
+          min={0}
+          className="h-11 rounded-2xl border-border/40 bg-white dark:bg-muted/10 transition-google"
+        />
+      </div>
+    </div>
+
+    {/* Clear Filters */}
+    {hasActiveFilters && (
+      <Button
+        variant="outline"
+        className="w-full h-11 rounded-2xl border-destructive/20 text-destructive hover:bg-destructive/5 transition-google"
+        onClick={clearFilters}
+      >
+        <X className="mr-2 h-4 w-4" />
+        Effacer les filtres
+      </Button>
+    )}
+  </div>
+)
+
 export function ProductFilters({
   categories,
   brands,
@@ -64,8 +206,13 @@ export function ProductFilters({
   )
 
   // Check if any filters are active
-  const hasActiveFilters =
-    category || brand || minPrice > 0 || maxPrice > 0 || sort !== "newest"
+  const hasActiveFilters = !!(
+    category ||
+    brand ||
+    minPrice > 0 ||
+    maxPrice > 0 ||
+    sort !== "newest"
+  )
 
   // Count active filters
   const activeFilterCount = [
@@ -87,108 +234,6 @@ export function ProductFilters({
   }, [setCategory, setBrand, setMinPrice, setMaxPrice, setSort])
 
 
-  // Filter content (shared between desktop and mobile)
-  const FilterContent = () => (
-    <div className="space-y-8">
-      {/* Category Filter */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <Tag className="size-4 text-primary" />
-          <Label htmlFor="category" className="font-display font-semibold text-sm uppercase tracking-wider">Catégorie</Label>
-        </div>
-        <Select
-          value={category || "all"}
-          onValueChange={(value) => setCategory(value === "all" ? null : value)}
-        >
-          <SelectTrigger
-            id="category"
-            className="h-12 rounded-2xl border-border/40 bg-white dark:bg-muted/10 focus:ring-primary/20 transition-google"
-          >
-            <SelectValue placeholder="Toutes les catégories" />
-          </SelectTrigger>
-          <SelectContent className="rounded-2xl shadow-google-lg border-border/40">
-            <SelectItem value="all">Toutes les catégories</SelectItem>
-            {categories.map((cat) => (
-              <SelectItem key={cat.id} value={cat.slug}>
-                {cat.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Brand Filter */}
-      {brands.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center gap-3">
-            <Building2 className="size-4 text-primary" />
-            <Label htmlFor="brand" className="font-display font-semibold text-sm uppercase tracking-wider">Marque</Label>
-          </div>
-          <Select
-            value={brand || "all"}
-            onValueChange={(value) => setBrand(value === "all" ? null : value)}
-          >
-            <SelectTrigger
-              id="brand"
-              className="h-12 rounded-2xl border-border/40 bg-white dark:bg-muted/10 focus:ring-primary/20 transition-google"
-            >
-              <SelectValue placeholder="Toutes les marques" />
-            </SelectTrigger>
-            <SelectContent className="rounded-2xl shadow-google-lg border-border/40">
-              <SelectItem value="all">Toutes les marques</SelectItem>
-              {brands.map((b) => (
-                <SelectItem key={b} value={b}>
-                  {b}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
-      {/* Price Range */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-3">
-          <Coins className="size-4 text-primary" />
-          <Label className="font-display font-semibold text-sm uppercase tracking-wider">Prix (FCFA)</Label>
-        </div>
-        <div className="flex flex-col gap-3">
-          <Input
-            type="number"
-            placeholder="Min"
-            value={minPrice || ""}
-            onChange={(e) =>
-              setMinPrice(e.target.value ? parseInt(e.target.value) : null)
-            }
-            min={0}
-            className="h-11 rounded-2xl border-border/40 bg-white dark:bg-muted/10 transition-google"
-          />
-          <Input
-            type="number"
-            placeholder="Max"
-            value={maxPrice || ""}
-            onChange={(e) =>
-              setMaxPrice(e.target.value ? parseInt(e.target.value) : null)
-            }
-            min={0}
-            className="h-11 rounded-2xl border-border/40 bg-white dark:bg-muted/10 transition-google"
-          />
-        </div>
-      </div>
-
-      {/* Clear Filters */}
-      {hasActiveFilters && (
-        <Button
-          variant="outline"
-          className="w-full h-11 rounded-2xl border-destructive/20 text-destructive hover:bg-destructive/5 transition-google"
-          onClick={clearFilters}
-        >
-          <X className="mr-2 h-4 w-4" />
-          Effacer les filtres
-        </Button>
-      )}
-    </div>
-  )
 
   return (
     <div className={cn("flex items-center gap-3", className)}>
@@ -216,7 +261,20 @@ export function ProductFilters({
             <SheetTitle className="text-xl font-display font-bold">Filtres</SheetTitle>
           </SheetHeader>
           <div className="p-8">
-            <FilterContent />
+            <FilterContent
+              category={category}
+              setCategory={setCategory}
+              brand={brand}
+              setBrand={setBrand}
+              minPrice={minPrice}
+              setMinPrice={setMinPrice}
+              maxPrice={maxPrice}
+              setMaxPrice={setMaxPrice}
+              hasActiveFilters={hasActiveFilters}
+              clearFilters={clearFilters}
+              categories={categories}
+              brands={brands}
+            />
           </div>
         </SheetContent>
       </Sheet>
@@ -276,8 +334,13 @@ export function ProductFiltersSidebar({
     parseAsString.withDefault("newest")
   )
 
-  const hasActiveFilters =
-    category || brand || minPrice > 0 || maxPrice > 0 || sort !== "newest"
+  const hasActiveFilters = !!(
+    category ||
+    brand ||
+    minPrice > 0 ||
+    maxPrice > 0 ||
+    sort !== "newest"
+  )
 
   const activeFilterCount = [
     category,

@@ -123,7 +123,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </Link>
             </div>
             <div className="grid grid-cols-2 gap-10 sm:grid-cols-2 md:grid-cols-4 lg:gap-12">
-              {relatedProducts.map((relatedProduct: any) => (
+              {relatedProducts.map((relatedProduct) => (
                 <ProductCard key={relatedProduct.id} product={relatedProduct} />
               ))}
             </div>

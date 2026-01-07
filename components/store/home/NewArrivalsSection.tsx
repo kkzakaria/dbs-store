@@ -1,14 +1,10 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
-import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { AnimateOnScroll } from "@/components/animations"
-import { cn } from "@/lib/utils"
 import { ArrowRight, Sparkles } from "lucide-react"
-import { ProductCard } from "./products/ProductCard"
-import type { Product, Category } from "@/types"
+import { ProductCard, type Product } from "../products/ProductCard"
 
 interface NewProduct {
   id: string
@@ -27,10 +23,6 @@ interface NewArrivalsSectionProps {
 export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
   if (products.length === 0) return null
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("fr-FR").format(price) + " FCFA"
-  }
-
 
   return (
     <section className="py-32 md:py-48 bg-white dark:bg-background relative overflow-hidden">
@@ -46,7 +38,7 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
               </span>
             </div>
             <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-6 leading-tight max-w-3xl mx-auto">
-              Le meilleur de l'innovation, disponible dès maintenant.
+              Le meilleur de l&apos;innovation, disponible dès maintenant.
             </h2>
             <p className="text-xl text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto">
               Découvrez les produits les plus récents sélectionnés pour leur excellence et leur performance.
@@ -57,11 +49,11 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-8 px-4">
           {products.slice(0, 5).map((product, index) => {
             // Adapt local product to ProductCard's expected type
-            const adaptedProduct: any = {
+            const adaptedProduct = {
               ...product,
-              images: [{ url: product.image, is_primary: true }],
-              category: product.category ? { name: product.category } : null
-            };
+              images: [{ url: product.image, is_primary: true, id: "primary", alt: product.name, position: 0 }],
+              category: product.category ? { name: product.category, id: "cat", slug: product.category } : null
+            } as unknown as Product;
 
             return (
               <AnimateOnScroll

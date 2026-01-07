@@ -5,7 +5,7 @@ import { ArrowLeft, Package, Truck, CreditCard, MapPin, User, Phone, Mail } from
 import { getAdminOrder } from "@/actions/admin/orders"
 import { ORDER_STATUS_LABELS, PAYMENT_STATUS_LABELS } from "@/lib/validations/admin"
 import { OrderStatusActions } from "@/components/admin/orders/OrderStatusActions"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"

@@ -1,12 +1,10 @@
 "use client"
 
-import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { CountdownTimer, AnimateOnScroll } from "@/components/animations"
 import { ArrowRight, Flame } from "lucide-react"
-import { ProductCard } from "./products/ProductCard"
+import { ProductCard, type Product } from "../products/ProductCard"
 
 interface PromoProduct {
   id: string
@@ -28,10 +26,6 @@ export function PromotionsSection({
   promoEndDate = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000) // 3 days from now
 }: PromotionsSectionProps) {
   if (products.length === 0) return null
-
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat("fr-FR").format(price) + " FCFA"
-  }
 
 
   return (
@@ -57,7 +51,7 @@ export function PromotionsSection({
             </div>
 
             <div className="flex flex-col items-start lg:items-end gap-4 p-8 rounded-[32px] bg-white dark:bg-card border border-border/40 shadow-google-sm">
-              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">L'offre se termine dans :</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">L&apos;offre se termine dans :</span>
               <CountdownTimer targetDate={promoEndDate} />
             </div>
           </div>
@@ -66,12 +60,12 @@ export function PromotionsSection({
         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-8 px-4">
           {products.slice(0, 4).map((product, index) => {
             // Adapt local product to ProductCard's expected type
-            const adaptedProduct: any = {
+            const adaptedProduct = {
               ...product,
               price: product.salePrice,
               compare_price: product.originalPrice,
-              images: [{ url: product.image, is_primary: true }],
-            };
+              images: [{ url: product.image, is_primary: true, id: "primary", alt: product.name, position: 0 }],
+            } as unknown as Product;
 
             return (
               <AnimateOnScroll key={product.id} animation="fade-up" delay={index * 100}>

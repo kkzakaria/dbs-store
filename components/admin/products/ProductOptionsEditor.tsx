@@ -135,7 +135,7 @@ export function ProductOptionsEditor({ options, onChange }: ProductOptionsEditor
                     <Input
                       value={option.name}
                       onChange={(e) => updateOptionName(optionIndex, e.target.value)}
-                      placeholder="Nom de l'option (ex: Couleur)"
+                      placeholder="Nom de l&apos;option (ex: Couleur)"
                       className="font-medium"
                     />
                     <Button
@@ -256,7 +256,7 @@ export function ProductOptionsEditor({ options, onChange }: ProductOptionsEditor
       {/* Tip for color options */}
       {options.length > 0 && (
         <p className="text-xs text-muted-foreground">
-          Astuce : Nommez une option "Couleur" pour afficher le sélecteur de couleur avec palette visuelle.
+          Astuce : Nommez une option &quot;Couleur&quot; pour afficher le sélecteur de couleur avec palette visuelle.
         </p>
       )}
     </div>

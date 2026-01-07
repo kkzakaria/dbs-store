@@ -9,6 +9,7 @@ import { ProductGridSkeleton } from "@/components/shared/Loading"
 import { NoSearchResults } from "@/components/shared/EmptyState"
 import { getProducts } from "@/actions/products"
 import type { Tables } from "@/types/database.types"
+import type { SortOption } from "@/lib/validations/product"
 
 type Product = Tables<"products"> & {
   category?: { id: string; name: string; slug: string } | null
@@ -58,7 +59,7 @@ export function ProductGrid({
         ...filters,
         page: nextPage,
         limit: PRODUCTS_PER_PAGE,
-        sort: (filters.sort as any) || "newest",
+        sort: (filters.sort as SortOption) || "newest",
       })
 
       const data = result?.data

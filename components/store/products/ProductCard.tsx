@@ -14,7 +14,7 @@ import { useUser } from "@/hooks/use-user"
 import { toast } from "sonner"
 import type { Tables } from "@/types/database.types"
 
-type Product = Tables<"products"> & {
+export type Product = Tables<"products"> & {
   category?: { id: string; name: string; slug: string } | null
   images?: Array<{
     id: string

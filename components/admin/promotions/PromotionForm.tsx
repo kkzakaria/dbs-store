@@ -309,9 +309,9 @@ export function PromotionForm({ promotion, isEditing = false }: PromotionFormPro
           {/* Usage Limits */}
           <Card>
             <CardHeader>
-              <CardTitle>Limites d'utilisation</CardTitle>
+              <CardTitle>Limites d&apos;utilisation</CardTitle>
               <CardDescription>
-                Configurez le nombre d'utilisations autorisées
+                Configurez le nombre d&apos;utilisations autorisées
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -320,7 +320,7 @@ export function PromotionForm({ promotion, isEditing = false }: PromotionFormPro
                 name="max_uses"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Nombre max d'utilisations</FormLabel>
+                    <FormLabel>Nombre max d&apos;utilisations</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -332,7 +332,7 @@ export function PromotionForm({ promotion, isEditing = false }: PromotionFormPro
                       />
                     </FormControl>
                     <FormDescription>
-                      Nombre total d'utilisations possibles
+                      Nombre total d&apos;utilisations possibles
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -356,7 +356,7 @@ export function PromotionForm({ promotion, isEditing = false }: PromotionFormPro
                       />
                     </FormControl>
                     <FormDescription>
-                      Nombre de fois qu'un client peut utiliser ce code
+                      Nombre de fois qu&apos;un client peut utiliser ce code
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

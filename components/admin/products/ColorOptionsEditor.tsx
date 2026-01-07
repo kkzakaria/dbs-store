@@ -58,7 +58,7 @@ export function ColorOptionsEditor({
       {colors.length > 0 && (
         <div className="rounded-md border bg-muted/30 p-3">
           <div className="text-xs text-muted-foreground mb-2">
-            Ordre d'affichage (glissez pour réorganiser)
+            Ordre d&apos;affichage (glissez pour réorganiser)
           </div>
           <div className="flex flex-wrap gap-1.5">
             {colors.map((color, index) => (

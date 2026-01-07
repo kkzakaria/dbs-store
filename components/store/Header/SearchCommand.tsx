@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/command"
 import { Search, Package, FolderOpen, TrendingUp, Loader2 } from "lucide-react"
 import { searchProducts } from "@/actions/products"
-import { formatPrice } from "./products/PriceDisplay"
+import { formatPrice } from "../products/PriceDisplay"
 import { useDebounce } from "@/hooks/use-debounce"
 
 interface SearchCommandProps {
@@ -138,7 +138,7 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
           <CommandEmpty>
             <div className="flex flex-col items-center gap-2 py-4">
               <Search className="size-8 text-muted-foreground" />
-              <p>Aucun résultat pour "{query}"</p>
+              <p>Aucun résultat pour &quot;{query}&quot;</p>
               <button
                 onClick={handleSearch}
                 className="text-sm text-primary hover:underline"
@@ -188,7 +188,7 @@ export function SearchCommand({ open, onOpenChange }: SearchCommandProps) {
             <CommandGroup>
               <CommandItem value={`search-all-${query}`} onSelect={handleSearch}>
                 <Search className="text-muted-foreground" />
-                <span>Voir tous les résultats pour "{query}"</span>
+                <span>Voir tous les résultats pour &quot;{query}&quot;</span>
               </CommandItem>
             </CommandGroup>
           </>

@@ -3,7 +3,6 @@
 import Link from "next/link"
 import { AnimateOnScroll } from "@/components/animations"
 import { Button } from "@/components/ui/button"
-import { cn } from "@/lib/utils"
 import {
   Truck,
   Shield,
@@ -63,14 +62,14 @@ export function FeaturesSection({ features = defaultFeatures }: FeaturesSectionP
                 <CheckCircle2 className="size-5" />
               </div>
               <span className="text-sm font-bold uppercase tracking-widest text-primary">
-                L'engagement DBS Store
+                L&apos;engagement DBS Store
               </span>
             </div>
             <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-6 leading-tight max-w-3xl mx-auto">
-              Une expérience d'achat pensée pour vous.
+              Une expérience d&apos;achat pensée pour vous.
             </h2>
             <p className="text-xl text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto">
-              Nous combinons innovation et service de proximité pour vous offrir le meilleur de la technologie en Côte d'Ivoire.
+              Nous combinons innovation et service de proximité pour vous offrir le meilleur de la technologie en Côte d&apos;Ivoire.
             </p>
           </div>
         </AnimateOnScroll>

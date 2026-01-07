@@ -7,7 +7,6 @@ import {
   Heart,
   Package,
   Search,
-  type LucideIcon,
 } from "lucide-react"
 
 interface EmptyStateProps extends React.ComponentProps<"div"> {

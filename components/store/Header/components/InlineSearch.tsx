@@ -115,10 +115,10 @@ export function InlineSearch({ isExpanded, onExpandedChange, isScrolled }: Inlin
         onClick={() => onExpandedChange(true)}
         className={cn(
           "rounded-full text-foreground hover:text-primary hover:bg-primary/5 transition-colors flex items-center justify-center",
-          isScrolled ? "h-8 w-8" : "h-10 w-10"
+          isScrolled ? "h-10 w-10" : "h-10 w-10"
         )}
       >
-        <Search className={cn(isScrolled ? "size-4" : "size-5")} />
+        <Search className={cn(isScrolled ? "size-[18px]" : "size-5")} />
         <span className="sr-only">Rechercher</span>
       </button>
     )
@@ -220,7 +220,7 @@ export function InlineSearch({ isExpanded, onExpandedChange, isScrolled }: Inlin
                       className="w-full flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted transition-colors text-left"
                     >
                       <Search className="size-5 text-muted-foreground" />
-                      <span>Voir tous les résultats pour "{query}"</span>
+                      <span>Voir tous les résultats pour &quot;{query}&quot;</span>
                     </button>
                   </div>
                 )}
@@ -229,7 +229,7 @@ export function InlineSearch({ isExpanded, onExpandedChange, isScrolled }: Inlin
                 {!isSearching && query.trim().length >= 2 && results.length === 0 && (
                   <div className="p-8 text-center">
                     <Search className="size-8 text-muted-foreground mx-auto mb-3" />
-                    <p className="text-muted-foreground mb-2">Aucun résultat pour "{query}"</p>
+                    <p className="text-muted-foreground mb-2">Aucun résultat pour &quot;{query}&quot;</p>
                     <button
                       onClick={handleSearch}
                       className="text-sm text-primary hover:underline"

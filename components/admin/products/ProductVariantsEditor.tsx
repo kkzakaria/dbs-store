@@ -111,7 +111,11 @@ export function ProductVariantsEditor({
     setShowGenerateDialog(false)
   }
 
-  const updateVariant = (index: number, field: keyof ProductVariantInput, value: any) => {
+  const updateVariant = <T extends keyof ProductVariantInput>(
+    index: number,
+    field: T,
+    value: ProductVariantInput[T]
+  ) => {
     const updated = [...variants]
     updated[index] = { ...updated[index], [field]: value }
     onChange(updated)
@@ -143,11 +147,6 @@ export function ProductVariantsEditor({
     onChange([...variants, newVariant])
   }
 
-  const formatOptions = (opts: Record<string, string>) => {
-    return Object.entries(opts)
-      .map(([key, value]) => `${key}: ${value}`)
-      .join(" | ")
-  }
 
   const canGenerate = options.length > 0 && options.every((o) => o.values.length > 0)
   const totalCombinations = options.reduce((acc, opt) => acc * (opt.values.length || 1), 1)
@@ -173,7 +172,7 @@ export function ProductVariantsEditor({
               <AlertDialogTitle>Generer les variantes ?</AlertDialogTitle>
               <AlertDialogDescription>
                 Cette action va creer {totalCombinations} variante{totalCombinations > 1 ? "s" : ""}
-                a partir des combinaisons d'options.
+                a partir des combinaisons d&apos;options.
                 {variants.length > 0 && (
                   <span className="block mt-2 text-destructive">
                     Attention: Les {variants.length} variante{variants.length > 1 ? "s" : ""} existante{variants.length > 1 ? "s" : ""} seront remplacee{variants.length > 1 ? "s" : ""}.

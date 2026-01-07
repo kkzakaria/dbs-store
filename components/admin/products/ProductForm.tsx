@@ -468,7 +468,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                           name="low_stock_threshold"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Seuil d'alerte</FormLabel>
+                              <FormLabel>Seuil d&apos;alerte</FormLabel>
                               <FormControl>
                                 <Input
                                   type="number"
@@ -544,7 +544,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                           <div className="space-y-2">
                             <Label className="text-base">Options</Label>
                             <p className="text-sm text-muted-foreground mb-4">
-                              Definissez les types d'options (ex: Couleur, Taille) et leurs valeurs
+                              Definissez les types d&apos;options (ex: Couleur, Taille) et leurs valeurs
                             </p>
                             <ProductOptionsEditor
                               options={productOptions}
@@ -735,7 +735,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                         <div className="space-y-0.5">
                           <FormLabel>Produit vedette</FormLabel>
                           <FormDescription>
-                            Affiche sur la page d'accueil
+                            Affiche sur la page d&apos;accueil
                           </FormDescription>
                         </div>
                         <FormControl>
