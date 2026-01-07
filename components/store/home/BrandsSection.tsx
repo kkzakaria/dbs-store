@@ -7,7 +7,7 @@ export function BrandsSection() {
     <section className="py-4 md:py-16 bg-white dark:bg-background border-y border-border/10">
       <div className="container-google">
         <AnimateOnScroll animation="fade-up">
-          <div className="text-center mb-16 px-4">
+          <div className="text-center mb-2 px-4">
             <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">
               Les plus grandes marques nous font confiance.
             </h2>
@@ -20,7 +20,7 @@ export function BrandsSection() {
             <div className="absolute inset-y-0 left-0 w-20 md:w-32 bg-gradient-to-r from-background to-transparent z-10 pointer-events-none" />
             <div className="absolute inset-y-0 right-0 w-20 md:w-32 bg-gradient-to-l from-background to-transparent z-10 pointer-events-none" />
             
-            <LogoMarquee speed={30} className="py-4" />
+            <LogoMarquee speed={30} />
           </div>
         </AnimateOnScroll>
       </div>

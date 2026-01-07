@@ -45,7 +45,7 @@ export function LogoMarquee({
   return (
     <div
       className={cn(
-        "group flex overflow-hidden p-4 [--gap:6rem] [gap:var(--gap)] flex-row",
+        "group flex overflow-hidden py-2 px-4 [--gap:6rem] [gap:var(--gap)] flex-row",
         className
       )}
       style={
