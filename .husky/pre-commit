@@ -1,0 +1,1 @@
+pnpm lint --quiet && npx tsc --noEmit || (echo "\n❌ Des erreurs de Lint ou de Types ont été trouvées.\n⚠️ Veuillez les corriger avant de committer.\n💡 Ne contournez pas ces vérifications avec --no-verify !\n" && exit 1)
