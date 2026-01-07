@@ -9,7 +9,7 @@ export function BrandsSection() {
         <AnimateOnScroll animation="fade-up">
           <div className="text-center mb-2 px-4">
             <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground">
-              Les plus grandes marques nous font confiance.
+              Retrouvez vos marques préférées chez DBS Store.
             </h2>
           </div>
         </AnimateOnScroll>
