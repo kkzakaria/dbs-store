@@ -27,7 +27,7 @@ const defaultBrands: Brand[] = [
 export function BrandsSection({ brands = defaultBrands }: BrandsSectionProps) {
 
   return (
-    <section className="py-20 md:py-32 bg-white dark:bg-background border-y border-border/10">
+    <section className="py-4 md:py-16 bg-white dark:bg-background border-y border-border/10">
       <div className="container-google">
         <AnimateOnScroll animation="fade-up">
           <div className="text-center mb-16 px-4">
