@@ -120,12 +120,12 @@ export function MobileUserMenu({
                     onClick={() => onOpenChange(false)}
                     className={cn(
                       "flex items-center justify-between w-full p-2 pl-6 rounded-[32px]",
-                      "bg-blue-50 dark:bg-blue-900/20 transition-all duration-200",
-                      "min-h-[64px]"
+                      "bg-blue-50 dark:bg-blue-900/10 hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-all duration-200",
+                      "min-h-[48px]"
                     )}
                   >
                     <span className="text-sm font-semibold tracking-tight text-blue-700 dark:text-blue-400">Administration</span>
-                    <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/20 shadow-sm h-9 w-9">
+                    <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/10 shadow-sm h-9 w-9">
                       <Shield className="size-4.5 text-blue-600 dark:text-blue-400" />
                     </div>
                   </Link>
@@ -136,12 +136,12 @@ export function MobileUserMenu({
                 onClick={() => onOpenChange(false)}
                 className={cn(
                   "flex items-center justify-between w-full p-1 pl-5 rounded-[32px]",
-                  "bg-[#F1F3F4] dark:bg-muted transition-all duration-200",
+                  "bg-[#F1F3F4] dark:bg-muted hover:bg-[#E8EAED] dark:hover:bg-muted/80 transition-all duration-200",
                   "min-h-[48px]"
                 )}
               >
                 <span className="text-sm font-semibold tracking-tight text-foreground">Commandes</span>
-                <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/20 shadow-sm h-9 w-9">
+                <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/10 shadow-sm h-9 w-9">
                   <Package className="size-4.5 text-foreground" />
                 </div>
               </Link>
@@ -151,12 +151,12 @@ export function MobileUserMenu({
                 onClick={() => onOpenChange(false)}
                 className={cn(
                   "flex items-center justify-between w-full p-1 pl-5 rounded-[32px]",
-                  "bg-[#F1F3F4] dark:bg-muted transition-all duration-200",
+                  "bg-[#F1F3F4] dark:bg-muted hover:bg-[#E8EAED] dark:hover:bg-muted/80 transition-all duration-200",
                   "min-h-[48px]"
                 )}
               >
                 <span className="text-sm font-semibold tracking-tight text-foreground">Favoris</span>
-                <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/20 shadow-sm h-9 w-9">
+                <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/10 shadow-sm h-9 w-9">
                   <Heart className="size-4.5 text-foreground" />
                 </div>
               </Link>
@@ -167,12 +167,12 @@ export function MobileUserMenu({
                   onClick={() => onOpenChange(false)}
                   className={cn(
                     "flex items-center justify-between w-full p-1 pl-5 rounded-[32px]",
-                    "bg-[#F1F3F4] dark:bg-muted transition-all duration-200",
+                    "bg-[#F1F3F4] dark:bg-muted hover:bg-[#E8EAED] dark:hover:bg-muted/80 transition-all duration-200",
                     "min-h-[48px]"
                   )}
                 >
                   <span className="text-sm font-semibold tracking-tight text-foreground">Paramètres</span>
-                  <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/20 shadow-sm h-9 w-9">
+                  <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/10 shadow-sm h-9 w-9">
                     <Settings className="size-4.5 text-foreground" />
                   </div>
                 </Link>
@@ -186,12 +186,12 @@ export function MobileUserMenu({
                   }}
                   className={cn(
                     "flex items-center justify-between w-full p-1 pl-5 rounded-[32px]",
-                    "bg-[#F1F3F4] dark:bg-muted transition-all duration-200",
+                    "bg-[#F1F3F4] dark:bg-muted hover:bg-[#E8EAED] dark:hover:bg-muted/80 transition-all duration-200",
                     "min-h-[48px] text-left"
                   )}
                 >
                   <span className="text-sm font-semibold tracking-tight text-destructive">Déconnexion</span>
-                  <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/20 shadow-sm h-9 w-9">
+                  <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/10 shadow-sm h-9 w-9">
                     <LogOut className="size-4.5 text-destructive" />
                   </div>
                 </button>

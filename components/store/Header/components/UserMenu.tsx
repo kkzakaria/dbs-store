@@ -51,7 +51,7 @@ const TriggerButton = ({
     variant="ghost"
     onClick={onClick}
     className={cn(
-      "rounded-full hover:bg-muted relative",
+      "rounded-full hover:bg-primary/5 relative",
       isScrolled ? "h-10 w-10" : "h-10 w-10 p-0",
       className
     )}
@@ -118,9 +118,9 @@ export function UserMenu({
           >
             {/* Desktop Menu Content - Kept inline for simplicity as it uses Dropdown primitives */}
             {/* Header Section */}
-            <div className="p-2.5 border-b">
+            <div className="p-1.5 border-b">
               {authUser ? (
-                <Link href="/account" className="flex items-center gap-2 group">
+                <Link href="/account" className="flex items-center gap-2 group p-1.5 rounded-lg hover:bg-primary/5 transition-colors">
                   <div className="relative">
                     <Avatar className="h-8 w-8 border border-border">
                       <AvatarImage src={user?.avatar_url || undefined} />
@@ -136,7 +136,7 @@ export function UserMenu({
                   <ChevronRight className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />
                 </Link>
               ) : (
-                <div className="flex flex-col items-center gap-1.5 pt-1 pb-0.5">
+                <div className="flex flex-col items-center gap-1.5 px-1 py-1">
                   <p className="text-[11px] text-center text-muted-foreground">Connectez-vous pour continuer</p>
                   <Button 
                     onClick={onLogin}
@@ -149,9 +149,9 @@ export function UserMenu({
             </div>
 
             {/* Menu Items */}
-            <div className="py-0.5">
+            <div className="py-1">
               {user?.role && (user.role === 'admin' || user.role === 'super_admin') && (
-                <DropdownMenuItem asChild className="rounded-none cursor-pointer hover:bg-muted/50 focus:bg-muted/50 h-9 px-4">
+                <DropdownMenuItem asChild className="rounded-none cursor-pointer h-9 px-4 focus:bg-primary/5 focus:text-blue-600">
                   <Link href="/admin" className="flex items-center gap-2.5 text-blue-600">
                     <Shield className="size-4" />
                     <span className="text-[13px] font-medium">Administration</span>
@@ -159,14 +159,14 @@ export function UserMenu({
                 </DropdownMenuItem>
               )}
 
-              <DropdownMenuItem asChild className="rounded-none cursor-pointer hover:bg-muted/50 focus:bg-muted/50 h-9 px-4">
+              <DropdownMenuItem asChild className="rounded-none cursor-pointer h-9 px-4 focus:bg-primary/5 focus:text-foreground">
                 <Link href="/orders" className="flex items-center gap-2.5">
                   <Package className="size-4 text-muted-foreground" />
                   <span className="text-[13px] font-medium">Commandes</span>
                 </Link>
               </DropdownMenuItem>
               
-              <DropdownMenuItem asChild className="rounded-none cursor-pointer hover:bg-muted/50 focus:bg-muted/50 h-9 px-4">
+              <DropdownMenuItem asChild className="rounded-none cursor-pointer h-9 px-4 focus:bg-primary/5 focus:text-foreground">
                 <Link href="/wishlist" className="flex items-center gap-2.5">
                   <Heart className="size-4 text-muted-foreground" />
                   <span className="text-[13px] font-medium">Favoris</span>
@@ -176,9 +176,9 @@ export function UserMenu({
 
             <div className="h-px bg-border/50 mx-0" />
 
-            <div className="py-0.5">
+            <div className="py-1">
               {authUser && (
-                <DropdownMenuItem asChild className="rounded-none cursor-pointer hover:bg-muted/50 focus:bg-muted/50 h-9 px-4">
+                <DropdownMenuItem asChild className="rounded-none cursor-pointer h-9 px-4 focus:bg-primary/5 focus:text-foreground">
                   <Link href="/account" className="flex items-center gap-2.5">
                     <Settings className="size-4 text-muted-foreground" />
                     <span className="text-[13px] font-medium">Paramètres</span>
@@ -189,7 +189,7 @@ export function UserMenu({
               {authUser && (
                 <DropdownMenuItem 
                   onClick={onSignOut}
-                  className="rounded-none cursor-pointer hover:bg-muted/50 focus:bg-muted/50 h-9 px-4 text-destructive focus:text-destructive"
+                  className="rounded-none cursor-pointer h-9 px-4 text-destructive focus:text-destructive focus:bg-primary/5"
                 >
                   <div className="flex items-center gap-2.5">
                     <LogOut className="size-4" />
