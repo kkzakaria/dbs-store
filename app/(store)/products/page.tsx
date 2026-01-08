@@ -10,6 +10,7 @@ import {
   ProductFiltersSidebar,
 } from "@/components/store/products"
 import type { SortOption } from "@/lib/validations/product"
+import { Smartphone, Laptop, Headphones, Watch, Speaker, Gamepad2, Tablet, Tv } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Nos Produits | DBS Store",
@@ -61,15 +62,42 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
   return (
     <NuqsAdapter>
       <div className="bg-white dark:bg-background min-h-screen">
-        <div className="container-google py-20 md:py-32">
+        <div className="container-google py-4 md:py-6">
           {/* Header */}
-          <div className="mb-20 md:mb-32">
-            <h1 className="text-5xl md:text-6xl font-bold font-display tracking-tight text-foreground mb-8">
-              Nos Produits
-            </h1>
-            <p className="text-xl text-muted-foreground max-w-3xl leading-relaxed">
-              Découvrez notre sélection exclusive d&apos;appareils électroniques premium. {total} produit{total !== 1 ? "s" : ""} disponible{total !== 1 ? "s" : ""} pour vous.
-            </p>
+          <div className="relative mb-6 md:mb-8 p-6 md:p-8 rounded-[24px] md:rounded-[32px] bg-gradient-to-br from-sky-100/50 via-indigo-50/50 to-white dark:from-blue-900/20 dark:via-slate-900/10 dark:to-transparent border border-blue-100/50 dark:border-blue-900/20 overflow-hidden">
+            <div className="relative z-10">
+              <h1 className="text-2xl md:text-4xl font-bold font-display tracking-tight text-foreground mb-2">
+                Nos Produits
+              </h1>
+              <p className="text-base text-muted-foreground max-w-2xl leading-relaxed">
+                Découvrez notre sélection exclusive d&apos;appareils électroniques premium.
+              </p>
+            </div>
+            
+            {/* Decorative Icons Cluster */}
+            <div className="absolute top-0 right-0 h-full w-1/2 opacity-[0.03] dark:opacity-[0.08] pointer-events-none overflow-hidden">
+              <div className="absolute top-4 right-12 transform -rotate-12">
+                <Smartphone className="size-16" />
+              </div>
+              <div className="absolute top-20 right-32 transform rotate-45">
+                <Laptop className="size-24" />
+              </div>
+              <div className="absolute -bottom-4 right-4 transform -rotate-12">
+                <Headphones className="size-20" />
+              </div>
+              <div className="absolute top-1/2 right-1/4 transform -rotate-45">
+                <Watch className="size-12" />
+              </div>
+              <div className="absolute bottom-8 right-1/2 transform rotate-12">
+                <Speaker className="size-16" />
+              </div>
+              <div className="absolute top-10 right-2/3 transform -rotate-12">
+                <Gamepad2 className="size-14" />
+              </div>
+              <div className="absolute bottom-1/4 right-3/4 transform rotate-12">
+                <Tablet className="size-20" />
+              </div>
+            </div>
           </div>
  
           <div className="flex flex-col gap-16 lg:flex-row">

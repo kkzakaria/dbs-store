@@ -26,32 +26,32 @@ export function CTASection({
 }: CTASectionProps) {
 
   return (
-    <section className="py-32 md:py-48 bg-white dark:bg-background overflow-hidden px-4">
+    <section className="py-12 md:py-16 bg-[#f8f9fa] dark:bg-muted/5 overflow-hidden px-4">
       <div className="container-google">
         <AnimateOnScroll animation="scale-in">
-          <div className="relative rounded-[48px] bg-primary overflow-hidden p-16 md:p-32 lg:p-40 text-center shadow-google-lg">
+          <div className="relative rounded-[32px] bg-primary overflow-hidden p-8 md:p-12 lg:p-14 text-center shadow-google-lg">
             {/* Background elements - very subtle */}
             <div className="absolute inset-0 bg-[url('/images/grid-pattern.svg')] opacity-5" />
             <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-white/5 to-transparent pointer-events-none" />
 
             {/* Content */}
-            <div className="relative z-10 space-y-10">
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white leading-[1.1] max-w-4xl mx-auto">
+            <div className="relative z-10 space-y-4 md:space-y-6">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-display font-bold text-white leading-[1.2] max-w-3xl mx-auto">
                 {title}
               </h2>
-              <p className="text-xl text-white/80 font-medium max-w-2xl mx-auto leading-relaxed">
+              <p className="text-base text-white/80 font-medium max-w-2xl mx-auto leading-relaxed">
                 {description}
               </p>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-6 pt-6">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2 md:pt-4">
                 <Button
                   asChild
                   size="lg"
-                  className="h-16 px-10 rounded-full bg-white text-primary hover:bg-[#f8f9fa] shadow-google-sm hover:shadow-google-md transition-google text-lg font-bold min-w-[240px]"
+                  className="h-12 px-8 rounded-full bg-white text-primary hover:bg-[#f8f9fa] shadow-google-sm hover:shadow-google-md transition-google text-sm font-bold min-w-[200px]"
                 >
-                  <Link href={primaryAction.href} className="flex items-center gap-3">
+                  <Link href={primaryAction.href} className="flex items-center gap-2">
                     {primaryAction.label}
-                    <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
+                    <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
                   </Link>
                 </Button>
 
@@ -59,7 +59,7 @@ export function CTASection({
                   asChild
                   size="lg"
                   variant="outline"
-                  className="h-16 px-10 rounded-full bg-transparent border-white/20 text-white hover:bg-white/10 hover:border-white/40 transition-google text-lg font-bold min-w-[240px]"
+                  className="h-12 px-8 rounded-full bg-transparent border-white/20 text-white hover:bg-white/10 hover:border-white/40 transition-google text-sm font-bold min-w-[200px]"
                 >
                   <Link href={secondaryAction.href} className="flex items-center gap-3">
                     <Gift className="size-5" />

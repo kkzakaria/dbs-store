@@ -25,28 +25,28 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
 
 
   return (
-    <section className="py-32 md:py-48 bg-white dark:bg-background relative overflow-hidden">
+    <section className="pt-4 pb-12 md:pt-6 md:pb-16 bg-[#f8f9fa] dark:bg-muted/5 relative overflow-hidden">
       <div className="container-google relative">
         <AnimateOnScroll animation="fade-up">
-          <div className="text-center mb-16 md:mb-24 px-4">
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="p-2.5 rounded-2xl bg-secondary text-primary shadow-google-sm font-bold">
-                <Sparkles className="size-5" />
+          <div className="text-center mb-8 md:mb-10 px-4">
+            <div className="flex items-center justify-center gap-3 mb-2">
+              <div className="p-1.5 rounded-xl bg-secondary text-primary shadow-google-sm font-bold">
+                <Sparkles className="size-4" />
               </div>
-              <span className="text-sm font-bold uppercase tracking-widest text-primary">
+              <span className="text-xs font-bold uppercase tracking-widest text-primary">
                 Derniers arrivages
               </span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-6 leading-tight max-w-3xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground mb-3 leading-tight max-w-3xl mx-auto">
               Le meilleur de l&apos;innovation, disponible dès maintenant.
             </h2>
-            <p className="text-xl text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto">
+            <p className="text-base text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto">
               Découvrez les produits les plus récents sélectionnés pour leur excellence et leur performance.
             </p>
           </div>
         </AnimateOnScroll>
 
-        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-8 px-4">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 px-4">
           {products.slice(0, 5).map((product, index) => {
             // Adapt local product to ProductCard's expected type
             const adaptedProduct = {
@@ -68,7 +68,7 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
         </div>
 
         <AnimateOnScroll animation="fade-up" delay={500}>
-          <div className="flex justify-center mt-28">
+          <div className="flex justify-center mt-8 md:mt-10">
             <Button
               asChild
               variant="outline"

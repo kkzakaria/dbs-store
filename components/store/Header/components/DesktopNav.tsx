@@ -39,7 +39,7 @@ export function DesktopNav({
                 isScrolled ? "px-3 py-2 text-[13.5px]" : "px-3 py-2 text-[14px]",
                 isActive
                   ? "text-primary bg-primary/5"
-                  : "text-foreground hover:text-primary hover:bg-muted/50"
+                  : "text-foreground hover:text-primary hover:bg-primary/5"
               )}
             >
               <span>{category.name}</span>

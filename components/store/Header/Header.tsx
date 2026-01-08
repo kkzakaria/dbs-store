@@ -75,7 +75,7 @@ export function Header() {
 
       <header
         className={cn(
-          "sticky top-0 z-[101] w-full transition-all duration-500 ease-out"
+          "sticky top-0 z-40 w-full transition-all duration-500 ease-out"
         )}
       >
         {/* Outer wrapper for positioning */}
@@ -114,6 +114,7 @@ export function Header() {
                   onClick={() => setMobileNavOpen(!mobileNavOpen)}
                   className={cn(
                     "lg:hidden rounded-full transition-all duration-300",
+                    "hover:bg-primary/5 hover:text-primary",
                     // Hide if Scrolled OR Menu Open (Floating Button takes over)
                     (isScrolled || mobileNavOpen || mobileUserMenuOpen) ? "opacity-0 w-0 p-0 overflow-hidden" : "opacity-100"
                   )}

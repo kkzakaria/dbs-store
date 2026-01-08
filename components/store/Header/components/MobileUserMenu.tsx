@@ -82,30 +82,30 @@ export function MobileUserMenu({
                   onClick={() => onOpenChange(false)}
                 >
                   <div className="relative shrink-0">
-                    <Avatar className="h-16 w-16 border-2 border-border/50 shadow-sm">
+                    <Avatar className="h-10 w-10 border-2 border-border/50 shadow-sm">
                       <AvatarImage src={user?.avatar_url || undefined} />
-                      <AvatarFallback className="bg-primary/10 text-primary text-xl font-bold">
+                      <AvatarFallback className="bg-primary/10 text-primary text-base font-bold">
                         {userInitials}
                       </AvatarFallback>
                     </Avatar>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="text-lg font-bold truncate tracking-tight">{user?.full_name || 'Utilisateur'}</p>
-                    <p className="text-sm text-muted-foreground truncate font-medium">{user?.email}</p>
+                    <p className="text-sm font-bold truncate tracking-tight">{user?.full_name || 'Utilisateur'}</p>
+                    <p className="text-[10px] text-muted-foreground truncate font-medium">{user?.email}</p>
                   </div>
-                  <ChevronRight className="size-6 text-muted-foreground/50 group-hover:text-primary transition-colors" />
+                  <ChevronRight className="size-4 text-muted-foreground/50 group-hover:text-primary transition-colors" />
                 </Link>
               ) : (
-                <div className="flex flex-col items-center gap-4 py-4">
-                  <p className="text-base text-center text-muted-foreground font-medium">Connectez-vous pour profiter de toutes les fonctionnalités</p>
+                <div className="flex flex-col items-center gap-3 py-1">
+                  <p className="text-[13px] text-center text-muted-foreground font-medium px-4">Accédez à votre compte</p>
                   <Button 
                     onClick={() => {
                         onLogin()
                         onOpenChange(false)
                     }}
-                    className="w-full rounded-full h-12 text-lg font-bold shadow-google-sm"
+                    className="w-full rounded-full h-10 text-sm font-bold shadow-google-sm"
                   >
-                    Connexion / Inscription
+                    Connexion
                   </Button>
                 </div>
               )}
@@ -120,13 +120,13 @@ export function MobileUserMenu({
                     onClick={() => onOpenChange(false)}
                     className={cn(
                       "flex items-center justify-between w-full p-2 pl-6 rounded-[32px]",
-                      "bg-blue-50 dark:bg-blue-900/20 transition-all duration-200",
-                      "min-h-[64px]"
+                      "bg-blue-50 dark:bg-blue-900/10 hover:bg-blue-100 dark:hover:bg-blue-900/20 transition-all duration-200",
+                      "min-h-[48px]"
                     )}
                   >
-                    <span className="text-base font-semibold tracking-tight text-blue-700 dark:text-blue-400">Administration</span>
-                    <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/20 shadow-sm h-12 w-12">
-                      <Shield className="size-6 text-blue-600 dark:text-blue-400" />
+                    <span className="text-sm font-semibold tracking-tight text-blue-700 dark:text-blue-400">Administration</span>
+                    <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/10 shadow-sm h-9 w-9">
+                      <Shield className="size-4.5 text-blue-600 dark:text-blue-400" />
                     </div>
                   </Link>
               )}
@@ -135,14 +135,14 @@ export function MobileUserMenu({
                 href="/orders" 
                 onClick={() => onOpenChange(false)}
                 className={cn(
-                  "flex items-center justify-between w-full p-2 pl-6 rounded-[32px]",
-                  "bg-[#F1F3F4] dark:bg-muted transition-all duration-200",
-                  "min-h-[64px]"
+                  "flex items-center justify-between w-full p-1 pl-5 rounded-[32px]",
+                  "bg-[#F1F3F4] dark:bg-muted hover:bg-[#E8EAED] dark:hover:bg-muted/80 transition-all duration-200",
+                  "min-h-[48px]"
                 )}
               >
-                <span className="text-base font-semibold tracking-tight text-foreground">Commandes</span>
-                <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/20 shadow-sm h-12 w-12">
-                  <Package className="size-6 text-foreground" />
+                <span className="text-sm font-semibold tracking-tight text-foreground">Commandes</span>
+                <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/10 shadow-sm h-9 w-9">
+                  <Package className="size-4.5 text-foreground" />
                 </div>
               </Link>
               
@@ -150,14 +150,14 @@ export function MobileUserMenu({
                 href="/wishlist" 
                 onClick={() => onOpenChange(false)}
                 className={cn(
-                  "flex items-center justify-between w-full p-2 pl-6 rounded-[32px]",
-                  "bg-[#F1F3F4] dark:bg-muted transition-all duration-200",
-                  "min-h-[64px]"
+                  "flex items-center justify-between w-full p-1 pl-5 rounded-[32px]",
+                  "bg-[#F1F3F4] dark:bg-muted hover:bg-[#E8EAED] dark:hover:bg-muted/80 transition-all duration-200",
+                  "min-h-[48px]"
                 )}
               >
-                <span className="text-base font-semibold tracking-tight text-foreground">Favoris</span>
-                <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/20 shadow-sm h-12 w-12">
-                  <Heart className="size-6 text-foreground" />
+                <span className="text-sm font-semibold tracking-tight text-foreground">Favoris</span>
+                <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/10 shadow-sm h-9 w-9">
+                  <Heart className="size-4.5 text-foreground" />
                 </div>
               </Link>
 
@@ -166,14 +166,14 @@ export function MobileUserMenu({
                   href="/account" 
                   onClick={() => onOpenChange(false)}
                   className={cn(
-                    "flex items-center justify-between w-full p-2 pl-6 rounded-[32px]",
-                    "bg-[#F1F3F4] dark:bg-muted transition-all duration-200",
-                    "min-h-[64px]"
+                    "flex items-center justify-between w-full p-1 pl-5 rounded-[32px]",
+                    "bg-[#F1F3F4] dark:bg-muted hover:bg-[#E8EAED] dark:hover:bg-muted/80 transition-all duration-200",
+                    "min-h-[48px]"
                   )}
                 >
-                  <span className="text-base font-semibold tracking-tight text-foreground">Paramètres</span>
-                  <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/20 shadow-sm h-12 w-12">
-                    <Settings className="size-6 text-foreground" />
+                  <span className="text-sm font-semibold tracking-tight text-foreground">Paramètres</span>
+                  <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/10 shadow-sm h-9 w-9">
+                    <Settings className="size-4.5 text-foreground" />
                   </div>
                 </Link>
               )}
@@ -185,14 +185,14 @@ export function MobileUserMenu({
                       onOpenChange(false)
                   }}
                   className={cn(
-                    "flex items-center justify-between w-full p-2 pl-6 rounded-[32px]",
-                    "bg-[#F1F3F4] dark:bg-muted transition-all duration-200",
-                    "min-h-[64px] text-left"
+                    "flex items-center justify-between w-full p-1 pl-5 rounded-[32px]",
+                    "bg-[#F1F3F4] dark:bg-muted hover:bg-[#E8EAED] dark:hover:bg-muted/80 transition-all duration-200",
+                    "min-h-[48px] text-left"
                   )}
                 >
-                  <span className="text-base font-semibold tracking-tight text-destructive">Déconnexion</span>
-                  <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/20 shadow-sm h-12 w-12">
-                    <LogOut className="size-6 text-destructive" />
+                  <span className="text-sm font-semibold tracking-tight text-destructive">Déconnexion</span>
+                  <div className="flex items-center justify-center p-2 mr-0 rounded-full bg-white dark:bg-black/10 shadow-sm h-9 w-9">
+                    <LogOut className="size-4.5 text-destructive" />
                   </div>
                 </button>
               )}

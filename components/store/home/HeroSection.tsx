@@ -134,7 +134,7 @@ export function HeroSection({
                 asChild
                 variant="outline"
                 size="sm"
-                className="hidden sm:inline-flex w-full sm:w-auto h-9 sm:h-12 px-3 sm:px-8 rounded-full border-border hover:bg-muted text-xs sm:text-base font-semibold transition-google whitespace-nowrap"
+                className="hidden sm:inline-flex w-full sm:w-auto h-9 sm:h-12 px-3 sm:px-8 rounded-full border-border hover:bg-primary/5 hover:border-primary/20 hover:text-primary text-xs sm:text-base font-semibold transition-google whitespace-nowrap"
               >
                 <Link href="/products">
                   Plus d&apos;infos

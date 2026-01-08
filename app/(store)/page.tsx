@@ -4,13 +4,11 @@ import { ArrowRight } from "lucide-react"
 import { 
   HeroSection,
   PromotionsSection,
-  PopularProductsSection,
   NewArrivalsSection,
-  FeaturesSection,
   TestimonialsSection,
   BrandsSection,
-  StatsSection,
-  CTASection
+  CTASection,
+  CategoryProductsSection
 } from "@/components/store"
 import { AnimateOnScroll } from "@/components/animations"
 import { createClient } from "@/lib/supabase/server"
@@ -131,52 +129,81 @@ async function getNewProducts() {
   )
 }
 
-async function getPopularProducts() {
+async function getCategoriesWithProducts() {
   const supabase = await createClient()
 
-  const { data: products } = await supabase
-    .from("products")
-    .select(`
-      id,
-      name,
-      slug,
-      price,
-      compare_price,
-      product_images (
-        url,
-        is_primary
-      )
-    `)
-    .eq("is_active", true)
-    .eq("is_featured", true) // Using featured as popular for now
-    .order("created_at", { ascending: false })
-    .limit(8)
+  const { data: categories } = await supabase
+    .from("categories")
+    .select("id, name, slug")
+    .order("name", { ascending: true })
 
-  return (
-    products?.map((product) => {
-      const primaryImage =
-        product.product_images?.find((img) => img.is_primary) || product.product_images?.[0]
-      
+  if (!categories) return []
+
+  const categoryOrder = [
+    "smartphone",
+    "montre connectée",
+    "tablette",
+    "ordinateur",
+    "audio",
+    "accessoire"
+  ]
+
+  const sortedCategories = [...categories].sort((a, b) => {
+    const indexA = categoryOrder.indexOf(a.name.toLowerCase())
+    const indexB = categoryOrder.indexOf(b.name.toLowerCase())
+    
+    if (indexA === -1 && indexB === -1) return a.name.localeCompare(b.name)
+    if (indexA === -1) return 1
+    if (indexB === -1) return -1
+    
+    return indexA - indexB
+  })
+
+  const categoriesWithProducts = await Promise.all(
+    sortedCategories.map(async (category) => {
+      const { data: products } = await supabase
+        .from("products")
+        .select(`
+          id,
+          name,
+          slug,
+          price,
+          product_images (
+            url,
+            is_primary
+          )
+        `)
+        .eq("is_active", true)
+        .eq("category_id", category.id)
+        .order("created_at", { ascending: false })
+        .limit(4)
+
       return {
-        id: product.id,
-        name: product.name,
-        slug: product.slug,
-        image: primaryImage?.url || "/images/placeholder-product.png",
-        price: product.price,
-        compare_price: product.compare_price,
-        status: "Nouveau", // Example status
+        ...category,
+        products: products?.map((p) => {
+          const primaryImage = p.product_images?.find((img: { is_primary: boolean | null }) => img.is_primary) || p.product_images?.[0]
+          return {
+            id: p.id,
+            name: p.name,
+            slug: p.slug,
+            price: p.price,
+            image: primaryImage?.url || "/images/placeholder-product.png"
+          }
+        }) || []
       }
-    }) || []
+    })
   )
+
+  return categoriesWithProducts.filter(c => c.products.length > 0)
 }
 
 
 export default async function HomePage() {
-  const [featuredProducts, /* promoProducts, */ newProducts, popularProducts] = await Promise.all([
+  const [featuredProducts, /* promoProducts, */ newProducts, categoriesProducts] = await Promise.all([
     getFeaturedProducts(),
     // getPromoProducts(),
     getNewProducts(),
-    getPopularProducts(),
+    getCategoriesWithProducts(),
   ])
 
   return (
@@ -198,23 +225,29 @@ export default async function HomePage() {
       {/* Brands Section */}
       <BrandsSection />
 
-      {/* Popular Products Section */}
-      <PopularProductsSection products={popularProducts} />
-
       {/* New Arrivals Section */}
       <NewArrivalsSection products={newProducts} />
 
-      {/* Stats Section */}
-      <StatsSection />
-
-      {/* Features Section - Enhanced */}
-      <FeaturesSection />
+      {/* Categories Sections */}
+      {categoriesProducts.map((cat) => (
+        <CategoryProductsSection 
+          key={cat.id}
+          categoryName={cat.name}
+          categorySlug={cat.slug}
+          products={cat.products}
+        />
+      ))}
 
       {/* Testimonials Section */}
       <TestimonialsSection />
 
       {/* CTA Section - Enhanced */}
-      <CTASection />
+      <CTASection 
+        title="Rejoignez la communauté DBS Store"
+        description="Créez votre compte dès maintenant pour suivre vos commandes, sauvegarder vos articles favoris et recevoir nos offres exclusives."
+        primaryAction={{ label: "Créer un compte", href: "/register" }}
+        secondaryAction={{ label: "Se connecter", href: "/login" }}
+      />
     </div>
   )
 }

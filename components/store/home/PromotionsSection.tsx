@@ -29,10 +29,10 @@ export function PromotionsSection({
 
 
   return (
-    <section className="py-20 md:py-16 bg-[#f8f9fa] dark:bg-muted/10 relative overflow-hidden">
+    <section className="py-12 md:py-16 bg-[#f8f9fa] dark:bg-muted/10 relative overflow-hidden">
       <div className="container-google relative">
         <AnimateOnScroll animation="fade-up">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 md:gap-12 mb-12 md:mb-16 px-4">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8 md:gap-12 mb-8 md:mb-10 px-4">
             <div className="max-w-2xl">
               <div className="flex items-center gap-3 mb-4">
                 <div className="p-2.5 rounded-2xl bg-primary text-white shadow-google-sm">
@@ -42,10 +42,10 @@ export function PromotionsSection({
                   Offres à durée limitée
                 </span>
               </div>
-              <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-4 leading-tight">
+              <h2 className="text-3xl md:text-4xl font-display font-bold text-foreground mb-4 leading-tight">
                 Économisez sur la technologie que vous aimez.
               </h2>
-              <p className="text-xl text-muted-foreground font-light leading-relaxed">
+              <p className="text-lg text-muted-foreground font-light leading-relaxed">
                 Des réductions exceptionnelles sur une sélection de nos produits les plus populaires.
               </p>
             </div>
@@ -77,7 +77,7 @@ export function PromotionsSection({
 
         <AnimateOnScroll animation="fade-up" delay={400}>
           <div className="flex justify-center mt-12 md:mt-16">
-            <Button asChild variant="outline" size="lg" className="h-14 px-10 rounded-full border-border hover:bg-white dark:hover:bg-muted text-base font-semibold transition-google shadow-google-sm hover:shadow-google-md">
+            <Button asChild variant="outline" size="lg" className="h-14 px-10 rounded-full border-border hover:bg-primary/5 hover:border-primary/20 hover:text-primary text-base font-semibold transition-google shadow-google-sm hover:shadow-google-md">
               <Link href="/products?promo=true" className="flex items-center gap-3">
                 Voir toutes les promotions
                 <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
