@@ -55,7 +55,10 @@ const defaultTestimonials: Testimonial[] = [
 export function TestimonialsSection({ testimonials = defaultTestimonials }: TestimonialsSectionProps) {
 
   return (
-    <section className="py-12 md:py-16 bg-[#f8f9fa] dark:bg-muted/10 relative overflow-hidden">
+    <section 
+      className="py-12 md:py-16 bg-[#f8f9fa] dark:bg-muted/10 relative overflow-hidden"
+      suppressHydrationWarning
+    >
       <div className="container-google relative">
         <AnimateOnScroll animation="fade-up">
           <div className="text-center mb-10 md:mb-12 px-4">

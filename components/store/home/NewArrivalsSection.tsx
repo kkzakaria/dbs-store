@@ -25,7 +25,7 @@ export function NewArrivalsSection({ products }: NewArrivalsSectionProps) {
 
 
   return (
-    <section className="pt-4 pb-12 md:pt-6 md:pb-16 bg-white dark:bg-background relative overflow-hidden">
+    <section className="pt-4 pb-12 md:pt-6 md:pb-16 bg-[#f8f9fa] dark:bg-muted/5 relative overflow-hidden">
       <div className="container-google relative">
         <AnimateOnScroll animation="fade-up">
           <div className="text-center mb-8 md:mb-10 px-4">

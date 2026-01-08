@@ -26,7 +26,7 @@ export function CTASection({
 }: CTASectionProps) {
 
   return (
-    <section className="py-12 md:py-16 bg-white dark:bg-background overflow-hidden px-4">
+    <section className="py-12 md:py-16 bg-[#f8f9fa] dark:bg-muted/5 overflow-hidden px-4">
       <div className="container-google">
         <AnimateOnScroll animation="scale-in">
           <div className="relative rounded-[32px] bg-primary overflow-hidden p-8 md:p-12 lg:p-14 text-center shadow-google-lg">

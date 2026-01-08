@@ -11,3 +11,4 @@ export { TestimonialsSection } from "./home/TestimonialsSection";
 export { BrandsSection } from "./home/BrandsSection";
 export { StatsSection } from "./home/StatsSection";
 export { CTASection } from "./home/CTASection";
+export { CategoryProductsSection } from "./home/CategoryProductsSection";

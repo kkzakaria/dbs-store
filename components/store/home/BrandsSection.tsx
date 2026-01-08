@@ -4,7 +4,7 @@ import { LogoMarquee } from "./LogoMarquee"
 export function BrandsSection() {
 
   return (
-    <section className="pt-4 pb-2 md:pt-12 md:pb-4 bg-white dark:bg-background border-y border-border/10">
+    <section className="pt-4 pb-2 md:pt-12 md:pb-4 bg-[#f8f9fa] dark:bg-muted/5 border-y border-border/10">
       <div className="container-google">
         <AnimateOnScroll animation="fade-up">
           <div className="text-center mb-2 px-4">
