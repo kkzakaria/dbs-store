@@ -75,7 +75,7 @@ export function Header() {
 
       <header
         className={cn(
-          "sticky top-0 z-[101] w-full transition-all duration-500 ease-out"
+          "sticky top-0 z-40 w-full transition-all duration-500 ease-out"
         )}
       >
         {/* Outer wrapper for positioning */}
