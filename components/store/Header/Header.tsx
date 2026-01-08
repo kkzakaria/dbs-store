@@ -114,6 +114,7 @@ export function Header() {
                   onClick={() => setMobileNavOpen(!mobileNavOpen)}
                   className={cn(
                     "lg:hidden rounded-full transition-all duration-300",
+                    "hover:bg-primary/5 hover:text-primary",
                     // Hide if Scrolled OR Menu Open (Floating Button takes over)
                     (isScrolled || mobileNavOpen || mobileUserMenuOpen) ? "opacity-0 w-0 p-0 overflow-hidden" : "opacity-100"
                   )}

@@ -127,7 +127,7 @@ export function FeaturesSection({ features = defaultFeatures }: FeaturesSectionP
               asChild
               variant="outline"
               size="lg"
-              className="h-14 px-10 rounded-full border-border hover:bg-muted dark:hover:bg-muted/50 text-base font-semibold transition-google shadow-google-sm hover:shadow-google-md"
+              className="h-14 px-10 rounded-full border-border hover:bg-primary/5 hover:border-primary/20 hover:text-primary text-base font-semibold transition-google shadow-google-sm hover:shadow-google-md"
             >
               <Link href="/about" className="flex items-center gap-3">
                 En savoir plus sur DBS Store

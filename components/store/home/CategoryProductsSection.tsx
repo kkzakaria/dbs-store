@@ -90,7 +90,7 @@ export function CategoryProductsSection({
               <Button
                 asChild
                 variant="outline"
-                className="group h-8 sm:h-10 px-3 sm:px-6 rounded-full bg-white dark:bg-card border-border hover:bg-muted dark:hover:bg-muted/50 text-[10px] sm:text-sm font-semibold transition-google shadow-google-sm hover:shadow-google-md"
+                className="group h-8 sm:h-10 px-3 sm:px-6 rounded-full bg-white dark:bg-card border-border hover:bg-primary/5 hover:border-primary/20 hover:text-primary text-[10px] sm:text-sm font-semibold transition-google shadow-google-sm hover:shadow-google-md"
               >
                 <Link href={`/categories/${categorySlug}`} className="flex items-center gap-2">
                   <span className="hidden xs:inline">Tout voir</span>

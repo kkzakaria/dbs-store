@@ -77,7 +77,7 @@ export function PromotionsSection({
 
         <AnimateOnScroll animation="fade-up" delay={400}>
           <div className="flex justify-center mt-12 md:mt-16">
-            <Button asChild variant="outline" size="lg" className="h-14 px-10 rounded-full border-border hover:bg-white dark:hover:bg-muted text-base font-semibold transition-google shadow-google-sm hover:shadow-google-md">
+            <Button asChild variant="outline" size="lg" className="h-14 px-10 rounded-full border-border hover:bg-primary/5 hover:border-primary/20 hover:text-primary text-base font-semibold transition-google shadow-google-sm hover:shadow-google-md">
               <Link href="/products?promo=true" className="flex items-center gap-3">
                 Voir toutes les promotions
                 <ArrowRight className="size-5 transition-transform group-hover:translate-x-1" />
