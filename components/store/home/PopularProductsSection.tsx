@@ -32,10 +32,10 @@ export function PopularProductsSection({ products }: PopularProductsSectionProps
   if (products.length === 0) return null
 
   return (
-    <section className="py-24 md:py-32 bg-white dark:bg-background overflow-hidden">
+    <section className="py-12 md:py-20 bg-white dark:bg-background overflow-hidden">
       <div className="container-google">
         <AnimateOnScroll animation="fade-up">
-          <h2 className="text-3xl md:text-5xl font-display font-bold text-center mb-12 md:mb-20 text-foreground">
+          <h2 className="text-3xl md:text-4xl font-display font-bold text-center mb-10 md:mb-14 text-foreground">
             Populaires sur DBS Store.
           </h2>
         </AnimateOnScroll>

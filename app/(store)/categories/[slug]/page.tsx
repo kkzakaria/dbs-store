@@ -2,7 +2,7 @@ import { Suspense } from "react"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { ChevronRight } from "lucide-react"
+import { ChevronRight, Smartphone, Laptop, Headphones, Watch, Speaker, Gamepad2, Tablet } from "lucide-react"
 import { NuqsAdapter } from "nuqs/adapters/next/app"
 import { getProducts, getBrands } from "@/actions/products"
 import { getCategoryBySlug, getCategories } from "@/actions/categories"
@@ -89,9 +89,9 @@ export default async function CategoryPage({
 
   return (
     <NuqsAdapter>
-      <div className="container py-8">
+      <div className="container py-4 md:py-6">
         {/* Breadcrumb */}
-        <nav className="mb-6 flex items-center text-sm text-muted-foreground">
+        <nav className="mb-4 flex items-center text-sm text-muted-foreground">
           <Link href="/" className="hover:text-foreground">
             Accueil
           </Link>
@@ -104,14 +104,32 @@ export default async function CategoryPage({
         </nav>
 
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold tracking-tight">{category.name}</h1>
-          {category.description && (
-            <p className="mt-2 text-muted-foreground">{category.description}</p>
-          )}
-          <p className="mt-2 text-sm text-muted-foreground">
-            {total} produit{total !== 1 ? "s" : ""} dans cette catégorie
-          </p>
+        <div className="relative mb-6 p-6 md:p-8 rounded-[24px] md:rounded-[32px] bg-gradient-to-br from-violet-100/50 via-fuchsia-50/30 to-white dark:from-purple-900/20 dark:via-blue-950/10 dark:to-transparent border border-purple-100/50 dark:border-purple-900/20 overflow-hidden">
+          <div className="relative z-10">
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground">{category.name}</h1>
+            {category.description && (
+              <p className="mt-2 text-muted-foreground text-base leading-relaxed max-w-2xl">{category.description}</p>
+            )}
+          </div>
+
+          {/* Decorative Icons Cluster */}
+          <div className="absolute top-0 right-0 h-full w-1/2 opacity-[0.03] dark:opacity-[0.08] pointer-events-none overflow-hidden">
+            <div className="absolute top-4 right-12 transform -rotate-12">
+              <Laptop className="size-20" />
+            </div>
+            <div className="absolute top-24 right-32 transform rotate-45">
+              <Headphones className="size-24" />
+            </div>
+            <div className="absolute -bottom-4 right-8 transform -rotate-12">
+              <Smartphone className="size-16" />
+            </div>
+            <div className="absolute top-1/2 right-1/4 transform -rotate-45">
+              <Gamepad2 className="size-14" />
+            </div>
+            <div className="absolute bottom-10 right-1/3 transform rotate-12">
+              <Speaker className="size-16" />
+            </div>
+          </div>
         </div>
 
         <div className="flex flex-col gap-8 lg:flex-row">

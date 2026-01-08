@@ -159,7 +159,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
 
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 xl:gap-24">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 xl:gap-16">
       {/* Gallery - Desktop: vertical thumbnails, Mobile: horizontal */}
       <div className="space-y-6">
         <div className="hidden md:block">
@@ -177,8 +177,8 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
       </div>
 
       {/* Product Info */}
-      <div className="space-y-16 lg:sticky lg:top-32 h-fit">
-        <div className="space-y-8">
+      <div className="space-y-10 lg:sticky lg:top-32 h-fit">
+        <div className="space-y-6">
           {/* Brand/Category */}
           <div className="flex items-center gap-3 text-xs font-bold uppercase tracking-widest text-primary">
             {product.brand && <span>{product.brand}</span>}
@@ -194,7 +194,7 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
           </div>
  
           {/* Name */}
-          <h1 className="text-4xl lg:text-6xl font-display font-bold leading-[1.1] text-foreground">
+          <h1 className="text-2xl lg:text-4xl font-display font-bold leading-[1.1] text-foreground">
             {product.name}
           </h1>
  
@@ -215,9 +215,9 @@ export function ProductDetailClient({ product }: ProductDetailClientProps) {
  
         {/* Description */}
         {product.description && (
-          <div className="space-y-8">
+          <div className="space-y-4">
             <h3 className="text-sm font-bold uppercase tracking-widest text-foreground">Présentation</h3>
-            <p className="text-xl text-muted-foreground leading-relaxed font-light">
+            <p className="text-lg text-muted-foreground leading-relaxed font-light">
               {product.description}
             </p>
           </div>
