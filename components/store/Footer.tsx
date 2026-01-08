@@ -7,6 +7,8 @@ import {
   Facebook,
   Instagram,
   Twitter,
+  Music2,
+  MessageCircle,
 } from "lucide-react"
 
 const quickLinks = [
@@ -29,6 +31,8 @@ const socialLinks = [
   { name: "Facebook", icon: Facebook, href: "https://facebook.com" },
   { name: "Instagram", icon: Instagram, href: "https://instagram.com" },
   { name: "Twitter", icon: Twitter, href: "https://twitter.com" },
+  { name: "TikTok", icon: Music2, href: "https://tiktok.com" },
+  { name: "WhatsApp", icon: MessageCircle, href: "https://wa.me/22500000000" },
 ]
 
 

@@ -4,12 +4,9 @@ import { ArrowRight } from "lucide-react"
 import { 
   HeroSection,
   PromotionsSection,
-  PopularProductsSection,
   NewArrivalsSection,
-  FeaturesSection,
   TestimonialsSection,
   BrandsSection,
-  StatsSection,
   CTASection
 } from "@/components/store"
 import { AnimateOnScroll } from "@/components/animations"
@@ -172,11 +169,10 @@ async function getPopularProducts() {
 
 
 export default async function HomePage() {
-  const [featuredProducts, /* promoProducts, */ newProducts, popularProducts] = await Promise.all([
+  const [featuredProducts, /* promoProducts, */ newProducts] = await Promise.all([
     getFeaturedProducts(),
     // getPromoProducts(),
     getNewProducts(),
-    getPopularProducts(),
   ])
 
   return (
@@ -198,23 +194,19 @@ export default async function HomePage() {
       {/* Brands Section */}
       <BrandsSection />
 
-      {/* Popular Products Section */}
-      <PopularProductsSection products={popularProducts} />
-
       {/* New Arrivals Section */}
       <NewArrivalsSection products={newProducts} />
-
-      {/* Stats Section */}
-      <StatsSection />
-
-      {/* Features Section - Enhanced */}
-      <FeaturesSection />
 
       {/* Testimonials Section */}
       <TestimonialsSection />
 
       {/* CTA Section - Enhanced */}
-      <CTASection />
+      <CTASection 
+        title="Rejoignez la communauté DBS Store"
+        description="Créez votre compte dès maintenant pour suivre vos commandes, sauvegarder vos articles favoris et recevoir nos offres exclusives."
+        primaryAction={{ label: "Créer un compte", href: "/register" }}
+        secondaryAction={{ label: "Se connecter", href: "/login" }}
+      />
     </div>
   )
 }

@@ -55,38 +55,38 @@ const defaultTestimonials: Testimonial[] = [
 export function TestimonialsSection({ testimonials = defaultTestimonials }: TestimonialsSectionProps) {
 
   return (
-    <section className="py-32 md:py-48 bg-[#f8f9fa] dark:bg-muted/10 relative overflow-hidden">
+    <section className="py-12 md:py-16 bg-[#f8f9fa] dark:bg-muted/10 relative overflow-hidden">
       <div className="container-google relative">
         <AnimateOnScroll animation="fade-up">
-          <div className="text-center mb-20 md:mb-32 px-4">
-            <div className="flex items-center justify-center gap-1.5 mb-6">
+          <div className="text-center mb-10 md:mb-12 px-4">
+            <div className="flex items-center justify-center gap-1 mb-2">
               {[1, 2, 3, 4, 5].map((star) => (
-                <Star key={star} className="size-6 fill-amber-400 text-amber-400" />
+                <Star key={star} className="size-4 fill-amber-400 text-amber-400" />
               ))}
             </div>
-            <h2 className="text-4xl md:text-5xl font-display font-bold text-foreground mb-6 leading-tight max-w-3xl mx-auto">
+            <h2 className="text-2xl md:text-3xl font-display font-bold text-foreground mb-3 leading-tight max-w-3xl mx-auto">
               La parole est à vous.
             </h2>
-            <p className="text-xl text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto">
+            <p className="text-base text-muted-foreground font-light leading-relaxed max-w-2xl mx-auto">
               Rejoignez plus de 5000 clients qui nous font confiance pour leur équipement technologique.
             </p>
           </div>
         </AnimateOnScroll>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 px-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
           {testimonials.map((testimonial, index) => (
             <AnimateOnScroll 
               key={testimonial.id} 
               animation="fade-up" 
               delay={index * 100}
             >
-              <div className="group relative flex flex-col h-full p-8 md:p-10 rounded-[40px] bg-white dark:bg-card transition-google hover-google-rise shadow-google-sm">
+              <div className="group relative flex flex-col h-full p-6 md:p-8 rounded-[32px] bg-white dark:bg-card transition-google hover-google-rise shadow-google-sm">
                 {/* Rating */}
-                <div className="flex gap-1 mb-6">
+                <div className="flex gap-1 mb-4">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star
                       key={i}
-                      className={`size-4 ${
+                      className={`size-3.5 ${
                         i < testimonial.rating
                           ? "fill-amber-400 text-amber-400"
                           : "fill-muted text-muted"
@@ -96,7 +96,7 @@ export function TestimonialsSection({ testimonials = defaultTestimonials }: Test
                 </div>
 
                 {/* Comment */}
-                <p className="text-lg text-foreground/80 leading-relaxed mb-8 font-medium italic">
+                <p className="text-base text-foreground/80 leading-relaxed mb-6 font-medium italic">
                   &quot;{testimonial.comment}&quot;
                 </p>
 
