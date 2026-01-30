@@ -1,11 +1,16 @@
-import { Suspense } from "react"
+import { cache, Suspense } from "react"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Link from "next/link"
-import { ChevronRight, Smartphone, Laptop, Headphones, Watch, Speaker, Gamepad2, Tablet } from "lucide-react"
+import { ChevronRight } from "lucide-react"
 import { NuqsAdapter } from "nuqs/adapters/next/app"
 import { getProducts, getBrands } from "@/actions/products"
 import { getCategoryBySlug, getCategories } from "@/actions/categories"
+
+// Cache getCategoryBySlug to deduplicate between generateMetadata and page render
+const getCachedCategory = cache(async (slug: string) => {
+  return getCategoryBySlug({ slug })
+})
 import {
   ProductGrid,
   ProductGridLoader,
@@ -28,7 +33,7 @@ export async function generateMetadata({
   params,
 }: CategoryPageProps): Promise<Metadata> {
   const { slug } = await params
-  const result = await getCategoryBySlug({ slug })
+  const result = await getCachedCategory(slug)
 
   if (!result?.data?.category) {
     return {
@@ -54,7 +59,7 @@ export default async function CategoryPage({
   const search = await searchParams
 
   // Get category
-  const categoryResult = await getCategoryBySlug({ slug })
+  const categoryResult = await getCachedCategory(slug)
 
   if (!categoryResult?.data?.category) {
     notFound()
@@ -112,24 +117,6 @@ export default async function CategoryPage({
             )}
           </div>
 
-          {/* Decorative Icons Cluster */}
-          <div className="absolute top-0 right-0 h-full w-1/2 opacity-[0.03] dark:opacity-[0.08] pointer-events-none overflow-hidden">
-            <div className="absolute top-4 right-12 transform -rotate-12">
-              <Laptop className="size-20" />
-            </div>
-            <div className="absolute top-24 right-32 transform rotate-45">
-              <Headphones className="size-24" />
-            </div>
-            <div className="absolute -bottom-4 right-8 transform -rotate-12">
-              <Smartphone className="size-16" />
-            </div>
-            <div className="absolute top-1/2 right-1/4 transform -rotate-45">
-              <Gamepad2 className="size-14" />
-            </div>
-            <div className="absolute bottom-10 right-1/3 transform rotate-12">
-              <Speaker className="size-16" />
-            </div>
-          </div>
         </div>
 
         <div className="flex flex-col gap-8 lg:flex-row">

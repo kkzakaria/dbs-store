@@ -79,8 +79,8 @@ export const getCategoryBySlug = action
 export async function getCategoriesWithProductCount() {
   const supabase = await createClient()
 
-  // Get categories
-  const { data: categories, error: catError } = await supabase
+  // Single query: fetch categories with product count using Supabase's count
+  const { data: categories, error } = await supabase
     .from("categories")
     .select(
       `
@@ -90,40 +90,22 @@ export async function getCategoriesWithProductCount() {
       description,
       image_url,
       position,
-      parent_id
+      parent_id,
+      products(count)
     `
     )
     .eq("is_active", true)
+    .eq("products.is_active", true)
     .order("position", { ascending: true })
 
-  if (catError) {
-    console.error("Get categories error:", catError)
+  if (error) {
+    console.error("Get categories with count error:", error)
     return { categories: [] }
   }
 
-  // Get product counts per category
-  const { data: counts, error: countError } = await supabase
-    .from("products")
-    .select("category_id")
-    .eq("is_active", true)
-
-  if (countError) {
-    console.error("Get product counts error:", countError)
-    return { categories: categories || [] }
-  }
-
-  // Count products per category
-  const countMap = new Map<string, number>()
-  counts?.forEach((p) => {
-    if (p.category_id) {
-      countMap.set(p.category_id, (countMap.get(p.category_id) || 0) + 1)
-    }
-  })
-
-  // Merge categories with counts
   const categoriesWithCount = categories?.map((cat) => ({
     ...cat,
-    productCount: countMap.get(cat.id) || 0,
+    productCount: (cat.products as unknown as { count: number }[])?.[0]?.count ?? 0,
   }))
 
   return { categories: categoriesWithCount || [] }

@@ -10,7 +10,6 @@ import {
   ProductFiltersSidebar,
 } from "@/components/store/products"
 import type { SortOption } from "@/lib/validations/product"
-import { Smartphone, Laptop, Headphones, Watch, Speaker, Gamepad2, Tablet, Tv } from "lucide-react"
 
 export const metadata: Metadata = {
   title: "Nos Produits | DBS Store",
@@ -74,30 +73,6 @@ export default async function ProductsPage({ searchParams }: ProductsPageProps) 
               </p>
             </div>
             
-            {/* Decorative Icons Cluster */}
-            <div className="absolute top-0 right-0 h-full w-1/2 opacity-[0.03] dark:opacity-[0.08] pointer-events-none overflow-hidden">
-              <div className="absolute top-4 right-12 transform -rotate-12">
-                <Smartphone className="size-16" />
-              </div>
-              <div className="absolute top-20 right-32 transform rotate-45">
-                <Laptop className="size-24" />
-              </div>
-              <div className="absolute -bottom-4 right-4 transform -rotate-12">
-                <Headphones className="size-20" />
-              </div>
-              <div className="absolute top-1/2 right-1/4 transform -rotate-45">
-                <Watch className="size-12" />
-              </div>
-              <div className="absolute bottom-8 right-1/2 transform rotate-12">
-                <Speaker className="size-16" />
-              </div>
-              <div className="absolute top-10 right-2/3 transform -rotate-12">
-                <Gamepad2 className="size-14" />
-              </div>
-              <div className="absolute bottom-1/4 right-3/4 transform rotate-12">
-                <Tablet className="size-20" />
-              </div>
-            </div>
           </div>
  
           <div className="flex flex-col gap-16 lg:flex-row">

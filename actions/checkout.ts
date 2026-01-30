@@ -19,7 +19,7 @@ export async function getStores(): Promise<{
 
   const { data, error } = await supabase
     .from("stores")
-    .select("*")
+    .select("id, name, address, city, commune, phone, is_active")
     .eq("is_active", true)
     .order("name", { ascending: true })
 
@@ -46,7 +46,7 @@ export async function getClosestStore(
   if (commune) {
     const { data: communeMatch } = await supabase
       .from("stores")
-      .select("*")
+      .select("id, name, address, city, commune, phone, is_active")
       .eq("is_active", true)
       .ilike("commune", commune)
       .limit(1)
@@ -60,7 +60,7 @@ export async function getClosestStore(
   // Fallback: get the first store in the same city
   const { data: cityMatch } = await supabase
     .from("stores")
-    .select("*")
+    .select("id, name, address, city, commune, phone, is_active")
     .eq("is_active", true)
     .ilike("city", `%${city}%`)
     .limit(1)
@@ -73,7 +73,7 @@ export async function getClosestStore(
   // Final fallback: return the first active store
   const { data: defaultStore, error } = await supabase
     .from("stores")
-    .select("*")
+    .select("id, name, address, city, commune, phone, is_active")
     .eq("is_active", true)
     .order("name", { ascending: true })
     .limit(1)
@@ -103,7 +103,7 @@ export async function getShippingZones(): Promise<{
 
   const { data, error } = await supabase
     .from("shipping_zones")
-    .select("*")
+    .select("id, name, fee, cities, is_active")
     .eq("is_active", true)
     .order("fee", { ascending: true })
 
@@ -127,7 +127,7 @@ export async function getShippingZoneByCity(
   // Use contains to search in the cities array
   const { data, error } = await supabase
     .from("shipping_zones")
-    .select("*")
+    .select("id, name, fee, cities, is_active")
     .eq("is_active", true)
     .contains("cities", [city])
     .single()
@@ -136,7 +136,7 @@ export async function getShippingZoneByCity(
     // If no zone found for city, try to get "Hors Abidjan" as fallback
     const { data: fallbackData, error: fallbackError } = await supabase
       .from("shipping_zones")
-      .select("*")
+      .select("id, name, fee, cities, is_active")
       .eq("is_active", true)
       .ilike("name", "%Hors%")
       .single()
@@ -214,7 +214,7 @@ export async function calculateCheckoutTotals(params: {
   if (params.promoCode) {
     const { data: promo } = await supabase
       .from("promotions")
-      .select("*")
+      .select("id, code, type, value, is_active, starts_at, ends_at, min_purchase, max_uses, used_count, max_uses_per_user, max_discount")
       .ilike("code", params.promoCode.trim())
       .eq("is_active", true)
       .single()
@@ -286,7 +286,7 @@ export async function validatePromoForCheckout(params: {
   // Fetch promo by code (case insensitive)
   const { data: promo, error } = await supabase
     .from("promotions")
-    .select("*")
+    .select("id, code, type, value, is_active, starts_at, ends_at, min_purchase, max_uses, used_count, max_uses_per_user, max_discount")
     .ilike("code", params.code.trim())
     .single()
 
