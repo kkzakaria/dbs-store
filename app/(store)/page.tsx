@@ -132,9 +132,18 @@ async function getNewProducts() {
 async function getCategoriesWithProducts() {
   const supabase = await createClient()
 
+  // Single query: fetch categories with their products using Supabase relations
+  // Eliminates N+1 query problem (was 1 + N queries, now just 1)
   const { data: categories } = await supabase
     .from("categories")
-    .select("id, name, slug")
+    .select(`
+      id, name, slug,
+      products(
+        id, name, slug, price, created_at,
+        product_images(url, is_primary)
+      )
+    `)
+    .eq("products.is_active", true)
     .order("name", { ascending: true })
 
   if (!categories) return []
@@ -151,37 +160,29 @@ async function getCategoriesWithProducts() {
   const sortedCategories = [...categories].sort((a, b) => {
     const indexA = categoryOrder.indexOf(a.name.toLowerCase())
     const indexB = categoryOrder.indexOf(b.name.toLowerCase())
-    
+
     if (indexA === -1 && indexB === -1) return a.name.localeCompare(b.name)
     if (indexA === -1) return 1
     if (indexB === -1) return -1
-    
+
     return indexA - indexB
   })
 
-  const categoriesWithProducts = await Promise.all(
-    sortedCategories.map(async (category) => {
-      const { data: products } = await supabase
-        .from("products")
-        .select(`
-          id,
-          name,
-          slug,
-          price,
-          product_images (
-            url,
-            is_primary
-          )
-        `)
-        .eq("is_active", true)
-        .eq("category_id", category.id)
-        .order("created_at", { ascending: false })
-        .limit(4)
+  return sortedCategories
+    .map((category) => {
+      // Sort products by created_at desc and take first 4
+      const sortedProducts = [...(category.products || [])]
+        .sort((a: { created_at: string | null }, b: { created_at: string | null }) =>
+          new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime()
+        )
+        .slice(0, 4)
 
       return {
-        ...category,
-        products: products?.map((p) => {
-          const primaryImage = p.product_images?.find((img: { is_primary: boolean | null }) => img.is_primary) || p.product_images?.[0]
+        id: category.id,
+        name: category.name,
+        slug: category.slug,
+        products: sortedProducts.map((p: { id: string; name: string; slug: string; price: number; product_images: { url: string; is_primary: boolean | null }[] }) => {
+          const primaryImage = p.product_images?.find((img) => img.is_primary) || p.product_images?.[0]
           return {
             id: p.id,
             name: p.name,
@@ -189,12 +190,10 @@ async function getCategoriesWithProducts() {
             price: p.price,
             image: primaryImage?.url || "/images/placeholder-product.png"
           }
-        }) || []
+        })
       }
     })
-  )
-
-  return categoriesWithProducts.filter(c => c.products.length > 0)
+    .filter(c => c.products.length > 0)
 }
 
 

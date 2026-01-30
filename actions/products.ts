@@ -364,19 +364,26 @@ export async function getBrands() {
 export async function getPriceRange() {
   const supabase = await createClient();
 
-  const { data, error } = await supabase
+  // Get min price
+  const { data: minData } = await supabase
     .from("products")
     .select("price")
-    .eq("is_active", true);
+    .eq("is_active", true)
+    .order("price", { ascending: true })
+    .limit(1)
+    .single();
 
-  if (error) {
-    console.error("Get price range error:", error);
-    return { min: 0, max: 0 };
-  }
+  // Get max price
+  const { data: maxData } = await supabase
+    .from("products")
+    .select("price")
+    .eq("is_active", true)
+    .order("price", { ascending: false })
+    .limit(1)
+    .single();
 
-  const prices = data?.map((p) => p.price) || [];
   return {
-    min: Math.min(...prices, 0),
-    max: Math.max(...prices, 0),
+    min: minData?.price ?? 0,
+    max: maxData?.price ?? 0,
   };
 }

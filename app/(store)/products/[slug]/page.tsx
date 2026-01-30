@@ -1,8 +1,14 @@
+import { cache } from "react"
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 import Link from "next/link"
 import { ChevronRight } from "lucide-react"
 import { getProductBySlug, getRelatedProducts } from "@/actions/products"
+
+// Cache getProductBySlug to deduplicate between generateMetadata and page render
+const getCachedProduct = cache(async (slug: string) => {
+  return getProductBySlug({ slug })
+})
 import {
   ProductSpecifications,
   ProductCard,
@@ -17,7 +23,7 @@ export async function generateMetadata({
   params,
 }: ProductPageProps): Promise<Metadata> {
   const { slug } = await params
-  const result = await getProductBySlug({ slug })
+  const result = await getCachedProduct(slug)
 
   if (!result?.data?.product) {
     return {
@@ -44,7 +50,7 @@ export async function generateMetadata({
 
 export default async function ProductPage({ params }: ProductPageProps) {
   const { slug } = await params
-  const result = await getProductBySlug({ slug })
+  const result = await getCachedProduct(slug)
 
   if (!result?.data?.product) {
     notFound()

@@ -81,7 +81,7 @@ export const validatePromoCode = action
     // Fetch promo by code (case insensitive)
     const { data: promo, error } = await supabase
       .from("promotions")
-      .select("*")
+      .select("id, code, name, type, value, description, is_active, starts_at, ends_at, min_purchase, max_uses, used_count, max_uses_per_user, max_discount, created_at, updated_at")
       .ilike("code", code.trim())
       .single()
 
@@ -171,7 +171,7 @@ export async function getActivePromotions() {
 
   const { data, error } = await supabase
     .from("promotions")
-    .select("*")
+    .select("id, code, type, value, is_active, starts_at, ends_at, min_purchase, max_uses, used_count, max_discount, description")
     .eq("is_active", true)
     .lte("starts_at", now)
     .gte("ends_at", now)
