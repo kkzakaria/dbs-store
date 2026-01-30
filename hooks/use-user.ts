@@ -56,35 +56,15 @@ export function useUser(): UseUserReturn {
     setError(null);
 
     try {
+      // Use getSession() first — reads from local storage (instant, no network call).
+      // Only fall back to getUser() if session exists but we need to verify.
       const {
-        data: { user: authUser },
-        error: authError,
-      } = await supabase.auth.getUser();
+        data: { session },
+      } = await supabase.auth.getSession();
 
-      // Handle auth errors - treat as logged out, not an error
-      if (authError) {
-        // Check for common auth errors that mean "not logged in" or "invalid session"
-        const isExpectedError =
-          authError.name === "AuthSessionMissingError" ||
-          authError.message?.includes("session") ||
-          authError.message?.includes("Auth session missing") ||
-          authError.message?.includes("User from sub claim in JWT does not exist") ||
-          authError.message?.includes("invalid JWT") ||
-          authError.message?.includes("JWT expired");
-
-        if (isExpectedError) {
-          // Clear any stale session data
-          await supabase.auth.signOut();
-          setAuthUser(null);
-          setUser(null);
-          return;
-        }
-        throw authError;
-      }
-
-      if (authUser) {
-        setAuthUser(authUser);
-        await fetchUserProfile(authUser);
+      if (session?.user) {
+        setAuthUser(session.user);
+        await fetchUserProfile(session.user);
       } else {
         setAuthUser(null);
         setUser(null);
