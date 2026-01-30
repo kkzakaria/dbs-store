@@ -172,7 +172,6 @@ export function Header() {
 
                   <UserMenu
                     isScrolled={isScrolled || mobileNavOpen || mobileUserMenuOpen}
-                    mounted={mounted}
                     isLoading={isLoading}
                     authUser={authUser}
                     user={user}

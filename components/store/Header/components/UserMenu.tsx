@@ -18,7 +18,6 @@ import type { User } from "@/types"
 
 interface UserMenuProps {
   isScrolled: boolean
-  mounted: boolean
   isLoading: boolean
   authUser: AuthUser | null
   user: User | null
@@ -71,7 +70,6 @@ const TriggerButton = ({
 
 export function UserMenu({
   isScrolled,
-  mounted,
   isLoading,
   authUser,
   user,
@@ -90,7 +88,7 @@ export function UserMenu({
   }, [pathname])
 
   // Loading state
-  if (!mounted || isLoading) {
+  if (isLoading) {
     return (
       <div
         className={cn(
