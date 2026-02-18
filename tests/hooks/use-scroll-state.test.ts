@@ -19,7 +19,7 @@ describe("useScrollState", () => {
     expect(result.current.isScrolled).toBe(true);
   });
 
-  it("returns scrollY value", () => {
+  it("returns scrollY ref value", () => {
     const { result } = renderHook(() => useScrollState());
 
     act(() => {
@@ -27,6 +27,6 @@ describe("useScrollState", () => {
       window.dispatchEvent(new Event("scroll"));
     });
 
-    expect(result.current.scrollY).toBe(200);
+    expect(result.current.scrollY.current).toBe(200);
   });
 });

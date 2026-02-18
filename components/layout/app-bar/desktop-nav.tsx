@@ -41,7 +41,7 @@ export function DesktopNav() {
               aria-label={category.name}
               aria-expanded={openTray === category.id}
               onClick={() =>
-                setOpenTray(openTray === category.id ? null : category.id)
+                setOpenTray((prev) => (prev === category.id ? null : category.id))
               }
             >
               {category.name}

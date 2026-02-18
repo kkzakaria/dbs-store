@@ -57,18 +57,23 @@ export const categories: Category[] = [
   { id: "supports-docks", slug: "supports-docks", name: "Supports & docks", icon: "monitor", image: null, parent_id: "accessoires", order: 3 },
 ];
 
-export function getTopLevelCategories(): Category[] {
-  return categories
-    .filter((c) => c.parent_id === null)
+const topLevelCache = categories
+  .filter((c) => c.parent_id === null)
+  .sort((a, b) => a.order - b.order);
+
+const subcategoryCache = new Map<string, Category[]>();
+for (const cat of topLevelCache) {
+  const subs = categories
+    .filter((c) => c.parent_id === cat.id)
     .sort((a, b) => a.order - b.order);
+  subcategoryCache.set(cat.id, subs);
+  subcategoryCache.set(cat.slug, subs);
+}
+
+export function getTopLevelCategories(): Category[] {
+  return topLevelCache;
 }
 
 export function getSubcategories(parentSlugOrId: string): Category[] {
-  const parent = categories.find(
-    (c) => c.slug === parentSlugOrId || c.id === parentSlugOrId
-  );
-  if (!parent) return [];
-  return categories
-    .filter((c) => c.parent_id === parent.id)
-    .sort((a, b) => a.order - b.order);
+  return subcategoryCache.get(parentSlugOrId) ?? [];
 }

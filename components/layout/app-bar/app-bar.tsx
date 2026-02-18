@@ -1,16 +1,20 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useScrollState } from "@/hooks/use-scroll-state";
 import { DesktopNav } from "./desktop-nav";
 import { MobileMenuTrigger } from "./mobile-menu-trigger";
-import { SearchOverlay } from "./search-overlay";
 import { CartIndicator } from "./cart-indicator";
 import { UserMenu } from "./user-menu";
 import { cn } from "@/lib/utils";
+
+const SearchOverlay = dynamic(() =>
+  import("./search-overlay").then((m) => m.SearchOverlay)
+);
 
 export function AppBar() {
   const { isScrolled } = useScrollState(50);
@@ -54,7 +58,9 @@ export function AppBar() {
         </div>
       </header>
 
-      <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+      {searchOpen && (
+        <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+      )}
     </>
   );
 }

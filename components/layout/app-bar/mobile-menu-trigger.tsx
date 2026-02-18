@@ -1,9 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { MobileMenu } from "./mobile-menu";
+
+const MobileMenu = dynamic(() =>
+  import("./mobile-menu").then((m) => m.MobileMenu)
+);
 
 export function MobileMenuTrigger() {
   const [open, setOpen] = useState(false);
@@ -18,7 +22,7 @@ export function MobileMenuTrigger() {
       >
         <Menu className="size-5" />
       </Button>
-      <MobileMenu open={open} onClose={() => setOpen(false)} />
+      {open && <MobileMenu open={open} onClose={() => setOpen(false)} />}
     </>
   );
 }
