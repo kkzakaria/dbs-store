@@ -23,6 +23,11 @@ describe("middleware config", () => {
     expect(config.matcher).toContain("/admin/:path*");
     expect(config.matcher).toContain("/compte/:path*");
   });
+
+  it("uses nodejs runtime for better-sqlite3 compatibility", async () => {
+    const { config } = await import("@/middleware");
+    expect(config.runtime).toBe("nodejs");
+  });
 });
 
 describe("middleware", () => {
