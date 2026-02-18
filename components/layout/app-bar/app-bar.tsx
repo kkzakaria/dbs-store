@@ -2,12 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Search, ShoppingCart, User } from "lucide-react";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useScrollState } from "@/hooks/use-scroll-state";
 import { DesktopNav } from "./desktop-nav";
 import { MobileMenuTrigger } from "./mobile-menu-trigger";
 import { SearchOverlay } from "./search-overlay";
+import { CartIndicator } from "./cart-indicator";
+import { UserMenu } from "./user-menu";
 import { cn } from "@/lib/utils";
 
 export function AppBar() {
@@ -46,16 +48,8 @@ export function AppBar() {
             <Button variant="ghost" size="icon" aria-label="Rechercher" onClick={() => setSearchOpen(true)}>
               <Search className="size-5" />
             </Button>
-            <Button variant="ghost" size="icon" asChild>
-              <Link href="/panier" aria-label="Panier">
-                <ShoppingCart className="size-5" />
-              </Link>
-            </Button>
-            <Button variant="ghost" size="icon" asChild className="hidden sm:inline-flex">
-              <Link href="/compte" aria-label="Compte">
-                <User className="size-5" />
-              </Link>
-            </Button>
+            <CartIndicator count={0} />
+            <UserMenu />
           </div>
         </div>
       </header>
