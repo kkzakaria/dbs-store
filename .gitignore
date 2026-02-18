@@ -37,6 +37,7 @@ yarn-error.log*
 # database
 *.db
 *.db-journal
+/better-auth_migrations/
 
 # vercel
 .vercel
