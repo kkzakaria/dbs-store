@@ -5,8 +5,9 @@ import dynamic from "next/dynamic";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-const MobileMenu = dynamic(() =>
-  import("./mobile-menu").then((m) => m.MobileMenu)
+const MobileMenu = dynamic(
+  () => import("./mobile-menu").then((m) => m.MobileMenu),
+  { loading: () => <div className="fixed inset-0 z-50 bg-background" /> }
 );
 
 export function MobileMenuTrigger() {
@@ -14,15 +15,14 @@ export function MobileMenuTrigger() {
 
   return (
     <>
-      <Button
-        variant="ghost"
-        size="icon"
+      <button
         aria-label="Menu"
         onClick={() => setOpen(true)}
+        className="flex size-10 items-center justify-center rounded-full bg-primary text-primary-foreground transition-colors hover:bg-primary/80"
       >
         <Menu className="size-5" />
-      </Button>
-      {open && <MobileMenu open={open} onClose={() => setOpen(false)} />}
+      </button>
+      {open && <MobileMenu onClose={() => setOpen(false)} />}
     </>
   );
 }

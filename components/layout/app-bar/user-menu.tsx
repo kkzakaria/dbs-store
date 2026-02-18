@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export function UserMenu() {
   return (
-    <Button variant="ghost" size="icon" asChild className="hidden sm:inline-flex">
+    <Button variant="ghost" size="icon" asChild>
       <Link href="/connexion" aria-label="Compte">
         <User className="size-5" />
       </Link>

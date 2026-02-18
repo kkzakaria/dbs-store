@@ -12,8 +12,9 @@ import { CartIndicator } from "./cart-indicator";
 import { UserMenu } from "./user-menu";
 import { cn } from "@/lib/utils";
 
-const SearchOverlay = dynamic(() =>
-  import("./search-overlay").then((m) => m.SearchOverlay)
+const SearchOverlay = dynamic(
+  () => import("./search-overlay").then((m) => m.SearchOverlay),
+  { loading: () => <div className="fixed inset-0 z-50 bg-background/80" /> }
 );
 
 export function AppBar() {
@@ -24,42 +25,47 @@ export function AppBar() {
     <>
       <header
         className={cn(
-          "sticky top-0 z-50 w-full bg-background/95 backdrop-blur-sm transition-shadow",
-          isScrolled && "shadow-sm"
+          "sticky z-50 w-full transition-[top] duration-200",
+          isScrolled ? "top-3" : "top-0"
         )}
       >
-        <div className="mx-auto flex h-15 max-w-7xl items-center px-4 lg:px-6">
-          {/* Mobile: hamburger menu */}
-          <div className="lg:hidden">
+        <div className="mx-auto flex max-w-7xl items-start gap-1 px-3 lg:px-4">
+          {/* Mobile menu button — outside the pill */}
+          <div className="flex h-[52px] items-center lg:hidden">
             <MobileMenuTrigger />
           </div>
 
-          {/* Logo */}
-          <Link
-            href="/"
-            className="mr-6 flex items-center text-xl font-bold tracking-tight"
+          {/* Pill container */}
+          <div
+            className={cn(
+              "flex h-[60px] flex-1 items-center rounded-full bg-background px-5 transition-shadow duration-200 lg:h-[60px]",
+              isScrolled && "shadow-[0_1px_3px_rgba(0,0,0,0.08),0_4px_8px_rgba(0,0,0,0.08)]"
+            )}
           >
-            DBS
-          </Link>
+            <Link
+              href="/"
+              className="mr-6 flex items-center text-xl font-bold tracking-tight lg:mr-8"
+            >
+              DBS
+            </Link>
 
-          {/* Desktop navigation */}
-          <div className="hidden flex-1 lg:flex">
-            <DesktopNav />
-          </div>
+            <div className="hidden flex-1 lg:flex">
+              <DesktopNav />
+            </div>
 
-          {/* Right side icons */}
-          <div className="ml-auto flex items-center gap-1">
-            <Button variant="ghost" size="icon" aria-label="Rechercher" onClick={() => setSearchOpen(true)}>
-              <Search className="size-5" />
-            </Button>
-            <CartIndicator count={0} />
-            <UserMenu />
+            <div className="ml-auto flex items-center gap-2">
+              <Button variant="ghost" size="icon" aria-label="Rechercher" onClick={() => setSearchOpen(true)}>
+                <Search className="size-5" />
+              </Button>
+              <CartIndicator count={0} />
+              <UserMenu />
+            </div>
           </div>
         </div>
       </header>
 
       {searchOpen && (
-        <SearchOverlay open={searchOpen} onClose={() => setSearchOpen(false)} />
+        <SearchOverlay onClose={() => setSearchOpen(false)} />
       )}
     </>
   );

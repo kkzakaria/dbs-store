@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, ChevronRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,17 +9,36 @@ import {
   getSubcategories,
   type Category,
 } from "@/lib/data/categories";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 
 type MobileMenuProps = {
-  open: boolean;
   onClose: () => void;
 };
 
-export function MobileMenu({ open, onClose }: MobileMenuProps) {
+export function MobileMenu({ onClose }: MobileMenuProps) {
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
   const topLevel = getTopLevelCategories();
+  const focusTrapRef = useFocusTrap();
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
-  if (!open) return null;
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
+  useEffect(() => {
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === "Escape") {
+        setActiveCategory(null);
+        onCloseRef.current();
+      }
+    }
+    document.addEventListener("keydown", handleEscape);
+    return () => document.removeEventListener("keydown", handleEscape);
+  }, []);
 
   function handleCategoryClick(category: Category) {
     const subs = getSubcategories(category.id);
@@ -38,8 +57,13 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 bg-background">
-      {/* Header */}
+    <div
+      ref={focusTrapRef}
+      role="dialog"
+      aria-modal="true"
+      aria-label="Menu de navigation"
+      className="fixed inset-0 z-50 bg-background"
+    >
       <div className="flex h-15 items-center justify-between px-4">
         {activeCategory ? (
           <Button variant="ghost" size="icon" onClick={handleBack} aria-label="Retour">
@@ -49,16 +73,15 @@ export function MobileMenu({ open, onClose }: MobileMenuProps) {
           <span className="text-xl font-bold">DBS</span>
         )}
 
-        {activeCategory && (
+        {activeCategory ? (
           <span className="text-lg font-semibold">{activeCategory.name}</span>
-        )}
+        ) : null}
 
         <Button variant="ghost" size="icon" onClick={handleClose} aria-label="Fermer le menu">
           <X className="size-5" />
         </Button>
       </div>
 
-      {/* Content */}
       <div className="overflow-y-auto px-4 pb-8">
         {!activeCategory ? (
           <div className="grid gap-2 pt-2">

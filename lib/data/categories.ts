@@ -8,7 +8,7 @@ export type Category = {
   order: number;
 };
 
-export const categories: Category[] = [
+export const categories: readonly Category[] = [
   // Top-level
   { id: "smartphones", slug: "smartphones", name: "Smartphones", icon: "smartphone", image: null, parent_id: null, order: 0 },
   { id: "tablettes", slug: "tablettes", name: "Tablettes", icon: "tablet", image: null, parent_id: null, order: 1 },
@@ -75,5 +75,15 @@ export function getTopLevelCategories(): Category[] {
 }
 
 export function getSubcategories(parentSlugOrId: string): Category[] {
-  return subcategoryCache.get(parentSlugOrId) ?? [];
+  const result = subcategoryCache.get(parentSlugOrId);
+  if (result === undefined) {
+    if (process.env.NODE_ENV === "development") {
+      console.warn(
+        `[categories] getSubcategories called with unknown key: "${parentSlugOrId}". ` +
+          `Valid keys: ${[...subcategoryCache.keys()].join(", ")}`
+      );
+    }
+    return [];
+  }
+  return result;
 }

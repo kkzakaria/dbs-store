@@ -34,4 +34,9 @@ describe("categories", () => {
     const orders = topLevel.map((c) => c.order);
     expect(orders).toEqual([...orders].sort((a, b) => a - b));
   });
+
+  it("returns empty array for unknown category", () => {
+    const subs = getSubcategories("nonexistent");
+    expect(subs).toEqual([]);
+  });
 });

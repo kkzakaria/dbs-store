@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
 import { CategoryTray } from "@/components/layout/app-bar/category-tray";
 import { getSubcategories } from "@/lib/data/categories";
 
@@ -7,10 +7,13 @@ describe("CategoryTray", () => {
   const subcategories = getSubcategories("smartphones");
   const onClose = vi.fn();
 
+  beforeEach(() => {
+    onClose.mockClear();
+  });
+
   it("renders all subcategories", () => {
     render(
       <CategoryTray
-        categoryId="smartphones"
         categorySlug="smartphones"
         subcategories={subcategories}
         onClose={onClose}
@@ -26,7 +29,6 @@ describe("CategoryTray", () => {
   it("renders a 'Tout voir' link to parent category", () => {
     render(
       <CategoryTray
-        categoryId="smartphones"
         categorySlug="smartphones"
         subcategories={subcategories}
         onClose={onClose}
@@ -39,7 +41,6 @@ describe("CategoryTray", () => {
   it("subcategory links point to correct paths", () => {
     render(
       <CategoryTray
-        categoryId="smartphones"
         categorySlug="smartphones"
         subcategories={subcategories}
         onClose={onClose}
@@ -47,5 +48,29 @@ describe("CategoryTray", () => {
     );
     const iphoneLink = screen.getByRole("link", { name: /iphone/i });
     expect(iphoneLink).toHaveAttribute("href", "/categorie/smartphones/iphone");
+  });
+
+  it("calls onClose when Escape is pressed", () => {
+    render(
+      <CategoryTray
+        categorySlug="smartphones"
+        subcategories={subcategories}
+        onClose={onClose}
+      />
+    );
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it("calls onClose on click outside", () => {
+    render(
+      <CategoryTray
+        categorySlug="smartphones"
+        subcategories={subcategories}
+        onClose={onClose}
+      />
+    );
+    fireEvent.mouseDown(document.body);
+    expect(onClose).toHaveBeenCalled();
   });
 });

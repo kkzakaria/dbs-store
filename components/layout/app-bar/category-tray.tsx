@@ -5,7 +5,6 @@ import { useEffect, useRef } from "react";
 import type { Category } from "@/lib/data/categories";
 
 type CategoryTrayProps = {
-  categoryId: string;
   categorySlug: string;
   subcategories: Category[];
   onClose: () => void;
@@ -17,15 +16,18 @@ export function CategoryTray({
   onClose,
 }: CategoryTrayProps) {
   const ref = useRef<HTMLDivElement>(null);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        onClose();
+      const target = e.target;
+      if (ref.current && target instanceof Node && !ref.current.contains(target)) {
+        onCloseRef.current();
       }
     }
     function handleEscape(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") onCloseRef.current();
     }
 
     document.addEventListener("mousedown", handleClickOutside);
@@ -34,7 +36,7 @@ export function CategoryTray({
       document.removeEventListener("mousedown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [onClose]);
+  }, []);
 
   return (
     <div

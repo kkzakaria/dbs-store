@@ -3,44 +3,40 @@
 import { useEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useFocusTrap } from "@/hooks/use-focus-trap";
 
 type SearchOverlayProps = {
-  open: boolean;
   onClose: () => void;
 };
 
-export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
+export function SearchOverlay({ onClose }: SearchOverlayProps) {
   const inputRef = useRef<HTMLInputElement>(null);
+  const focusTrapRef = useFocusTrap();
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   useEffect(() => {
-    if (open) {
-      requestAnimationFrame(() => {
-        inputRef.current?.focus();
-      });
-    }
-  }, [open]);
+    requestAnimationFrame(() => {
+      inputRef.current?.focus();
+    });
+  }, []);
 
   useEffect(() => {
-    if (!open) return;
     function handleEscape(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") onCloseRef.current();
     }
     document.addEventListener("keydown", handleEscape);
     return () => document.removeEventListener("keydown", handleEscape);
-  }, [open, onClose]);
-
-  if (!open) return null;
+  }, []);
 
   return (
-    <>
-      {/* Backdrop */}
+    <div ref={focusTrapRef} role="dialog" aria-modal="true" aria-label="Recherche">
       <div
         className="fixed inset-0 z-40 bg-black/50"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Search bar replacing AppBar */}
       <div className="fixed inset-x-0 top-0 z-50 bg-background shadow-sm">
         <div className="mx-auto flex h-15 max-w-7xl items-center gap-4 px-4 lg:px-6">
           <span className="text-xl font-bold">DBS</span>
@@ -59,6 +55,6 @@ export function SearchOverlay({ open, onClose }: SearchOverlayProps) {
           </Button>
         </div>
       </div>
-    </>
+    </div>
   );
 }
