@@ -2,11 +2,18 @@ import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
-  const session = await auth.api.getSession({
+  const { pathname } = request.nextUrl;
+  const isAdminRoute = pathname.startsWith("/admin");
+
+  // For admin routes, fire both checks in parallel (async-parallel)
+  const sessionPromise = auth.api.getSession({
     headers: request.headers,
   });
+  const orgsPromise = isAdminRoute
+    ? auth.api.listOrganizations({ headers: request.headers }).catch(() => null)
+    : null;
 
-  const { pathname } = request.nextUrl;
+  const session = await sessionPromise;
 
   // Not authenticated — redirect to sign-in
   if (!session?.user) {
@@ -15,13 +22,9 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(signInUrl);
   }
 
-  // Admin routes — check org membership
-  if (pathname.startsWith("/admin")) {
-    const orgs = await auth.api
-      .listOrganizations({
-        headers: request.headers,
-      })
-      .catch(() => null);
+  // Admin routes — check org membership (already started in parallel)
+  if (isAdminRoute) {
+    const orgs = await orgsPromise;
 
     const isMember =
       Array.isArray(orgs) &&

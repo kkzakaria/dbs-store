@@ -1,5 +1,6 @@
 "use client";
 
+import { useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { User, LogOut, ShoppingBag, Settings } from "lucide-react";
@@ -18,6 +19,12 @@ import { useSession, signOut } from "@/lib/auth-client";
 export function UserMenu() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
+
+  const handleSignOut = useCallback(async () => {
+    await signOut();
+    router.push("/");
+    router.refresh();
+  }, [router]);
 
   if (isPending) {
     return (
@@ -65,13 +72,7 @@ export function UserMenu() {
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={async () => {
-            await signOut();
-            router.push("/");
-            router.refresh();
-          }}
-        >
+        <DropdownMenuItem onClick={handleSignOut}>
           <LogOut className="mr-2 size-4" />
           Déconnexion
         </DropdownMenuItem>
