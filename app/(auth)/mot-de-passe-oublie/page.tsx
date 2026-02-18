@@ -19,19 +19,21 @@ export default function ForgotPasswordPage() {
     setError("");
     setLoading(true);
 
-    await authClient.forgetPassword(
-      { email, redirectTo: "/reinitialiser" },
-      {
-        onError: (ctx) => {
-          setError(ctx.error.message ?? "Une erreur est survenue");
-        },
-        onSuccess: () => {
-          setSent(true);
-        },
-      }
-    );
-
-    setLoading(false);
+    try {
+      await authClient.forgetPassword(
+        { email, redirectTo: "/reinitialiser" },
+        {
+          onError: (ctx) => {
+            setError(ctx.error.message ?? "Une erreur est survenue");
+          },
+          onSuccess: () => {
+            setSent(true);
+          },
+        }
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   if (sent) {

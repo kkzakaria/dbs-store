@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { AuthCard } from "@/components/auth/auth-card";
 import { authClient } from "@/lib/auth-client";
 
-export default function ResetPasswordPage() {
+function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
@@ -27,21 +27,28 @@ export default function ResetPasswordPage() {
       return;
     }
 
+    if (!token) {
+      setError("Lien de réinitialisation invalide");
+      return;
+    }
+
     setLoading(true);
 
-    await authClient.resetPassword(
-      { newPassword: password, token },
-      {
-        onError: (ctx) => {
-          setError(ctx.error.message ?? "Une erreur est survenue");
-        },
-        onSuccess: () => {
-          router.push("/connexion");
-        },
-      }
-    );
-
-    setLoading(false);
+    try {
+      await authClient.resetPassword(
+        { newPassword: password, token },
+        {
+          onError: (ctx) => {
+            setError(ctx.error.message ?? "Une erreur est survenue");
+          },
+          onSuccess: () => {
+            router.push("/connexion");
+          },
+        }
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -81,5 +88,13 @@ export default function ResetPasswordPage() {
         </Button>
       </form>
     </AuthCard>
+  );
+}
+
+export default function ResetPasswordPage() {
+  return (
+    <Suspense>
+      <ResetPasswordForm />
+    </Suspense>
   );
 }

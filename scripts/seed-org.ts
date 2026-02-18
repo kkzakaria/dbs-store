@@ -1,4 +1,4 @@
-import { auth } from "../lib/auth";
+import { auth } from "@/lib/auth";
 
 const OWNER_EMAIL = "admin@dbs-store.ci";
 const OWNER_PASSWORD = "changeme123!";

@@ -10,10 +10,9 @@ interface AuthCardProps {
   title: string;
   description: string;
   children: React.ReactNode;
-  footer?: React.ReactNode;
 }
 
-export function AuthCard({ title, description, children, footer }: AuthCardProps) {
+export function AuthCard({ title, description, children }: AuthCardProps) {
   return (
     <Card className="mx-auto w-full max-w-md">
       <CardHeader className="text-center">
@@ -23,7 +22,6 @@ export function AuthCard({ title, description, children, footer }: AuthCardProps
       <CardContent className="space-y-4">
         {children}
       </CardContent>
-      {footer}
     </Card>
   );
 }

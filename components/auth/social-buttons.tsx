@@ -9,7 +9,11 @@ const providers = [
   { id: "apple" as const, label: "Apple" },
 ];
 
-export function SocialButtons() {
+interface SocialButtonsProps {
+  callbackURL?: string;
+}
+
+export function SocialButtons({ callbackURL = "/" }: SocialButtonsProps) {
   return (
     <div className="grid gap-2">
       {providers.map((provider) => (
@@ -18,7 +22,7 @@ export function SocialButtons() {
           variant="outline"
           className="w-full"
           onClick={() =>
-            signIn.social({ provider: provider.id, callbackURL: "/" })
+            signIn.social({ provider: provider.id, callbackURL })
           }
         >
           {provider.label}

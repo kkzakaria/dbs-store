@@ -24,20 +24,22 @@ export default function SignUpPage() {
     setError("");
     setLoading(true);
 
-    await signUp.email(
-      { name, email, password },
-      {
-        onError: (ctx) => {
-          setError(ctx.error.message ?? "Une erreur est survenue");
-        },
-        onSuccess: () => {
-          router.push("/");
-          router.refresh();
-        },
-      }
-    );
-
-    setLoading(false);
+    try {
+      await signUp.email(
+        { name, email, password },
+        {
+          onError: (ctx) => {
+            setError(ctx.error.message ?? "Une erreur est survenue");
+          },
+          onSuccess: () => {
+            router.push("/");
+            router.refresh();
+          },
+        }
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (

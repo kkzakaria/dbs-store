@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,8 +11,11 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { SocialButtons } from "@/components/auth/social-buttons";
 import { signIn } from "@/lib/auth-client";
 
-export default function SignInPage() {
+function SignInForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") ?? "/";
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -23,20 +26,22 @@ export default function SignInPage() {
     setError("");
     setLoading(true);
 
-    await signIn.email(
-      { email, password },
-      {
-        onError: (ctx) => {
-          setError(ctx.error.message ?? "Une erreur est survenue");
-        },
-        onSuccess: () => {
-          router.push("/");
-          router.refresh();
-        },
-      }
-    );
-
-    setLoading(false);
+    try {
+      await signIn.email(
+        { email, password },
+        {
+          onError: (ctx) => {
+            setError(ctx.error.message ?? "Une erreur est survenue");
+          },
+          onSuccess: () => {
+            router.push(callbackUrl);
+            router.refresh();
+          },
+        }
+      );
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -89,7 +94,7 @@ export default function SignInPage() {
         </span>
       </div>
 
-      <SocialButtons />
+      <SocialButtons callbackURL={callbackUrl} />
 
       <p className="text-center text-sm text-muted-foreground">
         Pas encore de compte ?{" "}
@@ -98,5 +103,13 @@ export default function SignInPage() {
         </Link>
       </p>
     </AuthCard>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense>
+      <SignInForm />
+    </Suspense>
   );
 }

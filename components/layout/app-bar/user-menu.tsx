@@ -21,9 +21,12 @@ export function UserMenu() {
   const router = useRouter();
 
   const handleSignOut = useCallback(async () => {
-    await signOut();
-    router.push("/");
-    router.refresh();
+    try {
+      await signOut();
+    } finally {
+      router.push("/");
+      router.refresh();
+    }
   }, [router]);
 
   if (isPending) {
