@@ -17,11 +17,12 @@ describe("sendOtpEmail", () => {
     mockSend.mockResolvedValue({ data: { id: "test-id" }, error: null });
   });
 
-  it("calls resend.emails.send with the recipient email", async () => {
+  it("calls resend.emails.send with the recipient email and correct from", async () => {
     await sendOtpEmail("user@exemple.com", "123456", "forget-password");
     expect(mockSend).toHaveBeenCalledOnce();
     const call = mockSend.mock.calls[0][0];
     expect(call.to).toBe("user@exemple.com");
+    expect(call.from).toContain("dbs-store.ci");
   });
 
   it("uses the correct subject for forget-password type", async () => {
