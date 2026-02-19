@@ -34,6 +34,8 @@ export default function ForgotPasswordPage() {
           },
         }
       );
+    } catch {
+      setError("Impossible d'envoyer le code. Vérifiez votre connexion internet.");
     } finally {
       setLoading(false);
     }

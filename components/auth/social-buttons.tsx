@@ -49,15 +49,17 @@ const providers = [
   { id: "apple" as const, label: "Apple", Icon: AppleIcon },
 ];
 
+type ProviderId = typeof providers[number]["id"];
+
 interface SocialButtonsProps {
   callbackURL?: string;
 }
 
 export function SocialButtons({ callbackURL = "/" }: SocialButtonsProps) {
   const [error, setError] = useState("");
-  const [loadingProvider, setLoadingProvider] = useState<string | null>(null);
+  const [loadingProvider, setLoadingProvider] = useState<ProviderId | null>(null);
 
-  async function handleSocialSignIn(providerId: "google" | "facebook" | "apple") {
+  async function handleSocialSignIn(providerId: ProviderId) {
     setError("");
     setLoadingProvider(providerId);
 
@@ -67,6 +69,9 @@ export function SocialButtons({ callbackURL = "/" }: SocialButtonsProps) {
         {
           onError: (ctx) => {
             setError(ctx.error.message ?? "Une erreur est survenue");
+            setLoadingProvider(null);
+          },
+          onSuccess: () => {
             setLoadingProvider(null);
           },
         }

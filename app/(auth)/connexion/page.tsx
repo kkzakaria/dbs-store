@@ -42,6 +42,8 @@ function SignInForm() {
           },
         }
       );
+    } catch {
+      setError("Impossible de se connecter. Vérifiez votre connexion internet.");
     } finally {
       setLoading(false);
     }
