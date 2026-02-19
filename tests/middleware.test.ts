@@ -50,8 +50,18 @@ describe("middleware", () => {
     expect(location.searchParams.get("callbackUrl")).toBe("/compte/profil");
   });
 
+  it("redirects to /email-non-verifie when authenticated user has unverified email", async () => {
+    mockGetSession.mockResolvedValue({ user: { id: "1", name: "Test", emailVerified: false } });
+
+    const response = await middleware(createRequest("/compte/profil"));
+    const location = new URL(response.headers.get("location")!);
+
+    expect(response.status).toBe(307);
+    expect(location.pathname).toBe("/email-non-verifie");
+  });
+
   it("allows authenticated users through for /compte routes", async () => {
-    mockGetSession.mockResolvedValue({ user: { id: "1", name: "Test" } });
+    mockGetSession.mockResolvedValue({ user: { id: "1", name: "Test", emailVerified: true } });
 
     const response = await middleware(createRequest("/compte/profil"));
 
@@ -59,7 +69,7 @@ describe("middleware", () => {
   });
 
   it("redirects to / when authenticated user is not org member on /admin", async () => {
-    mockGetSession.mockResolvedValue({ user: { id: "1", name: "Test" } });
+    mockGetSession.mockResolvedValue({ user: { id: "1", name: "Test", emailVerified: true } });
     mockListOrganizations.mockResolvedValue([]);
 
     const response = await middleware(createRequest("/admin/dashboard"));
@@ -70,7 +80,7 @@ describe("middleware", () => {
   });
 
   it("allows org members through on /admin routes", async () => {
-    mockGetSession.mockResolvedValue({ user: { id: "1", name: "Admin" } });
+    mockGetSession.mockResolvedValue({ user: { id: "1", name: "Admin", emailVerified: true } });
     mockListOrganizations.mockResolvedValue([{ slug: "dbs-store" }]);
 
     const response = await middleware(createRequest("/admin/dashboard"));
@@ -89,7 +99,7 @@ describe("middleware", () => {
   });
 
   it("redirects to / when listOrganizations fails for admin routes", async () => {
-    mockGetSession.mockResolvedValue({ user: { id: "1", name: "Admin" } });
+    mockGetSession.mockResolvedValue({ user: { id: "1", name: "Admin", emailVerified: true } });
     mockListOrganizations.mockRejectedValue(new Error("org service down"));
 
     const response = await middleware(createRequest("/admin/dashboard"));

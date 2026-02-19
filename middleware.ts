@@ -23,6 +23,11 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(signInUrl);
     }
 
+    // Authenticated but email not verified — redirect to email-non-verifie
+    if (!session.user.emailVerified) {
+      return NextResponse.redirect(new URL("/email-non-verifie", request.url));
+    }
+
     // Admin routes — check org membership (already started in parallel)
     if (isAdminRoute) {
       const orgs = await orgsPromise;
