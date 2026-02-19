@@ -2,8 +2,16 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import ForgotPasswordPage from "@/app/(auth)/mot-de-passe-oublie/page";
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ push: vi.fn() }),
+}));
+
 vi.mock("@/lib/auth-client", () => ({
-  authClient: { forgetPassword: vi.fn() },
+  authClient: {
+    emailOtp: {
+      forgetPassword: vi.fn().mockResolvedValue({}),
+    },
+  },
 }));
 
 describe("ForgotPasswordPage", () => {

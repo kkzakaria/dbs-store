@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,8 +10,8 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { authClient } from "@/lib/auth-client";
 
 export default function ForgotPasswordPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
-  const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -20,14 +21,15 @@ export default function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-      await authClient.forgetPassword(
-        { email, redirectTo: "/reinitialiser" },
+      await authClient.emailOtp.forgetPassword(
+        { email },
         {
           onError: (ctx) => {
             setError(ctx.error.message ?? "Une erreur est survenue");
           },
           onSuccess: () => {
-            setSent(true);
+            sessionStorage.setItem("otp_email", email);
+            router.push("/reinitialiser");
           },
         }
       );
@@ -36,26 +38,10 @@ export default function ForgotPasswordPage() {
     }
   }
 
-  if (sent) {
-    return (
-      <AuthCard
-        title="Email envoyé"
-        description="Si un compte existe avec cette adresse, vous recevrez un lien de réinitialisation."
-      >
-        <Link
-          href="/connexion"
-          className="text-sm text-primary hover:underline"
-        >
-          Retour à la connexion
-        </Link>
-      </AuthCard>
-    );
-  }
-
   return (
     <AuthCard
       title="Mot de passe oublié"
-      description="Entrez votre email pour recevoir un lien de réinitialisation"
+      description="Entrez votre email pour recevoir un code de réinitialisation"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="space-y-2">
@@ -73,7 +59,7 @@ export default function ForgotPasswordPage() {
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Envoi..." : "Envoyer le lien"}
+          {loading ? "Envoi..." : "Envoyer le code"}
         </Button>
       </form>
 
