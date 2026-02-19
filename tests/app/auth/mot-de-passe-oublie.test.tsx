@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import ForgotPasswordPage from "@/app/(auth)/mot-de-passe-oublie/page";
+import { authClient } from "@/lib/auth-client";
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn() }),
@@ -9,7 +11,7 @@ vi.mock("next/navigation", () => ({
 vi.mock("@/lib/auth-client", () => ({
   authClient: {
     emailOtp: {
-      forgetPassword: vi.fn().mockResolvedValue({}),
+      sendVerificationOtp: vi.fn().mockResolvedValue({}),
     },
   },
 }));
@@ -33,5 +35,23 @@ describe("ForgotPasswordPage", () => {
   it("renders link back to connexion", () => {
     render(<ForgotPasswordPage />);
     expect(screen.getByRole("link", { name: /retour/i })).toHaveAttribute("href", "/connexion");
+  });
+
+  it("calls sendVerificationOtp and redirects on success", async () => {
+    const mockSendVerificationOtp = vi.mocked(authClient.emailOtp.sendVerificationOtp);
+    mockSendVerificationOtp.mockImplementation((_data, callbacks: any) => {
+      callbacks?.onSuccess?.();
+      return Promise.resolve({});
+    });
+
+    const user = userEvent.setup();
+    render(<ForgotPasswordPage />);
+    await user.type(screen.getByLabelText(/email/i), "test@exemple.com");
+    await user.click(screen.getByRole("button", { name: /envoyer/i }));
+
+    expect(mockSendVerificationOtp).toHaveBeenCalledWith(
+      { email: "test@exemple.com", type: "forget-password" },
+      expect.any(Object)
+    );
   });
 });
