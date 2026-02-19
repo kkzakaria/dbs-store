@@ -21,8 +21,8 @@ export default function ForgotPasswordPage() {
     setLoading(true);
 
     try {
-      await authClient.emailOtp.forgetPassword(
-        { email },
+      await authClient.emailOtp.sendVerificationOtp(
+        { email, type: "forget-password" },
         {
           onError: (ctx) => {
             setError(ctx.error.message ?? "Une erreur est survenue");
