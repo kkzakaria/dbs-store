@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import SignUpPage from "@/app/(auth)/inscription/page";
 
 vi.mock("@/lib/auth-client", () => ({
@@ -29,7 +30,7 @@ describe("SignUpPage", () => {
 
   it("renders password input", () => {
     render(<SignUpPage />);
-    expect(screen.getByLabelText(/mot de passe/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^mot de passe$/i)).toBeInTheDocument();
   });
 
   it("renders submit button", () => {
@@ -40,5 +41,22 @@ describe("SignUpPage", () => {
   it("renders link to connexion", () => {
     render(<SignUpPage />);
     expect(screen.getByRole("link", { name: /se connecter/i })).toHaveAttribute("href", "/connexion");
+  });
+
+  it("toggles password visibility", async () => {
+    const user = userEvent.setup();
+    render(<SignUpPage />);
+    const passwordInput = screen.getByLabelText(/^mot de passe$/i) as HTMLInputElement;
+    expect(passwordInput.type).toBe("password");
+    await user.click(screen.getByRole("button", { name: /afficher/i }));
+    expect(passwordInput.type).toBe("text");
+  });
+
+  it("shows password strength indicator when typing", async () => {
+    const user = userEvent.setup();
+    render(<SignUpPage />);
+    const passwordInput = screen.getByLabelText(/^mot de passe$/i);
+    await user.type(passwordInput, "abc");
+    expect(screen.getByText(/faible/i)).toBeInTheDocument();
   });
 });
