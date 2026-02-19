@@ -2,7 +2,6 @@
 
 import { Suspense, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +20,7 @@ function ResetPasswordForm() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
 
   useEffect(() => {
     const stored = sessionStorage.getItem("otp_email");
@@ -30,6 +30,31 @@ function ResetPasswordForm() {
     }
     setEmail(stored);
   }, [router]);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = setTimeout(() => setResendCooldown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
+
+  async function handleResend() {
+    if (resendCooldown > 0 || !email) return;
+    try {
+      await authClient.emailOtp.sendVerificationOtp(
+        { email, type: "forget-password" },
+        {
+          onError: (ctx) => {
+            setError(translateAuthError(ctx.error.message, "Impossible d'envoyer le code."));
+          },
+          onSuccess: () => {
+            setResendCooldown(60);
+          },
+        }
+      );
+    } catch {
+      setError("Impossible d'envoyer le code. Vérifiez votre connexion internet.");
+    }
+  }
 
   function maskEmail(e: string) {
     const [local, domain] = e.split("@");
@@ -126,9 +151,15 @@ function ResetPasswordForm() {
       </form>
 
       <p className="text-center text-sm text-muted-foreground">
-        <Link href="/mot-de-passe-oublie" className="text-primary hover:underline">
-          Renvoyer le code
-        </Link>
+        Vous n'avez pas reçu le code ?{" "}
+        <button
+          type="button"
+          onClick={handleResend}
+          disabled={resendCooldown > 0}
+          className="text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {resendCooldown > 0 ? `Renvoyer (${resendCooldown}s)` : "Renvoyer le code"}
+        </button>
       </p>
     </AuthCard>
   );
