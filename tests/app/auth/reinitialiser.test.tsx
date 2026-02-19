@@ -1,7 +1,10 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ResetPasswordPage from "@/app/(auth)/reinitialiser/page";
+
+const mockPush = vi.fn();
+const mockReplace = vi.fn();
 
 vi.mock("@/lib/auth-client", () => ({
   authClient: {
@@ -12,10 +15,11 @@ vi.mock("@/lib/auth-client", () => ({
 }));
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: mockPush, replace: mockReplace }),
 }));
 
 beforeEach(() => {
+  vi.clearAllMocks();
   sessionStorage.setItem("otp_email", "test@exemple.com");
 });
 
@@ -27,7 +31,7 @@ describe("ResetPasswordPage", () => {
 
   it("renders 6 OTP input fields", () => {
     render(<ResetPasswordPage />);
-    expect(screen.getAllByRole("textbox")).toHaveLength(6);
+    expect(screen.getAllByRole("textbox", { name: /chiffre/i })).toHaveLength(6);
   });
 
   it("renders new password field", () => {
@@ -47,5 +51,13 @@ describe("ResetPasswordPage", () => {
     await user.type(screen.getByLabelText(/confirmer/i), "Different1!");
     await user.click(screen.getByRole("button", { name: /réinitialiser/i }));
     expect(screen.getByText(/ne correspondent pas/i)).toBeInTheDocument();
+  });
+
+  it("redirects to mot-de-passe-oublie when email not in sessionStorage", async () => {
+    sessionStorage.removeItem("otp_email");
+    render(<ResetPasswordPage />);
+    await waitFor(() => {
+      expect(mockReplace).toHaveBeenCalledWith("/mot-de-passe-oublie");
+    });
   });
 });

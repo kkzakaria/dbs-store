@@ -11,6 +11,12 @@ import { OtpInput } from "@/components/auth/otp-input";
 import { PasswordToggle } from "@/components/auth/password-toggle";
 import { authClient } from "@/lib/auth-client";
 
+function maskEmail(e: string) {
+  const [local, domain] = e.split("@");
+  if (!local || !domain) return e;
+  return `${local[0]}${"*".repeat(Math.max(local.length - 1, 2))}@${domain}`;
+}
+
 function ResetPasswordForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
@@ -22,19 +28,18 @@ function ResetPasswordForm() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem("otp_email");
+    let stored: string | null = null;
+    try {
+      stored = sessionStorage.getItem("otp_email");
+    } catch {
+      // sessionStorage bloqué (mode privé, quota dépassé, etc.)
+    }
     if (!stored) {
-      router.push("/mot-de-passe-oublie");
+      router.replace("/mot-de-passe-oublie");
       return;
     }
     setEmail(stored);
   }, [router]);
-
-  function maskEmail(e: string) {
-    const [local, domain] = e.split("@");
-    if (!local || !domain) return e;
-    return `${local[0]}${"*".repeat(Math.max(local.length - 1, 2))}@${domain}`;
-  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -57,7 +62,7 @@ function ResetPasswordForm() {
         { email, otp, password },
         {
           onError: (ctx) => {
-            setError(ctx.error.message ?? "Code incorrect ou expiré");
+            setError(ctx.error.message ?? "Une erreur est survenue. Veuillez réessayer.");
           },
           onSuccess: () => {
             sessionStorage.removeItem("otp_email");
@@ -65,6 +70,8 @@ function ResetPasswordForm() {
           },
         }
       );
+    } catch {
+      setError("Impossible de réinitialiser le mot de passe. Vérifiez votre connexion internet.");
     } finally {
       setLoading(false);
     }

@@ -1,3 +1,7 @@
+const UPPERCASE_RE = /[A-Z]/;
+const DIGIT_RE = /[0-9]/;
+const SPECIAL_RE = /[^A-Za-z0-9]/;
+
 const levels = [
   { label: "Faible", color: "bg-red-500" },
   { label: "Moyen", color: "bg-orange-400" },
@@ -5,12 +9,14 @@ const levels = [
   { label: "Fort", color: "bg-green-500" },
 ];
 
-export function getPasswordStrength(password: string): number {
+import { cn } from "@/lib/utils";
+
+export function getPasswordStrength(password: string): 0 | 1 | 2 | 3 | 4 {
   if (!password) return 0;
   let score = 1;
   if (password.length >= 8) score++;
-  if (/[A-Z]/.test(password) && /[0-9]/.test(password)) score++;
-  if (/[^A-Za-z0-9]/.test(password) || password.length >= 12) score++;
+  if (UPPERCASE_RE.test(password) && DIGIT_RE.test(password)) score++;
+  if (SPECIAL_RE.test(password) || password.length >= 12) score++;
   return Math.min(score, 4);
 }
 
@@ -30,9 +36,10 @@ export function PasswordStrength({ password }: PasswordStrengthProps) {
         {levels.map((level, i) => (
           <div
             key={level.label}
-            className={`h-1 flex-1 rounded-full transition-colors ${
+            className={cn(
+              "h-1 flex-1 rounded-full transition-colors",
               i < strength ? current.color : "bg-muted"
-            }`}
+            )}
           />
         ))}
       </div>

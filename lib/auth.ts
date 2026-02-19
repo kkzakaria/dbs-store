@@ -57,8 +57,13 @@ export const auth = betterAuth({
     }),
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
-        // En production, remplacer par un vrai service email (Resend, SendGrid, etc.)
-        console.log(`[emailOTP] type=${type} email=${email} otp=${otp}`);
+        if (process.env.NODE_ENV !== "production") {
+          // En développement uniquement : afficher le code dans les logs
+          console.log(`[emailOTP] type=${type} email=${email} otp=${otp}`);
+        } else {
+          // TODO: intégrer un vrai service email (Resend, SendGrid, etc.)
+          throw new Error("sendVerificationOTP n'est pas configuré pour la production.");
+        }
       },
       otpLength: 6,
       expiresIn: 300, // 5 minutes

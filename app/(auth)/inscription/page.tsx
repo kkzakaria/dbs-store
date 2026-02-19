@@ -40,6 +40,8 @@ export default function SignUpPage() {
           },
         }
       );
+    } catch {
+      setError("Impossible de créer le compte. Vérifiez votre connexion internet.");
     } finally {
       setLoading(false);
     }
