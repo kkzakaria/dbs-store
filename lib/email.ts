@@ -19,6 +19,11 @@ function buildHtml(otp: string, type: OtpType): string {
         ? "Vérification de votre adresse email"
         : "Connexion à votre compte";
 
+  const body =
+    type === "email-verification"
+      ? "Utilisez le code ci-dessous pour valider votre adresse email. Il est valable <strong>5 minutes</strong>."
+      : "Utilisez le code ci-dessous pour continuer. Il est valable <strong>5 minutes</strong>.";
+
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -46,7 +51,7 @@ function buildHtml(otp: string, type: OtpType): string {
             <td style="padding:40px 32px 32px;">
               <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#0f172a;">${title}</h1>
               <p style="margin:0 0 32px;font-size:15px;color:#64748b;line-height:1.6;">
-                Utilisez le code ci-dessous pour continuer. Il est valable <strong>5 minutes</strong>.
+                ${body}
               </p>
 
               <!-- OTP block -->
