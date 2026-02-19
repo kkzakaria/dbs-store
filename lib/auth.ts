@@ -2,6 +2,7 @@ import { betterAuth } from "better-auth";
 import { organization, emailOTP } from "better-auth/plugins";
 import Database from "better-sqlite3";
 import { ac, owner, admin, member } from "@/lib/auth/permissions";
+import { sendOtpEmail } from "@/lib/email";
 
 const socialProviders: Record<string, { clientId: string; clientSecret: string }> = {};
 
@@ -57,8 +58,11 @@ export const auth = betterAuth({
     }),
     emailOTP({
       async sendVerificationOTP({ email, otp, type }) {
-        // En production, remplacer par un vrai service email (Resend, SendGrid, etc.)
-        console.log(`[emailOTP] type=${type} email=${email} otp=${otp}`);
+        if (process.env.NODE_ENV !== "production" && !process.env.RESEND_API_KEY) {
+          console.log(`[emailOTP DEV] type=${type} email=${email} otp=${otp}`);
+          return;
+        }
+        await sendOtpEmail(email, otp, type);
       },
       otpLength: 6,
       expiresIn: 300, // 5 minutes
