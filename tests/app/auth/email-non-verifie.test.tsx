@@ -66,6 +66,26 @@ describe("EmailNotVerifiedPage", () => {
     expect(sessionStorage.getItem("otp_email")).toBe("test@exemple.com");
   });
 
+  it("shows error when resend fails", async () => {
+    const user = userEvent.setup();
+    vi.mocked(authClient.emailOtp.sendVerificationOtp).mockImplementation(function (_data, callbacks: any) {
+      callbacks?.onError?.({ error: { message: "Trop de tentatives" } });
+      return Promise.resolve({ data: null, error: { message: "Trop de tentatives" } });
+    });
+    render(<EmailNotVerifiedPage />);
+    await user.click(screen.getByRole("button", { name: /renvoyer le code/i }));
+    expect(screen.getByText(/trop de tentatives/i)).toBeInTheDocument();
+    expect(mockPush).not.toHaveBeenCalled();
+  });
+
+  it("disables resend button when no session email", () => {
+    vi.mocked(authClient.useSession).mockReturnValue({
+      data: null,
+    } as any);
+    render(<EmailNotVerifiedPage />);
+    expect(screen.getByRole("button", { name: /renvoyer le code/i })).toBeDisabled();
+  });
+
   it("calls signOut and redirects to /connexion on sign out", async () => {
     const user = userEvent.setup();
     render(<EmailNotVerifiedPage />);

@@ -90,6 +90,17 @@ describe("VerifyEmailPage", () => {
     expect(screen.getByText(/incorrect ou expiré/i)).toBeInTheDocument();
   });
 
+  it("shows error when resend fails", async () => {
+    const user = userEvent.setup();
+    vi.mocked(authClient.emailOtp.sendVerificationOtp).mockImplementation(function (_data, callbacks: any) {
+      callbacks?.onError?.({ error: { message: "Trop de tentatives" } });
+      return Promise.resolve({ data: null, error: { message: "Trop de tentatives" } });
+    });
+    render(<VerifyEmailPage />);
+    await user.click(screen.getByRole("button", { name: /renvoyer le code/i }));
+    expect(screen.getByText(/trop de tentatives/i)).toBeInTheDocument();
+  });
+
   it("redirects to / and clears sessionStorage on success", async () => {
     const user = userEvent.setup();
     vi.mocked(authClient.emailOtp.verifyEmail).mockImplementation(function (_data, callbacks: any) {

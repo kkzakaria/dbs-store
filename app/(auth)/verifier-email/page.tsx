@@ -63,8 +63,17 @@ function VerifyEmailForm() {
   async function handleResend() {
     if (resendCooldown > 0 || !email) return;
     try {
-      await authClient.emailOtp.sendVerificationOtp({ email, type: "email-verification" });
-      setResendCooldown(60);
+      await authClient.emailOtp.sendVerificationOtp(
+        { email, type: "email-verification" },
+        {
+          onError: (ctx) => {
+            setError(ctx.error.message ?? "Impossible d'envoyer le code.");
+          },
+          onSuccess: () => {
+            setResendCooldown(60);
+          },
+        }
+      );
     } catch {
       setError("Impossible d'envoyer le code. Vérifiez votre connexion internet.");
     }

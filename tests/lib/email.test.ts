@@ -31,6 +31,18 @@ describe("sendOtpEmail", () => {
     expect(call.subject).toMatch(/réinitialisation/i);
   });
 
+  it("uses the correct subject for email-verification type", async () => {
+    await sendOtpEmail("user@exemple.com", "123456", "email-verification");
+    const call = mockSend.mock.calls[0][0];
+    expect(call.subject).toMatch(/vérifiez votre adresse/i);
+  });
+
+  it("uses the correct subject for sign-in type", async () => {
+    await sendOtpEmail("user@exemple.com", "123456", "sign-in");
+    const call = mockSend.mock.calls[0][0];
+    expect(call.subject).toMatch(/code de connexion/i);
+  });
+
   it("includes the OTP code in the html body", async () => {
     await sendOtpEmail("user@exemple.com", "654321", "forget-password");
     const call = mockSend.mock.calls[0][0];
@@ -41,5 +53,11 @@ describe("sendOtpEmail", () => {
     mockSend.mockResolvedValue({ data: null, error: { message: "Invalid API key" } });
     await expect(sendOtpEmail("user@exemple.com", "123456", "forget-password"))
       .rejects.toThrow("Invalid API key");
+  });
+
+  it("throws with error.name fallback if message is absent", async () => {
+    mockSend.mockResolvedValue({ data: null, error: { name: "RateLimitError" } });
+    await expect(sendOtpEmail("user@exemple.com", "123456", "forget-password"))
+      .rejects.toThrow("RateLimitError");
   });
 });
