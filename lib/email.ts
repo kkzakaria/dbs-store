@@ -71,27 +71,7 @@ function buildHtml(otp: string, type: string): string {
 </html>`;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-type ResendClient = { emails: { send: (...args: any[]) => Promise<any> } };
-
-function createResendClient(): ResendClient {
-  try {
-    return new Resend(process.env.RESEND_API_KEY);
-  } catch (e: unknown) {
-    if (
-      e instanceof TypeError &&
-      e.message.includes("is not a constructor")
-    ) {
-      // Fallback for test environments where the mock uses an arrow function
-      return (Resend as unknown as (key?: string) => ResendClient)(
-        process.env.RESEND_API_KEY
-      );
-    }
-    throw e;
-  }
-}
-
-const resend = createResendClient();
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function sendOtpEmail(
   to: string,
