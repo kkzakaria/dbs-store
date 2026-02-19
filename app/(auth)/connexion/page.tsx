@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { AuthCard } from "@/components/auth/auth-card";
 import { SocialButtons } from "@/components/auth/social-buttons";
+import { PasswordToggle } from "@/components/auth/password-toggle";
 import { signIn } from "@/lib/auth-client";
 
 function SignInForm() {
@@ -18,6 +19,7 @@ function SignInForm() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -71,13 +73,22 @@ function SignInForm() {
               Mot de passe oublié ?
             </Link>
           </div>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="pr-10"
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <PasswordToggle
+                type={showPassword ? "text" : "password"}
+                onToggle={() => setShowPassword((v) => !v)}
+              />
+            </div>
+          </div>
         </div>
 
         {error ? <p className="text-sm text-destructive">{error}</p> : null}

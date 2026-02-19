@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import SignInPage from "@/app/(auth)/connexion/page";
 
 vi.mock("@/lib/auth-client", () => ({
@@ -24,7 +25,7 @@ describe("SignInPage", () => {
 
   it("renders password input", () => {
     render(<SignInPage />);
-    expect(screen.getByLabelText(/mot de passe/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/^mot de passe$/i)).toBeInTheDocument();
   });
 
   it("renders submit button", () => {
@@ -45,5 +46,14 @@ describe("SignInPage", () => {
   it("renders social login buttons", () => {
     render(<SignInPage />);
     expect(screen.getByRole("button", { name: /google/i })).toBeInTheDocument();
+  });
+
+  it("toggles password visibility", async () => {
+    const user = userEvent.setup();
+    render(<SignInPage />);
+    const passwordInput = screen.getByLabelText(/^mot de passe$/i) as HTMLInputElement;
+    expect(passwordInput.type).toBe("password");
+    await user.click(screen.getByRole("button", { name: /afficher/i }));
+    expect(passwordInput.type).toBe("text");
   });
 });
