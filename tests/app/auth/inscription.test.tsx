@@ -1,16 +1,28 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import SignUpPage from "@/app/(auth)/inscription/page";
+import { signUp } from "@/lib/auth-client";
 
 vi.mock("@/lib/auth-client", () => ({
   signUp: { email: vi.fn() },
   signIn: { social: vi.fn() },
+  authClient: {
+    emailOtp: {
+      sendVerificationOtp: vi.fn().mockResolvedValue({ data: {}, error: null }),
+    },
+  },
 }));
 
+const mockPush = vi.fn();
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => ({ push: mockPush, refresh: vi.fn() }),
 }));
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
 
 describe("SignUpPage", () => {
   it("renders sign-up heading", () => {
@@ -58,5 +70,23 @@ describe("SignUpPage", () => {
     const passwordInput = screen.getByLabelText(/^mot de passe$/i);
     await user.type(passwordInput, "abc");
     expect(screen.getByText(/faible/i)).toBeInTheDocument();
+  });
+
+  it("sends verification OTP and redirects to /verifier-email after successful sign-up", async () => {
+    const user = userEvent.setup();
+    vi.mocked(signUp.email).mockImplementation(function (_data, callbacks: any) {
+      callbacks?.onSuccess?.();
+      return Promise.resolve({});
+    });
+
+    render(<SignUpPage />);
+    await user.type(screen.getByLabelText(/nom/i), "Test User");
+    await user.type(screen.getByLabelText(/email/i), "test@exemple.com");
+    await user.type(screen.getByLabelText(/^mot de passe$/i), "Password1!");
+    await user.click(screen.getByRole("button", { name: /s'inscrire/i }));
+
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith("/verifier-email");
+    });
   });
 });

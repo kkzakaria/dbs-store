@@ -11,7 +11,7 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { SocialButtons } from "@/components/auth/social-buttons";
 import { PasswordToggle } from "@/components/auth/password-toggle";
 import { PasswordStrength } from "@/components/auth/password-strength";
-import { signUp } from "@/lib/auth-client";
+import { signUp, authClient } from "@/lib/auth-client";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -34,9 +34,17 @@ export default function SignUpPage() {
           onError: (ctx) => {
             setError(ctx.error.message ?? "Une erreur est survenue");
           },
-          onSuccess: () => {
-            router.push("/");
-            router.refresh();
+          onSuccess: async () => {
+            try {
+              await authClient.emailOtp.sendVerificationOtp({
+                email,
+                type: "email-verification",
+              });
+            } catch {
+              // Silent — user can resend from /email-non-verifie
+            }
+            try { sessionStorage.setItem("otp_email", email); } catch { }
+            router.push("/verifier-email");
           },
         }
       );
