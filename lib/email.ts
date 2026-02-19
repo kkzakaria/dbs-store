@@ -3,15 +3,21 @@ import { Resend } from "resend";
 const FROM =
   process.env.RESEND_FROM_EMAIL ?? "DBS Store <noreply@dbs-store.ci>";
 
-const SUBJECTS: Record<string, string> = {
+type OtpType = "sign-in" | "email-verification" | "forget-password";
+
+const SUBJECTS: Record<OtpType, string> = {
   "forget-password": "Réinitialisation de votre mot de passe — DBS Store",
+  "email-verification": "Vérifiez votre adresse email — DBS Store",
+  "sign-in": "Votre code de connexion — DBS Store",
 };
 
-function buildHtml(otp: string, type: string): string {
+function buildHtml(otp: string, type: OtpType): string {
   const title =
     type === "forget-password"
       ? "Réinitialisation de mot de passe"
-      : "Vérification de votre compte";
+      : type === "email-verification"
+        ? "Vérification de votre adresse email"
+        : "Connexion à votre compte";
 
   return `<!DOCTYPE html>
 <html lang="fr">
@@ -71,19 +77,18 @@ function buildHtml(otp: string, type: string): string {
 </html>`;
 }
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
 export async function sendOtpEmail(
   to: string,
   otp: string,
-  type: string
+  type: OtpType
 ): Promise<void> {
-  const subject = SUBJECTS[type] ?? "Votre code de vérification — DBS Store";
+  const resend = new Resend(process.env.RESEND_API_KEY);
+  const subject = SUBJECTS[type];
   const html = buildHtml(otp, type);
 
   const { error } = await resend.emails.send({ from: FROM, to, subject, html });
 
   if (error) {
-    throw new Error(error.message);
+    throw new Error(error.message || error.name || "Resend: unknown error");
   }
 }
