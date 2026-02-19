@@ -1,9 +1,9 @@
 import { createAuthClient } from "better-auth/react";
-import { organizationClient } from "better-auth/client/plugins";
+import { organizationClient, emailOTPClient } from "better-auth/client/plugins";
 
 export const authClient = createAuthClient({
   baseURL: process.env.NEXT_PUBLIC_BETTER_AUTH_URL ?? "http://localhost:33000",
-  plugins: [organizationClient()],
+  plugins: [organizationClient(), emailOTPClient()],
 });
 
 export const {

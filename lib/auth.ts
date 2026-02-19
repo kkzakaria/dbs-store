@@ -1,5 +1,5 @@
 import { betterAuth } from "better-auth";
-import { organization } from "better-auth/plugins";
+import { organization, emailOTP } from "better-auth/plugins";
 import Database from "better-sqlite3";
 import { ac, owner, admin, member } from "@/lib/auth/permissions";
 
@@ -42,22 +42,31 @@ export const auth = betterAuth({
   socialProviders,
 
   session: {
-    expiresIn: 60 * 60 * 24 * 7, // 7 days
-    updateAge: 60 * 60 * 24, // refresh daily
+    expiresIn: 60 * 60 * 24 * 7,
+    updateAge: 60 * 60 * 24,
     cookieCache: {
       enabled: true,
-      maxAge: 5 * 60, // 5 minutes
+      maxAge: 5 * 60,
     },
   },
 
   plugins: [
     organization({
       ac,
-      roles: {
-        owner,
-        admin,
-        member,
+      roles: { owner, admin, member },
+    }),
+    emailOTP({
+      async sendVerificationOTP({ email, otp, type }) {
+        if (process.env.NODE_ENV !== "production") {
+          // En développement uniquement : afficher le code dans les logs
+          console.log(`[emailOTP] type=${type} email=${email} otp=${otp}`);
+        } else {
+          // TODO: intégrer un vrai service email (Resend, SendGrid, etc.)
+          throw new Error("sendVerificationOTP n'est pas configuré pour la production.");
+        }
       },
+      otpLength: 6,
+      expiresIn: 300, // 5 minutes
     }),
   ],
 });

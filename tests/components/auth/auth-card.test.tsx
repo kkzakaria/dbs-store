@@ -29,4 +29,13 @@ describe("AuthCard", () => {
     );
     expect(screen.getByText("test content")).toBeInTheDocument();
   });
+
+  it("renders DBS Store logo", () => {
+    render(
+      <AuthCard title="Connexion" description="Connectez-vous">
+        <div>content</div>
+      </AuthCard>
+    );
+    expect(screen.getByText("DBS Store")).toBeInTheDocument();
+  });
 });

@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { AuthCard } from "@/components/auth/auth-card";
 import { SocialButtons } from "@/components/auth/social-buttons";
+import { PasswordToggle } from "@/components/auth/password-toggle";
+import { PasswordStrength } from "@/components/auth/password-strength";
 import { signUp } from "@/lib/auth-client";
 
 export default function SignUpPage() {
@@ -16,6 +18,7 @@ export default function SignUpPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -37,6 +40,8 @@ export default function SignUpPage() {
           },
         }
       );
+    } catch {
+      setError("Impossible de créer le compte. Vérifiez votre connexion internet.");
     } finally {
       setLoading(false);
     }
@@ -72,15 +77,25 @@ export default function SignUpPage() {
         </div>
         <div className="space-y-2">
           <Label htmlFor="password">Mot de passe</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="8 caractères minimum"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={8}
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="8 caractères minimum"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+              className="pr-10"
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <PasswordToggle
+                type={showPassword ? "text" : "password"}
+                onToggle={() => setShowPassword((v) => !v)}
+              />
+            </div>
+          </div>
+          <PasswordStrength password={password} />
         </div>
 
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
