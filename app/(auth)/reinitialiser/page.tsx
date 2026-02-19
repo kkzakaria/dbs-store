@@ -1,22 +1,40 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthCard } from "@/components/auth/auth-card";
+import { OtpInput } from "@/components/auth/otp-input";
+import { PasswordToggle } from "@/components/auth/password-toggle";
 import { authClient } from "@/lib/auth-client";
 
 function ResetPasswordForm() {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get("token") ?? "";
-
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const stored = sessionStorage.getItem("otp_email");
+    if (!stored) {
+      router.push("/mot-de-passe-oublie");
+      return;
+    }
+    setEmail(stored);
+  }, [router]);
+
+  function maskEmail(e: string) {
+    const [local, domain] = e.split("@");
+    if (!local || !domain) return e;
+    return `${local[0]}${"*".repeat(Math.max(local.length - 1, 2))}@${domain}`;
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -27,21 +45,22 @@ function ResetPasswordForm() {
       return;
     }
 
-    if (!token) {
-      setError("Lien de réinitialisation invalide");
+    if (otp.length !== 6) {
+      setError("Veuillez saisir le code à 6 chiffres");
       return;
     }
 
     setLoading(true);
 
     try {
-      await authClient.resetPassword(
-        { newPassword: password, token },
+      await authClient.emailOtp.resetPassword(
+        { email, otp, password },
         {
           onError: (ctx) => {
-            setError(ctx.error.message ?? "Une erreur est survenue");
+            setError(ctx.error.message ?? "Code incorrect ou expiré");
           },
           onSuccess: () => {
+            sessionStorage.removeItem("otp_email");
             router.push("/connexion");
           },
         }
@@ -53,27 +72,44 @@ function ResetPasswordForm() {
 
   return (
     <AuthCard
-      title="Nouveau mot de passe"
-      description="Choisissez un nouveau mot de passe"
+      title="Réinitialiser le mot de passe"
+      description={email ? `Code envoyé à ${maskEmail(email)}` : "Chargement..."}
     >
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="space-y-3">
+          <p className="text-center text-sm text-muted-foreground">
+            Entrez le code à 6 chiffres reçu par email
+          </p>
+          <OtpInput value={otp} onChange={setOtp} disabled={loading} />
+        </div>
+
         <div className="space-y-2">
           <Label htmlFor="password">Nouveau mot de passe</Label>
-          <Input
-            id="password"
-            type="password"
-            placeholder="8 caractères minimum"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={8}
-          />
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              placeholder="8 caractères minimum"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+              className="pr-10"
+            />
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              <PasswordToggle
+                type={showPassword ? "text" : "password"}
+                onToggle={() => setShowPassword((v) => !v)}
+              />
+            </div>
+          </div>
         </div>
+
         <div className="space-y-2">
           <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
           <Input
             id="confirm-password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
@@ -84,9 +120,15 @@ function ResetPasswordForm() {
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
         <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Réinitialisation..." : "Réinitialiser le mot de passe"}
+          {loading ? "Réinitialisation..." : "Réinitialiser"}
         </Button>
       </form>
+
+      <p className="text-center text-sm text-muted-foreground">
+        <Link href="/mot-de-passe-oublie" className="text-primary hover:underline">
+          Renvoyer le code
+        </Link>
+      </p>
     </AuthCard>
   );
 }
