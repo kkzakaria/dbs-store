@@ -5,12 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { AuthCard } from "@/components/auth/auth-card";
 import { authClient, signOut } from "@/lib/auth-client";
-
-function maskEmail(e: string) {
-  const [local, domain] = e.split("@");
-  if (!local || !domain) return e;
-  return `${local[0]}${"*".repeat(Math.max(local.length - 1, 2))}@${domain}`;
-}
+import { maskEmail } from "@/lib/auth-utils";
 
 export default function EmailNotVerifiedPage() {
   const router = useRouter();
@@ -45,7 +40,11 @@ export default function EmailNotVerifiedPage() {
   }
 
   async function handleSignOut() {
-    await signOut();
+    try {
+      await signOut();
+    } catch {
+      // Sign-out failed — redirect anyway to clear local state
+    }
     router.push("/connexion");
   }
 

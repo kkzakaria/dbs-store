@@ -63,6 +63,7 @@ describe("EmailNotVerifiedPage", () => {
       expect.any(Object)
     );
     expect(mockPush).toHaveBeenCalledWith("/verifier-email");
+    expect(sessionStorage.getItem("otp_email")).toBe("test@exemple.com");
   });
 
   it("calls signOut and redirects to /connexion on sign out", async () => {
