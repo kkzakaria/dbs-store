@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { AuthCard } from "@/components/auth/auth-card";
 import { OtpInput } from "@/components/auth/otp-input";
 import { authClient } from "@/lib/auth-client";
-import { maskEmail } from "@/lib/auth-utils";
+import { maskEmail, translateAuthError } from "@/lib/auth-utils";
 
 function VerifyEmailForm() {
   const router = useRouter();
@@ -45,7 +45,7 @@ function VerifyEmailForm() {
         { email, otp },
         {
           onError: (ctx) => {
-            setError(ctx.error.message ?? "Code incorrect ou expiré. Réessayez.");
+            setError(translateAuthError(ctx.error.message, "Code incorrect ou expiré. Réessayez."));
           },
           onSuccess: () => {
             try { sessionStorage.removeItem("otp_email"); } catch { }
@@ -67,7 +67,7 @@ function VerifyEmailForm() {
         { email, type: "email-verification" },
         {
           onError: (ctx) => {
-            setError(ctx.error.message ?? "Impossible d'envoyer le code.");
+            setError(translateAuthError(ctx.error.message, "Impossible d'envoyer le code."));
           },
           onSuccess: () => {
             setResendCooldown(60);

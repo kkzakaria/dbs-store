@@ -10,6 +10,7 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { OtpInput } from "@/components/auth/otp-input";
 import { PasswordToggle } from "@/components/auth/password-toggle";
 import { authClient } from "@/lib/auth-client";
+import { translateAuthError } from "@/lib/auth-utils";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -57,7 +58,7 @@ function ResetPasswordForm() {
         { email, otp, password },
         {
           onError: (ctx) => {
-            setError(ctx.error.message ?? "Code incorrect ou expiré");
+            setError(translateAuthError(ctx.error.message, "Code incorrect ou expiré."));
           },
           onSuccess: () => {
             sessionStorage.removeItem("otp_email");

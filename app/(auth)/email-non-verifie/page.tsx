@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { AuthCard } from "@/components/auth/auth-card";
 import { authClient, signOut } from "@/lib/auth-client";
-import { maskEmail } from "@/lib/auth-utils";
+import { maskEmail, translateAuthError } from "@/lib/auth-utils";
 
 export default function EmailNotVerifiedPage() {
   const router = useRouter();
@@ -24,7 +24,7 @@ export default function EmailNotVerifiedPage() {
         { email, type: "email-verification" },
         {
           onError: (ctx) => {
-            setError(ctx.error.message ?? "Impossible d'envoyer le code.");
+            setError(translateAuthError(ctx.error.message, "Impossible d'envoyer le code."));
           },
           onSuccess: () => {
             try { sessionStorage.setItem("otp_email", email); } catch { }

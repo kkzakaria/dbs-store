@@ -12,6 +12,7 @@ import { SocialButtons } from "@/components/auth/social-buttons";
 import { PasswordToggle } from "@/components/auth/password-toggle";
 import { PasswordStrength } from "@/components/auth/password-strength";
 import { signUp, authClient } from "@/lib/auth-client";
+import { translateAuthError } from "@/lib/auth-utils";
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -32,7 +33,7 @@ export default function SignUpPage() {
         { name, email, password },
         {
           onError: (ctx) => {
-            setError(ctx.error.message ?? "Une erreur est survenue");
+            setError(translateAuthError(ctx.error.message, "Une erreur est survenue."));
           },
           onSuccess: async () => {
             try {
