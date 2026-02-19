@@ -15,6 +15,7 @@ function ResetPasswordForm() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [step, setStep] = useState<"otp" | "password">("otp");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -62,7 +63,42 @@ function ResetPasswordForm() {
     return `${local[0]}${"*".repeat(Math.max(local.length - 1, 2))}@${domain}`;
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleValidateOtp(e: React.FormEvent) {
+    e.preventDefault();
+    setError("");
+
+    if (otp.length !== 6) {
+      setError("Veuillez saisir le code à 6 chiffres");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const res = await fetch("/api/auth/check-reset-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
+      });
+      const data = await res.json();
+
+      if (!data.valid) {
+        const messages: Record<string, string> = {
+          expired: "Code expiré. Demandez un nouveau code.",
+          invalid: "Code incorrect.",
+          not_found: "Code incorrect ou expiré.",
+        };
+        setError(messages[data.reason] ?? "Code incorrect ou expiré.");
+      } else {
+        setStep("password");
+      }
+    } catch {
+      setError("Impossible de valider le code. Vérifiez votre connexion internet.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleResetPassword(e: React.FormEvent) {
     e.preventDefault();
     setError("");
 
@@ -71,13 +107,7 @@ function ResetPasswordForm() {
       return;
     }
 
-    if (otp.length !== 6) {
-      setError("Veuillez saisir le code à 6 chiffres");
-      return;
-    }
-
     setLoading(true);
-
     try {
       await authClient.emailOtp.resetPassword(
         { email, otp, password },
@@ -101,54 +131,64 @@ function ResetPasswordForm() {
       title="Réinitialiser le mot de passe"
       description={email ? `Code envoyé à ${maskEmail(email)}` : "Chargement..."}
     >
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div className="space-y-3">
-          <p className="text-center text-sm text-muted-foreground">
-            Entrez le code à 6 chiffres reçu par email
-          </p>
-          <OtpInput value={otp} onChange={setOtp} disabled={loading} />
-        </div>
+      {step === "otp" ? (
+        <form onSubmit={handleValidateOtp} className="space-y-5">
+          <div className="space-y-3">
+            <p className="text-center text-sm text-muted-foreground">
+              Entrez le code à 6 chiffres reçu par email
+            </p>
+            <OtpInput value={otp} onChange={setOtp} disabled={loading} />
+          </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="password">Nouveau mot de passe</Label>
-          <div className="relative">
-            <Input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="8 caractères minimum"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              minLength={8}
-              className="pr-10"
-            />
-            <div className="absolute right-3 top-1/2 -translate-y-1/2">
-              <PasswordToggle
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
+
+          <Button type="submit" className="w-full" disabled={loading || otp.length !== 6}>
+            {loading ? "Validation..." : "Valider le code"}
+          </Button>
+        </form>
+      ) : (
+        <form onSubmit={handleResetPassword} className="space-y-5">
+          <div className="space-y-2">
+            <Label htmlFor="password">Nouveau mot de passe</Label>
+            <div className="relative">
+              <Input
+                id="password"
                 type={showPassword ? "text" : "password"}
-                onToggle={() => setShowPassword((v) => !v)}
+                placeholder="8 caractères minimum"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                minLength={8}
+                className="pr-10"
               />
+              <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                <PasswordToggle
+                  type={showPassword ? "text" : "password"}
+                  onToggle={() => setShowPassword((v) => !v)}
+                />
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
-          <Input
-            id="confirm-password"
-            type={showPassword ? "text" : "password"}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            minLength={8}
-          />
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirm-password">Confirmer le mot de passe</Label>
+            <Input
+              id="confirm-password"
+              type={showPassword ? "text" : "password"}
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+              minLength={8}
+            />
+          </div>
 
-        {error ? <p className="text-sm text-destructive">{error}</p> : null}
+          {error ? <p className="text-sm text-destructive">{error}</p> : null}
 
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? "Réinitialisation..." : "Réinitialiser"}
-        </Button>
-      </form>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? "Réinitialisation..." : "Réinitialiser"}
+          </Button>
+        </form>
+      )}
 
       <p className="text-center text-sm text-muted-foreground">
         Vous n'avez pas reçu le code ?{" "}
