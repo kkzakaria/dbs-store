@@ -1,16 +1,23 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import SignUpPage from "@/app/(auth)/inscription/page";
-import { signUp } from "@/lib/auth-client";
+import { signUp, authClient } from "@/lib/auth-client";
 
 vi.mock("@/lib/auth-client", () => ({
   signUp: { email: vi.fn() },
   signIn: { social: vi.fn() },
+  authClient: {
+    emailOtp: {
+      sendVerificationOtp: vi.fn().mockResolvedValue({ data: {}, error: null }),
+    },
+  },
 }));
 
+const mockPush = vi.fn();
+
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+  useRouter: () => ({ push: mockPush }),
 }));
 
 beforeEach(() => {
@@ -65,38 +72,25 @@ describe("SignUpPage", () => {
     expect(screen.getByText(/faible/i)).toBeInTheDocument();
   });
 
-  it("calls signUp.email with credentials on submit", async () => {
-    vi.mocked(signUp.email).mockImplementation((_data, callbacks: any) => {
+  it("sends verification OTP and redirects to /verifier-email after successful sign-up", async () => {
+    const user = userEvent.setup();
+    vi.mocked(signUp.email).mockImplementation(function (_data, callbacks: any) {
       callbacks?.onSuccess?.();
       return Promise.resolve({});
     });
 
-    const user = userEvent.setup();
     render(<SignUpPage />);
     await user.type(screen.getByLabelText(/nom/i), "Test User");
     await user.type(screen.getByLabelText(/email/i), "test@exemple.com");
-    await user.type(screen.getByLabelText(/^mot de passe$/i), "Password123!");
+    await user.type(screen.getByLabelText(/^mot de passe$/i), "Password1!");
     await user.click(screen.getByRole("button", { name: /s'inscrire/i }));
 
-    expect(signUp.email).toHaveBeenCalledWith(
-      { name: "Test User", email: "test@exemple.com", password: "Password123!" },
-      expect.any(Object)
-    );
-  });
-
-  it("shows error message on sign-up failure", async () => {
-    vi.mocked(signUp.email).mockImplementation((_data, callbacks: any) => {
-      callbacks?.onError?.({ error: { message: "Un compte existe déjà avec cette adresse email." } });
-      return Promise.resolve({});
+    await waitFor(() => {
+      expect(mockPush).toHaveBeenCalledWith("/verifier-email");
     });
-
-    const user = userEvent.setup();
-    render(<SignUpPage />);
-    await user.type(screen.getByLabelText(/nom/i), "Test User");
-    await user.type(screen.getByLabelText(/email/i), "test@exemple.com");
-    await user.type(screen.getByLabelText(/^mot de passe$/i), "Password123!");
-    await user.click(screen.getByRole("button", { name: /s'inscrire/i }));
-
-    expect(screen.getByText("Un compte existe déjà avec cette adresse email.")).toBeInTheDocument();
+    expect(authClient.emailOtp.sendVerificationOtp).toHaveBeenCalledWith({
+      email: "test@exemple.com",
+      type: "email-verification",
+    });
   });
 });

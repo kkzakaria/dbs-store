@@ -11,6 +11,7 @@ import { AuthCard } from "@/components/auth/auth-card";
 import { SocialButtons } from "@/components/auth/social-buttons";
 import { PasswordToggle } from "@/components/auth/password-toggle";
 import { signIn } from "@/lib/auth-client";
+import { translateAuthError } from "@/lib/auth-utils";
 
 function SignInForm() {
   const router = useRouter();
@@ -33,7 +34,7 @@ function SignInForm() {
         { email, password },
         {
           onError: (ctx) => {
-            setError(ctx.error.message ?? "Une erreur est survenue");
+            setError(translateAuthError(ctx.error.message, "Une erreur est survenue."));
           },
           onSuccess: () => {
             router.push(callbackUrl);

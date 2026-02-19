@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthCard } from "@/components/auth/auth-card";
 import { authClient } from "@/lib/auth-client";
+import { translateAuthError } from "@/lib/auth-utils";
 
 export default function ForgotPasswordPage() {
   const router = useRouter();
@@ -25,7 +26,7 @@ export default function ForgotPasswordPage() {
         { email, type: "forget-password" },
         {
           onError: (ctx) => {
-            setError(ctx.error.message ?? "Une erreur est survenue");
+            setError(translateAuthError(ctx.error.message, "Une erreur est survenue."));
           },
           onSuccess: () => {
             sessionStorage.setItem("otp_email", email);
