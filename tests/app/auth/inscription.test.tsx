@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import SignUpPage from "@/app/(auth)/inscription/page";
-import { signUp } from "@/lib/auth-client";
+import { signUp, authClient } from "@/lib/auth-client";
 
 vi.mock("@/lib/auth-client", () => ({
   signUp: { email: vi.fn() },
@@ -17,7 +17,7 @@ vi.mock("@/lib/auth-client", () => ({
 const mockPush = vi.fn();
 
 vi.mock("next/navigation", () => ({
-  useRouter: () => ({ push: mockPush, refresh: vi.fn() }),
+  useRouter: () => ({ push: mockPush }),
 }));
 
 beforeEach(() => {
@@ -87,6 +87,10 @@ describe("SignUpPage", () => {
 
     await waitFor(() => {
       expect(mockPush).toHaveBeenCalledWith("/verifier-email");
+    });
+    expect(authClient.emailOtp.sendVerificationOtp).toHaveBeenCalledWith({
+      email: "test@exemple.com",
+      type: "email-verification",
     });
   });
 });
