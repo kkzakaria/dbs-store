@@ -20,9 +20,11 @@ function buildHtml(otp: string, type: OtpType): string {
         : "Connexion à votre compte";
 
   const body =
-    type === "email-verification"
-      ? "Utilisez le code ci-dessous pour valider votre adresse email. Il est valable <strong>5 minutes</strong>."
-      : "Utilisez le code ci-dessous pour continuer. Il est valable <strong>5 minutes</strong>.";
+    type === "forget-password"
+      ? "Utilisez le code ci-dessous pour réinitialiser votre mot de passe. Il est valable <strong>5 minutes</strong>."
+      : type === "email-verification"
+        ? "Utilisez le code ci-dessous pour valider votre adresse email. Il est valable <strong>5 minutes</strong>."
+        : "Utilisez le code ci-dessous pour vous connecter. Il est valable <strong>5 minutes</strong>.";
 
   return `<!DOCTYPE html>
 <html lang="fr">
