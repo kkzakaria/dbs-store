@@ -1,17 +1,9 @@
-import { Smartphone, Tablet, Laptop, Watch, Headphones, Cable, Percent, Truck, ShieldCheck, CreditCard } from "lucide-react";
+import { Tablet, Laptop, Watch, Headphones, Cable, Percent, Truck, ShieldCheck, CreditCard, Smartphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-
-const featuredProducts = [
-  { name: "iPhone 16 Pro", price: "899 000", category: "Smartphones", badge: "Nouveau" },
-  { name: "Samsung Galaxy S25 Ultra", price: "799 000", category: "Smartphones", badge: "Populaire" },
-  { name: "MacBook Air M4", price: "1 150 000", category: "Ordinateurs", badge: "Nouveau" },
-  { name: "iPad Pro M4", price: "950 000", category: "Tablettes", badge: null },
-  { name: "AirPods Pro 3", price: "189 000", category: "Audio", badge: "Nouveau" },
-  { name: "Apple Watch Ultra 3", price: "599 000", category: "Montres", badge: null },
-  { name: "Google Pixel 9 Pro", price: "650 000", category: "Smartphones", badge: null },
-  { name: "Samsung Galaxy Tab S10", price: "475 000", category: "Tablettes", badge: "Promo" },
-];
+import { getDb } from "@/lib/db";
+import { getProductsByCategory, getPromoProducts } from "@/lib/data/products";
+import { ProductCard } from "@/components/products/product-card";
 
 const categoryHighlights = [
   { name: "Smartphones", slug: "smartphones", icon: Smartphone, count: 48 },
@@ -22,14 +14,13 @@ const categoryHighlights = [
   { name: "Accessoires", slug: "accessoires", icon: Cable, count: 56 },
 ];
 
-const promoProducts = [
-  { name: "Xiaomi 14T Pro", oldPrice: "450 000", newPrice: "375 000", discount: "-17%" },
-  { name: "Sony WH-1000XM5", oldPrice: "280 000", newPrice: "225 000", discount: "-20%" },
-  { name: "Samsung Galaxy Watch 7", oldPrice: "250 000", newPrice: "199 000", discount: "-20%" },
-  { name: "Lenovo IdeaPad Slim 5", oldPrice: "520 000", newPrice: "449 000", discount: "-14%" },
-];
+export default async function HomePage() {
+  const db = getDb();
+  const [featured, promos] = await Promise.all([
+    getProductsByCategory(db, "smartphones", { tri: "nouveau" }),
+    getPromoProducts(db, 4),
+  ]);
 
-export default function HomePage() {
   return (
     <div>
       {/* Hero */}
@@ -92,28 +83,8 @@ export default function HomePage() {
             </Button>
           </div>
           <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {featuredProducts.map((product) => (
-              <div
-                key={product.name}
-                className="group relative overflow-hidden rounded-xl border bg-card transition-shadow hover:shadow-md"
-              >
-                {product.badge ? (
-                  <span className="absolute left-3 top-3 z-10 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-primary-foreground">
-                    {product.badge}
-                  </span>
-                ) : null}
-                <div className="flex aspect-square items-center justify-center bg-muted/50 text-muted-foreground/40 transition-colors group-hover:bg-muted">
-                  <Smartphone className="size-16" />
-                </div>
-                <div className="p-4">
-                  <p className="text-xs text-muted-foreground">{product.category}</p>
-                  <h3 className="mt-1 font-medium">{product.name}</h3>
-                  <p className="mt-2 text-lg font-bold">{product.price} FCFA</p>
-                  <Button className="mt-3 w-full" size="sm" variant="outline">
-                    Ajouter au panier
-                  </Button>
-                </div>
-              </div>
+            {featured.slice(0, 8).map((product) => (
+              <ProductCard key={product.id} product={product} />
             ))}
           </div>
         </div>
@@ -139,28 +110,8 @@ export default function HomePage() {
         <h2 className="text-2xl font-bold tracking-tight">Promotions en cours</h2>
         <p className="mt-2 text-muted-foreground">Economisez sur vos produits preferes</p>
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {promoProducts.map((product) => (
-            <div
-              key={product.name}
-              className="group relative overflow-hidden rounded-xl border bg-card transition-shadow hover:shadow-md"
-            >
-              <span className="absolute left-3 top-3 z-10 rounded-full bg-red-500 px-2.5 py-0.5 text-xs font-medium text-white">
-                {product.discount}
-              </span>
-              <div className="flex aspect-[4/3] items-center justify-center bg-muted/50 text-muted-foreground/40 transition-colors group-hover:bg-muted">
-                <Smartphone className="size-12" />
-              </div>
-              <div className="p-4">
-                <h3 className="font-medium">{product.name}</h3>
-                <div className="mt-2 flex items-baseline gap-2">
-                  <p className="text-lg font-bold">{product.newPrice} FCFA</p>
-                  <p className="text-sm text-muted-foreground line-through">{product.oldPrice}</p>
-                </div>
-                <Button className="mt-3 w-full" size="sm" variant="outline">
-                  Ajouter au panier
-                </Button>
-              </div>
-            </div>
+          {promos.map((product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </div>
       </section>

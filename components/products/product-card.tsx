@@ -1,3 +1,4 @@
+"use client";
 // components/products/product-card.tsx
 import Link from "next/link";
 import Image from "next/image";
