@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from "vitest";
 vi.mock("@/lib/db", () => ({ getDb: vi.fn() }));
 vi.mock("@/lib/auth", () => ({ auth: { api: { getSession: vi.fn() } } }));
 
-import { buildOrder } from "@/lib/actions/orders";
+import { buildOrder } from "@/lib/order-utils";
 
 describe("buildOrder", () => {
   it("calculates correct totals for COD", () => {
