@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { desc, eq } from "drizzle-orm";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { getDb } from "@/lib/db";
+import { getCachedSession } from "@/lib/session";
 import { orders } from "@/lib/db/schema";
 import { Badge } from "@/components/ui/badge";
 import type { OrderStatus } from "@/lib/db/schema";
@@ -24,8 +23,9 @@ const statusVariant: Record<OrderStatus, "default" | "secondary" | "destructive"
 };
 
 export default async function CommandesPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  // Layout already redirects unauthenticated users — session is always set here
+  // Layout already redirects unauthenticated users — session is always set here.
+  // getCachedSession() deduplicates the auth call already made by the layout.
+  const session = await getCachedSession();
   const db = getDb();
   const userOrders = await db
     .select()

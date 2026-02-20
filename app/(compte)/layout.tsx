@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getCachedSession } from "@/lib/session";
 
 const nav = [
   { label: "Mes commandes", href: "/compte/commandes" },
@@ -9,7 +8,7 @@ const nav = [
 ];
 
 export default async function CompteLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const session = await getCachedSession();
   if (!session?.user) redirect("/connexion?callbackUrl=/compte/commandes");
 
   return (

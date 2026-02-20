@@ -1,10 +1,9 @@
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { getCachedSession } from "@/lib/session";
 import { LogoutButton } from "./logout-button";
 
 export default async function ProfilPage() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  // Layout already redirects unauthenticated users — session is always set here
+  // getCachedSession() deduplicates the auth call already made by the layout.
+  const session = await getCachedSession();
   const user = session!.user;
 
   return (

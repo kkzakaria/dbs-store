@@ -2,9 +2,8 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { eq } from "drizzle-orm";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { getDb } from "@/lib/db";
+import { getCachedSession } from "@/lib/session";
 import { orders, order_items } from "@/lib/db/schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -32,8 +31,10 @@ export default async function CommandeDetailPage({ params }: Props) {
   const { id } = await params;
 
   try {
+    // getCachedSession() has no args → no await blocking Promise.all()
+    // Both session and order fetch start truly in parallel.
     const [session, [order]] = await Promise.all([
-      auth.api.getSession({ headers: await headers() }),
+      getCachedSession(),
       getDb().select().from(orders).where(eq(orders.id, id)).limit(1),
     ]);
 
