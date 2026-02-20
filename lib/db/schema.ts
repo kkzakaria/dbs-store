@@ -32,3 +32,46 @@ export type Product = Omit<ProductRow, "images" | "specs" | "badge"> & {
 };
 
 export type NewProduct = typeof products.$inferInsert;
+
+// ── Orders ────────────────────────────────────────────────────────────────────
+
+export type OrderStatus = "pending" | "confirmed" | "shipped" | "delivered" | "cancelled";
+export type PaymentMethod = "cod" | "mobile_money" | "card";
+export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
+
+export const orders = sqliteTable("orders", {
+  id: text("id").primaryKey(),
+  user_id: text("user_id").notNull(),
+  status: text("status").$type<OrderStatus>().default("pending").notNull(),
+  payment_method: text("payment_method").$type<PaymentMethod>().notNull(),
+  payment_status: text("payment_status").$type<PaymentStatus>().default("pending").notNull(),
+  // Adresse de livraison (dénormalisée)
+  shipping_name: text("shipping_name").notNull(),
+  shipping_phone: text("shipping_phone").notNull(),
+  shipping_city: text("shipping_city").notNull(),
+  shipping_address: text("shipping_address").notNull(),
+  shipping_notes: text("shipping_notes"),
+  // Totaux en FCFA
+  subtotal: integer("subtotal").notNull(),
+  shipping_fee: integer("shipping_fee").default(0).notNull(),
+  total: integer("total").notNull(),
+  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
+  updated_at: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
+export const order_items = sqliteTable("order_items", {
+  id: text("id").primaryKey(),
+  order_id: text("order_id").notNull().references(() => orders.id),
+  product_id: text("product_id").notNull(),
+  product_name: text("product_name").notNull(),
+  product_slug: text("product_slug").notNull(),
+  product_image: text("product_image").notNull(),
+  unit_price: integer("unit_price").notNull(),
+  quantity: integer("quantity").notNull(),
+  line_total: integer("line_total").notNull(),
+});
+
+export type Order = typeof orders.$inferSelect;
+export type NewOrder = typeof orders.$inferInsert;
+export type OrderItem = typeof order_items.$inferSelect;
+export type NewOrderItem = typeof order_items.$inferInsert;
