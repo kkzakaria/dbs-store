@@ -1,7 +1,9 @@
 // tests/components/products/product-card.test.tsx
-import { describe, it, expect, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { act } from "@testing-library/react";
 import { ProductCard } from "@/components/products/product-card";
+import { useCartStore } from "@/lib/cart";
 
 vi.mock("next/image", () => ({
   default: ({ src, alt }: { src: string; alt: string }) => (
@@ -27,6 +29,10 @@ const BASE = {
   is_active: true,
   created_at: new Date(),
 };
+
+beforeEach(() => {
+  act(() => useCartStore.setState({ items: [] }));
+});
 
 describe("ProductCard", () => {
   it("affiche le nom et le prix du produit", () => {
@@ -60,5 +66,17 @@ describe("ProductCard", () => {
     render(<ProductCard product={BASE} />);
     const link = screen.getByRole("link");
     expect(link).toHaveAttribute("href", "/produits/iphone-16-pro");
+  });
+
+  it("ajoute au panier en cliquant sur le bouton", () => {
+    render(<ProductCard product={BASE} />);
+    fireEvent.click(screen.getByRole("button", { name: /ajouter au panier/i }));
+    expect(useCartStore.getState().items).toHaveLength(1);
+    expect(useCartStore.getState().items[0].productId).toBe("iphone-16-pro");
+  });
+
+  it("n'affiche pas de bouton panier quand rupture de stock", () => {
+    render(<ProductCard product={{ ...BASE, stock: 0 }} />);
+    expect(screen.queryByRole("button", { name: /ajouter au panier/i })).not.toBeInTheDocument();
   });
 });

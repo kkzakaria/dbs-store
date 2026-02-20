@@ -39,4 +39,19 @@ describe("CartIndicator", () => {
     render(<CartIndicator onClick={() => {}} />);
     expect(screen.queryByText("0")).not.toBeInTheDocument();
   });
+
+  it("shows '99+' badge when count exceeds 99", () => {
+    act(() =>
+      useCartStore.getState().addItem({
+        productId: "p1",
+        slug: "iphone",
+        name: "iPhone 16",
+        price: 1_000_000,
+        image: "/placeholder.svg",
+      })
+    );
+    act(() => useCartStore.getState().setQuantity("p1", 100));
+    render(<CartIndicator onClick={() => {}} />);
+    expect(screen.getByText("99+")).toBeInTheDocument();
+  });
 });

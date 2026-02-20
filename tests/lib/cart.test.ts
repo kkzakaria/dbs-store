@@ -70,4 +70,32 @@ describe("useCartStore", () => {
     });
     expect(useCartStore.getState().count()).toBe(3);
   });
+
+  it("computes total accounting for quantity", () => {
+    act(() => {
+      useCartStore.getState().addItem(item);
+      useCartStore.getState().setQuantity("p1", 3);
+    });
+    expect(useCartStore.getState().total()).toBe(3_000_000);
+  });
+
+  it("clear empties the cart", () => {
+    act(() => {
+      useCartStore.getState().addItem(item);
+      useCartStore.getState().addItem({ ...item, productId: "p2", price: 500_000 });
+      useCartStore.getState().clear();
+    });
+    const state = useCartStore.getState();
+    expect(state.items).toHaveLength(0);
+    expect(state.total()).toBe(0);
+    expect(state.count()).toBe(0);
+  });
+
+  it("removes item when quantity set to a negative value", () => {
+    act(() => {
+      useCartStore.getState().addItem(item);
+      useCartStore.getState().setQuantity("p1", -3);
+    });
+    expect(useCartStore.getState().items).toHaveLength(0);
+  });
 });

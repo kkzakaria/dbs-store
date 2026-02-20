@@ -5,11 +5,8 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetFooter } from "@/com
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCartStore } from "@/lib/cart";
+import { formatPrice } from "@/lib/utils";
 import { CartItemRow } from "./cart-item-row";
-
-function formatPrice(p: number) {
-  return p.toLocaleString("fr-FR");
-}
 
 type Props = { open: boolean; onOpenChange: (open: boolean) => void };
 

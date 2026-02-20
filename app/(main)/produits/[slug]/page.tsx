@@ -9,6 +9,7 @@ import { ProductGallery } from "@/components/products/product-gallery";
 import { ProductSpecs } from "@/components/products/product-specs";
 import { ProductCard } from "@/components/products/product-card";
 import { AddToCartButton } from "@/components/products/add-to-cart-button";
+import { formatPrice } from "@/lib/utils";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -36,10 +37,6 @@ async function RelatedProducts({ productId, subcategoryId }: { productId: string
       </div>
     </section>
   );
-}
-
-function formatPrice(p: number) {
-  return p.toLocaleString("fr-FR");
 }
 
 export default async function ProductDetailPage({ params }: Props) {

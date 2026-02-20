@@ -4,10 +4,7 @@ import Image from "next/image";
 import { Trash2, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore, type CartItem } from "@/lib/cart";
-
-function formatPrice(p: number) {
-  return p.toLocaleString("fr-FR");
-}
+import { formatPrice } from "@/lib/utils";
 
 export const CartItemRow = memo(function CartItemRow({ item }: { item: CartItem }) {
   return (
