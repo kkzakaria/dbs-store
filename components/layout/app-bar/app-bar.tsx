@@ -9,6 +9,7 @@ import { useScrollState } from "@/hooks/use-scroll-state";
 import { DesktopNav } from "./desktop-nav";
 import { MobileMenuTrigger } from "./mobile-menu-trigger";
 import { CartIndicator } from "./cart-indicator";
+import { CartDrawer } from "@/components/cart/cart-drawer";
 import { UserMenu } from "./user-menu";
 import { cn } from "@/lib/utils";
 
@@ -20,6 +21,7 @@ const SearchOverlay = dynamic(
 export function AppBar() {
   const { isScrolled } = useScrollState(50);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
 
   return (
     <>
@@ -57,7 +59,7 @@ export function AppBar() {
               <Button variant="ghost" size="icon" aria-label="Rechercher" onClick={() => setSearchOpen(true)}>
                 <Search className="size-5" />
               </Button>
-              <CartIndicator count={0} />
+              <CartIndicator onClick={() => setCartOpen(true)} />
               <UserMenu />
             </div>
           </div>
@@ -67,6 +69,7 @@ export function AppBar() {
       {searchOpen && (
         <SearchOverlay onClose={() => setSearchOpen(false)} />
       )}
+      <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
     </>
   );
 }

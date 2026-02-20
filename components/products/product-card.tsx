@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useCartStore } from "@/lib/cart";
 import type { Product } from "@/lib/db/schema";
 
 function formatPrice(price: number) {
@@ -14,6 +15,7 @@ function discountPercent(price: number, oldPrice: number) {
 }
 
 export function ProductCard({ product }: { product: Product }) {
+  const addItem = useCartStore((s) => s.addItem);
   const isOutOfStock = product.stock === 0;
 
   return (
@@ -61,7 +63,16 @@ export function ProductCard({ product }: { product: Product }) {
               size="sm"
               variant="outline"
               className="w-full"
-              onClick={(e) => e.preventDefault()}
+              onClick={(e) => {
+                e.preventDefault();
+                addItem({
+                  productId: product.id,
+                  slug: product.slug,
+                  name: product.name,
+                  price: product.price,
+                  image: product.images[0] ?? "/images/products/placeholder.svg",
+                });
+              }}
             >
               Ajouter au panier
             </Button>

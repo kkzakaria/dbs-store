@@ -1,25 +1,42 @@
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { act } from "@testing-library/react";
 import { CartIndicator } from "@/components/layout/app-bar/cart-indicator";
+import { useCartStore } from "@/lib/cart";
+
+beforeEach(() => {
+  act(() => useCartStore.setState({ items: [] }));
+});
 
 describe("CartIndicator", () => {
-  it("renders cart link", () => {
-    render(<CartIndicator count={0} />);
-    expect(screen.getByRole("link", { name: /panier/i })).toBeInTheDocument();
+  it("renders cart button", () => {
+    render(<CartIndicator onClick={() => {}} />);
+    expect(screen.getByRole("button", { name: /panier/i })).toBeInTheDocument();
   });
 
-  it("links to /panier", () => {
-    render(<CartIndicator count={0} />);
-    expect(screen.getByRole("link", { name: /panier/i })).toHaveAttribute("href", "/panier");
+  it("calls onClick when clicked", () => {
+    const handleClick = vi.fn();
+    render(<CartIndicator onClick={handleClick} />);
+    fireEvent.click(screen.getByRole("button", { name: /panier/i }));
+    expect(handleClick).toHaveBeenCalledOnce();
   });
 
-  it("shows badge when count > 0", () => {
-    render(<CartIndicator count={3} />);
-    expect(screen.getByText("3")).toBeInTheDocument();
+  it("shows badge when cart has items", () => {
+    act(() =>
+      useCartStore.getState().addItem({
+        productId: "p1",
+        slug: "iphone",
+        name: "iPhone 16",
+        price: 1_000_000,
+        image: "/placeholder.svg",
+      })
+    );
+    render(<CartIndicator onClick={() => {}} />);
+    expect(screen.getByText("1")).toBeInTheDocument();
   });
 
-  it("hides badge when count is 0", () => {
-    render(<CartIndicator count={0} />);
+  it("hides badge when cart is empty", () => {
+    render(<CartIndicator onClick={() => {}} />);
     expect(screen.queryByText("0")).not.toBeInTheDocument();
   });
 });

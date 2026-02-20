@@ -2,14 +2,13 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
-import { ShoppingCart } from "lucide-react";
 import { categories } from "@/lib/data/categories";
 import { getDb } from "@/lib/db";
 import { getProductCached, getRelatedProducts } from "@/lib/data/products";
 import { ProductGallery } from "@/components/products/product-gallery";
 import { ProductSpecs } from "@/components/products/product-specs";
 import { ProductCard } from "@/components/products/product-card";
-import { Button } from "@/components/ui/button";
+import { AddToCartButton } from "@/components/products/add-to-cart-button";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -122,10 +121,7 @@ export default async function ProductDetailPage({ params }: Props) {
           </p>
 
           <div className="mt-6 flex gap-3">
-            <Button size="lg" className="flex-1 gap-2" disabled={isOutOfStock}>
-              <ShoppingCart className="size-4" />
-              {isOutOfStock ? "Rupture de stock" : "Ajouter au panier"}
-            </Button>
+            <AddToCartButton product={product} />
           </div>
 
           {Object.keys(product.specs).length > 0 ? (
