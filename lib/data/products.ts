@@ -1,7 +1,8 @@
 // lib/data/products.ts
+import { cache } from "react";
 import { eq, or, and, ne, lte, gte, asc, desc, isNotNull } from "drizzle-orm";
 import { products, type Product } from "@/lib/db/schema";
-import type { Db } from "@/lib/db";
+import { getDb, type Db } from "@/lib/db";
 
 export type ProductFilters = {
   brand?: string;
@@ -73,3 +74,9 @@ export async function getPromoProducts(db: Db, limit = 4): Promise<Product[]> {
     .orderBy(desc(products.created_at))
     .limit(limit);
 }
+
+// Cached per-request — évite une double requête DB quand generateMetadata
+// et le composant page appellent getProduct pour le même slug dans la même requête.
+export const getProductCached = cache(async (slug: string): Promise<Product | null> => {
+  return getProduct(getDb(), slug);
+});

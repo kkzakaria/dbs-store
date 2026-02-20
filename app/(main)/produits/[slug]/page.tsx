@@ -5,13 +5,23 @@ import { Suspense } from "react";
 import { ShoppingCart } from "lucide-react";
 import { categories } from "@/lib/data/categories";
 import { getDb } from "@/lib/db";
-import { getProduct, getRelatedProducts } from "@/lib/data/products";
+import { getProductCached, getRelatedProducts } from "@/lib/data/products";
 import { ProductGallery } from "@/components/products/product-gallery";
 import { ProductSpecs } from "@/components/products/product-specs";
 import { ProductCard } from "@/components/products/product-card";
 import { Button } from "@/components/ui/button";
 
 type Props = { params: Promise<{ slug: string }> };
+
+export async function generateMetadata({ params }: Props) {
+  const { slug } = await params;
+  const product = await getProductCached(slug);
+  if (!product) return {};
+  return {
+    title: `${product.name} — DBS Store`,
+    description: product.description,
+  };
+}
 
 async function RelatedProducts({ productId, subcategoryId }: { productId: string; subcategoryId: string }) {
   const db = getDb();
@@ -35,8 +45,7 @@ function formatPrice(p: number) {
 
 export default async function ProductDetailPage({ params }: Props) {
   const { slug } = await params;
-  const db = getDb();
-  const product = await getProduct(db, slug);
+  const product = await getProductCached(slug); // cache hit si generateMetadata a déjà appelé
   if (!product) notFound();
 
   const images = JSON.parse(product.images) as string[];
