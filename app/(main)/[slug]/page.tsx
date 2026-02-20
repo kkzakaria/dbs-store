@@ -18,8 +18,7 @@ export function generateStaticParams() {
 }
 
 export default async function CategoryPage({ params, searchParams }: Props) {
-  const { slug } = await params;
-  const filters = await searchParams;
+  const [{ slug }, filters] = await Promise.all([params, searchParams]);
 
   const category = categories.find((c) => c.slug === slug);
   if (!category) notFound();

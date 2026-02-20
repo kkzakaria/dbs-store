@@ -1,6 +1,7 @@
 // app/(main)/produits/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import Link from "next/link";
+import { Suspense } from "react";
 import { ShoppingCart } from "lucide-react";
 import { categories } from "@/lib/data/categories";
 import { getDb } from "@/lib/db";
@@ -11,6 +12,22 @@ import { ProductCard } from "@/components/products/product-card";
 import { Button } from "@/components/ui/button";
 
 type Props = { params: Promise<{ slug: string }> };
+
+async function RelatedProducts({ productId, subcategoryId }: { productId: string; subcategoryId: string }) {
+  const db = getDb();
+  const related = await getRelatedProducts(db, productId, subcategoryId);
+  if (related.length === 0) return null;
+  return (
+    <section className="mt-16">
+      <h2 className="text-xl font-bold tracking-tight">Produits similaires</h2>
+      <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {related.map((p) => (
+          <ProductCard key={p.id} product={p} />
+        ))}
+      </div>
+    </section>
+  );
+}
 
 function formatPrice(p: number) {
   return p.toLocaleString("fr-FR");
@@ -24,10 +41,6 @@ export default async function ProductDetailPage({ params }: Props) {
 
   const images = JSON.parse(product.images) as string[];
   const specs = JSON.parse(product.specs) as Record<string, string>;
-
-  const related = product.subcategory_id
-    ? await getRelatedProducts(db, product.id, product.subcategory_id)
-    : [];
 
   const category = categories.find((c) => c.id === product.category_id);
   const subcategory = product.subcategory_id
@@ -118,16 +131,11 @@ export default async function ProductDetailPage({ params }: Props) {
         </div>
       </div>
 
-      {/* Produits similaires */}
-      {related.length > 0 ? (
-        <section className="mt-16">
-          <h2 className="text-xl font-bold tracking-tight">Produits similaires</h2>
-          <div className="mt-6 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-            {related.map((p) => (
-              <ProductCard key={p.id} product={p} />
-            ))}
-          </div>
-        </section>
+      {/* Produits similaires — streamés indépendamment */}
+      {product.subcategory_id ? (
+        <Suspense>
+          <RelatedProducts productId={product.id} subcategoryId={product.subcategory_id} />
+        </Suspense>
       ) : null}
     </div>
   );
