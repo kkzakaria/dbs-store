@@ -9,6 +9,7 @@ import { useScrollState } from "@/hooks/use-scroll-state";
 import { DesktopNav } from "./desktop-nav";
 import { MobileMenuTrigger } from "./mobile-menu-trigger";
 import { CartIndicator } from "./cart-indicator";
+import { CartErrorBoundary } from "@/components/cart/cart-error-boundary";
 import { UserMenu } from "./user-menu";
 import { cn } from "@/lib/utils";
 
@@ -73,7 +74,11 @@ export function AppBar() {
       {searchOpen && (
         <SearchOverlay onClose={() => setSearchOpen(false)} />
       )}
-      <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
+      {cartOpen && (
+        <CartErrorBoundary>
+          <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
+        </CartErrorBoundary>
+      )}
     </>
   );
 }

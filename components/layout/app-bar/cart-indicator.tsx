@@ -6,7 +6,7 @@ import { useCartStore } from "@/lib/cart";
 type Props = { onClick: () => void };
 
 export function CartIndicator({ onClick }: Props) {
-  const count = useCartStore((s) => s.count());
+  const count = useCartStore((s) => s.items.reduce((sum, i) => sum + i.quantity, 0));
   return (
     <Button variant="ghost" size="icon" onClick={onClick} aria-label="Panier" className="relative">
       <ShoppingCart className="size-5" />
