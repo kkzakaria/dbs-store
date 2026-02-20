@@ -64,8 +64,9 @@ export async function createOrder(data: CheckoutFormData): Promise<{ orderId: st
   const now = new Date();
 
   try {
-    await db.transaction(async (tx) => {
-      await tx.insert(orders).values({
+    // better-sqlite3 is synchronous — transaction callback must NOT be async
+    db.transaction((tx) => {
+      tx.insert(orders).values({
         id: orderId,
         user_id: session.user.id,
         status: "pending",
@@ -81,9 +82,9 @@ export async function createOrder(data: CheckoutFormData): Promise<{ orderId: st
         total,
         created_at: now,
         updated_at: now,
-      });
+      }).run();
 
-      await tx.insert(order_items).values(
+      tx.insert(order_items).values(
         itemsWithDbPrices.map((item) => ({
           id: randomUUID(),
           order_id: orderId,
@@ -95,7 +96,7 @@ export async function createOrder(data: CheckoutFormData): Promise<{ orderId: st
           quantity: item.quantity,
           line_total: item.price * item.quantity,
         }))
-      );
+      ).run();
     });
   } catch (err) {
     console.error("[createOrder] DB write failed", {
