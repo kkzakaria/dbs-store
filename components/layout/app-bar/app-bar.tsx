@@ -9,6 +9,7 @@ import { useScrollState } from "@/hooks/use-scroll-state";
 import { DesktopNav } from "./desktop-nav";
 import { MobileMenuTrigger } from "./mobile-menu-trigger";
 import { CartIndicator } from "./cart-indicator";
+import { CartErrorBoundary } from "@/components/cart/cart-error-boundary";
 import { UserMenu } from "./user-menu";
 import { cn } from "@/lib/utils";
 
@@ -17,9 +18,15 @@ const SearchOverlay = dynamic(
   { loading: () => <div className="fixed inset-0 z-50 bg-background/80" /> }
 );
 
+const CartDrawer = dynamic(
+  () => import("@/components/cart/cart-drawer").then((m) => m.CartDrawer),
+  { ssr: false }
+);
+
 export function AppBar() {
   const { isScrolled } = useScrollState(50);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
 
   return (
     <>
@@ -57,7 +64,7 @@ export function AppBar() {
               <Button variant="ghost" size="icon" aria-label="Rechercher" onClick={() => setSearchOpen(true)}>
                 <Search className="size-5" />
               </Button>
-              <CartIndicator count={0} />
+              <CartIndicator onClick={() => setCartOpen(true)} />
               <UserMenu />
             </div>
           </div>
@@ -66,6 +73,11 @@ export function AppBar() {
 
       {searchOpen && (
         <SearchOverlay onClose={() => setSearchOpen(false)} />
+      )}
+      {cartOpen && (
+        <CartErrorBoundary>
+          <CartDrawer open={cartOpen} onOpenChange={setCartOpen} />
+        </CartErrorBoundary>
       )}
     </>
   );
