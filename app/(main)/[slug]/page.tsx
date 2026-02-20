@@ -1,10 +1,10 @@
 // app/(main)/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { Suspense } from "react";
 import { categories, getSubcategories } from "@/lib/data/categories";
 import { getDb } from "@/lib/db";
 import { getProductsByCategory } from "@/lib/data/products";
+import type { ProductFilters as Filters } from "@/lib/data/products";
 import { ProductCard } from "@/components/products/product-card";
 import { ProductFilters } from "@/components/products/product-filters";
 
@@ -12,6 +12,8 @@ type Props = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ marque?: string; prix_max?: string; tri?: string }>;
 };
+
+const VALID_TRI = ["prix_asc", "prix_desc", "nouveau"] as const;
 
 export function generateStaticParams() {
   return categories.map((c) => ({ slug: c.slug }));
@@ -27,11 +29,16 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     ? categories.find((c) => c.id === category.parent_id)
     : null;
 
+  const prixMax = filters.prix_max ? parseInt(filters.prix_max, 10) : undefined;
+  const tri = (VALID_TRI as readonly string[]).includes(filters.tri ?? "")
+    ? (filters.tri as Filters["tri"])
+    : undefined;
+
   const db = getDb();
   const items = await getProductsByCategory(db, category.id, {
     brand: filters.marque,
-    prix_max: filters.prix_max ? parseInt(filters.prix_max) : undefined,
-    tri: filters.tri as "prix_asc" | "prix_desc" | "nouveau" | undefined,
+    prix_max: prixMax !== undefined && Number.isFinite(prixMax) ? prixMax : undefined,
+    tri,
   });
 
   const brands = [...new Set(items.map((p) => p.brand))].sort();
@@ -73,12 +80,10 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       ) : null}
 
       <div className="mt-8 flex flex-col gap-8 lg:flex-row">
-        <Suspense>
-          <ProductFilters
-            brands={brands}
-            current={{ brand: filters.marque, prix_max: filters.prix_max, tri: filters.tri }}
-          />
-        </Suspense>
+        <ProductFilters
+          brands={brands}
+          current={{ brand: filters.marque, prix_max: filters.prix_max, tri: filters.tri }}
+        />
 
         {items.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center py-20 text-center">

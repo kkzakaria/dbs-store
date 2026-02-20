@@ -14,7 +14,6 @@ function discountPercent(price: number, oldPrice: number) {
 }
 
 export function ProductCard({ product }: { product: Product }) {
-  const images = JSON.parse(product.images) as string[];
   const isOutOfStock = product.stock === 0;
 
   return (
@@ -34,7 +33,7 @@ export function ProductCard({ product }: { product: Product }) {
       ) : null}
       <div className="relative flex aspect-square items-center justify-center overflow-hidden bg-muted/50 transition-colors group-hover:bg-muted">
         <Image
-          src={images[0] ?? "/images/products/placeholder.svg"}
+          src={product.images[0] ?? "/images/products/placeholder.svg"}
           alt={product.name}
           fill
           className="object-contain p-4"

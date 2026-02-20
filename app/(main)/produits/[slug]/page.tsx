@@ -48,9 +48,6 @@ export default async function ProductDetailPage({ params }: Props) {
   const product = await getProductCached(slug); // cache hit si generateMetadata a déjà appelé
   if (!product) notFound();
 
-  const images = JSON.parse(product.images) as string[];
-  const specs = JSON.parse(product.specs) as Record<string, string>;
-
   const category = categories.find((c) => c.id === product.category_id);
   const subcategory = product.subcategory_id
     ? categories.find((c) => c.id === product.subcategory_id)
@@ -84,7 +81,7 @@ export default async function ProductDetailPage({ params }: Props) {
 
       {/* Layout principal */}
       <div className="grid grid-cols-1 gap-10 lg:grid-cols-2">
-        <ProductGallery images={images} name={product.name} />
+        <ProductGallery images={product.images} name={product.name} />
 
         <div className="flex flex-col">
           {product.badge ? (
@@ -131,18 +128,19 @@ export default async function ProductDetailPage({ params }: Props) {
             </Button>
           </div>
 
-          {Object.keys(specs).length > 0 ? (
+          {Object.keys(product.specs).length > 0 ? (
             <div className="mt-8">
               <h2 className="mb-3 text-base font-semibold">Caractéristiques techniques</h2>
-              <ProductSpecs specs={specs} />
+              <ProductSpecs specs={product.specs} />
             </div>
           ) : null}
         </div>
       </div>
 
-      {/* Produits similaires — streamés indépendamment */}
+      {/* Produits similaires — différés via Suspense : ne bloquent pas l'affichage
+          du contenu principal une fois la page shell envoyée. */}
       {product.subcategory_id ? (
-        <Suspense>
+        <Suspense fallback={<div className="mt-16 h-64 animate-pulse rounded-xl bg-muted/30" />}>
           <RelatedProducts productId={product.id} subcategoryId={product.subcategory_id} />
         </Suspense>
       ) : null}

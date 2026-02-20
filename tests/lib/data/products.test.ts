@@ -91,6 +91,24 @@ describe("getProductsByCategory", () => {
     expect(result).toHaveLength(1);
     expect(result[0].price).toBe(50000);
   });
+
+  it("exclut les produits inactifs", async () => {
+    const db = createTestDb();
+    const inactive = { ...BASE, id: "inactive", slug: "inactive", is_active: false };
+    await db.insert(schema.products).values([BASE, inactive]);
+    const result = await getProductsByCategory(db, "smartphones");
+    expect(result).toHaveLength(1);
+    expect(result[0].slug).toBe("iphone-16-pro");
+  });
+
+  it("trie par prix_asc", async () => {
+    const db = createTestDb();
+    const cheap = { ...BASE, id: "cheap", slug: "cheap", price: 100000, subcategory_id: null };
+    await db.insert(schema.products).values([BASE, cheap]);
+    const result = await getProductsByCategory(db, "smartphones", { tri: "prix_asc" });
+    expect(result[0].price).toBe(100000);
+    expect(result[1].price).toBe(899000);
+  });
 });
 
 describe("getProduct", () => {
@@ -106,6 +124,21 @@ describe("getProduct", () => {
     const result = await getProduct(db, "does-not-exist");
     expect(result).toBeNull();
   });
+
+  it("returns null for inactive product even if slug matches", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values({ ...BASE, is_active: false });
+    const result = await getProduct(db, "iphone-16-pro");
+    expect(result).toBeNull();
+  });
+
+  it("parses images and specs from JSON string", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values(BASE);
+    const result = await getProduct(db, "iphone-16-pro");
+    expect(Array.isArray(result?.images)).toBe(true);
+    expect(typeof result?.specs).toBe("object");
+  });
 });
 
 describe("getRelatedProducts", () => {
@@ -113,6 +146,29 @@ describe("getRelatedProducts", () => {
     const db = createTestDb();
     const other = { ...BASE, id: "iphone-15", slug: "iphone-15", name: "iPhone 15" };
     await db.insert(schema.products).values([BASE, other]);
+    const result = await getRelatedProducts(db, "iphone-16-pro", "iphone");
+    expect(result).toHaveLength(1);
+    expect(result[0].slug).toBe("iphone-15");
+  });
+
+  it("limite à 4 produits maximum", async () => {
+    const db = createTestDb();
+    const related = Array.from({ length: 5 }, (_, i) => ({
+      ...BASE,
+      id: `iphone-${i}`,
+      slug: `iphone-${i}`,
+      name: `iPhone ${i}`,
+    }));
+    await db.insert(schema.products).values([BASE, ...related]);
+    const result = await getRelatedProducts(db, "iphone-16-pro", "iphone");
+    expect(result.length).toBeLessThanOrEqual(4);
+  });
+
+  it("exclut les produits inactifs", async () => {
+    const db = createTestDb();
+    const active = { ...BASE, id: "iphone-15", slug: "iphone-15", name: "iPhone 15" };
+    const inactive = { ...BASE, id: "iphone-14", slug: "iphone-14", name: "iPhone 14", is_active: false };
+    await db.insert(schema.products).values([BASE, active, inactive]);
     const result = await getRelatedProducts(db, "iphone-16-pro", "iphone");
     expect(result).toHaveLength(1);
     expect(result[0].slug).toBe("iphone-15");

@@ -19,5 +19,16 @@ export const products = sqliteTable("products", {
   created_at: integer("created_at", { mode: "timestamp" }).notNull(),
 });
 
-export type Product = typeof products.$inferSelect;
+export type ProductBadge = "Nouveau" | "Populaire" | "Promo";
+
+// Ligne brute telle que retournée par Drizzle (images/specs en JSON string)
+type ProductRow = typeof products.$inferSelect;
+
+// Type utilisé dans les composants et les pages (images/specs parsés, badge union)
+export type Product = Omit<ProductRow, "images" | "specs" | "badge"> & {
+  images: string[];
+  specs: Record<string, string>;
+  badge: ProductBadge | null;
+};
+
 export type NewProduct = typeof products.$inferInsert;

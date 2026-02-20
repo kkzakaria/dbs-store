@@ -6,12 +6,12 @@ import { getProductsByCategory, getPromoProducts } from "@/lib/data/products";
 import { ProductCard } from "@/components/products/product-card";
 
 const categoryHighlights = [
-  { name: "Smartphones", slug: "smartphones", icon: Smartphone, count: 48 },
-  { name: "Tablettes", slug: "tablettes", icon: Tablet, count: 24 },
-  { name: "Ordinateurs", slug: "ordinateurs", icon: Laptop, count: 36 },
-  { name: "Montres connectées", slug: "montres-connectees", icon: Watch, count: 18 },
-  { name: "Audio", slug: "audio", icon: Headphones, count: 32 },
-  { name: "Accessoires", slug: "accessoires", icon: Cable, count: 56 },
+  { name: "Smartphones", slug: "smartphones", icon: Smartphone },
+  { name: "Tablettes", slug: "tablettes", icon: Tablet },
+  { name: "Ordinateurs", slug: "ordinateurs", icon: Laptop },
+  { name: "Montres connectées", slug: "montres-connectees", icon: Watch },
+  { name: "Audio", slug: "audio", icon: Headphones },
+  { name: "Accessoires", slug: "accessoires", icon: Cable },
 ];
 
 export default async function HomePage() {
@@ -61,10 +61,7 @@ export default async function HomePage() {
               <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
                 <cat.icon className="size-6" />
               </div>
-              <div>
-                <p className="text-sm font-medium">{cat.name}</p>
-                <p className="mt-0.5 text-xs text-muted-foreground">{cat.count} produits</p>
-              </div>
+              <p className="text-sm font-medium">{cat.name}</p>
             </Link>
           ))}
         </div>

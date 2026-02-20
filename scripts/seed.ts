@@ -256,4 +256,7 @@ async function main() {
   console.log(`✓ ${seed.length} produits insérés`);
 }
 
-main().catch(console.error);
+main().catch((err) => {
+  console.error("[seed] Erreur fatale:", err);
+  process.exit(1);
+});
