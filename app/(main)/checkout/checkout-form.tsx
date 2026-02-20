@@ -1,5 +1,5 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/lib/cart";
 import { createOrder } from "@/lib/actions/orders";
@@ -20,13 +20,29 @@ export function CheckoutForm() {
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
+  // Wait for Zustand persist to rehydrate from localStorage before checking the cart.
+  // Without this, the empty-cart guard fires on the first render (before localStorage loads)
+  // and silently redirects the user to / before they even see the form.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    if (useCartStore.persist.hasHydrated()) {
+      setHydrated(true);
+    } else {
+      return useCartStore.persist.onFinishHydration(() => setHydrated(true));
+    }
+  }, []);
+
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
 
-  if (itemCount === 0) {
-    router.replace("/");
-    return null;
-  }
+  // Redirect to home if cart is empty — only after hydration is confirmed
+  useEffect(() => {
+    if (hydrated && itemCount === 0) {
+      router.replace("/");
+    }
+  }, [hydrated, itemCount, router]);
+
+  if (!hydrated || itemCount === 0) return null;
 
   function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -41,18 +57,19 @@ export function CheckoutForm() {
           address: fd.get("address") as string,
           notes: fd.get("notes") as string,
           payment_method: "cod",
-          items: items.map((i) => ({
-            productId: i.productId,
-            name: i.name,
-            slug: i.slug,
-            price: i.price,
-            image: i.image,
-            quantity: i.quantity,
-          })),
+          items,
         });
         useCartStore.getState().clear();
         router.push(`/commande/${orderId}`);
-      } catch {
+      } catch (err) {
+        // Re-throw Next.js redirect/notFound control-flow errors — they must not be swallowed
+        if (
+          err instanceof Error &&
+          (err as { digest?: string }).digest?.startsWith("NEXT_")
+        ) {
+          throw err;
+        }
+        console.error("[checkout] createOrder failed:", err);
         setError("Une erreur est survenue. Veuillez réessayer.");
       }
     });

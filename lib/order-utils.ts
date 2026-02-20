@@ -1,13 +1,8 @@
+import type { CartItem } from "@/lib/cart";
 import type { PaymentMethod } from "@/lib/db/schema";
 
-export type CartItemInput = {
-  productId: string;
-  name: string;
-  slug: string;
-  price: number;
-  image: string;
-  quantity: number;
-};
+// CartItemInput is structurally identical to CartItem — use the same type to avoid drift
+export type CartItemInput = CartItem;
 
 export function buildOrder(items: CartItemInput[], paymentMethod: PaymentMethod) {
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);

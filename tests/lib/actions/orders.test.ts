@@ -35,4 +35,18 @@ describe("buildOrder", () => {
     expect(result.shipping_fee).toBe(0);
     expect(result.total).toBe(75_000);
   });
+
+  it("returns zero totals for empty items array", () => {
+    const result = buildOrder([], "cod");
+    expect(result.subtotal).toBe(0);
+    expect(result.shipping_fee).toBe(0);
+    expect(result.total).toBe(0);
+  });
+
+  it("forwards the paymentMethod in its result", () => {
+    const items = [
+      { productId: "p1", name: "A", slug: "a", price: 10_000, image: "/a.svg", quantity: 1 },
+    ];
+    expect(buildOrder(items, "cod").paymentMethod).toBe("cod");
+  });
 });
