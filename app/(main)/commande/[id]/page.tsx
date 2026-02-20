@@ -12,12 +12,15 @@ type Props = { params: Promise<{ id: string }> };
 
 export default async function OrderConfirmationPage({ params }: Props) {
   const { id } = await params;
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) notFound();
-
   const db = getDb();
-  const [order] = await db.select().from(orders).where(eq(orders.id, id)).limit(1);
-  if (!order || order.user_id !== session.user.id) notFound();
+
+  // auth and order fetch are independent — run in parallel
+  const [session, [order]] = await Promise.all([
+    auth.api.getSession({ headers: await headers() }),
+    db.select().from(orders).where(eq(orders.id, id)).limit(1),
+  ]);
+
+  if (!session?.user || !order || order.user_id !== session.user.id) notFound();
 
   const items = await db.select().from(order_items).where(eq(order_items.order_id, id));
 

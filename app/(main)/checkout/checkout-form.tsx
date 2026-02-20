@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useCartStore } from "@/lib/cart";
 import { createOrder } from "@/lib/actions/orders";
@@ -15,43 +15,47 @@ function formatPrice(p: number) {
 
 export function CheckoutForm() {
   const router = useRouter();
-  const { items, total, count, clear } = useCartStore();
-  const [loading, setLoading] = useState(false);
+  // Subscribe only to items — derive count and total locally to avoid over-subscription
+  const items = useCartStore((s) => s.items);
+  const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
 
-  if (count() === 0) {
+  const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
+  const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);
+
+  if (itemCount === 0) {
     router.replace("/");
     return null;
   }
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+  function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
     setError(null);
     const fd = new FormData(e.currentTarget);
-    try {
-      const { orderId } = await createOrder({
-        name: fd.get("name") as string,
-        phone: fd.get("phone") as string,
-        city: fd.get("city") as string,
-        address: fd.get("address") as string,
-        notes: fd.get("notes") as string,
-        payment_method: "cod",
-        items: items.map((i) => ({
-          productId: i.productId,
-          name: i.name,
-          slug: i.slug,
-          price: i.price,
-          image: i.image,
-          quantity: i.quantity,
-        })),
-      });
-      clear();
-      router.push(`/commande/${orderId}`);
-    } catch {
-      setError("Une erreur est survenue. Veuillez réessayer.");
-      setLoading(false);
-    }
+    startTransition(async () => {
+      try {
+        const { orderId } = await createOrder({
+          name: fd.get("name") as string,
+          phone: fd.get("phone") as string,
+          city: fd.get("city") as string,
+          address: fd.get("address") as string,
+          notes: fd.get("notes") as string,
+          payment_method: "cod",
+          items: items.map((i) => ({
+            productId: i.productId,
+            name: i.name,
+            slug: i.slug,
+            price: i.price,
+            image: i.image,
+            quantity: i.quantity,
+          })),
+        });
+        useCartStore.getState().clear();
+        router.push(`/commande/${orderId}`);
+      } catch {
+        setError("Une erreur est survenue. Veuillez réessayer.");
+      }
+    });
   }
 
   return (
@@ -105,8 +109,8 @@ export function CheckoutForm() {
           </label>
         </fieldset>
         {error ? <p className="text-sm text-destructive">{error}</p> : null}
-        <Button type="submit" size="lg" className="w-full" disabled={loading}>
-          {loading ? "Traitement..." : "Confirmer la commande"}
+        <Button type="submit" size="lg" className="w-full" disabled={isPending}>
+          {isPending ? "Traitement..." : "Confirmer la commande"}
         </Button>
       </form>
 
@@ -125,7 +129,7 @@ export function CheckoutForm() {
         <Separator />
         <div className="flex justify-between font-bold">
           <span>Total</span>
-          <span>{formatPrice(total())} FCFA</span>
+          <span>{formatPrice(subtotal)} FCFA</span>
         </div>
         <p className="text-xs text-muted-foreground">
           Livraison gratuite en Côte d&apos;Ivoire.
