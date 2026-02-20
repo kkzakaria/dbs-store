@@ -9,13 +9,17 @@ import { useScrollState } from "@/hooks/use-scroll-state";
 import { DesktopNav } from "./desktop-nav";
 import { MobileMenuTrigger } from "./mobile-menu-trigger";
 import { CartIndicator } from "./cart-indicator";
-import { CartDrawer } from "@/components/cart/cart-drawer";
 import { UserMenu } from "./user-menu";
 import { cn } from "@/lib/utils";
 
 const SearchOverlay = dynamic(
   () => import("./search-overlay").then((m) => m.SearchOverlay),
   { loading: () => <div className="fixed inset-0 z-50 bg-background/80" /> }
+);
+
+const CartDrawer = dynamic(
+  () => import("@/components/cart/cart-drawer").then((m) => m.CartDrawer),
+  { ssr: false }
 );
 
 export function AppBar() {
