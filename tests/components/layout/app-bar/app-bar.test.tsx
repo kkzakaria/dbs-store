@@ -28,8 +28,8 @@ describe("AppBar", () => {
     expect(screen.getByRole("button", { name: /rechercher/i })).toBeInTheDocument();
   });
 
-  it("renders cart link", () => {
+  it("renders cart button", () => {
     render(<AppBar />);
-    expect(screen.getByRole("link", { name: /panier/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /panier/i })).toBeInTheDocument();
   });
 });
