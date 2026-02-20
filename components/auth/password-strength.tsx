@@ -17,7 +17,7 @@ export function getPasswordStrength(password: string): 0 | 1 | 2 | 3 | 4 {
   if (password.length >= 8) score++;
   if (UPPERCASE_RE.test(password) && DIGIT_RE.test(password)) score++;
   if (SPECIAL_RE.test(password) || password.length >= 12) score++;
-  return Math.min(score, 4);
+  return Math.min(score, 4) as 0 | 1 | 2 | 3 | 4;
 }
 
 interface PasswordStrengthProps {
