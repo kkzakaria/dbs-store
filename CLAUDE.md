@@ -16,6 +16,8 @@ E-commerce store for electronics in Ivory Coast / UEMOA zone. French locale.
 - `bun run test:watch` — watch mode
 - `bun run lint` — ESLint
 - `bun run build` — production build
+- `bun run db:migrate` — apply SQLite migrations (required before first seed)
+- `bun run db:seed` — insert demo products (runs via tsx/Node, not Bun runtime)
 
 ## Project Structure
 
@@ -45,3 +47,6 @@ E-commerce store for electronics in Ivory Coast / UEMOA zone. French locale.
 
 - `margin-top` on sticky elements does NOT create viewport offset — use the `top` CSS property instead
 - Dev server runs on port 33000 (not default 3000)
+- `better-sqlite3` is NOT supported in the Bun runtime — seed/migration scripts run via `tsx` (Node.js) under the hood; `bun run db:*` works, bare `bun scripts/seed.ts` does not
+- Run `bun install` then `bun run db:migrate` before `bun run db:seed` on a fresh clone
+- ESLint has ~16 pre-existing errors (unescaped entities, `any` types in auth/app-bar) — `bun run lint` failing does not indicate a regression from new code
