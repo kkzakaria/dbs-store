@@ -5,15 +5,9 @@ export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isAdminRoute = pathname.startsWith("/admin");
 
-  // For admin routes, fire both checks in parallel (async-parallel)
-  const sessionPromise = auth.api.getSession({ headers: request.headers });
-  const orgsPromise = isAdminRoute
-    ? auth.api.listOrganizations({ headers: request.headers })
-    : null;
-
   let session: Awaited<ReturnType<typeof auth.api.getSession>>;
   try {
-    session = await sessionPromise;
+    session = await auth.api.getSession({ headers: request.headers });
   } catch (err) {
     console.error(`[proxy] getSession failed (${pathname}):`, err);
     const url = new URL("/connexion", request.url);
@@ -33,11 +27,11 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL("/email-non-verifie", request.url));
   }
 
-  // Admin routes — check org membership (already started in parallel)
+  // Admin routes — check org membership
   if (isAdminRoute) {
-    let orgs: Awaited<ReturnType<typeof auth.api.listOrganizations>> | null;
+    let orgs: Awaited<ReturnType<typeof auth.api.listOrganizations>>;
     try {
-      orgs = await orgsPromise;
+      orgs = await auth.api.listOrganizations({ headers: request.headers });
     } catch (err) {
       console.error(`[proxy] listOrganizations failed (${pathname}):`, err);
       const url = new URL("/connexion", request.url);

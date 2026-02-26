@@ -99,10 +99,29 @@ describe("proxy", () => {
     expect(response.status).toBe(307);
     expect(location.pathname).toBe("/connexion");
     expect(location.searchParams.get("callbackUrl")).toBe("/compte/profil");
+    expect(consoleSpy).toHaveBeenCalledTimes(1);
     expect(consoleSpy).toHaveBeenCalledWith(
       "[proxy] getSession failed (/compte/profil):",
       err
     );
+  });
+
+  it("redirects to /connexion and logs error when getSession throws on admin route", async () => {
+    const err = new Error("service down");
+    mockGetSession.mockRejectedValue(err);
+
+    const response = await proxy(createRequest("/admin/dashboard"));
+    const location = new URL(response.headers.get("location")!);
+
+    expect(response.status).toBe(307);
+    expect(location.pathname).toBe("/connexion");
+    expect(location.searchParams.get("callbackUrl")).toBe("/admin/dashboard");
+    expect(consoleSpy).toHaveBeenCalledTimes(1);
+    expect(consoleSpy).toHaveBeenCalledWith(
+      "[proxy] getSession failed (/admin/dashboard):",
+      err
+    );
+    expect(mockListOrganizations).not.toHaveBeenCalled();
   });
 
   it("redirects to /connexion with callbackUrl and logs error when listOrganizations fails", async () => {
@@ -116,6 +135,7 @@ describe("proxy", () => {
     expect(response.status).toBe(307);
     expect(location.pathname).toBe("/connexion");
     expect(location.searchParams.get("callbackUrl")).toBe("/admin/dashboard");
+    expect(consoleSpy).toHaveBeenCalledTimes(1);
     expect(consoleSpy).toHaveBeenCalledWith(
       "[proxy] listOrganizations failed (/admin/dashboard):",
       err
