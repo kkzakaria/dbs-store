@@ -34,9 +34,7 @@ export async function proxy(request: NextRequest) {
       orgs = await auth.api.listOrganizations({ headers: request.headers });
     } catch (err) {
       console.error(`[proxy] listOrganizations failed (${pathname}):`, err);
-      const url = new URL("/connexion", request.url);
-      url.searchParams.set("callbackUrl", pathname);
-      return NextResponse.redirect(url);
+      return NextResponse.redirect(new URL("/", request.url));
     }
 
     const isMember =
@@ -44,6 +42,7 @@ export async function proxy(request: NextRequest) {
       orgs.some((org: { slug: string }) => org.slug === "dbs-store");
 
     if (!isMember) {
+      console.warn(`[proxy] accès admin refusé (${pathname}): non membre de l'organisation`);
       return NextResponse.redirect(new URL("/", request.url));
     }
   }

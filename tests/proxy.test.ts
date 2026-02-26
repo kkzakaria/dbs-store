@@ -27,17 +27,20 @@ describe("proxy config", () => {
 
 describe("proxy", () => {
   let proxy: (req: NextRequest) => Promise<Response>;
-  let consoleSpy: ReturnType<typeof vi.spyOn>;
+  let errorSpy: ReturnType<typeof vi.spyOn>;
+  let warnSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
     const mod = await import("@/proxy");
     proxy = mod.proxy;
   });
 
   afterEach(() => {
-    consoleSpy.mockRestore();
+    errorSpy.mockRestore();
+    warnSpy.mockRestore();
   });
 
   it("redirects to /connexion with callbackUrl when not authenticated", async () => {
@@ -67,6 +70,7 @@ describe("proxy", () => {
     const response = await proxy(createRequest("/compte/profil"));
 
     expect(response.status).toBe(200);
+    expect(mockListOrganizations).not.toHaveBeenCalled();
   });
 
   it("redirects to / when authenticated user is not org member on /admin", async () => {
@@ -99,8 +103,8 @@ describe("proxy", () => {
     expect(response.status).toBe(307);
     expect(location.pathname).toBe("/connexion");
     expect(location.searchParams.get("callbackUrl")).toBe("/compte/profil");
-    expect(consoleSpy).toHaveBeenCalledTimes(1);
-    expect(consoleSpy).toHaveBeenCalledWith(
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledWith(
       "[proxy] getSession failed (/compte/profil):",
       err
     );
@@ -116,15 +120,15 @@ describe("proxy", () => {
     expect(response.status).toBe(307);
     expect(location.pathname).toBe("/connexion");
     expect(location.searchParams.get("callbackUrl")).toBe("/admin/dashboard");
-    expect(consoleSpy).toHaveBeenCalledTimes(1);
-    expect(consoleSpy).toHaveBeenCalledWith(
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledWith(
       "[proxy] getSession failed (/admin/dashboard):",
       err
     );
     expect(mockListOrganizations).not.toHaveBeenCalled();
   });
 
-  it("redirects to /connexion with callbackUrl and logs error when listOrganizations fails", async () => {
+  it("redirects to / and logs error when listOrganizations fails", async () => {
     const err = new Error("org service down");
     mockGetSession.mockResolvedValue({ user: { id: "1", name: "Admin", emailVerified: true } });
     mockListOrganizations.mockRejectedValue(err);
@@ -133,12 +137,22 @@ describe("proxy", () => {
     const location = new URL(response.headers.get("location")!);
 
     expect(response.status).toBe(307);
-    expect(location.pathname).toBe("/connexion");
-    expect(location.searchParams.get("callbackUrl")).toBe("/admin/dashboard");
-    expect(consoleSpy).toHaveBeenCalledTimes(1);
-    expect(consoleSpy).toHaveBeenCalledWith(
+    expect(location.pathname).toBe("/");
+    expect(errorSpy).toHaveBeenCalledTimes(1);
+    expect(errorSpy).toHaveBeenCalledWith(
       "[proxy] listOrganizations failed (/admin/dashboard):",
       err
     );
+  });
+
+  it("redirects to / when listOrganizations returns null or non-array", async () => {
+    mockGetSession.mockResolvedValue({ user: { id: "1", name: "Admin", emailVerified: true } });
+    mockListOrganizations.mockResolvedValue(null);
+
+    const response = await proxy(createRequest("/admin/dashboard"));
+    const location = new URL(response.headers.get("location")!);
+
+    expect(response.status).toBe(307);
+    expect(location.pathname).toBe("/");
   });
 });
