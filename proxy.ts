@@ -12,7 +12,7 @@ export async function proxy(request: NextRequest) {
     });
     const orgsPromise = isAdminRoute
       ? auth.api.listOrganizations({ headers: request.headers }).catch((err) => {
-          console.error("[proxy] listOrganizations failed:", err);
+          console.error(`[proxy] listOrganizations failed (${pathname}):`, err);
           return null;
         })
       : null;
@@ -46,7 +46,7 @@ export async function proxy(request: NextRequest) {
 
     return NextResponse.next();
   } catch (err) {
-    console.error("[proxy] Auth check failed:", err);
+    console.error(`[proxy] Auth check failed (${pathname}):`, err);
     const signInUrl = new URL("/connexion", request.url);
     signInUrl.searchParams.set("callbackUrl", pathname);
     return NextResponse.redirect(signInUrl);
