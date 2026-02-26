@@ -98,13 +98,14 @@ describe("proxy", () => {
 
     expect(response.status).toBe(307);
     expect(location.pathname).toBe("/connexion");
+    expect(location.searchParams.get("callbackUrl")).toBe("/compte/profil");
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("[proxy] Auth check failed (/compte/profil):"),
+      "[proxy] getSession failed (/compte/profil):",
       err
     );
   });
 
-  it("redirects to / and logs error when listOrganizations fails for admin routes", async () => {
+  it("redirects to /connexion with callbackUrl and logs error when listOrganizations fails", async () => {
     const err = new Error("org service down");
     mockGetSession.mockResolvedValue({ user: { id: "1", name: "Admin", emailVerified: true } });
     mockListOrganizations.mockRejectedValue(err);
@@ -113,9 +114,10 @@ describe("proxy", () => {
     const location = new URL(response.headers.get("location")!);
 
     expect(response.status).toBe(307);
-    expect(location.pathname).toBe("/");
+    expect(location.pathname).toBe("/connexion");
+    expect(location.searchParams.get("callbackUrl")).toBe("/admin/dashboard");
     expect(consoleSpy).toHaveBeenCalledWith(
-      expect.stringContaining("[proxy] listOrganizations failed (/admin/dashboard):"),
+      "[proxy] listOrganizations failed (/admin/dashboard):",
       err
     );
   });
