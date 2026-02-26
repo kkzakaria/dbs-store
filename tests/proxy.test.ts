@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { NextRequest } from "next/server";
 
 const mockGetSession = vi.fn();
@@ -27,11 +27,17 @@ describe("proxy config", () => {
 
 describe("proxy", () => {
   let proxy: (req: NextRequest) => Promise<Response>;
+  let consoleSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     const mod = await import("@/proxy");
     proxy = mod.proxy;
+  });
+
+  afterEach(() => {
+    consoleSpy.mockRestore();
   });
 
   it("redirects to /connexion with callbackUrl when not authenticated", async () => {
@@ -83,24 +89,34 @@ describe("proxy", () => {
     expect(response.status).toBe(200);
   });
 
-  it("redirects to /connexion when getSession throws", async () => {
-    mockGetSession.mockRejectedValue(new Error("service down"));
+  it("redirects to /connexion and logs error when getSession throws", async () => {
+    const err = new Error("service down");
+    mockGetSession.mockRejectedValue(err);
 
     const response = await proxy(createRequest("/compte/profil"));
     const location = new URL(response.headers.get("location")!);
 
     expect(response.status).toBe(307);
     expect(location.pathname).toBe("/connexion");
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining("[proxy] Auth check failed (/compte/profil):"),
+      err
+    );
   });
 
-  it("redirects to / when listOrganizations fails for admin routes", async () => {
+  it("redirects to / and logs error when listOrganizations fails for admin routes", async () => {
+    const err = new Error("org service down");
     mockGetSession.mockResolvedValue({ user: { id: "1", name: "Admin", emailVerified: true } });
-    mockListOrganizations.mockRejectedValue(new Error("org service down"));
+    mockListOrganizations.mockRejectedValue(err);
 
     const response = await proxy(createRequest("/admin/dashboard"));
     const location = new URL(response.headers.get("location")!);
 
     expect(response.status).toBe(307);
     expect(location.pathname).toBe("/");
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining("[proxy] listOrganizations failed (/admin/dashboard):"),
+      err
+    );
   });
 });
