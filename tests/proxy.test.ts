@@ -82,6 +82,11 @@ describe("proxy", () => {
 
     expect(response.status).toBe(307);
     expect(location.pathname).toBe("/");
+    expect(warnSpy).toHaveBeenCalledTimes(1);
+    expect(warnSpy).toHaveBeenCalledWith(
+      "[proxy] accès admin refusé (/admin/dashboard): non membre de l'organisation"
+    );
+    expect(errorSpy).not.toHaveBeenCalled();
   });
 
   it("allows org members through on /admin routes", async () => {
@@ -145,14 +150,17 @@ describe("proxy", () => {
     );
   });
 
-  it("redirects to / when listOrganizations returns null or non-array", async () => {
-    mockGetSession.mockResolvedValue({ user: { id: "1", name: "Admin", emailVerified: true } });
-    mockListOrganizations.mockResolvedValue(null);
+  it.each([null, {}])(
+    "redirects to / when listOrganizations returns a non-array value (%s)",
+    async (returnValue) => {
+      mockGetSession.mockResolvedValue({ user: { id: "1", name: "Admin", emailVerified: true } });
+      mockListOrganizations.mockResolvedValue(returnValue);
 
-    const response = await proxy(createRequest("/admin/dashboard"));
-    const location = new URL(response.headers.get("location")!);
+      const response = await proxy(createRequest("/admin/dashboard"));
+      const location = new URL(response.headers.get("location")!);
 
-    expect(response.status).toBe(307);
-    expect(location.pathname).toBe("/");
-  });
+      expect(response.status).toBe(307);
+      expect(location.pathname).toBe("/");
+    }
+  );
 });
