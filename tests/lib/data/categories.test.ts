@@ -2,9 +2,9 @@ import { describe, it, expect } from "vitest";
 import { categories, getTopLevelCategories, getSubcategories } from "@/lib/data/categories";
 
 describe("categories", () => {
-  it("has 8 top-level categories", () => {
+  it("has 11 top-level categories", () => {
     const topLevel = getTopLevelCategories();
-    expect(topLevel).toHaveLength(8);
+    expect(topLevel).toHaveLength(11);
   });
 
   it("top-level categories have no parent_id", () => {
@@ -14,9 +14,9 @@ describe("categories", () => {
     });
   });
 
-  it("smartphones has 5 subcategories", () => {
+  it("smartphones has 6 subcategories", () => {
     const subs = getSubcategories("smartphones");
-    expect(subs).toHaveLength(5);
+    expect(subs).toHaveLength(6);
   });
 
   it("offres has no subcategories", () => {

@@ -1,7 +1,15 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MobileMenuTrigger } from "@/components/layout/app-bar/mobile-menu-trigger";
+
+vi.mock("@/components/layout/app-bar/mobile-menu", () => ({
+  MobileMenu: ({ onClose }: { onClose: () => void }) => (
+    <div role="dialog" aria-modal="true">
+      <button onClick={onClose}>Fermer</button>
+    </div>
+  ),
+}));
 
 describe("MobileMenuTrigger", () => {
   it("renders the menu button", () => {
