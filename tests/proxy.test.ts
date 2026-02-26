@@ -83,7 +83,8 @@ describe("proxy", () => {
     expect(response.status).toBe(200);
   });
 
-  it("redirects to /connexion when getSession throws", async () => {
+  it("redirects to /connexion and logs error when getSession throws", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockGetSession.mockRejectedValue(new Error("service down"));
 
     const response = await proxy(createRequest("/compte/profil"));
@@ -91,9 +92,15 @@ describe("proxy", () => {
 
     expect(response.status).toBe(307);
     expect(location.pathname).toBe("/connexion");
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining("[proxy] Auth check failed:"),
+      expect.any(Error)
+    );
+    consoleSpy.mockRestore();
   });
 
-  it("redirects to / when listOrganizations fails for admin routes", async () => {
+  it("redirects to / and logs error when listOrganizations fails for admin routes", async () => {
+    const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     mockGetSession.mockResolvedValue({ user: { id: "1", name: "Admin", emailVerified: true } });
     mockListOrganizations.mockRejectedValue(new Error("org service down"));
 
@@ -102,5 +109,10 @@ describe("proxy", () => {
 
     expect(response.status).toBe(307);
     expect(location.pathname).toBe("/");
+    expect(consoleSpy).toHaveBeenCalledWith(
+      expect.stringContaining("[proxy] listOrganizations failed:"),
+      expect.any(Error)
+    );
+    consoleSpy.mockRestore();
   });
 });
