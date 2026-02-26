@@ -3,6 +3,7 @@ import { persist, createJSONStorage } from "zustand/middleware";
 
 const safeLocalStorage = createJSONStorage(() => ({
   getItem(name: string) {
+    if (typeof window === "undefined") return null;
     try {
       return localStorage.getItem(name);
     } catch (e) {
@@ -11,6 +12,7 @@ const safeLocalStorage = createJSONStorage(() => ({
     }
   },
   setItem(name: string, value: string) {
+    if (typeof window === "undefined") return;
     try {
       localStorage.setItem(name, value);
     } catch (e) {
@@ -18,6 +20,7 @@ const safeLocalStorage = createJSONStorage(() => ({
     }
   },
   removeItem(name: string) {
+    if (typeof window === "undefined") return;
     try {
       localStorage.removeItem(name);
     } catch (e) {

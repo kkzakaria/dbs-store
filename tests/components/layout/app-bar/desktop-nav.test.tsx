@@ -4,16 +4,14 @@ import userEvent from "@testing-library/user-event";
 import { DesktopNav } from "@/components/layout/app-bar/desktop-nav";
 
 describe("DesktopNav", () => {
-  it("renders all 8 category links", () => {
+  it("renders 6 visible category links", () => {
     render(<DesktopNav />);
     expect(screen.getByText("Smartphones")).toBeInTheDocument();
     expect(screen.getByText("Tablettes")).toBeInTheDocument();
     expect(screen.getByText("Ordinateurs")).toBeInTheDocument();
     expect(screen.getByText("Montres connectées")).toBeInTheDocument();
     expect(screen.getByText("Audio")).toBeInTheDocument();
-    expect(screen.getByText("Accessoires")).toBeInTheDocument();
-    expect(screen.getByText("Offres")).toBeInTheDocument();
-    expect(screen.getByText("Support")).toBeInTheDocument();
+    expect(screen.getByText("Caméras & Drones")).toBeInTheDocument();
   });
 
   it("categories with subcategories have chevron buttons", () => {
@@ -22,18 +20,15 @@ describe("DesktopNav", () => {
     expect(smartphonesButton).toBeInTheDocument();
   });
 
-  it("offres links directly (no chevron)", () => {
+  it("shows overflow categories in Plus menu", async () => {
+    const user = userEvent.setup();
     render(<DesktopNav />);
-    const offresLink = screen.getByRole("link", { name: /offres/i });
-    expect(offresLink).toBeInTheDocument();
-    expect(offresLink).toHaveAttribute("href", "/offres");
-  });
 
-  it("support links directly (no chevron)", () => {
-    render(<DesktopNav />);
-    const supportLink = screen.getByRole("link", { name: /support/i });
-    expect(supportLink).toBeInTheDocument();
-    expect(supportLink).toHaveAttribute("href", "/support");
+    await user.hover(screen.getByRole("button", { name: /plus de catégories/i }));
+
+    expect(screen.getByRole("link", { name: /offres/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /support/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /accessoires/i })).toBeInTheDocument();
   });
 
   it("opens category tray on hover", async () => {
