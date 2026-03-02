@@ -116,7 +116,11 @@ export function ProductForm({ initial, action, submitLabel }: ProductFormProps) 
 
         <div>
           <Label htmlFor="category">Catégorie</Label>
-          <Select value={categoryId} onValueChange={setCategoryId} required>
+          <Select
+            value={categoryId}
+            onValueChange={(v) => { setCategoryId(v); setSubcategoryId(""); }}
+            required
+          >
             <SelectTrigger id="category">
               <SelectValue placeholder="Choisir..." />
             </SelectTrigger>

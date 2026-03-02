@@ -12,11 +12,11 @@ interface SpecEditorProps {
 export function SpecEditor({ specs, onChange }: SpecEditorProps) {
   const entries = Object.entries(specs);
 
-  function updateKey(oldKey: string, newKey: string) {
+  function updateKey(index: number, oldKey: string, newKey: string) {
     const next: Record<string, string> = {};
-    for (const [k, v] of entries) {
-      next[k === oldKey ? newKey : k] = v;
-    }
+    entries.forEach(([k, v], i) => {
+      next[i === index ? newKey : k] = v;
+    });
     onChange(next);
   }
 
@@ -37,11 +37,11 @@ export function SpecEditor({ specs, onChange }: SpecEditorProps) {
 
   return (
     <div className="space-y-2">
-      {entries.map(([key, value]) => (
-        <div key={key} className="flex items-center gap-2">
+      {entries.map(([key, value], index) => (
+        <div key={index} className="flex items-center gap-2">
           <Input
             value={key}
-            onChange={(e) => updateKey(key, e.target.value)}
+            onChange={(e) => updateKey(index, key, e.target.value)}
             placeholder="Clé"
             className="w-40"
           />

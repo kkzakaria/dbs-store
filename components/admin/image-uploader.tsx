@@ -21,6 +21,8 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
     setError(null);
 
     const uploaded: string[] = [];
+    const failedFiles: string[] = [];
+
     for (const file of Array.from(files)) {
       try {
         const { uploadUrl, publicUrl } = await generatePresignedUrl(
@@ -35,9 +37,13 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
         if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
         uploaded.push(publicUrl);
       } catch (err) {
-        setError(`Échec de l'upload de ${file.name}`);
+        failedFiles.push(file.name);
         console.error(err);
       }
+    }
+
+    if (failedFiles.length > 0) {
+      setError(`Échec de l'upload : ${failedFiles.join(", ")}`);
     }
 
     onChange([...images, ...uploaded]);
