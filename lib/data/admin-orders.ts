@@ -1,4 +1,5 @@
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, and, sql } from "drizzle-orm";
+import type { SQL } from "drizzle-orm";
 import { orders, order_items } from "@/lib/db/schema";
 import type { Order, OrderItem, OrderStatus } from "@/lib/db/schema";
 import type { Db } from "@/lib/db";
@@ -17,20 +18,34 @@ export async function getAdminOrders(
   db: Db,
   filters: { status?: OrderStatus } = {},
   page = 1
-): Promise<Order[]> {
+): Promise<{ orders: Order[]; total: number }> {
   const offset = (page - 1) * ORDERS_PAGE_SIZE;
-  let query = db
-    .select()
-    .from(orders)
-    .orderBy(desc(orders.created_at))
-    .limit(ORDERS_PAGE_SIZE)
-    .offset(offset);
 
+  const conditions: SQL[] = [];
   if (filters.status) {
-    query = query.where(eq(orders.status, filters.status)) as typeof query;
+    conditions.push(eq(orders.status, filters.status));
   }
 
-  return query;
+  const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const [rows, countResult] = await Promise.all([
+    db
+      .select()
+      .from(orders)
+      .where(whereClause)
+      .orderBy(desc(orders.created_at))
+      .limit(ORDERS_PAGE_SIZE)
+      .offset(offset),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(orders)
+      .where(whereClause),
+  ]);
+
+  return {
+    orders: rows,
+    total: Number(countResult[0]?.count ?? 0),
+  };
 }
 
 export async function getAdminOrderById(

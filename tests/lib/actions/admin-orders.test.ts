@@ -43,4 +43,25 @@ describe("updateOrderStatus", () => {
     mockDb.limit.mockResolvedValueOnce([]);
     await expect(updateOrderStatus("unknown", "confirmed")).rejects.toThrow("ORDER_NOT_FOUND");
   });
+
+  it("met à jour le statut pour une transition valide", async () => {
+    mockDb.limit.mockResolvedValueOnce([
+      { id: "o1", status: "pending", payment_method: "card" },
+    ]);
+    await updateOrderStatus("o1", "confirmed");
+    expect(mockDb.update).toHaveBeenCalled();
+    expect(mockDb.set).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "confirmed" })
+    );
+  });
+
+  it("définit payment_status=paid pour COD à la livraison", async () => {
+    mockDb.limit.mockResolvedValueOnce([
+      { id: "o2", status: "shipped", payment_method: "cod" },
+    ]);
+    await updateOrderStatus("o2", "delivered");
+    expect(mockDb.set).toHaveBeenCalledWith(
+      expect.objectContaining({ status: "delivered", payment_status: "paid" })
+    );
+  });
 });
