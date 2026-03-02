@@ -1,6 +1,8 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { UserMenu } from "@/components/layout/app-bar/user-menu";
+import * as useIsAdminModule from "@/hooks/use-is-admin";
 
 const { mockUseSession, mockSignOut } = vi.hoisted(() => ({
   mockUseSession: vi.fn(),
@@ -14,6 +16,10 @@ vi.mock("@/lib/auth-client", () => ({
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
+}));
+
+vi.mock("@/hooks/use-is-admin", () => ({
+  useIsAdmin: vi.fn(() => false),
 }));
 
 describe("UserMenu", () => {
@@ -30,5 +36,17 @@ describe("UserMenu", () => {
     });
     render(<UserMenu />);
     expect(screen.getByRole("button", { name: /compte/i })).toBeInTheDocument();
+  });
+
+  it("affiche le lien Administration pour les membres org", async () => {
+    vi.mocked(useIsAdminModule.useIsAdmin).mockReturnValue(true);
+    mockUseSession.mockReturnValue({
+      data: { user: { name: "Admin", email: "admin@dbs.ci" } },
+      isPending: false,
+    });
+    const user = userEvent.setup();
+    render(<UserMenu />);
+    await user.click(screen.getByRole("button", { name: /compte/i }));
+    expect(screen.getByRole("menuitem", { name: /administration/i })).toBeInTheDocument();
   });
 });

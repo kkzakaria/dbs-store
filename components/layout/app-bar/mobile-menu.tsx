@@ -117,7 +117,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
         ) : (
           <div className="grid gap-1 pt-2">
             <Link
-              href={`/categorie/${activeCategory.slug}`}
+              href={`/${activeCategory.slug}`}
               className="rounded-lg px-4 py-3 text-sm font-semibold text-primary transition-colors hover:bg-primary/5"
               onClick={handleClose}
             >
@@ -126,7 +126,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
             {getSubcategories(activeCategory.id).map((sub) => (
               <Link
                 key={sub.id}
-                href={`/categorie/${activeCategory.slug}/${sub.slug}`}
+                href={`/${sub.slug}`}
                 className="rounded-lg px-4 py-3 text-sm font-medium transition-colors hover:bg-muted"
                 onClick={handleClose}
               >
