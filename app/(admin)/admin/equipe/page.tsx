@@ -3,8 +3,8 @@ import { headers } from "next/headers";
 import { TeamManagement } from "@/components/admin/team-management";
 
 export default async function AdminEquipePage() {
-  const session = await auth.api.getSession({ headers: await headers() });
   const h = await headers();
+  const session = await auth.api.getSession({ headers: h });
 
   let members: Array<{
     id: string;
