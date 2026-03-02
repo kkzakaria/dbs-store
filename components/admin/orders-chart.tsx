@@ -32,8 +32,9 @@ export function OrdersChart({ data }: OrdersChartProps) {
                 height={barH}
                 className="fill-primary opacity-80"
                 rx={2}
-              />
-              <title>{`${d.date}: ${d.count}`}</title>
+              >
+                <title>{`${d.date}: ${d.count}`}</title>
+              </rect>
             </g>
           );
         })}

@@ -2,14 +2,7 @@ import { getDb } from "@/lib/db";
 import { getAdminStats } from "@/lib/data/admin-stats";
 import { StatsCard } from "@/components/admin/stats-card";
 import { OrdersChart } from "@/components/admin/orders-chart";
-
-function formatFCFA(amount: number): string {
-  return new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency: "XOF",
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
+import { formatFCFA } from "@/lib/utils";
 
 export default async function AdminDashboardPage() {
   const db = getDb();

@@ -12,9 +12,9 @@ export type AdminStats = {
 
 export async function getAdminStats(db: Db): Promise<AdminStats> {
   const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+  const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+  const monthStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+  const sevenDaysAgo = new Date(now.getTime() - 6 * 24 * 60 * 60 * 1000);
 
   const [ordersToday, revenueMonth, pendingOrders, lowStockProducts, recentOrders] =
     await Promise.all([
@@ -56,7 +56,11 @@ export async function getAdminStats(db: Db): Promise<AdminStats> {
   // Grouper les commandes par jour (7 derniers jours)
   const countByDay = new Map<string, number>();
   for (let i = 6; i >= 0; i--) {
-    const d = new Date(now.getTime() - i * 24 * 60 * 60 * 1000);
+    const d = new Date(Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate() - i
+    ));
     countByDay.set(d.toISOString().slice(0, 10), 0);
   }
   for (const row of recentOrders) {

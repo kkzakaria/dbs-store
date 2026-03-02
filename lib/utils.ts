@@ -12,3 +12,11 @@ export function formatPrice(price: number): string {
   }
   return price.toLocaleString("fr-FR");
 }
+
+export function formatFCFA(amount: number): string {
+  return new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: "XOF",
+    minimumFractionDigits: 0,
+  }).format(amount);
+}
