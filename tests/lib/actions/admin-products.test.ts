@@ -19,8 +19,8 @@ vi.mock("next/navigation", () => ({ redirect: vi.fn() }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 import { auth } from "@/lib/auth";
-import { validateProductData } from "@/lib/actions/admin-products";
-import type { ProductFormData } from "@/lib/actions/admin-products";
+import { validateProductData } from "@/lib/actions/product-validation";
+import type { ProductFormData } from "@/lib/actions/product-validation";
 
 const validData: ProductFormData = {
   name: "iPhone 15",

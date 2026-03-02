@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-// Le middleware utilise l'API Edge (NextRequest/NextResponse) — on mocke next/server
 vi.mock("next/server", () => {
   const redirect = vi.fn((url: URL) => ({ type: "redirect", url: url.toString() }));
   const next = vi.fn(() => ({ type: "next" }));
@@ -15,46 +14,84 @@ vi.mock("next/server", () => {
   };
 });
 
-import { middleware } from "@/middleware";
-import { NextRequest, NextResponse } from "next/server";
+vi.mock("@/lib/auth", () => ({
+  auth: {
+    api: {
+      getSession: vi.fn(),
+      listOrganizations: vi.fn(),
+    },
+  },
+}));
 
-function makeRequest(path: string, hasCookie = false) {
-  const req = new NextRequest(`http://localhost:33000${path}`);
-  (req.cookies.get as ReturnType<typeof vi.fn>).mockReturnValue(
-    hasCookie ? { value: "token123" } : undefined
-  );
-  return req;
+import { proxy } from "@/proxy";
+import { NextRequest, NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
+
+const mockGetSession = auth.api.getSession as ReturnType<typeof vi.fn>;
+const mockListOrgs = auth.api.listOrganizations as ReturnType<typeof vi.fn>;
+
+const verifiedUser = { id: "1", email: "admin@dbs-store.ci", emailVerified: true };
+const unverifiedUser = { id: "2", email: "user@test.ci", emailVerified: false };
+
+function makeRequest(path: string) {
+  return new NextRequest(`http://localhost:33000${path}`);
 }
 
-describe("middleware", () => {
+describe("proxy", () => {
   beforeEach(() => vi.clearAllMocks());
 
-  it("laisse passer les routes publiques", async () => {
-    await middleware(makeRequest("/"));
-    expect(NextResponse.next).toHaveBeenCalled();
-  });
-
-  it("redirige /admin vers /connexion sans cookie", async () => {
-    await middleware(makeRequest("/admin", false));
+  it("redirige vers /connexion si getSession échoue", async () => {
+    mockGetSession.mockRejectedValue(new Error("DB error"));
+    await proxy(makeRequest("/admin"));
     expect(NextResponse.redirect).toHaveBeenCalledWith(
       expect.objectContaining({ pathname: "/connexion" })
     );
   });
 
-  it("laisse passer /admin avec cookie", async () => {
-    await middleware(makeRequest("/admin", true));
-    expect(NextResponse.next).toHaveBeenCalled();
-  });
-
-  it("redirige /compte vers /connexion sans cookie", async () => {
-    await middleware(makeRequest("/compte/profil", false));
+  it("redirige vers /connexion si non authentifié", async () => {
+    mockGetSession.mockResolvedValue({ user: null });
+    await proxy(makeRequest("/admin"));
     expect(NextResponse.redirect).toHaveBeenCalledWith(
       expect.objectContaining({ pathname: "/connexion" })
     );
   });
 
-  it("laisse passer /compte avec cookie", async () => {
-    await middleware(makeRequest("/compte/profil", true));
+  it("redirige vers /email-non-verifie si email non vérifié", async () => {
+    mockGetSession.mockResolvedValue({ user: unverifiedUser });
+    await proxy(makeRequest("/compte/profil"));
+    expect(NextResponse.redirect).toHaveBeenCalledWith(
+      expect.objectContaining({ pathname: "/email-non-verifie" })
+    );
+  });
+
+  it("laisse passer /compte avec email vérifié", async () => {
+    mockGetSession.mockResolvedValue({ user: verifiedUser });
+    await proxy(makeRequest("/compte/profil"));
     expect(NextResponse.next).toHaveBeenCalled();
+  });
+
+  it("redirige vers / si non membre de l'organisation pour /admin", async () => {
+    mockGetSession.mockResolvedValue({ user: verifiedUser });
+    mockListOrgs.mockResolvedValue([{ slug: "autre-org" }]);
+    await proxy(makeRequest("/admin/produits"));
+    expect(NextResponse.redirect).toHaveBeenCalledWith(
+      expect.objectContaining({ pathname: "/" })
+    );
+  });
+
+  it("laisse passer /admin avec membre de l'organisation", async () => {
+    mockGetSession.mockResolvedValue({ user: verifiedUser });
+    mockListOrgs.mockResolvedValue([{ slug: "dbs-store" }]);
+    await proxy(makeRequest("/admin/produits"));
+    expect(NextResponse.next).toHaveBeenCalled();
+  });
+
+  it("redirige vers / si listOrganizations échoue", async () => {
+    mockGetSession.mockResolvedValue({ user: verifiedUser });
+    mockListOrgs.mockRejectedValue(new Error("DB error"));
+    await proxy(makeRequest("/admin"));
+    expect(NextResponse.redirect).toHaveBeenCalledWith(
+      expect.objectContaining({ pathname: "/" })
+    );
   });
 });
