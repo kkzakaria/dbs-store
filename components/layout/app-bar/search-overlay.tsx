@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
@@ -13,7 +13,7 @@ export function SearchOverlay({ onClose }: SearchOverlayProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const focusTrapRef = useFocusTrap();
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+  useLayoutEffect(() => { onCloseRef.current = onClose; }, [onClose]);
 
   useEffect(() => {
     requestAnimationFrame(() => {

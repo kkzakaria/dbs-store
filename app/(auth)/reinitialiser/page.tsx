@@ -191,7 +191,7 @@ function ResetPasswordForm() {
       )}
 
       <p className="text-center text-sm text-muted-foreground">
-        Vous n'avez pas reçu le code ?{" "}
+        Vous n&apos;avez pas reçu le code ?{" "}
         <button
           type="button"
           onClick={handleResend}

@@ -24,7 +24,7 @@ const inStockProduct = {
   badge: null,
   is_active: true,
   created_at: new Date(),
-} as const;
+};
 
 describe("AddToCartButton", () => {
   it("renders 'Ajouter au panier' when in stock", () => {

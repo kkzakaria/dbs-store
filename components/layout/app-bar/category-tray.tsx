@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useLayoutEffect, useRef } from "react";
 import type { Category } from "@/lib/data/categories";
 
 type CategoryTrayProps = {
@@ -17,7 +17,7 @@ export function CategoryTray({
 }: CategoryTrayProps) {
   const ref = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+  useLayoutEffect(() => { onCloseRef.current = onClose; }, [onClose]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

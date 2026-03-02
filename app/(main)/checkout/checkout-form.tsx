@@ -23,13 +23,11 @@ export function CheckoutForm() {
   // Wait for Zustand persist to rehydrate from localStorage before checking the cart.
   // Without this, the empty-cart guard fires on the first render (before localStorage loads)
   // and silently redirects the user to / before they even see the form.
-  const [hydrated, setHydrated] = useState(false);
+  const [hydrated, setHydrated] = useState(() => useCartStore.persist.hasHydrated());
   useEffect(() => {
-    if (useCartStore.persist.hasHydrated()) {
-      setHydrated(true);
-    } else {
-      return useCartStore.persist.onFinishHydration(() => setHydrated(true));
-    }
+    // The lazy initializer handles the already-hydrated case.
+    // Subscribe once; the callback fires only if hydration hasn't completed yet.
+    return useCartStore.persist.onFinishHydration(() => setHydrated(true));
   }, []);
 
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);

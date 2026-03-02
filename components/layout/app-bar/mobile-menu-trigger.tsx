@@ -3,7 +3,6 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 const MobileMenu = dynamic(
   () => import("./mobile-menu").then((m) => m.MobileMenu),

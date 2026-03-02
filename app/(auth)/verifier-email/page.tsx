@@ -100,7 +100,7 @@ function VerifyEmailForm() {
       </form>
 
       <p className="text-center text-sm text-muted-foreground mt-4">
-        Vous n'avez pas reçu le code ?{" "}
+        Vous n&apos;avez pas reçu le code ?{" "}
         <button
           type="button"
           onClick={handleResend}
