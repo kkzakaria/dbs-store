@@ -17,7 +17,7 @@ export function CategoryTray({
 }: CategoryTrayProps) {
   const ref = useRef<HTMLDivElement>(null);
   const onCloseRef = useRef(onClose);
-  useLayoutEffect(() => { onCloseRef.current = onClose; });
+  useLayoutEffect(() => { onCloseRef.current = onClose; }, [onClose]);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

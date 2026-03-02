@@ -25,9 +25,10 @@ export function CheckoutForm() {
   // and silently redirects the user to / before they even see the form.
   const [hydrated, setHydrated] = useState(() => useCartStore.persist.hasHydrated());
   useEffect(() => {
-    if (hydrated) return;
+    // The lazy initializer handles the already-hydrated case.
+    // Subscribe once; the callback fires only if hydration hasn't completed yet.
     return useCartStore.persist.onFinishHydration(() => setHydrated(true));
-  }, [hydrated]);
+  }, []);
 
   const itemCount = items.reduce((sum, i) => sum + i.quantity, 0);
   const subtotal = items.reduce((sum, i) => sum + i.price * i.quantity, 0);

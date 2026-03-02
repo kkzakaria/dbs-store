@@ -20,7 +20,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
   const topLevel = getTopLevelCategories();
   const focusTrapRef = useFocusTrap();
   const onCloseRef = useRef(onClose);
-  useLayoutEffect(() => { onCloseRef.current = onClose; });
+  useLayoutEffect(() => { onCloseRef.current = onClose; }, [onClose]);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";

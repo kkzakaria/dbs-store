@@ -13,7 +13,7 @@ export function SearchOverlay({ onClose }: SearchOverlayProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const focusTrapRef = useFocusTrap();
   const onCloseRef = useRef(onClose);
-  useLayoutEffect(() => { onCloseRef.current = onClose; });
+  useLayoutEffect(() => { onCloseRef.current = onClose; }, [onClose]);
 
   useEffect(() => {
     requestAnimationFrame(() => {
