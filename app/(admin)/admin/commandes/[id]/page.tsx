@@ -4,17 +4,9 @@ import { ArrowLeft } from "lucide-react";
 import { getDb } from "@/lib/db";
 import { getAdminOrderById } from "@/lib/data/admin-orders";
 import { OrderStatusWidget } from "@/components/admin/order-status-widget";
-import type { OrderStatus } from "@/lib/db/schema";
+import { formatFCFA } from "@/lib/utils";
 
 type Props = { params: Promise<{ id: string }> };
-
-const STATUS_LABELS: Record<OrderStatus, string> = {
-  pending: "En attente",
-  confirmed: "Confirmée",
-  shipped: "Expédiée",
-  delivered: "Livrée",
-  cancelled: "Annulée",
-};
 
 export default async function AdminCommandeDetailPage({ params }: Props) {
   const { id } = await params;
@@ -87,11 +79,11 @@ export default async function AdminCommandeDetailPage({ params }: Props) {
               <div className="flex-1">
                 <p className="font-medium">{item.product_name}</p>
                 <p className="text-sm text-muted-foreground">
-                  {item.quantity} × {new Intl.NumberFormat("fr-FR").format(item.unit_price)} F
+                  {item.quantity} × {formatFCFA(item.unit_price)}
                 </p>
               </div>
               <p className="font-medium tabular-nums">
-                {new Intl.NumberFormat("fr-FR").format(item.line_total)} F
+                {formatFCFA(item.line_total)}
               </p>
             </div>
           ))}
@@ -101,15 +93,15 @@ export default async function AdminCommandeDetailPage({ params }: Props) {
         <div className="border-t px-4 py-3 text-sm">
           <div className="flex justify-between text-muted-foreground">
             <span>Sous-total</span>
-            <span>{new Intl.NumberFormat("fr-FR").format(order.subtotal)} F</span>
+            <span>{formatFCFA(order.subtotal)}</span>
           </div>
           <div className="flex justify-between text-muted-foreground">
             <span>Livraison</span>
-            <span>{order.shipping_fee === 0 ? "Gratuite" : `${order.shipping_fee} F`}</span>
+            <span>{order.shipping_fee === 0 ? "Gratuite" : formatFCFA(order.shipping_fee)}</span>
           </div>
           <div className="mt-2 flex justify-between font-bold">
             <span>Total</span>
-            <span>{new Intl.NumberFormat("fr-FR").format(order.total)} F</span>
+            <span>{formatFCFA(order.total)}</span>
           </div>
         </div>
       </div>

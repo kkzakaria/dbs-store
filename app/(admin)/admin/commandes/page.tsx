@@ -3,6 +3,7 @@ import { getDb } from "@/lib/db";
 import { getAdminOrders, ORDERS_PAGE_SIZE } from "@/lib/data/admin-orders";
 import { Badge } from "@/components/ui/badge";
 import type { OrderStatus } from "@/lib/db/schema";
+import { cn, formatFCFA } from "@/lib/utils";
 
 type Props = { searchParams: Promise<{ status?: OrderStatus; page?: string }> };
 
@@ -42,9 +43,10 @@ export default async function AdminCommandesPage({ searchParams }: Props) {
       <div className="mb-4 flex flex-wrap gap-2">
         <Link
           href="/admin/commandes"
-          className={`rounded-full px-3 py-1 text-sm ${
+          className={cn(
+            "rounded-full px-3 py-1 text-sm",
             !sp.status ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
-          }`}
+          )}
         >
           Toutes
         </Link>
@@ -52,11 +54,12 @@ export default async function AdminCommandesPage({ searchParams }: Props) {
           <Link
             key={s}
             href={`/admin/commandes?status=${s}`}
-            className={`rounded-full px-3 py-1 text-sm ${
+            className={cn(
+              "rounded-full px-3 py-1 text-sm",
               sp.status === s
                 ? "bg-primary text-primary-foreground"
                 : "bg-muted hover:bg-muted/80"
-            }`}
+            )}
           >
             {STATUS_LABELS[s]}
           </Link>
@@ -87,7 +90,7 @@ export default async function AdminCommandesPage({ searchParams }: Props) {
                   <p className="text-xs text-muted-foreground">{order.shipping_phone}</p>
                 </td>
                 <td className="px-4 py-3 text-right tabular-nums">
-                  {new Intl.NumberFormat("fr-FR").format(order.total)} F
+                  {formatFCFA(order.total)}
                 </td>
                 <td className="px-4 py-3 text-center uppercase text-xs text-muted-foreground">
                   {order.payment_method}
@@ -127,9 +130,10 @@ export default async function AdminCommandesPage({ searchParams }: Props) {
             <Link
               key={p}
               href={`/admin/commandes?${sp.status ? `status=${sp.status}&` : ""}page=${p}`}
-              className={`rounded px-3 py-1 text-sm ${
+              className={cn(
+                "rounded px-3 py-1 text-sm",
                 p === page ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"
-              }`}
+              )}
             >
               {p}
             </Link>
