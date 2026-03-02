@@ -19,23 +19,23 @@ describe("generatePresignedUrl", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("lève UNAUTHORIZED si pas de session", async () => {
-    (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    (auth.api.getSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(null);
     await expect(generatePresignedUrl("test.jpg", "image/jpeg")).rejects.toThrow("UNAUTHORIZED");
   });
 
   it("lève UNAUTHORIZED si pas membre org", async () => {
-    (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
+    (auth.api.getSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       user: { id: "u1", email: "admin@dbs.ci" },
     });
-    (auth.api.listOrganizations as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+    (auth.api.listOrganizations as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
     await expect(generatePresignedUrl("test.jpg", "image/jpeg")).rejects.toThrow("UNAUTHORIZED");
   });
 
   it("retourne uploadUrl et publicUrl si autorisé", async () => {
-    (auth.api.getSession as ReturnType<typeof vi.fn>).mockResolvedValue({
+    (auth.api.getSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
       user: { id: "u1", email: "admin@dbs.ci" },
     });
-    (auth.api.listOrganizations as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: "org1" }]);
+    (auth.api.listOrganizations as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: "org1" }]);
     process.env.R2_PUBLIC_URL = "https://cdn.dbs-store.ci";
     process.env.R2_BUCKET_NAME = "test-bucket";
 
