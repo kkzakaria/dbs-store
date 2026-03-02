@@ -5,14 +5,14 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
 async function requireOwner() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  const h = await headers();
+  const session = await auth.api.getSession({ headers: h });
   if (!session?.user) throw new Error("UNAUTHORIZED");
 
-  const orgs = await auth.api.listOrganizations({ headers: await headers() });
+  const orgs = await auth.api.listOrganizations({ headers: h });
   if (!Array.isArray(orgs) || orgs.length === 0) throw new Error("UNAUTHORIZED");
 
   // Vérifier le rôle owner via Better Auth
-  const h = await headers();
   const fullOrg = await auth.api.getFullOrganization({
     query: { organizationSlug: "dbs-store" },
     headers: h,
@@ -30,10 +30,11 @@ export async function inviteMember(
   role: "admin" | "member"
 ): Promise<{ error?: string }> {
   try {
+    const h = await headers();
     const { orgId } = await requireOwner();
     await auth.api.createInvitation({
       body: { email, role, organizationId: orgId },
-      headers: await headers(),
+      headers: h,
     });
     revalidatePath("/admin/equipe");
     return {};
@@ -49,10 +50,11 @@ export async function updateMemberRole(
   role: "admin" | "member"
 ): Promise<{ error?: string }> {
   try {
+    const h = await headers();
     await requireOwner();
     await auth.api.updateMemberRole({
       body: { memberId, role },
-      headers: await headers(),
+      headers: h,
     });
     revalidatePath("/admin/equipe");
     return {};
@@ -65,10 +67,11 @@ export async function updateMemberRole(
 
 export async function removeMember(memberId: string): Promise<{ error?: string }> {
   try {
+    const h = await headers();
     await requireOwner();
     await auth.api.removeMember({
       body: { memberIdOrEmail: memberId },
-      headers: await headers(),
+      headers: h,
     });
     revalidatePath("/admin/equipe");
     return {};

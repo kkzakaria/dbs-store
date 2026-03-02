@@ -36,6 +36,7 @@ export function TeamManagement({ members: initial, isOwner }: TeamManagementProp
   const [members, setMembers] = useState(initial);
   const [email, setEmail] = useState("");
   const [role, setRole] = useState<"admin" | "member">("member");
+  const [actionError, setActionError] = useState<string | null>(null);
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviting, setInviting] = useState(false);
   const [success, setSuccess] = useState<string | null>(null);
@@ -56,8 +57,11 @@ export function TeamManagement({ members: initial, isOwner }: TeamManagementProp
   }
 
   async function handleRoleChange(memberId: string, newRole: "admin" | "member") {
+    setActionError(null);
     const result = await updateMemberRole(memberId, newRole);
-    if (!result.error) {
+    if (result.error) {
+      setActionError(result.error);
+    } else {
       setMembers((prev) =>
         prev.map((m) => (m.id === memberId ? { ...m, role: newRole } : m))
       );
@@ -66,8 +70,11 @@ export function TeamManagement({ members: initial, isOwner }: TeamManagementProp
 
   async function handleRemove(memberId: string) {
     if (!confirm("Retirer ce membre de l'équipe ?")) return;
+    setActionError(null);
     const result = await removeMember(memberId);
-    if (!result.error) {
+    if (result.error) {
+      setActionError(result.error);
+    } else {
       setMembers((prev) => prev.filter((m) => m.id !== memberId));
     }
   }
@@ -115,6 +122,10 @@ export function TeamManagement({ members: initial, isOwner }: TeamManagementProp
           ))}
         </div>
       </div>
+
+      {actionError ? (
+        <p className="text-sm text-destructive">{actionError}</p>
+      ) : null}
 
       {/* Formulaire d'invitation (owner seulement) */}
       {isOwner ? (
