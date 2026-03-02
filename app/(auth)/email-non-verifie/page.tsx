@@ -55,7 +55,7 @@ export default function EmailNotVerifiedPage() {
     >
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground text-center">
-          Votre adresse email n'a pas encore été vérifiée. Accédez à votre boîte mail et entrez le code reçu, ou demandez-en un nouveau.
+          Votre adresse email n&apos;a pas encore été vérifiée. Accédez à votre boîte mail et entrez le code reçu, ou demandez-en un nouveau.
         </p>
 
         {error ? <p className="text-sm text-destructive">{error}</p> : null}

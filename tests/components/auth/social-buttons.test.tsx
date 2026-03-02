@@ -43,8 +43,8 @@ describe("SocialButtons", () => {
   });
 
   it("disables all buttons while a provider is loading", async () => {
-    let resolveSignIn: () => void;
-    mockSocial.mockReturnValue(new Promise((resolve) => { resolveSignIn = resolve; }));
+    let resolveSignIn!: () => void;
+    mockSocial.mockReturnValue(new Promise<void>((resolve) => { resolveSignIn = resolve; }));
 
     const user = userEvent.setup();
     render(<SocialButtons />);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, ChevronRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
   const topLevel = getTopLevelCategories();
   const focusTrapRef = useFocusTrap();
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+  useLayoutEffect(() => { onCloseRef.current = onClose; });
 
   useEffect(() => {
     document.body.style.overflow = "hidden";

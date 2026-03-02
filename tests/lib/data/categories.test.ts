@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { categories, getTopLevelCategories, getSubcategories } from "@/lib/data/categories";
+import { getTopLevelCategories, getSubcategories } from "@/lib/data/categories";
 
 describe("categories", () => {
   it("has 11 top-level categories", () => {
