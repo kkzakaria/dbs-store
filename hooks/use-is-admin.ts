@@ -9,7 +9,6 @@ export function useIsAdmin(): boolean {
 
   useEffect(() => {
     if (!session?.user) {
-      setIsAdmin(false);
       return;
     }
     let cancelled = false;
@@ -24,5 +23,6 @@ export function useIsAdmin(): boolean {
     return () => { cancelled = true; };
   }, [session?.user]);
 
-  return isAdmin;
+  // When there is no session, derive false without a setState call
+  return session?.user ? isAdmin : false;
 }
