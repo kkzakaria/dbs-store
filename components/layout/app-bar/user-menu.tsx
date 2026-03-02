@@ -3,7 +3,7 @@
 import { useCallback } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { User, LogOut, ShoppingBag, Settings } from "lucide-react";
+import { User, LogOut, ShoppingBag, Settings, LayoutDashboard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,10 +15,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSession, signOut } from "@/lib/auth-client";
+import { useIsAdmin } from "@/hooks/use-is-admin";
 
 export function UserMenu() {
   const { data: session, isPending } = useSession();
   const router = useRouter();
+  const isAdmin = useIsAdmin();
 
   const handleSignOut = useCallback(async () => {
     try {
@@ -73,6 +75,17 @@ export function UserMenu() {
               Mes commandes
             </Link>
           </DropdownMenuItem>
+          {isAdmin ? (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/admin">
+                  <LayoutDashboard className="mr-2 size-4" />
+                  Administration
+                </Link>
+              </DropdownMenuItem>
+            </>
+          ) : null}
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleSignOut}>
