@@ -1,4 +1,5 @@
 import { eq, like, and, desc, sql } from "drizzle-orm";
+import type { SQL } from "drizzle-orm";
 import { products } from "@/lib/db/schema";
 import type { Product } from "@/lib/db/schema";
 import type { Db } from "@/lib/db";
@@ -35,7 +36,7 @@ function parseAdminProduct(row: ProductRow): Product {
 }
 
 export function buildProductFiltersForAdmin(filters: AdminProductFilters) {
-  const conditions = [];
+  const conditions: SQL[] = [];
   if (filters.search) {
     conditions.push(like(products.name, `%${filters.search}%`));
   }

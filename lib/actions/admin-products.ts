@@ -4,8 +4,7 @@ import { randomUUID } from "crypto";
 import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { requireOrgMember } from "@/lib/actions/admin-auth";
 import { getDb } from "@/lib/db";
 import { products } from "@/lib/db/schema";
 import type { ProductBadge } from "@/lib/db/schema";
@@ -39,14 +38,6 @@ export function validateProductData(data: ProductFormData): ValidationResult {
   if (data.price < 0) return { success: false, error: "Le prix ne peut pas être négatif" };
   if (data.stock < 0) return { success: false, error: "Le stock ne peut pas être négatif" };
   return { success: true };
-}
-
-async function requireOrgMember() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) throw new Error("UNAUTHORIZED");
-  const orgs = await auth.api.listOrganizations({ headers: await headers() });
-  if (!Array.isArray(orgs) || orgs.length === 0) throw new Error("UNAUTHORIZED");
-  return session;
 }
 
 export async function createProduct(data: ProductFormData): Promise<{ error?: string }> {
@@ -128,17 +119,32 @@ export async function updateProduct(
   redirect("/admin/produits");
 }
 
-export async function toggleProductActive(id: string, isActive: boolean): Promise<void> {
+export async function toggleProductActive(
+  id: string,
+  isActive: boolean
+): Promise<{ error?: string }> {
   await requireOrgMember();
   const db = getDb();
-  await db.update(products).set({ is_active: isActive }).where(eq(products.id, id));
-  revalidatePath("/admin/produits");
+  try {
+    await db.update(products).set({ is_active: isActive }).where(eq(products.id, id));
+    revalidatePath("/admin/produits");
+    return {};
+  } catch (err) {
+    console.error("[toggleProductActive]", err);
+    return { error: "Erreur lors de la mise à jour" };
+  }
 }
 
-export async function deleteProduct(id: string): Promise<void> {
+export async function deleteProduct(id: string): Promise<{ error?: string }> {
   await requireOrgMember();
   const db = getDb();
-  await db.delete(products).where(eq(products.id, id));
-  revalidatePath("/admin/produits");
-  revalidatePath("/");
+  try {
+    await db.delete(products).where(eq(products.id, id));
+    revalidatePath("/admin/produits");
+    revalidatePath("/");
+    return {};
+  } catch (err) {
+    console.error("[deleteProduct]", err);
+    return { error: "Erreur lors de la suppression" };
+  }
 }

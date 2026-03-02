@@ -2,8 +2,7 @@
 
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
+import { requireOrgMember } from "@/lib/actions/admin-auth";
 
 function getR2Client() {
   return new S3Client({
@@ -14,14 +13,6 @@ function getR2Client() {
       secretAccessKey: process.env.R2_SECRET_ACCESS_KEY!,
     },
   });
-}
-
-async function requireOrgMember() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) throw new Error("UNAUTHORIZED");
-  const orgs = await auth.api.listOrganizations({ headers: await headers() });
-  if (!Array.isArray(orgs) || orgs.length === 0) throw new Error("UNAUTHORIZED");
-  return session;
 }
 
 export async function generatePresignedUrl(
