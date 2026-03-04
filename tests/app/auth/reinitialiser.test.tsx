@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ResetPasswordPage from "@/app/(auth)/reinitialiser/page";
 
@@ -27,12 +27,10 @@ beforeEach(() => {
 });
 
 async function advanceToPasswordStep() {
-  const user = userEvent.setup();
+  const user = userEvent.setup({ delay: null });
   render(<ResetPasswordPage />);
-  const inputs = screen.getAllByRole("textbox");
-  for (let i = 0; i < 6; i++) {
-    await user.type(inputs[i], String(i + 1));
-  }
+  // Fill all 6 OTP digits in one synchronous operation via the multi-char path
+  fireEvent.change(screen.getAllByRole("textbox")[0], { target: { value: "123456" } });
   await user.click(screen.getByRole("button", { name: /valider le code/i }));
   await waitFor(() =>
     expect(screen.getByLabelText(/nouveau mot de passe/i)).toBeInTheDocument()
@@ -81,7 +79,7 @@ describe("ResetPasswordPage", () => {
         json: () => Promise.resolve({ valid: false, reason: "invalid" }),
       })
     );
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     render(<ResetPasswordPage />);
     const inputs = screen.getAllByRole("textbox");
     for (let i = 0; i < 6; i++) {
@@ -100,7 +98,7 @@ describe("ResetPasswordPage", () => {
         json: () => Promise.resolve({ valid: false, reason: "expired" }),
       })
     );
-    const user = userEvent.setup();
+    const user = userEvent.setup({ delay: null });
     render(<ResetPasswordPage />);
     const inputs = screen.getAllByRole("textbox");
     for (let i = 0; i < 6; i++) {
