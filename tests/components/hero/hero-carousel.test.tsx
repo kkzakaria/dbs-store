@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { HeroCarousel } from "@/components/hero/hero-carousel";
 import type { HeroSlide } from "@/lib/db/schema";
 
@@ -49,5 +50,45 @@ describe("HeroCarousel", () => {
     render(<HeroCarousel slides={slides} />);
     const dots = screen.getAllByRole("button", { name: /slide/i });
     expect(dots.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("n'affiche pas les flèches ni les dots avec une seule slide", () => {
+    render(<HeroCarousel slides={[makeSlide()]} />);
+    expect(screen.queryByRole("button", { name: "Slide suivante" })).toBeNull();
+    expect(screen.queryByRole("button", { name: "Slide précédente" })).toBeNull();
+  });
+
+  it("affiche la slide suivante après clic sur la flèche droite", async () => {
+    const user = userEvent.setup();
+    const slides = [
+      makeSlide({ id: "s1", title: "Slide A" }),
+      makeSlide({ id: "s2", title: "Slide B" }),
+    ];
+    render(<HeroCarousel slides={slides} />);
+    await user.click(screen.getByRole("button", { name: "Slide suivante" }));
+    expect(screen.getByText("Slide B")).toBeDefined();
+  });
+
+  it("revient à la dernière slide depuis la première (wrap-around)", async () => {
+    const user = userEvent.setup();
+    const slides = [
+      makeSlide({ id: "s1", title: "Slide A" }),
+      makeSlide({ id: "s2", title: "Slide B" }),
+    ];
+    render(<HeroCarousel slides={slides} />);
+    await user.click(screen.getByRole("button", { name: "Slide précédente" }));
+    expect(screen.getByText("Slide B")).toBeDefined();
+  });
+
+  it("navigue vers la slide correspondant au dot cliqué", async () => {
+    const user = userEvent.setup();
+    const slides = [
+      makeSlide({ id: "s1", title: "Slide A" }),
+      makeSlide({ id: "s2", title: "Slide B" }),
+      makeSlide({ id: "s3", title: "Slide C" }),
+    ];
+    render(<HeroCarousel slides={slides} />);
+    await user.click(screen.getByRole("button", { name: "Slide 3" }));
+    expect(screen.getByText("Slide C")).toBeDefined();
   });
 });
