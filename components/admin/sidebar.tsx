@@ -9,6 +9,7 @@ import {
   Users,
   LogOut,
   Store,
+  ImagePlay,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -17,6 +18,7 @@ import { useCallback } from "react";
 
 const navItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard, exact: true },
+  { label: "Hero", href: "/admin/hero", icon: ImagePlay, exact: false },
   { label: "Produits", href: "/admin/produits", icon: Package, exact: false },
   { label: "Commandes", href: "/admin/commandes", icon: ShoppingCart, exact: false },
   { label: "Équipe", href: "/admin/equipe", icon: Users, exact: false },

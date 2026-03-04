@@ -4,6 +4,8 @@ import Link from "next/link";
 import { getDb } from "@/lib/db";
 import { getProductsByCategory, getPromoProducts } from "@/lib/data/products";
 import { ProductCard } from "@/components/products/product-card";
+import { HeroCarousel } from "@/components/hero/hero-carousel";
+import { getActiveHeroSlides } from "@/lib/data/hero-slides";
 
 const categoryHighlights = [
   { name: "Smartphones", slug: "smartphones", icon: Smartphone },
@@ -20,32 +22,15 @@ export default async function HomePage() {
     getProductsByCategory(db, "smartphones", { tri: "nouveau" }),
     getPromoProducts(db, 4),
   ]);
+  const heroSlides = await getActiveHeroSlides(db).catch((err: unknown) => {
+    console.error("[HomePage] getActiveHeroSlides failed:", err);
+    return [];
+  });
 
   return (
     <div>
       {/* Hero */}
-      <section className="bg-gradient-to-b from-muted/50 to-background">
-        <div className="mx-auto max-w-7xl px-4 py-20 text-center lg:px-6 lg:py-28">
-          <p className="text-sm font-medium uppercase tracking-widest text-muted-foreground">
-            La tech au meilleur prix en Afrique de l&apos;Ouest
-          </p>
-          <h1 className="mt-4 text-4xl font-bold tracking-tight sm:text-5xl lg:text-6xl">
-            Bienvenue sur DBS Store
-          </h1>
-          <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-            Decouvrez notre selection de smartphones, tablettes, ordinateurs et accessoires.
-            Livraison rapide en Cote d&apos;Ivoire et dans toute la zone UEMOA.
-          </p>
-          <div className="mt-8 flex items-center justify-center gap-4">
-            <Button size="lg" asChild>
-              <Link href="/smartphones">Voir les smartphones</Link>
-            </Button>
-            <Button size="lg" variant="outline" asChild>
-              <Link href="/offres">Offres du moment</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+      <HeroCarousel slides={heroSlides} />
 
       {/* Categories grid */}
       <section className="mx-auto max-w-7xl px-4 py-16 lg:px-6">

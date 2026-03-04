@@ -15,6 +15,13 @@
       "when": 1771597667259,
       "tag": "0001_calm_gorilla_man",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1772623088349,
+      "tag": "0002_wandering_lester",
+      "breakpoints": true
     }
   ]
 }

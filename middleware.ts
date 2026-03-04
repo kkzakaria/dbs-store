@@ -1,23 +1,47 @@
 import { NextRequest, NextResponse } from "next/server";
-
-const SESSION_COOKIE = "better-auth.session_token";
+import { auth } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const isAdminRoute = pathname.startsWith("/admin");
 
-  const isProtected =
-    pathname.startsWith("/admin") || pathname.startsWith("/compte");
-
-  if (!isProtected) {
-    return NextResponse.next();
+  let session: Awaited<ReturnType<typeof auth.api.getSession>>;
+  try {
+    session = await auth.api.getSession({ headers: request.headers });
+  } catch (err) {
+    console.error(`[proxy] getSession failed (${pathname}):`, err);
+    const url = new URL("/connexion", request.url);
+    url.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(url);
   }
 
-  const sessionCookie = request.cookies.get(SESSION_COOKIE);
+  if (!session?.user) {
+    const url = new URL("/connexion", request.url);
+    url.searchParams.set("callbackUrl", pathname);
+    return NextResponse.redirect(url);
+  }
 
-  if (!sessionCookie?.value) {
-    const loginUrl = new URL("/connexion", request.url);
-    loginUrl.searchParams.set("callbackUrl", pathname);
-    return NextResponse.redirect(loginUrl);
+  if (!session.user.emailVerified) {
+    return NextResponse.redirect(new URL("/email-non-verifie", request.url));
+  }
+
+  if (isAdminRoute) {
+    let orgs: Awaited<ReturnType<typeof auth.api.listOrganizations>>;
+    try {
+      orgs = await auth.api.listOrganizations({ headers: request.headers });
+    } catch (err) {
+      console.error(`[proxy] listOrganizations failed (${pathname}):`, err);
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    const isMember =
+      Array.isArray(orgs) &&
+      orgs.some((org: { slug: string }) => org.slug === "dbs-store");
+
+    if (!isMember) {
+      console.warn(`[proxy] accès admin refusé (${pathname}): non membre de l'organisation`);
+      return NextResponse.redirect(new URL("/", request.url));
+    }
   }
 
   return NextResponse.next();
