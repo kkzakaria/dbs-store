@@ -56,8 +56,11 @@ export function HeroSlideForm({ initial, action, submitLabel }: HeroSlideFormPro
       });
       if (!res.ok) throw new Error(`Upload échoué: ${res.status}`);
       setImageUrl(publicUrl);
-    } catch {
-      setServerError("Échec de l'upload de l'image");
+    } catch (err) {
+      console.error("[HeroSlideForm] handleFileUpload:", err);
+      setServerError(
+        err instanceof Error ? err.message : "Échec de l'upload de l'image"
+      );
     } finally {
       setUploading(false);
     }
@@ -83,9 +86,15 @@ export function HeroSlideForm({ initial, action, submitLabel }: HeroSlideFormPro
       is_active: isActive,
     };
 
-    const result = await action(data);
-    if (result?.error) {
-      setServerError(result.error);
+    try {
+      const result = await action(data);
+      if (result?.error) {
+        setServerError(result.error);
+      }
+    } catch (err) {
+      console.error("[HeroSlideForm] handleSubmit:", err);
+      setServerError("Une erreur inattendue s'est produite. Veuillez réessayer.");
+    } finally {
       setSubmitting(false);
     }
   }
