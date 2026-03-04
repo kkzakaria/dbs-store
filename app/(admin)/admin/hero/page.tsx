@@ -21,12 +21,19 @@ export default async function AdminHeroPage() {
             Glissez pour réordonner.
           </p>
         </div>
-        <Button asChild disabled={activeCount >= 5}>
-          <Link href="/admin/hero/nouveau">
+        {activeCount >= 5 ? (
+          <Button disabled>
             <Plus className="mr-2 size-4" />
             Nouvelle bannière
-          </Link>
-        </Button>
+          </Button>
+        ) : (
+          <Button asChild>
+            <Link href="/admin/hero/nouveau">
+              <Plus className="mr-2 size-4" />
+              Nouvelle bannière
+            </Link>
+          </Button>
+        )}
       </div>
       <HeroSlideList initialSlides={slides} />
     </div>

@@ -89,7 +89,7 @@ function SortableRow({ slide, onToggle, onDelete }: SortableRowProps) {
       </td>
       <td className="px-3 py-3">
         <div className="flex gap-1">
-          <Button variant="ghost" size="sm" asChild>
+          <Button variant="ghost" size="sm" asChild aria-label="Modifier la bannière">
             <Link href={`/admin/hero/${slide.id}`}>
               <Pencil className="size-3.5" />
             </Link>
@@ -99,6 +99,7 @@ function SortableRow({ slide, onToggle, onDelete }: SortableRowProps) {
             size="sm"
             className="text-destructive hover:text-destructive"
             onClick={() => onDelete(slide.id)}
+            aria-label="Supprimer la bannière"
           >
             <Trash2 className="size-3.5" />
           </Button>
@@ -126,16 +127,18 @@ export function HeroSlideList({ initialSlides }: HeroSlideListProps) {
       const { active, over } = event;
       if (!over || active.id === over.id) return;
 
-      const previous = slides;
       const oldIndex = slides.findIndex((s) => s.id === active.id);
       const newIndex = slides.findIndex((s) => s.id === over.id);
+      if (oldIndex === -1 || newIndex === -1) return;
+
       const reordered = arrayMove(slides, oldIndex, newIndex);
+      const prev = slides;
       setSlides(reordered);
       setActionError(null);
 
       const result = await reorderHeroSlides(reordered.map((s) => s.id));
       if (result?.error) {
-        setSlides(previous);
+        setSlides(prev);
         setActionError(result.error);
       }
     },

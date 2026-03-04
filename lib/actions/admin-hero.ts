@@ -1,7 +1,7 @@
 "use server";
 
 import { randomUUID } from "crypto";
-import { eq } from "drizzle-orm";
+import { count, eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { requireOrgMember } from "@/lib/actions/admin-auth";
@@ -44,6 +44,18 @@ export async function createHeroSlide(data: HeroSlideFormData): Promise<{ error?
   if (validationError) return validationError;
 
   const db = getDb();
+
+  if (data.is_active) {
+    const activeSlides = db
+      .select({ count: count() })
+      .from(hero_slides)
+      .where(eq(hero_slides.is_active, true))
+      .all();
+    if (activeSlides[0].count >= 5) {
+      return { error: "Maximum 5 bannières actives autorisées" };
+    }
+  }
+
   const now = new Date();
   const id = randomUUID();
 
@@ -99,10 +111,21 @@ export async function updateHeroSlide(
   const db = getDb();
 
   const existing = await db
-    .select({ id: hero_slides.id })
+    .select({ id: hero_slides.id, is_active: hero_slides.is_active })
     .from(hero_slides)
     .where(eq(hero_slides.id, id));
   if (existing.length === 0) return { error: "Bannière introuvable" };
+
+  if (data.is_active && !existing[0].is_active) {
+    const activeSlides = db
+      .select({ count: count() })
+      .from(hero_slides)
+      .where(eq(hero_slides.is_active, true))
+      .all();
+    if (activeSlides[0].count >= 5) {
+      return { error: "Maximum 5 bannières actives autorisées" };
+    }
+  }
 
   try {
     await db
@@ -139,6 +162,18 @@ export async function toggleHeroSlideActive(
 ): Promise<{ error?: string }> {
   await requireOrgMember();
   const db = getDb();
+
+  if (isActive) {
+    const activeSlides = db
+      .select({ count: count() })
+      .from(hero_slides)
+      .where(eq(hero_slides.is_active, true))
+      .all();
+    if (activeSlides[0].count >= 5) {
+      return { error: "Maximum 5 bannières actives autorisées" };
+    }
+  }
+
   try {
     await db
       .update(hero_slides)
