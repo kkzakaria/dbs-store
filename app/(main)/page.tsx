@@ -18,11 +18,14 @@ const categoryHighlights = [
 
 export default async function HomePage() {
   const db = getDb();
-  const [featured, promos, heroSlides] = await Promise.all([
+  const [featured, promos] = await Promise.all([
     getProductsByCategory(db, "smartphones", { tri: "nouveau" }),
     getPromoProducts(db, 4),
-    getActiveHeroSlides(db),
   ]);
+  const heroSlides = await getActiveHeroSlides(db).catch((err: unknown) => {
+    console.error("[HomePage] getActiveHeroSlides failed:", err);
+    return [];
+  });
 
   return (
     <div>
