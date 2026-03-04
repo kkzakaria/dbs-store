@@ -19,7 +19,7 @@ function createRequest(path: string) {
 
 describe("proxy config", () => {
   it("exports matcher for admin and compte routes", async () => {
-    const { config } = await import("@/proxy");
+    const { config } = await import("@/middleware");
     expect(config.matcher).toContain("/admin/:path*");
     expect(config.matcher).toContain("/compte/:path*");
   });
@@ -34,8 +34,8 @@ describe("proxy", () => {
     vi.clearAllMocks();
     errorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
     warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const mod = await import("@/proxy");
-    proxy = mod.proxy;
+    const mod = await import("@/middleware");
+    proxy = mod.middleware;
   });
 
   afterEach(() => {
