@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { generateBannerPresignedUrl } from "@/lib/actions/admin-upload";
+// isRedirectError n'est pas exporté depuis next/navigation en Next.js 16 — import interne nécessaire.
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import type { HeroSlide, TextAlign } from "@/lib/db/schema";
 import type { HeroSlideFormData } from "@/lib/actions/admin-hero";
