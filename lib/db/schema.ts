@@ -75,3 +75,29 @@ export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;
 export type OrderItem = typeof order_items.$inferSelect;
 export type NewOrderItem = typeof order_items.$inferInsert;
+
+// ── Hero Slides ───────────────────────────────────────────────────────────────
+
+export type TextAlign = "left" | "center" | "right";
+
+export const hero_slides = sqliteTable("hero_slides", {
+  id: text("id").primaryKey(),
+  title: text("title").notNull(),
+  subtitle: text("subtitle"),
+  badge: text("badge"),
+  image_url: text("image_url").notNull(),
+  text_align: text("text_align").$type<TextAlign>().default("center").notNull(),
+  overlay_color: text("overlay_color").default("#000000").notNull(),
+  overlay_opacity: integer("overlay_opacity").default(40).notNull(),
+  cta_primary_label: text("cta_primary_label"),
+  cta_primary_href: text("cta_primary_href"),
+  cta_secondary_label: text("cta_secondary_label"),
+  cta_secondary_href: text("cta_secondary_href"),
+  is_active: integer("is_active", { mode: "boolean" }).default(true).notNull(),
+  sort_order: integer("sort_order").default(0).notNull(),
+  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
+  updated_at: integer("updated_at", { mode: "timestamp" }).notNull(),
+});
+
+export type HeroSlide = typeof hero_slides.$inferSelect;
+export type NewHeroSlide = typeof hero_slides.$inferInsert;
