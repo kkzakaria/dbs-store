@@ -34,3 +34,23 @@ export async function generatePresignedUrl(
 
   return { uploadUrl, publicUrl };
 }
+
+export async function generateBannerPresignedUrl(
+  filename: string,
+  contentType: string
+): Promise<{ uploadUrl: string; publicUrl: string }> {
+  await requireOrgMember();
+
+  const key = `banners/${Date.now()}-${Math.random().toString(36).slice(2)}-${filename}`;
+
+  const command = new PutObjectCommand({
+    Bucket: process.env.R2_BUCKET_NAME!,
+    Key: key,
+    ContentType: contentType,
+  });
+
+  const uploadUrl = await getSignedUrl(getR2Client(), command, { expiresIn: 300 });
+  const publicUrl = `${process.env.R2_PUBLIC_URL}/${key}`;
+
+  return { uploadUrl, publicUrl };
+}
