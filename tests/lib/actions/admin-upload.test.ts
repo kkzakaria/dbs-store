@@ -36,8 +36,11 @@ describe("generatePresignedUrl", () => {
       user: { id: "u1", email: "admin@dbs.ci" },
     });
     (auth.api.listOrganizations as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: "org1" }]);
-    process.env.R2_PUBLIC_URL = "https://cdn.dbs-store.ci";
+    process.env.R2_ACCOUNT_ID = "test-account-id";
+    process.env.R2_ACCESS_KEY_ID = "test-access-key";
+    process.env.R2_SECRET_ACCESS_KEY = "test-secret-key";
     process.env.R2_BUCKET_NAME = "test-bucket";
+    process.env.R2_PUBLIC_URL = "https://cdn.dbs-store.ci";
 
     const result = await generatePresignedUrl("photo.jpg", "image/jpeg");
     expect(result).toMatchObject({
