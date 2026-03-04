@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from "vitest";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "@/lib/db/schema";
-import { getActiveHeroSlides, getAllHeroSlides } from "@/lib/data/hero-slides";
+import { getActiveHeroSlides, getAllHeroSlides, getHeroSlide } from "@/lib/data/hero-slides";
 
 function createTestDb() {
   const sqlite = new Database(":memory:");
@@ -83,5 +83,25 @@ describe("getAllHeroSlides", () => {
     const slides = await getAllHeroSlides(db);
     expect(slides).toHaveLength(2);
     expect(slides[0].sort_order).toBe(0);
+  });
+});
+
+describe("getHeroSlide", () => {
+  let db: ReturnType<typeof createTestDb>;
+
+  beforeEach(() => {
+    db = createTestDb();
+  });
+
+  it("retourne la slide correspondant à l'id", async () => {
+    await db.insert(schema.hero_slides).values({ id: "s1", ...SLIDE_BASE });
+    const slide = await getHeroSlide(db, "s1");
+    expect(slide).not.toBeNull();
+    expect(slide?.id).toBe("s1");
+  });
+
+  it("retourne null si aucune slide ne correspond", async () => {
+    const slide = await getHeroSlide(db, "inexistant");
+    expect(slide).toBeNull();
   });
 });
