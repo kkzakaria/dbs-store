@@ -114,6 +114,7 @@ interface HeroSlideListProps {
 
 export function HeroSlideList({ initialSlides }: HeroSlideListProps) {
   const [slides, setSlides] = useState(initialSlides);
+  const [actionError, setActionError] = useState<string | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -125,26 +126,46 @@ export function HeroSlideList({ initialSlides }: HeroSlideListProps) {
       const { active, over } = event;
       if (!over || active.id === over.id) return;
 
+      const previous = slides;
       const oldIndex = slides.findIndex((s) => s.id === active.id);
       const newIndex = slides.findIndex((s) => s.id === over.id);
       const reordered = arrayMove(slides, oldIndex, newIndex);
       setSlides(reordered);
+      setActionError(null);
 
-      await reorderHeroSlides(reordered.map((s) => s.id));
+      const result = await reorderHeroSlides(reordered.map((s) => s.id));
+      if (result?.error) {
+        setSlides(previous);
+        setActionError(result.error);
+      }
     },
     [slides]
   );
 
   const handleToggle = useCallback(async (id: string, active: boolean) => {
+    const previous = slides;
     setSlides((prev) => prev.map((s) => (s.id === id ? { ...s, is_active: active } : s)));
-    await toggleHeroSlideActive(id, active);
-  }, []);
+    setActionError(null);
+
+    const result = await toggleHeroSlideActive(id, active);
+    if (result?.error) {
+      setSlides(previous);
+      setActionError(result.error);
+    }
+  }, [slides]);
 
   const handleDelete = useCallback(async (id: string) => {
     if (!confirm("Supprimer cette bannière ?")) return;
+    const previous = slides;
     setSlides((prev) => prev.filter((s) => s.id !== id));
-    await deleteHeroSlide(id);
-  }, []);
+    setActionError(null);
+
+    const result = await deleteHeroSlide(id);
+    if (result?.error) {
+      setSlides(previous);
+      setActionError(result.error);
+    }
+  }, [slides]);
 
   if (slides.length === 0) {
     return (
@@ -155,32 +176,39 @@ export function HeroSlideList({ initialSlides }: HeroSlideListProps) {
   }
 
   return (
-    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <SortableContext items={slides.map((s) => s.id)} strategy={verticalListSortingStrategy}>
-        <div className="overflow-hidden rounded-lg border bg-background">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b bg-muted/50 text-left text-xs text-muted-foreground">
-                <th className="w-8 px-3 py-2" />
-                <th className="w-20 px-3 py-2">Aperçu</th>
-                <th className="px-3 py-2">Titre</th>
-                <th className="px-3 py-2">Statut</th>
-                <th className="px-3 py-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {slides.map((slide) => (
-                <SortableRow
-                  key={slide.id}
-                  slide={slide}
-                  onToggle={handleToggle}
-                  onDelete={handleDelete}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </SortableContext>
-    </DndContext>
+    <div className="space-y-3">
+      {actionError ? (
+        <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          {actionError}
+        </p>
+      ) : null}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={slides.map((s) => s.id)} strategy={verticalListSortingStrategy}>
+          <div className="overflow-hidden rounded-lg border bg-background">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b bg-muted/50 text-left text-xs text-muted-foreground">
+                  <th className="w-8 px-3 py-2" />
+                  <th className="w-20 px-3 py-2">Aperçu</th>
+                  <th className="px-3 py-2">Titre</th>
+                  <th className="px-3 py-2">Statut</th>
+                  <th className="px-3 py-2">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {slides.map((slide) => (
+                  <SortableRow
+                    key={slide.id}
+                    slide={slide}
+                    onToggle={handleToggle}
+                    onDelete={handleDelete}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </SortableContext>
+      </DndContext>
+    </div>
   );
 }
