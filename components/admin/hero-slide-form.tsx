@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { generateBannerPresignedUrl } from "@/lib/actions/admin-upload";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
 import type { HeroSlide, TextAlign } from "@/lib/db/schema";
 import type { HeroSlideFormData } from "@/lib/actions/admin-hero";
 
@@ -92,6 +93,9 @@ export function HeroSlideForm({ initial, action, submitLabel }: HeroSlideFormPro
         setServerError(result.error);
       }
     } catch (err) {
+      if (isRedirectError(err)) {
+        throw err;
+      }
       console.error("[HeroSlideForm] handleSubmit:", err);
       setServerError("Une erreur inattendue s'est produite. Veuillez réessayer.");
     } finally {
