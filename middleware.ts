@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
+import { ORG_SLUG } from "@/lib/constants";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -36,7 +37,7 @@ export async function middleware(request: NextRequest) {
 
     const isMember =
       Array.isArray(orgs) &&
-      orgs.some((org: { slug: string }) => org.slug === "dbs-store");
+      orgs.some((org: { slug: string }) => org.slug === ORG_SLUG);
 
     if (!isMember) {
       console.warn(`[proxy] accès admin refusé (${pathname}): non membre de l'organisation`);

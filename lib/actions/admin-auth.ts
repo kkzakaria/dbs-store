@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { ORG_SLUG } from "@/lib/constants";
 
 export async function requireOrgMember() {
   const h = await headers();
@@ -7,5 +8,7 @@ export async function requireOrgMember() {
   if (!session?.user) throw new Error("UNAUTHORIZED");
   const orgs = await auth.api.listOrganizations({ headers: h });
   if (!Array.isArray(orgs) || orgs.length === 0) throw new Error("UNAUTHORIZED");
+  const isMember = orgs.some((org) => org.slug === ORG_SLUG);
+  if (!isMember) throw new Error("UNAUTHORIZED");
   return session;
 }

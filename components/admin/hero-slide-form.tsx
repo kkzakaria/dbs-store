@@ -301,7 +301,7 @@ export function HeroSlideForm({ initial, action, submitLabel }: HeroSlideFormPro
       {serverError ? <p className="text-sm text-destructive">{serverError}</p> : null}
 
       <div className="flex gap-3">
-        <Button type="submit" disabled={submitting}>
+        <Button type="submit" disabled={submitting || uploading}>
           {submitting ? <Loader2 className="mr-2 size-4 animate-spin" /> : null}
           {submitLabel}
         </Button>
