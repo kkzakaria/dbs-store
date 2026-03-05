@@ -1,7 +1,6 @@
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-
-const ORG_SLUG = "dbs-store";
+import { ORG_SLUG } from "@/lib/constants";
 
 export async function requireOrgMember() {
   const h = await headers();

@@ -136,10 +136,16 @@ export function HeroSlideList({ initialSlides }: HeroSlideListProps) {
       setSlides(reordered);
       setActionError(null);
 
-      const result = await reorderHeroSlides(reordered.map((s) => s.id));
-      if (result?.error) {
+      try {
+        const result = await reorderHeroSlides(reordered.map((s) => s.id));
+        if (result?.error) {
+          setSlides(prev);
+          setActionError(result.error);
+        }
+      } catch (err) {
+        console.error("[HeroSlideList] reorder failed:", err);
         setSlides(prev);
-        setActionError(result.error);
+        setActionError("Erreur lors du réordonnancement");
       }
     },
     [slides]
