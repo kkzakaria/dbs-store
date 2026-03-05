@@ -12,7 +12,8 @@
     "seed": "tsx scripts/seed-org.ts",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "db:seed-hero": "tsx scripts/seed-hero.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1000.0",
