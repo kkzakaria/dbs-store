@@ -1,0 +1,23 @@
+// wrangler.jsonc
+{
+  "name": "dbs-store",
+  "compatibility_date": "2025-04-01",
+  "compatibility_flags": ["nodejs_compat"],
+  "main": ".open-next/worker.js",
+  "assets": {
+    "directory": ".open-next/assets",
+    "binding": "ASSETS"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "dbs-store-db",
+      "database_id": "TO_FILL_AFTER_CREATION",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "vars": {
+    "BETTER_AUTH_URL": "https://dbs-store.ci",
+    "NEXT_PUBLIC_BETTER_AUTH_URL": "https://dbs-store.ci"
+  }
+}
