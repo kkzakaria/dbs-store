@@ -5,7 +5,7 @@ import { inArray } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { orders, order_items, products } from "@/lib/db/schema";
 import type { PaymentMethod } from "@/lib/db/schema";
-import { auth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
 import type { CartItemInput } from "@/lib/order-utils";
 
@@ -21,6 +21,7 @@ export type CheckoutFormData = {
 };
 
 export async function createOrder(data: CheckoutFormData): Promise<{ orderId: string }> {
+  const auth = await getAuth();
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) redirect("/connexion");
   if (!session.user.emailVerified) redirect("/email-non-verifie");
@@ -34,7 +35,7 @@ export async function createOrder(data: CheckoutFormData): Promise<{ orderId: st
   }
 
   // Fetch authoritative prices from DB — never trust client-supplied prices
-  const db = getDb();
+  const db = await getDb();
   const productIds = data.items.map((i) => i.productId);
   const dbProducts = await db
     .select({ id: products.id, price: products.price, is_active: products.is_active })
@@ -64,9 +65,8 @@ export async function createOrder(data: CheckoutFormData): Promise<{ orderId: st
   const now = new Date();
 
   try {
-    // better-sqlite3 is synchronous — transaction callback must NOT be async
-    db.transaction((tx) => {
-      tx.insert(orders).values({
+    await db.batch([
+      db.insert(orders).values({
         id: orderId,
         user_id: session.user.id,
         status: "pending",
@@ -82,9 +82,8 @@ export async function createOrder(data: CheckoutFormData): Promise<{ orderId: st
         total,
         created_at: now,
         updated_at: now,
-      }).run();
-
-      tx.insert(order_items).values(
+      }),
+      db.insert(order_items).values(
         itemsWithDbPrices.map((item) => ({
           id: randomUUID(),
           order_id: orderId,
@@ -96,8 +95,8 @@ export async function createOrder(data: CheckoutFormData): Promise<{ orderId: st
           quantity: item.quantity,
           line_total: item.price * item.quantity,
         }))
-      ).run();
-    });
+      ),
+    ]);
   } catch (err) {
     console.error("[createOrder] DB write failed", {
       userId: session.user.id,
