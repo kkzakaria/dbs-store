@@ -1,3 +1,4 @@
+// @ts-expect-error - seed script not compatible with D1 getAuth(), needs local auth setup
 import { auth } from "@/lib/auth";
 
 const OWNER_EMAIL = "admin@dbs-store.ci";

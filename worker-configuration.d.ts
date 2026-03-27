@@ -1,5 +1,6 @@
 // worker-configuration.d.ts
 interface CloudflareEnv {
+  [key: string]: unknown;
   DB: D1Database;
   ASSETS: Fetcher;
   BETTER_AUTH_SECRET: string;

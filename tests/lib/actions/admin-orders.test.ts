@@ -10,20 +10,20 @@ const mockDb = {
 };
 
 vi.mock("@/lib/db", () => ({ getDb: vi.fn(() => mockDb) }));
+const mockAuthApi = { getSession: vi.fn(), listOrganizations: vi.fn() };
 vi.mock("@/lib/auth", () => ({
-  auth: { api: { getSession: vi.fn(), listOrganizations: vi.fn() } },
+  getAuth: vi.fn(() => Promise.resolve({ api: mockAuthApi })),
 }));
 vi.mock("next/headers", () => ({ headers: vi.fn(() => new Headers()) }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
-import { auth } from "@/lib/auth";
 import { updateOrderStatus } from "@/lib/actions/admin-orders";
 
 function mockAuth() {
-  (auth.api.getSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+  mockAuthApi.getSession.mockResolvedValue({
     user: { id: "u1" },
   });
-  (auth.api.listOrganizations as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: "org1" }]);
+  mockAuthApi.listOrganizations.mockResolvedValue([{ id: "org1" }]);
 }
 
 describe("updateOrderStatus", () => {

@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
+const mockAuthApi = { getSession: vi.fn(), listOrganizations: vi.fn() };
 vi.mock("@/lib/auth", () => ({
-  auth: { api: { getSession: vi.fn(), listOrganizations: vi.fn() } },
+  getAuth: vi.fn(() => Promise.resolve({ api: mockAuthApi })),
 }));
 vi.mock("next/headers", () => ({ headers: vi.fn(() => new Headers()) }));
 vi.mock("@aws-sdk/client-s3", () => ({
@@ -12,30 +13,29 @@ vi.mock("@aws-sdk/s3-request-presigner", () => ({
   getSignedUrl: vi.fn().mockResolvedValue("https://r2.example.com/presigned"),
 }));
 
-import { auth } from "@/lib/auth";
 import { generatePresignedUrl, generateBannerPresignedUrl } from "@/lib/actions/admin-upload";
 
 describe("generatePresignedUrl", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("lève UNAUTHORIZED si pas de session", async () => {
-    (auth.api.getSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue(null);
+    mockAuthApi.getSession.mockResolvedValue(null);
     await expect(generatePresignedUrl("test.jpg", "image/jpeg")).rejects.toThrow("UNAUTHORIZED");
   });
 
   it("lève UNAUTHORIZED si pas membre org", async () => {
-    (auth.api.getSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+    mockAuthApi.getSession.mockResolvedValue({
       user: { id: "u1", email: "admin@dbs.ci" },
     });
-    (auth.api.listOrganizations as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([]);
+    mockAuthApi.listOrganizations.mockResolvedValue([]);
     await expect(generatePresignedUrl("test.jpg", "image/jpeg")).rejects.toThrow("UNAUTHORIZED");
   });
 
   it("retourne uploadUrl et publicUrl si autorisé", async () => {
-    (auth.api.getSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+    mockAuthApi.getSession.mockResolvedValue({
       user: { id: "u1", email: "admin@dbs.ci" },
     });
-    (auth.api.listOrganizations as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: "org1" }]);
+    mockAuthApi.listOrganizations.mockResolvedValue([{ id: "org1" }]);
     process.env.R2_ACCOUNT_ID = "test-account-id";
     process.env.R2_ACCESS_KEY_ID = "test-access-key";
     process.env.R2_SECRET_ACCESS_KEY = "test-secret-key";
@@ -55,10 +55,10 @@ describe("generateBannerPresignedUrl", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    (auth.api.getSession as unknown as ReturnType<typeof vi.fn>).mockResolvedValue({
+    mockAuthApi.getSession.mockResolvedValue({
       user: { id: "u1", email: "admin@dbs.ci" },
     });
-    (auth.api.listOrganizations as unknown as ReturnType<typeof vi.fn>).mockResolvedValue([{ id: "org1" }]);
+    mockAuthApi.listOrganizations.mockResolvedValue([{ id: "org1" }]);
     process.env = {
       ...originalEnv,
       R2_ACCOUNT_ID: "test-account",

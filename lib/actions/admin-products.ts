@@ -8,6 +8,7 @@ import { requireOrgMember } from "@/lib/actions/admin-auth";
 import { getDb } from "@/lib/db";
 import { products } from "@/lib/db/schema";
 import { validateProductData } from "@/lib/actions/product-validation";
+import type { ProductFormData } from "@/lib/actions/product-validation";
 export type { ProductFormData, ValidationResult } from "@/lib/actions/product-validation";
 
 export async function createProduct(data: ProductFormData): Promise<{ error?: string }> {

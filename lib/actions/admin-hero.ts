@@ -197,13 +197,14 @@ export async function reorderHeroSlides(ids: string[]): Promise<{ error?: string
   const db = await getDb();
   try {
     const now = new Date();
-    await db.batch(
-      ids.map((id, i) =>
-        db.update(hero_slides)
-          .set({ sort_order: i, updated_at: now })
-          .where(eq(hero_slides.id, id))
-      )
+    const statements = ids.map((id, i) =>
+      db.update(hero_slides)
+        .set({ sort_order: i, updated_at: now })
+        .where(eq(hero_slides.id, id))
     );
+    if (statements.length > 0) {
+      await db.batch(statements as [typeof statements[0], ...typeof statements])
+    }
     revalidatePath("/admin/hero");
     revalidatePath("/");
     return {};

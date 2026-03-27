@@ -26,7 +26,8 @@ function createTestDb() {
       updated_at INTEGER NOT NULL
     )
   `);
-  return drizzle(sqlite, { schema });
+  // Cast to any: BetterSQLite3Database is used for tests while D1 is used in production
+  return drizzle(sqlite, { schema }) as any;
 }
 
 const NOW = Math.floor(Date.now() / 1000);
