@@ -35,12 +35,12 @@ export default async function CommandeDetailPage({ params }: Props) {
     // Both session and order fetch start truly in parallel.
     const [session, [order]] = await Promise.all([
       getCachedSession(),
-      getDb().select().from(orders).where(eq(orders.id, id)).limit(1),
+      (await getDb()).select().from(orders).where(eq(orders.id, id)).limit(1),
     ]);
 
     if (!session?.user || !order || order.user_id !== session.user.id) notFound();
 
-    const items = await getDb()
+    const items = await (await getDb())
       .select()
       .from(order_items)
       .where(eq(order_items.order_id, id));

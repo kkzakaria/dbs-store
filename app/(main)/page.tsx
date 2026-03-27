@@ -17,7 +17,7 @@ const categoryHighlights = [
 ];
 
 export default async function HomePage() {
-  const db = getDb();
+  const db = await getDb();
   const [featured, promos] = await Promise.all([
     getProductsByCategory(db, "smartphones", { tri: "nouveau" }),
     getPromoProducts(db, 4),

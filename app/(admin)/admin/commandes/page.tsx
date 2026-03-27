@@ -31,7 +31,7 @@ const ALL_STATUSES = Object.keys(STATUS_LABELS) as OrderStatus[];
 export default async function AdminCommandesPage({ searchParams }: Props) {
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page ?? 1));
-  const db = getDb();
+  const db = await getDb();
   const { orders: ordersList, total } = await getAdminOrders(db, { status: sp.status }, page);
   const totalPages = Math.ceil(total / ORDERS_PAGE_SIZE);
 

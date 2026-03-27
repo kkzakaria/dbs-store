@@ -116,5 +116,5 @@ export async function getPromoProducts(db: Db, limit = 4): Promise<Product[]> {
 // appellent getProduct pour le même slug dans la même requête.
 // Pour un cache cross-requêtes persistant, utiliser unstable_cache de next/cache.
 export const getProductCached = cache(async (slug: string): Promise<Product | null> => {
-  return getProduct(getDb(), slug);
+  return getProduct(await getDb(), slug);
 });

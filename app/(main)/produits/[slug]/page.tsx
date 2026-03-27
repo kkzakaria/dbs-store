@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: Props) {
 }
 
 async function RelatedProducts({ productId, subcategoryId }: { productId: string; subcategoryId: string }) {
-  const db = getDb();
+  const db = await getDb();
   const related = await getRelatedProducts(db, productId, subcategoryId);
   if (related.length === 0) return null;
   return (

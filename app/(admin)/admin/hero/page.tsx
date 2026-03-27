@@ -6,7 +6,7 @@ import { getAllHeroSlides } from "@/lib/data/hero-slides";
 import { HeroSlideList } from "@/components/admin/hero-slide-list";
 
 export default async function AdminHeroPage() {
-  const db = getDb();
+  const db = await getDb();
   const slides = await getAllHeroSlides(db);
   const activeCount = slides.filter((s) => s.is_active).length;
 
