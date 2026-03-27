@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ChevronRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -70,7 +71,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
             <ArrowLeft className="size-5" />
           </Button>
         ) : (
-          <span className="text-xl font-bold">DBS</span>
+          <Image src="/images/dbs-store-logo.png" alt="DBS Store" width={70} height={32} />
         )}
 
         {activeCategory ? (

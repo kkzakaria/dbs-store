@@ -27,7 +27,7 @@ describe("SearchOverlay", () => {
 
   it("renders DBS logo", () => {
     render(<SearchOverlay onClose={onClose} />);
-    expect(screen.getByText("DBS")).toBeInTheDocument();
+    expect(screen.getByAltText("DBS Store")).toBeInTheDocument();
   });
 
   it("calls onClose when close button clicked", async () => {

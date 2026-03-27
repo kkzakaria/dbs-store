@@ -36,6 +36,6 @@ describe("AuthCard", () => {
         <div>content</div>
       </AuthCard>
     );
-    expect(screen.getByText("DBS Store")).toBeInTheDocument();
+    expect(screen.getByAltText("DBS Store")).toBeInTheDocument();
   });
 });
