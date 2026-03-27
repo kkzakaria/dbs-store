@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import Image from "next/image";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -51,9 +52,9 @@ export function AppBar() {
           >
             <Link
               href="/"
-              className="mr-6 flex items-center text-xl font-bold tracking-tight lg:mr-8"
+              className="mr-6 flex items-center lg:mr-8"
             >
-              DBS
+              <Image src="/images/dbs-store-logo.png" alt="DBS Store" width={80} height={36} priority />
             </Link>
 
             <div className="hidden flex-1 lg:flex">

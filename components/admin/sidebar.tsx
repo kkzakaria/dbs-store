@@ -2,13 +2,13 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import Image from "next/image";
 import {
   LayoutDashboard,
   Package,
   ShoppingCart,
   Users,
   LogOut,
-  Store,
   ImagePlay,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -43,8 +43,7 @@ export function Sidebar({ userEmail }: SidebarProps) {
   return (
     <aside className="flex h-full w-56 flex-col border-r bg-background">
       <div className="flex h-14 items-center gap-2 border-b px-4">
-        <Store className="size-5 text-primary" />
-        <span className="font-bold tracking-tight">DBS Admin</span>
+        <Image src="/images/dbs-store-logo.png" alt="DBS Admin" width={70} height={32} />
       </div>
 
       <nav className="flex-1 space-y-1 p-3">

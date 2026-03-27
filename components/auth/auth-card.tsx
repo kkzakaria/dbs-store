@@ -1,4 +1,4 @@
-import { Zap } from "lucide-react";
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -17,11 +17,8 @@ export function AuthCard({ title, description, children }: AuthCardProps) {
   return (
     <Card className="mx-auto w-full max-w-[420px] shadow-xl">
       <CardHeader className="text-center">
-        <div className="mx-auto mb-4 flex items-center gap-2">
-          <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-            <Zap className="size-4" />
-          </div>
-          <span className="text-lg font-bold tracking-tight">DBS Store</span>
+        <div className="mx-auto mb-4">
+          <Image src="/images/dbs-store-logo.png" alt="DBS Store" width={100} height={44} className="mx-auto" />
         </div>
         <CardTitle className="text-2xl">{title}</CardTitle>
         <CardDescription>{description}</CardDescription>

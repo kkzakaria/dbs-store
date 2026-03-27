@@ -14,7 +14,7 @@ vi.mock("next/navigation", () => ({
 describe("AppBar", () => {
   it("renders the DBS logo link", () => {
     render(<AppBar />);
-    expect(screen.getByRole("link", { name: /dbs/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /dbs store/i })).toBeInTheDocument();
   });
 
   it("has sticky positioning", () => {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef } from "react";
+import Image from "next/image";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
@@ -39,7 +40,7 @@ export function SearchOverlay({ onClose }: SearchOverlayProps) {
 
       <div className="fixed inset-x-0 top-0 z-50 bg-background shadow-sm">
         <div className="mx-auto flex h-15 max-w-7xl items-center gap-4 px-4 lg:px-6">
-          <span className="text-xl font-bold">DBS</span>
+          <Image src="/images/dbs-store-logo.png" alt="DBS Store" width={70} height={32} />
 
           <div className="flex-1">
             <input
