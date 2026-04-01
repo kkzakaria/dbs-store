@@ -74,7 +74,7 @@ export function LogoMarquee({
         className
       )}
       style={{ "--duration": `${speed}s` } as React.CSSProperties}
-      role="marquee"
+      role="region"
       aria-label="Nos marques partenaires"
     >
       {fadeEdges ? (
