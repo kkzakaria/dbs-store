@@ -44,55 +44,46 @@ export async function createHeroSlide(data: HeroSlideFormData): Promise<{ error?
   const validationError = validateSlideData(data);
   if (validationError) return validationError;
 
-  const db = getDb();
+  const db = await getDb();
   const now = new Date();
   const id = randomUUID();
 
   try {
-    db.transaction((tx) => {
-      if (data.is_active) {
-        const activeSlides = tx
-          .select({ count: count() })
-          .from(hero_slides)
-          .where(eq(hero_slides.is_active, true))
-          .all();
-        if (activeSlides[0].count >= MAX_ACTIVE_SLIDES) {
-          throw new Error("MAX_ACTIVE_SLIDES_REACHED");
-        }
-      }
-
-      const existing = tx
-        .select({ sort_order: hero_slides.sort_order })
+    if (data.is_active) {
+      const activeSlides = await db
+        .select({ count: count() })
         .from(hero_slides)
-        .all();
-      const maxOrder =
-        existing.length > 0 ? Math.max(...existing.map((s) => s.sort_order)) : -1;
+        .where(eq(hero_slides.is_active, true));
+      if (activeSlides[0].count >= MAX_ACTIVE_SLIDES) {
+        return { error: "Maximum 5 bannières actives autorisées" };
+      }
+    }
 
-      tx.insert(hero_slides)
-        .values({
-          id,
-          title: data.title.trim(),
-          subtitle: data.subtitle?.trim() || null,
-          badge: data.badge?.trim() || null,
-          image_url: data.image_url.trim(),
-          text_align: data.text_align,
-          overlay_color: data.overlay_color,
-          overlay_opacity: data.overlay_opacity,
-          cta_primary_label: data.cta_primary_label?.trim() || null,
-          cta_primary_href: data.cta_primary_href?.trim() || null,
-          cta_secondary_label: data.cta_secondary_label?.trim() || null,
-          cta_secondary_href: data.cta_secondary_href?.trim() || null,
-          is_active: data.is_active,
-          sort_order: maxOrder + 1,
-          created_at: now,
-          updated_at: now,
-        })
-        .run();
+    const existing = await db
+      .select({ sort_order: hero_slides.sort_order })
+      .from(hero_slides);
+    const maxOrder =
+      existing.length > 0 ? Math.max(...existing.map((s) => s.sort_order)) : -1;
+
+    await db.insert(hero_slides).values({
+      id,
+      title: data.title.trim(),
+      subtitle: data.subtitle?.trim() || null,
+      badge: data.badge?.trim() || null,
+      image_url: data.image_url.trim(),
+      text_align: data.text_align,
+      overlay_color: data.overlay_color,
+      overlay_opacity: data.overlay_opacity,
+      cta_primary_label: data.cta_primary_label?.trim() || null,
+      cta_primary_href: data.cta_primary_href?.trim() || null,
+      cta_secondary_label: data.cta_secondary_label?.trim() || null,
+      cta_secondary_href: data.cta_secondary_href?.trim() || null,
+      is_active: data.is_active,
+      sort_order: maxOrder + 1,
+      created_at: now,
+      updated_at: now,
     });
   } catch (err) {
-    if (err instanceof Error && err.message === "MAX_ACTIVE_SLIDES_REACHED") {
-      return { error: "Maximum 5 bannières actives autorisées" };
-    }
     console.error("[createHeroSlide]", err);
     return { error: "Erreur lors de la création" };
   }
@@ -111,51 +102,43 @@ export async function updateHeroSlide(
   const validationError = validateSlideData(data);
   if (validationError) return validationError;
 
-  const db = getDb();
+  const db = await getDb();
 
-  const existing = db
+  const existing = await db
     .select({ id: hero_slides.id, is_active: hero_slides.is_active })
     .from(hero_slides)
-    .where(eq(hero_slides.id, id))
-    .all();
+    .where(eq(hero_slides.id, id));
   if (existing.length === 0) return { error: "Bannière introuvable" };
 
   try {
-    db.transaction((tx) => {
-      if (data.is_active && !existing[0].is_active) {
-        const activeSlides = tx
-          .select({ count: count() })
-          .from(hero_slides)
-          .where(eq(hero_slides.is_active, true))
-          .all();
-        if (activeSlides[0].count >= MAX_ACTIVE_SLIDES) {
-          throw new Error("MAX_ACTIVE_SLIDES_REACHED");
-        }
+    if (data.is_active && !existing[0].is_active) {
+      const activeSlides = await db
+        .select({ count: count() })
+        .from(hero_slides)
+        .where(eq(hero_slides.is_active, true));
+      if (activeSlides[0].count >= MAX_ACTIVE_SLIDES) {
+        return { error: "Maximum 5 bannières actives autorisées" };
       }
-
-      tx.update(hero_slides)
-        .set({
-          title: data.title.trim(),
-          subtitle: data.subtitle?.trim() || null,
-          badge: data.badge?.trim() || null,
-          image_url: data.image_url.trim(),
-          text_align: data.text_align,
-          overlay_color: data.overlay_color,
-          overlay_opacity: data.overlay_opacity,
-          cta_primary_label: data.cta_primary_label?.trim() || null,
-          cta_primary_href: data.cta_primary_href?.trim() || null,
-          cta_secondary_label: data.cta_secondary_label?.trim() || null,
-          cta_secondary_href: data.cta_secondary_href?.trim() || null,
-          is_active: data.is_active,
-          updated_at: new Date(),
-        })
-        .where(eq(hero_slides.id, id))
-        .run();
-    });
-  } catch (err) {
-    if (err instanceof Error && err.message === "MAX_ACTIVE_SLIDES_REACHED") {
-      return { error: "Maximum 5 bannières actives autorisées" };
     }
+
+    await db.update(hero_slides)
+      .set({
+        title: data.title.trim(),
+        subtitle: data.subtitle?.trim() || null,
+        badge: data.badge?.trim() || null,
+        image_url: data.image_url.trim(),
+        text_align: data.text_align,
+        overlay_color: data.overlay_color,
+        overlay_opacity: data.overlay_opacity,
+        cta_primary_label: data.cta_primary_label?.trim() || null,
+        cta_primary_href: data.cta_primary_href?.trim() || null,
+        cta_secondary_label: data.cta_secondary_label?.trim() || null,
+        cta_secondary_href: data.cta_secondary_href?.trim() || null,
+        is_active: data.is_active,
+        updated_at: new Date(),
+      })
+      .where(eq(hero_slides.id, id));
+  } catch (err) {
     console.error("[updateHeroSlide]", err);
     return { error: "Erreur lors de la mise à jour" };
   }
@@ -170,33 +153,26 @@ export async function toggleHeroSlideActive(
   isActive: boolean
 ): Promise<{ error?: string }> {
   await requireOrgMember();
-  const db = getDb();
+  const db = await getDb();
 
   try {
-    db.transaction((tx) => {
-      if (isActive) {
-        const activeSlides = tx
-          .select({ count: count() })
-          .from(hero_slides)
-          .where(eq(hero_slides.is_active, true))
-          .all();
-        if (activeSlides[0].count >= MAX_ACTIVE_SLIDES) {
-          throw new Error("MAX_ACTIVE_SLIDES_REACHED");
-        }
+    if (isActive) {
+      const activeSlides = await db
+        .select({ count: count() })
+        .from(hero_slides)
+        .where(eq(hero_slides.is_active, true));
+      if (activeSlides[0].count >= MAX_ACTIVE_SLIDES) {
+        return { error: "Maximum 5 bannières actives autorisées" };
       }
+    }
 
-      tx.update(hero_slides)
-        .set({ is_active: isActive, updated_at: new Date() })
-        .where(eq(hero_slides.id, id))
-        .run();
-    });
+    await db.update(hero_slides)
+      .set({ is_active: isActive, updated_at: new Date() })
+      .where(eq(hero_slides.id, id));
     revalidatePath("/admin/hero");
     revalidatePath("/");
     return {};
   } catch (err) {
-    if (err instanceof Error && err.message === "MAX_ACTIVE_SLIDES_REACHED") {
-      return { error: "Maximum 5 bannières actives autorisées" };
-    }
     console.error("[toggleHeroSlideActive]", err);
     return { error: "Erreur lors de la mise à jour" };
   }
@@ -204,7 +180,7 @@ export async function toggleHeroSlideActive(
 
 export async function deleteHeroSlide(id: string): Promise<{ error?: string }> {
   await requireOrgMember();
-  const db = getDb();
+  const db = await getDb();
   try {
     await db.delete(hero_slides).where(eq(hero_slides.id, id));
     revalidatePath("/admin/hero");
@@ -218,17 +194,17 @@ export async function deleteHeroSlide(id: string): Promise<{ error?: string }> {
 
 export async function reorderHeroSlides(ids: string[]): Promise<{ error?: string }> {
   await requireOrgMember();
-  const db = getDb();
+  const db = await getDb();
   try {
     const now = new Date();
-    db.transaction((tx) => {
-      for (let i = 0; i < ids.length; i++) {
-        tx.update(hero_slides)
-          .set({ sort_order: i, updated_at: now })
-          .where(eq(hero_slides.id, ids[i]))
-          .run();
-      }
-    });
+    const statements = ids.map((id, i) =>
+      db.update(hero_slides)
+        .set({ sort_order: i, updated_at: now })
+        .where(eq(hero_slides.id, id))
+    );
+    if (statements.length > 0) {
+      await db.batch(statements as [typeof statements[0], ...typeof statements])
+    }
     revalidatePath("/admin/hero");
     revalidatePath("/");
     return {};

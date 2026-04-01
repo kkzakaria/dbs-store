@@ -1,8 +1,9 @@
-import { auth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { ORG_SLUG } from "@/lib/constants";
 
 export async function requireOrgMember() {
+  const auth = await getAuth();
   const h = await headers();
   const session = await auth.api.getSession({ headers: h });
   if (!session?.user) throw new Error("UNAUTHORIZED");

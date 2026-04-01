@@ -5,7 +5,7 @@ import { OrdersChart } from "@/components/admin/orders-chart";
 import { formatFCFA } from "@/lib/utils";
 
 export default async function AdminDashboardPage() {
-  const db = getDb();
+  const db = await getDb();
   const stats = await getAdminStats(db);
 
   return (

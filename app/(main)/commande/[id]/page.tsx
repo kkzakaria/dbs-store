@@ -5,17 +5,18 @@ import { eq } from "drizzle-orm";
 import { getDb } from "@/lib/db";
 import { orders, order_items } from "@/lib/db/schema";
 import { Button } from "@/components/ui/button";
-import { auth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
 
 type Props = { params: Promise<{ id: string }> };
 
 export default async function OrderConfirmationPage({ params }: Props) {
   const { id } = await params;
-  const db = getDb();
+  const db = await getDb();
 
   try {
     // auth and order fetch are independent — run in parallel
+    const auth = await getAuth();
     const [session, [order]] = await Promise.all([
       auth.api.getSession({ headers: await headers() }),
       db.select().from(orders).where(eq(orders.id, id)).limit(1),

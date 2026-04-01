@@ -11,14 +11,13 @@ const mockDb = {
 };
 
 vi.mock("@/lib/db", () => ({ getDb: vi.fn(() => mockDb) }));
+const mockAuthApi = { getSession: vi.fn(), listOrganizations: vi.fn() };
 vi.mock("@/lib/auth", () => ({
-  auth: { api: { getSession: vi.fn(), listOrganizations: vi.fn() } },
+  getAuth: vi.fn(() => Promise.resolve({ api: mockAuthApi })),
 }));
 vi.mock("next/headers", () => ({ headers: vi.fn(() => new Headers()) }));
 vi.mock("next/navigation", () => ({ redirect: vi.fn() }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
-
-import { auth } from "@/lib/auth";
 import { validateProductData } from "@/lib/actions/product-validation";
 import type { ProductFormData } from "@/lib/actions/product-validation";
 

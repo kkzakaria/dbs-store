@@ -5,6 +5,7 @@ import { getDb } from "@/lib/db";
 import { getProductsByCategory, getPromoProducts } from "@/lib/data/products";
 import { ProductCard } from "@/components/products/product-card";
 import { HeroCarousel } from "@/components/hero/hero-carousel";
+import { LogoMarquee } from "@/components/store/home/LogoMarquee";
 import { getActiveHeroSlides } from "@/lib/data/hero-slides";
 
 const categoryHighlights = [
@@ -17,7 +18,7 @@ const categoryHighlights = [
 ];
 
 export default async function HomePage() {
-  const db = getDb();
+  const db = await getDb();
   const [featured, promos] = await Promise.all([
     getProductsByCategory(db, "smartphones", { tri: "nouveau" }),
     getPromoProducts(db, 4),
@@ -31,6 +32,14 @@ export default async function HomePage() {
     <div>
       {/* Hero */}
       <HeroCarousel slides={heroSlides} />
+
+      {/* Brand logos */}
+      <section className="bg-muted/20 py-6">
+        <p className="text-center text-xs font-medium uppercase tracking-widest text-muted-foreground mb-4">
+          Nos marques partenaires
+        </p>
+        <LogoMarquee />
+      </section>
 
       {/* Categories grid */}
       <section className="mx-auto max-w-7xl px-4 py-16 lg:px-6">

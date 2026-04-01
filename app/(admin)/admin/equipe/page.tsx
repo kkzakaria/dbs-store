@@ -1,8 +1,9 @@
-import { auth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { TeamManagement } from "@/components/admin/team-management";
 
 export default async function AdminEquipePage() {
+  const auth = await getAuth();
   const h = await headers();
   const session = await auth.api.getSession({ headers: h });
 

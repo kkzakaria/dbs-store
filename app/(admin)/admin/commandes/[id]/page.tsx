@@ -10,7 +10,7 @@ type Props = { params: Promise<{ id: string }> };
 
 export default async function AdminCommandeDetailPage({ params }: Props) {
   const { id } = await params;
-  const db = getDb();
+  const db = await getDb();
   const result = await getAdminOrderById(db, id);
   if (!result) notFound();
 

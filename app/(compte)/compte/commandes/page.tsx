@@ -26,7 +26,7 @@ export default async function CommandesPage() {
   // Layout already redirects unauthenticated users — session is always set here.
   // getCachedSession() deduplicates the auth call already made by the layout.
   const session = await getCachedSession();
-  const db = getDb();
+  const db = await getDb();
   const userOrders = await db
     .select()
     .from(orders)

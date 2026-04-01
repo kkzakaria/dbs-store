@@ -11,7 +11,7 @@ interface Props {
 
 export default async function AdminHeroEditPage({ params }: Props) {
   const { id } = await params;
-  const db = getDb();
+  const db = await getDb();
   const slide = await getHeroSlide(db, id);
 
   if (!slide) notFound();

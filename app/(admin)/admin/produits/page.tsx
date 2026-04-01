@@ -15,7 +15,7 @@ const categoryMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
 export default async function AdminProduitsPage({ searchParams }: Props) {
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page ?? 1));
-  const db = getDb();
+  const db = await getDb();
   const { products, total } = await getAdminProducts(
     db,
     { search: sp.search, category_id: sp.cat },

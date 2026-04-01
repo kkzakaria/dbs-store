@@ -8,6 +8,7 @@ import { requireOrgMember } from "@/lib/actions/admin-auth";
 import { getDb } from "@/lib/db";
 import { products } from "@/lib/db/schema";
 import { validateProductData } from "@/lib/actions/product-validation";
+import type { ProductFormData } from "@/lib/actions/product-validation";
 export type { ProductFormData, ValidationResult } from "@/lib/actions/product-validation";
 
 export async function createProduct(data: ProductFormData): Promise<{ error?: string }> {
@@ -16,7 +17,7 @@ export async function createProduct(data: ProductFormData): Promise<{ error?: st
   const validation = validateProductData(data);
   if (!validation.success) return { error: validation.error };
 
-  const db = getDb();
+  const db = await getDb();
   const id = randomUUID();
   const now = new Date();
 
@@ -57,7 +58,7 @@ export async function updateProduct(
   const validation = validateProductData(data);
   if (!validation.success) return { error: validation.error };
 
-  const db = getDb();
+  const db = await getDb();
 
   try {
     await db
@@ -94,7 +95,7 @@ export async function toggleProductActive(
   isActive: boolean
 ): Promise<{ error?: string }> {
   await requireOrgMember();
-  const db = getDb();
+  const db = await getDb();
   try {
     await db.update(products).set({ is_active: isActive }).where(eq(products.id, id));
     revalidatePath("/admin/produits");
@@ -107,7 +108,7 @@ export async function toggleProductActive(
 
 export async function deleteProduct(id: string): Promise<{ error?: string }> {
   await requireOrgMember();
-  const db = getDb();
+  const db = await getDb();
   try {
     await db.delete(products).where(eq(products.id, id));
     revalidatePath("/admin/produits");

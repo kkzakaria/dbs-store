@@ -1,10 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
 
 async function requireOwner() {
+  const auth = await getAuth();
   const h = await headers();
   const session = await auth.api.getSession({ headers: h });
   if (!session?.user) throw new Error("UNAUTHORIZED");
@@ -12,7 +13,7 @@ async function requireOwner() {
   const orgs = await auth.api.listOrganizations({ headers: h });
   if (!Array.isArray(orgs) || orgs.length === 0) throw new Error("UNAUTHORIZED");
 
-  // Vérifier le rôle owner via Better Auth
+  // Verifier le role owner via Better Auth
   const fullOrg = await auth.api.getFullOrganization({
     query: { organizationSlug: "dbs-store" },
     headers: h,
@@ -30,6 +31,7 @@ export async function inviteMember(
   role: "admin" | "member"
 ): Promise<{ error?: string }> {
   try {
+    const auth = await getAuth();
     const h = await headers();
     const { orgId } = await requireOwner();
     await auth.api.createInvitation({
@@ -40,7 +42,7 @@ export async function inviteMember(
     return {};
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Erreur inconnue";
-    if (msg === "UNAUTHORIZED" || msg === "FORBIDDEN") return { error: "Accès refusé" };
+    if (msg === "UNAUTHORIZED" || msg === "FORBIDDEN") return { error: "Acces refuse" };
     return { error: "Erreur lors de l'invitation" };
   }
 }
@@ -50,6 +52,7 @@ export async function updateMemberRole(
   role: "admin" | "member"
 ): Promise<{ error?: string }> {
   try {
+    const auth = await getAuth();
     const h = await headers();
     await requireOwner();
     await auth.api.updateMemberRole({
@@ -60,13 +63,14 @@ export async function updateMemberRole(
     return {};
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Erreur inconnue";
-    if (msg === "UNAUTHORIZED" || msg === "FORBIDDEN") return { error: "Accès refusé" };
-    return { error: "Erreur lors de la mise à jour du rôle" };
+    if (msg === "UNAUTHORIZED" || msg === "FORBIDDEN") return { error: "Acces refuse" };
+    return { error: "Erreur lors de la mise a jour du role" };
   }
 }
 
 export async function removeMember(memberId: string): Promise<{ error?: string }> {
   try {
+    const auth = await getAuth();
     const h = await headers();
     await requireOwner();
     await auth.api.removeMember({
@@ -77,7 +81,7 @@ export async function removeMember(memberId: string): Promise<{ error?: string }
     return {};
   } catch (err) {
     const msg = err instanceof Error ? err.message : "Erreur inconnue";
-    if (msg === "UNAUTHORIZED" || msg === "FORBIDDEN") return { error: "Accès refusé" };
+    if (msg === "UNAUTHORIZED" || msg === "FORBIDDEN") return { error: "Acces refuse" };
     return { error: "Erreur lors de la suppression" };
   }
 }

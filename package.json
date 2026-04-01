@@ -4,14 +4,17 @@
   "private": true,
   "scripts": {
     "dev": "next dev --port 33000",
-    "build": "next build",
+    "build": "opennextjs-cloudflare build",
     "start": "next start --port 33000",
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
     "seed": "tsx scripts/seed-org.ts",
+    "preview": "wrangler dev",
+    "deploy": "wrangler deploy",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate",
+    "db:migrate:local": "wrangler d1 migrations apply dbs-store-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply dbs-store-db --remote",
     "db:seed": "tsx scripts/seed.ts",
     "db:seed-hero": "tsx scripts/seed-hero.ts"
   },
@@ -22,9 +25,9 @@
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
+    "@opennextjs/cloudflare": "^1.18.0",
     "@radix-ui/react-visually-hidden": "^1.2.4",
     "better-auth": "^1.4.18",
-    "better-sqlite3": "^12.6.2",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "drizzle-orm": "^0.45.1",
@@ -40,11 +43,11 @@
     "zustand": "^5.0.11"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260317.1",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
-    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -56,14 +59,14 @@
     "tailwindcss": "^4",
     "tsx": "^4.21.0",
     "typescript": "^5",
-    "vitest": "^4.0.18"
+    "vitest": "^4.0.18",
+    "wrangler": "^4.77.0"
   },
   "ignoreScripts": [
     "sharp",
     "unrs-resolver"
   ],
   "trustedDependencies": [
-    "better-sqlite3",
     "sharp",
     "unrs-resolver"
   ]

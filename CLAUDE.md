@@ -7,16 +7,20 @@ E-commerce store for electronics in Ivory Coast / UEMOA zone. French locale.
 - Next.js 16 + React 19 + TypeScript
 - Tailwind CSS v4 + Shadcn UI (Radix-based)
 - Bun as package manager
+- Cloudflare Workers + D1 (via @opennextjs/cloudflare)
 - Vitest + React Testing Library + jsdom
 
 ## Commands
 
-- `bun run dev` — dev server on port 33000
+- `bun run dev` — Next.js dev server on port 33000 (local only, no D1)
+- `bun run preview` — wrangler dev (local Workers + D1)
 - `bun run test` — run all tests (vitest run)
 - `bun run test:watch` — watch mode
 - `bun run lint` — ESLint
-- `bun run build` — production build
-- `bun run db:migrate` — apply SQLite migrations (required before first seed)
+- `bun run build` — production build via opennextjs-cloudflare
+- `bun run deploy` — deploy to Cloudflare Workers
+- `bun run db:migrate:local` — apply D1 migrations locally
+- `bun run db:migrate:remote` — apply D1 migrations to production
 - `bun run db:seed` — insert demo products (runs via tsx/Node, not Bun runtime)
 
 ## Project Structure
@@ -47,8 +51,8 @@ E-commerce store for electronics in Ivory Coast / UEMOA zone. French locale.
 
 - `margin-top` on sticky elements does NOT create viewport offset — use the `top` CSS property instead
 - Dev server runs on port 33000 (not default 3000)
-- `better-sqlite3` is NOT supported in the Bun runtime — seed/migration scripts run via `tsx` (Node.js) under the hood; `bun run db:*` works, bare `bun scripts/seed.ts` does not
-- Run `bun install` then `bun run db:migrate` before `bun run db:seed` on a fresh clone
 - ESLint has ~16 pre-existing errors (unescaped entities, `any` types in auth/app-bar) — `bun run lint` failing does not indicate a regression from new code
-- `better-sqlite3` transactions are synchronous — `db.transaction()` callback must NOT be async; use `.run()` on each insert inside the callback (no `await`)
-- Better Auth does NOT auto-migrate — run `bunx @better-auth/cli migrate --yes` on a fresh DB before the first sign-up/sign-in; git worktrees need their own `.env.local` (not inherited from the main tree)
+- `getDb()` and `getAuth()` are async — always `await` them
+- D1 transactions use `db.batch([...])` for atomic multi-statement writes
+- Secrets must be set via `wrangler secret put <NAME>` for production
+- Local dev with D1 uses `wrangler dev` (port 8788), not `next dev`

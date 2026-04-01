@@ -1,5 +1,5 @@
 import { cache } from "react";
-import { auth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
 
 /**
@@ -7,10 +7,11 @@ import { headers } from "next/headers";
  *
  * React.cache() ensures at most one auth.api.getSession() call per server
  * request, regardless of how many RSC components (layout + pages) invoke it.
- * No args → cache key is stable within a single request.
+ * No args -> cache key is stable within a single request.
  *
  * Server-only: this file must never be imported by client components.
  */
 export const getCachedSession = cache(async () => {
+  const auth = await getAuth();
   return auth.api.getSession({ headers: await headers() });
 });

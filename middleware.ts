@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { auth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 import { ORG_SLUG } from "@/lib/constants";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isAdminRoute = pathname.startsWith("/admin");
+
+  const auth = await getAuth();
 
   let session: Awaited<ReturnType<typeof auth.api.getSession>>;
   try {
@@ -40,7 +42,7 @@ export async function middleware(request: NextRequest) {
       orgs.some((org: { slug: string }) => org.slug === ORG_SLUG);
 
     if (!isMember) {
-      console.warn(`[proxy] accès admin refusé (${pathname}): non membre de l'organisation`);
+      console.warn(`[proxy] acces admin refuse (${pathname}): non membre de l'organisation`);
       return NextResponse.redirect(new URL("/", request.url));
     }
   }

@@ -8,7 +8,7 @@ type Props = { params: Promise<{ id: string }> };
 
 export default async function EditProduitPage({ params }: Props) {
   const { id } = await params;
-  const db = getDb();
+  const db = await getDb();
   const product = await getAdminProductById(db, id);
   if (!product) notFound();
 

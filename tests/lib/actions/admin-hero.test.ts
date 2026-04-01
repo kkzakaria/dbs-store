@@ -41,7 +41,7 @@ let _testDb: ReturnType<typeof createTestDb> | null = null;
 vi.mock("@/lib/db", () => ({
   getDb: () => {
     if (!_testDb) _testDb = createTestDb();
-    return _testDb;
+    return Promise.resolve(_testDb);
   },
 }));
 
@@ -65,13 +65,13 @@ const SLIDE = {
 describe("toggleHeroSlideActive", () => {
   beforeEach(async () => {
     _testDb = createTestDb();
-    await getDb().insert(schema.hero_slides).values(SLIDE);
+    await (await getDb()).insert(schema.hero_slides).values(SLIDE);
   });
 
   it("désactive une slide active", async () => {
     const result = await toggleHeroSlideActive("slide-1", false);
     expect(result).toEqual({});
-    const [row] = await getDb().select().from(schema.hero_slides).where(eq(schema.hero_slides.id, "slide-1"));
+    const [row] = await (await getDb()).select().from(schema.hero_slides).where(eq(schema.hero_slides.id, "slide-1"));
     expect(row.is_active).toBe(false);
   });
 });
@@ -79,13 +79,13 @@ describe("toggleHeroSlideActive", () => {
 describe("deleteHeroSlide", () => {
   beforeEach(async () => {
     _testDb = createTestDb();
-    await getDb().insert(schema.hero_slides).values(SLIDE);
+    await (await getDb()).insert(schema.hero_slides).values(SLIDE);
   });
 
   it("supprime une slide existante", async () => {
     const result = await deleteHeroSlide("slide-1");
     expect(result).toEqual({});
-    const rows = await getDb().select().from(schema.hero_slides).where(eq(schema.hero_slides.id, "slide-1"));
+    const rows = await (await getDb()).select().from(schema.hero_slides).where(eq(schema.hero_slides.id, "slide-1"));
     expect(rows).toHaveLength(0);
   });
 });
@@ -93,7 +93,7 @@ describe("deleteHeroSlide", () => {
 describe("reorderHeroSlides", () => {
   beforeEach(async () => {
     _testDb = createTestDb();
-    await getDb().insert(schema.hero_slides).values([
+    await (await getDb()).insert(schema.hero_slides).values([
       { ...SLIDE, id: "s1", sort_order: 0 },
       { ...SLIDE, id: "s2", sort_order: 1 },
     ]);
@@ -102,8 +102,8 @@ describe("reorderHeroSlides", () => {
   it("met à jour sort_order selon l'ordre des ids", async () => {
     const result = await reorderHeroSlides(["s2", "s1"]);
     expect(result).toEqual({});
-    const [r1] = await getDb().select().from(schema.hero_slides).where(eq(schema.hero_slides.id, "s1"));
-    const [r2] = await getDb().select().from(schema.hero_slides).where(eq(schema.hero_slides.id, "s2"));
+    const [r1] = await (await getDb()).select().from(schema.hero_slides).where(eq(schema.hero_slides.id, "s1"));
+    const [r2] = await (await getDb()).select().from(schema.hero_slides).where(eq(schema.hero_slides.id, "s2"));
     expect(r2.sort_order).toBe(0);
     expect(r1.sort_order).toBe(1);
   });
@@ -112,13 +112,13 @@ describe("reorderHeroSlides", () => {
 describe("toggleHeroSlideActive — activation", () => {
   beforeEach(async () => {
     _testDb = createTestDb();
-    await getDb().insert(schema.hero_slides).values({ ...SLIDE, is_active: false });
+    await (await getDb()).insert(schema.hero_slides).values({ ...SLIDE, is_active: false });
   });
 
   it("active une slide inactive", async () => {
     const result = await toggleHeroSlideActive("slide-1", true);
     expect(result).toEqual({});
-    const [row] = await getDb().select().from(schema.hero_slides).where(eq(schema.hero_slides.id, "slide-1"));
+    const [row] = await (await getDb()).select().from(schema.hero_slides).where(eq(schema.hero_slides.id, "slide-1"));
     expect(row.is_active).toBe(true);
   });
 });
@@ -151,26 +151,26 @@ describe("createHeroSlide", () => {
 
   it("crée une slide avec sort_order = 0 quand la table est vide", async () => {
     await createHeroSlide(VALID_DATA);
-    const rows = await getDb().select().from(schema.hero_slides);
+    const rows = await (await getDb()).select().from(schema.hero_slides);
     expect(rows).toHaveLength(1);
     expect(rows[0].sort_order).toBe(0);
     expect(rows[0].title).toBe("Nouvelle bannière");
   });
 
   it("assigne sort_order = maxOrder + 1 quand des slides existent", async () => {
-    await getDb().insert(schema.hero_slides).values([
+    await (await getDb()).insert(schema.hero_slides).values([
       { ...SLIDE, id: "s1", sort_order: 0 },
       { ...SLIDE, id: "s2", sort_order: 5 },
     ]);
     await createHeroSlide(VALID_DATA);
-    const rows = await getDb().select().from(schema.hero_slides).where(eq(schema.hero_slides.title, "Nouvelle bannière"));
+    const rows = await (await getDb()).select().from(schema.hero_slides).where(eq(schema.hero_slides.title, "Nouvelle bannière"));
     expect(rows[0].sort_order).toBe(6);
   });
 
   it("retourne une erreur si le titre est vide", async () => {
     const result = await createHeroSlide({ ...VALID_DATA, title: "  " });
     expect(result).toEqual({ error: "Le titre est requis" });
-    const rows = await getDb().select().from(schema.hero_slides);
+    const rows = await (await getDb()).select().from(schema.hero_slides);
     expect(rows).toHaveLength(0);
   });
 
@@ -196,7 +196,7 @@ describe("createHeroSlide", () => {
 
   it("convertit les champs optionnels vides en null", async () => {
     await createHeroSlide({ ...VALID_DATA, subtitle: "  ", badge: "" });
-    const rows = await getDb().select().from(schema.hero_slides);
+    const rows = await (await getDb()).select().from(schema.hero_slides);
     expect(rows[0].subtitle).toBeNull();
     expect(rows[0].badge).toBeNull();
   });
@@ -212,7 +212,7 @@ describe("updateHeroSlide", () => {
   beforeEach(async () => {
     _testDb = createTestDb();
     vi.clearAllMocks();
-    await getDb().insert(schema.hero_slides).values(SLIDE);
+    await (await getDb()).insert(schema.hero_slides).values(SLIDE);
   });
 
   const UPDATE_DATA = {
@@ -226,7 +226,7 @@ describe("updateHeroSlide", () => {
 
   it("met à jour une slide existante", async () => {
     await updateHeroSlide("slide-1", UPDATE_DATA);
-    const [row] = await getDb().select().from(schema.hero_slides).where(eq(schema.hero_slides.id, "slide-1"));
+    const [row] = await (await getDb()).select().from(schema.hero_slides).where(eq(schema.hero_slides.id, "slide-1"));
     expect(row.title).toBe("Titre modifié");
     expect(row.is_active).toBe(false);
   });

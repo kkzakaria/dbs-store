@@ -10,7 +10,7 @@ import { requireOrgMember } from "@/lib/actions/admin-auth";
 
 export async function updateOrderStatus(id: string, newStatus: OrderStatus): Promise<void> {
   await requireOrgMember();
-  const db = getDb();
+  const db = await getDb();
 
   const [order] = await db.select().from(orders).where(eq(orders.id, id)).limit(1);
   if (!order) throw new Error("ORDER_NOT_FOUND");

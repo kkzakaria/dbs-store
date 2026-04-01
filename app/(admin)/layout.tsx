@@ -1,18 +1,19 @@
 import { redirect } from "next/navigation";
-import { auth } from "@/lib/auth";
+import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { Sidebar } from "@/components/admin/sidebar";
 
 export const metadata = { title: "Administration — DBS Store" };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
+  const auth = await getAuth();
   const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session?.user) {
     redirect("/connexion?callbackUrl=/admin");
   }
 
-  // Vérifier l'appartenance à l'organisation
+  // Verifier l'appartenance a l'organisation
   let isOrgMember = false;
   try {
     const orgs = await auth.api.listOrganizations({ headers: await headers() });
