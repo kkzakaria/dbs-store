@@ -28,7 +28,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Build
-        run: bun run build
+        run: bun run build:worker
 
       - name: Apply D1 migrations
         run: bunx wrangler d1 migrations apply dbs-store-db --remote
