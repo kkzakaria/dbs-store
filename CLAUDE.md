@@ -53,6 +53,12 @@ E-commerce store for electronics in Ivory Coast / UEMOA zone. French locale.
 
 ## Gotchas
 
+- `build` script MUST be `next build` (not `opennextjs-cloudflare build`) — opennextjs internally runs `bun run build`, causing infinite loop if it points to itself. Use `build:worker` for the full Workers build.
+- Any page/layout calling `getDb()`, `getAuth()`, or `getCachedSession()` MUST have `export const dynamic = "force-dynamic"` — Cloudflare bindings are unavailable at build-time prerender
+- Deploy CI requires both Node.js AND Bun — opennextjs-cloudflare build needs Node.js for native module compilation
+- `@opennextjs/cloudflare` only works with Cloudflare Workers, NOT Cloudflare Pages
+- `wrangler deploy` does NOT build — `.open-next/` must be pre-built via `bun run build:worker`
+- Bash: quote paths with parentheses — `"app/(admin)/..."` not `app/(admin)/...`
 - `margin-top` on sticky elements does NOT create viewport offset — use the `top` CSS property instead
 - Dev server runs on port 33000 (not default 3000)
 - ESLint has pre-existing errors (unescaped entities, `any` types in auth/app-bar) — `bun run lint` failing does not indicate a regression from new code
