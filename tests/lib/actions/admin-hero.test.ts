@@ -33,7 +33,12 @@ function createTestDb() {
       updated_at INTEGER NOT NULL
     )
   `);
-  return drizzle(sqlite, { schema });
+  const db = drizzle(sqlite, { schema });
+  // Polyfill D1's batch() method for better-sqlite3 tests
+  (db as any).batch = async (statements: any[]) => {
+    return Promise.all(statements);
+  };
+  return db;
 }
 
 let _testDb: ReturnType<typeof createTestDb> | null = null;
