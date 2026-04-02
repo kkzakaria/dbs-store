@@ -1,0 +1,30 @@
+{
+  "enabledPlugins": {
+    "playwright@claude-plugins-official": false
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // empty' | { read -r f; echo \"$f\" | grep -qE '\\.(ts|tsx|js|jsx|mjs)$' && bunx eslint --fix --no-warn-ignored \"$f\"; } 2>/dev/null || true",
+            "statusMessage": "Auto-linting..."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_input.file_path // empty' | { read -r f; if echo \"$f\" | grep -qE '(bun\\.lock|wrangler\\.toml|\\.env)$'; then printf '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Fichier protege - bun.lock, wrangler.toml et .env ne peuvent pas etre modifies\"}}'; fi; }"
+          }
+        ]
+      }
+    ]
+  }
+}
