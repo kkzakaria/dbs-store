@@ -5,12 +5,14 @@ const mockGetSession = vi.fn();
 const mockListOrganizations = vi.fn();
 
 vi.mock("@/lib/auth", () => ({
-  auth: {
-    api: {
-      getSession: (...args: unknown[]) => mockGetSession(...args),
-      listOrganizations: (...args: unknown[]) => mockListOrganizations(...args),
-    },
-  },
+  getAuth: vi.fn(() =>
+    Promise.resolve({
+      api: {
+        getSession: (...args: unknown[]) => mockGetSession(...args),
+        listOrganizations: (...args: unknown[]) => mockListOrganizations(...args),
+      },
+    })
+  ),
 }));
 
 function createRequest(path: string) {
@@ -84,7 +86,7 @@ describe("proxy", () => {
     expect(location.pathname).toBe("/");
     expect(warnSpy).toHaveBeenCalledTimes(1);
     expect(warnSpy).toHaveBeenCalledWith(
-      "[proxy] accès admin refusé (/admin/dashboard): non membre de l'organisation"
+      "[proxy] acces admin refuse (/admin/dashboard): non membre de l'organisation"
     );
     expect(errorSpy).not.toHaveBeenCalled();
   });
