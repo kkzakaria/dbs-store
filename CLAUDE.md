@@ -17,7 +17,8 @@ E-commerce store for electronics in Ivory Coast / UEMOA zone. French locale.
 - `bun run test` — run all tests (vitest run)
 - `bun run test:watch` — watch mode
 - `bun run lint` — ESLint
-- `bun run build` — production build via opennextjs-cloudflare
+- `bun run build` — Next.js production build
+- `bun run build:worker` — full Cloudflare Workers build (next build + opennextjs adapter)
 - `bun run deploy` — deploy to Cloudflare Workers
 - `bun run db:migrate:local` — apply D1 migrations locally
 - `bun run db:migrate:remote` — apply D1 migrations to production
