@@ -48,3 +48,11 @@ next-env.d.ts
 
 # worktrees
 .worktrees/
+
+# cloudflare
+.open-next/
+.wrangler/
+
+# local assets
+image-catalogue/
+*.Zone.Identifier

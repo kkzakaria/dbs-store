@@ -10,26 +10,16 @@ const mockDb = {
 };
 
 vi.mock("@/lib/db", () => ({ getDb: vi.fn(() => mockDb) }));
-const mockAuthApi = { getSession: vi.fn(), listOrganizations: vi.fn() };
-vi.mock("@/lib/auth", () => ({
-  getAuth: vi.fn(() => Promise.resolve({ api: mockAuthApi })),
+vi.mock("@/lib/actions/admin-auth", () => ({
+  requireOrgMember: vi.fn().mockResolvedValue(undefined),
 }));
-vi.mock("next/headers", () => ({ headers: vi.fn(() => new Headers()) }));
 vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
 
 import { updateOrderStatus } from "@/lib/actions/admin-orders";
 
-function mockAuth() {
-  mockAuthApi.getSession.mockResolvedValue({
-    user: { id: "u1" },
-  });
-  mockAuthApi.listOrganizations.mockResolvedValue([{ id: "org1" }]);
-}
-
 describe("updateOrderStatus", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockAuth();
   });
 
   it("lève INVALID_TRANSITION si transition non autorisée", async () => {

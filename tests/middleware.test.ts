@@ -5,12 +5,14 @@ const mockGetSession = vi.fn();
 const mockListOrganizations = vi.fn();
 
 vi.mock("@/lib/auth", () => ({
-  auth: {
-    api: {
-      getSession: (...args: unknown[]) => mockGetSession(...args),
-      listOrganizations: (...args: unknown[]) => mockListOrganizations(...args),
-    },
-  },
+  getAuth: vi.fn(() =>
+    Promise.resolve({
+      api: {
+        getSession: (...args: unknown[]) => mockGetSession(...args),
+        listOrganizations: (...args: unknown[]) => mockListOrganizations(...args),
+      },
+    })
+  ),
 }));
 
 function createRequest(path: string) {

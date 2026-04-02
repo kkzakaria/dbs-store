@@ -441,6 +441,18 @@ const seed = [
     stock: 6, badge: null, is_active: true, created_at: now,
   },
 
+  {
+    id: "huawei-freeclip-2",
+    name: "Huawei FreeClip 2",
+    slug: "huawei-freeclip-2",
+    category_id: "audio", subcategory_id: "ecouteurs-sans-fil",
+    price: 149000, old_price: null, brand: "Huawei",
+    images: JSON.stringify(img),
+    description: "Huawei FreeClip 2 — écouteurs ouverts à clip au design innovant, conçus pour le confort longue durée et un son Hi-Res.",
+    specs: JSON.stringify({ Type: "Open-ear clip", Autonomie: "8h + 28h boîtier", Bluetooth: "5.3", Résistance: "IP54" }),
+    stock: 10, badge: "Nouveau", is_active: true, created_at: now,
+  },
+
   // ── CAMÉRAS & DRONES ─────────────────────────────────────────────────────────
 
   {
