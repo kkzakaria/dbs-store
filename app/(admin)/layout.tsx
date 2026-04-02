@@ -3,6 +3,8 @@ import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { Sidebar } from "@/components/admin/sidebar";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = { title: "Administration — DBS Store" };
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {

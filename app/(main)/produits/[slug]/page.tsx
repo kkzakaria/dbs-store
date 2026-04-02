@@ -11,6 +11,8 @@ import { ProductCard } from "@/components/products/product-card";
 import { AddToCartButton } from "@/components/products/add-to-cart-button";
 import { formatPrice } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 type Props = { params: Promise<{ slug: string }> };
 
 export async function generateMetadata({ params }: Props) {

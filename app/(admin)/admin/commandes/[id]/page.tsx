@@ -6,6 +6,8 @@ import { getAdminOrderById } from "@/lib/data/admin-orders";
 import { OrderStatusWidget } from "@/components/admin/order-status-widget";
 import { formatFCFA } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 type Props = { params: Promise<{ id: string }> };
 
 export default async function AdminCommandeDetailPage({ params }: Props) {

@@ -5,6 +5,8 @@ import { HeroSlideForm } from "@/components/admin/hero-slide-form";
 import { updateHeroSlide } from "@/lib/actions/admin-hero";
 import type { HeroSlideFormData } from "@/lib/actions/admin-hero";
 
+export const dynamic = "force-dynamic";
+
 interface Props {
   params: Promise<{ id: string }>;
 }

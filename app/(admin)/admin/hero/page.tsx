@@ -5,6 +5,8 @@ import { getDb } from "@/lib/db";
 import { getAllHeroSlides } from "@/lib/data/hero-slides";
 import { HeroSlideList } from "@/components/admin/hero-slide-list";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminHeroPage() {
   const db = await getDb();
   const slides = await getAllHeroSlides(db);

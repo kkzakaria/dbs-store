@@ -8,6 +8,8 @@ import type { ProductFilters as Filters } from "@/lib/data/products";
 import { ProductCard } from "@/components/products/product-card";
 import { ProductFilters } from "@/components/products/product-filters";
 
+export const dynamic = "force-dynamic";
+
 type Props = {
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ marque?: string; prix_max?: string; tri?: string }>;

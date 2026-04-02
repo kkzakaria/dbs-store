@@ -6,6 +6,8 @@ import { orders } from "@/lib/db/schema";
 import { Badge } from "@/components/ui/badge";
 import type { OrderStatus } from "@/lib/db/schema";
 
+export const dynamic = "force-dynamic";
+
 const statusLabel: Record<OrderStatus, string> = {
   pending: "En attente",
   confirmed: "Confirmée",

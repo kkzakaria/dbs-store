@@ -4,6 +4,8 @@ import { StatsCard } from "@/components/admin/stats-card";
 import { OrdersChart } from "@/components/admin/orders-chart";
 import { formatFCFA } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 export default async function AdminDashboardPage() {
   const db = await getDb();
   const stats = await getAdminStats(db);

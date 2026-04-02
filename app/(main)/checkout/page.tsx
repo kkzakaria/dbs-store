@@ -3,6 +3,8 @@ import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { CheckoutForm } from "./checkout-form";
 
+export const dynamic = "force-dynamic";
+
 export default async function CheckoutPage() {
   const auth = await getAuth();
   const session = await auth.api.getSession({ headers: await headers() });
