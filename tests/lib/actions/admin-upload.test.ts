@@ -1,10 +1,11 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-const mockAuthApi = { getSession: vi.fn(), listOrganizations: vi.fn() };
-vi.mock("@/lib/auth", () => ({
-  getAuth: vi.fn(() => Promise.resolve({ api: mockAuthApi })),
+const { mockRequireOrgMember } = vi.hoisted(() => ({
+  mockRequireOrgMember: vi.fn().mockResolvedValue(undefined),
 }));
-vi.mock("next/headers", () => ({ headers: vi.fn(() => new Headers()) }));
+vi.mock("@/lib/actions/admin-auth", () => ({
+  requireOrgMember: mockRequireOrgMember,
+}));
 vi.mock("@aws-sdk/client-s3", () => ({
   S3Client: vi.fn(function () { return {}; }),
   PutObjectCommand: vi.fn(function (input: unknown) { return { input }; }),
@@ -19,23 +20,16 @@ describe("generatePresignedUrl", () => {
   beforeEach(() => vi.clearAllMocks());
 
   it("lève UNAUTHORIZED si pas de session", async () => {
-    mockAuthApi.getSession.mockResolvedValue(null);
+    mockRequireOrgMember.mockRejectedValueOnce(new Error("UNAUTHORIZED"));
     await expect(generatePresignedUrl("test.jpg", "image/jpeg")).rejects.toThrow("UNAUTHORIZED");
   });
 
   it("lève UNAUTHORIZED si pas membre org", async () => {
-    mockAuthApi.getSession.mockResolvedValue({
-      user: { id: "u1", email: "admin@dbs.ci" },
-    });
-    mockAuthApi.listOrganizations.mockResolvedValue([]);
+    mockRequireOrgMember.mockRejectedValueOnce(new Error("UNAUTHORIZED"));
     await expect(generatePresignedUrl("test.jpg", "image/jpeg")).rejects.toThrow("UNAUTHORIZED");
   });
 
   it("retourne uploadUrl et publicUrl si autorisé", async () => {
-    mockAuthApi.getSession.mockResolvedValue({
-      user: { id: "u1", email: "admin@dbs.ci" },
-    });
-    mockAuthApi.listOrganizations.mockResolvedValue([{ id: "org1" }]);
     process.env.R2_ACCOUNT_ID = "test-account-id";
     process.env.R2_ACCESS_KEY_ID = "test-access-key";
     process.env.R2_SECRET_ACCESS_KEY = "test-secret-key";
@@ -55,10 +49,6 @@ describe("generateBannerPresignedUrl", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockAuthApi.getSession.mockResolvedValue({
-      user: { id: "u1", email: "admin@dbs.ci" },
-    });
-    mockAuthApi.listOrganizations.mockResolvedValue([{ id: "org1" }]);
     process.env = {
       ...originalEnv,
       R2_ACCOUNT_ID: "test-account",
