@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { toggleProductActive } from "@/lib/actions/admin-products";
 import { formatFCFA } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 type Props = { searchParams: Promise<{ search?: string; cat?: string; page?: string }> };
 
 const categoryMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));

@@ -8,6 +8,8 @@ import { HeroCarousel } from "@/components/hero/hero-carousel";
 import { LogoMarquee } from "@/components/store/home/LogoMarquee";
 import { getActiveHeroSlides } from "@/lib/data/hero-slides";
 
+export const dynamic = "force-dynamic";
+
 const categoryHighlights = [
   { name: "Smartphones", slug: "smartphones", icon: Smartphone },
   { name: "Tablettes", slug: "tablettes", icon: Tablet },

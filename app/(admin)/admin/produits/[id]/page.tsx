@@ -4,6 +4,8 @@ import { getAdminProductById } from "@/lib/data/admin-products";
 import { ProductForm } from "@/components/admin/product-form";
 import { updateProduct } from "@/lib/actions/admin-products";
 
+export const dynamic = "force-dynamic";
+
 type Props = { params: Promise<{ id: string }> };
 
 export default async function EditProduitPage({ params }: Props) {

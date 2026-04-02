@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import type { OrderStatus } from "@/lib/db/schema";
 import { cn, formatFCFA } from "@/lib/utils";
 
+export const dynamic = "force-dynamic";
+
 type Props = { searchParams: Promise<{ status?: OrderStatus; page?: string }> };
 
 const STATUS_LABELS: Record<OrderStatus, string> = {
