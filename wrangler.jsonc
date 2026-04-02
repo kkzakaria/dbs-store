@@ -12,7 +12,7 @@
     {
       "binding": "DB",
       "database_name": "dbs-store-db",
-      "database_id": "TO_FILL_AFTER_CREATION",
+      "database_id": "e7b769fb-2d38-48a4-bce8-337b7c1052eb",
       "migrations_dir": "migrations"
     }
   ],
