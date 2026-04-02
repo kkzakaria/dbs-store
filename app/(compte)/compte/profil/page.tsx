@@ -1,6 +1,8 @@
 import { getCachedSession } from "@/lib/session";
 import { LogoutButton } from "./logout-button";
 
+export const dynamic = "force-dynamic";
+
 export default async function ProfilPage() {
   // getCachedSession() deduplicates the auth call already made by the layout.
   const session = await getCachedSession();

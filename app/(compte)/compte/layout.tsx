@@ -2,6 +2,8 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { getCachedSession } from "@/lib/session";
 
+export const dynamic = "force-dynamic";
+
 const nav = [
   { label: "Mes commandes", href: "/compte/commandes" },
   { label: "Mon profil", href: "/compte/profil" },
