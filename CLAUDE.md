@@ -46,12 +46,15 @@ E-commerce store for electronics in Ivory Coast / UEMOA zone. French locale.
 
 - Feature branches with squash merge PRs
 - Branch naming: `feat/<feature-name>`
+- Branch protection on main: PR required, CI must pass
+- CI on PRs: `ci.yml` runs lint + test (~1 min)
+- Deploy on merge to main: `deploy.yml` runs build + D1 migrate + wrangler deploy
 
 ## Gotchas
 
 - `margin-top` on sticky elements does NOT create viewport offset — use the `top` CSS property instead
 - Dev server runs on port 33000 (not default 3000)
-- ESLint has ~16 pre-existing errors (unescaped entities, `any` types in auth/app-bar) — `bun run lint` failing does not indicate a regression from new code
+- ESLint has pre-existing errors (unescaped entities, `any` types in auth/app-bar) — `bun run lint` failing does not indicate a regression from new code
 - `getDb()` and `getAuth()` are async — always `await` them
 - D1 transactions use `db.batch([...])` for atomic multi-statement writes
 - Secrets must be set via `wrangler secret put <NAME>` for production
