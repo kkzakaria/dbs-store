@@ -2,7 +2,7 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Suspense } from "react";
-import { categories } from "@/lib/data/categories";
+import { getCategoryById } from "@/lib/data/categories";
 import { getDb } from "@/lib/db";
 import { getProductCached, getRelatedProducts } from "@/lib/data/products";
 import { ProductGallery } from "@/components/products/product-gallery";
@@ -46,10 +46,13 @@ export default async function ProductDetailPage({ params }: Props) {
   const product = await getProductCached(slug); // cache hit si generateMetadata a déjà appelé
   if (!product) notFound();
 
-  const category = categories.find((c) => c.id === product.category_id);
-  const subcategory = product.subcategory_id
-    ? categories.find((c) => c.id === product.subcategory_id)
-    : null;
+  const db = await getDb();
+  const [category, subcategory] = await Promise.all([
+    getCategoryById(db, product.category_id),
+    product.subcategory_id
+      ? getCategoryById(db, product.subcategory_id)
+      : Promise.resolve(null),
+  ]);
 
   const isOutOfStock = product.stock === 0;
   const discount = product.old_price
