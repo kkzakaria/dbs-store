@@ -1,8 +1,10 @@
-import { Tablet, Laptop, Watch, Headphones, Cable, Percent, Truck, ShieldCheck, CreditCard, Smartphone } from "lucide-react";
+import { Percent, Truck, ShieldCheck, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getDb } from "@/lib/db";
 import { getProductsByCategory, getPromoProducts } from "@/lib/data/products";
+import { getTopLevelCategories } from "@/lib/data/categories";
+import { getCategoryIcon } from "@/lib/data/category-icon-map";
 import { ProductCard } from "@/components/products/product-card";
 import { HeroCarousel } from "@/components/hero/hero-carousel";
 import { LogoMarquee } from "@/components/store/home/LogoMarquee";
@@ -10,20 +12,12 @@ import { getActiveHeroSlides } from "@/lib/data/hero-slides";
 
 export const dynamic = "force-dynamic";
 
-const categoryHighlights = [
-  { name: "Smartphones", slug: "smartphones", icon: Smartphone },
-  { name: "Tablettes", slug: "tablettes", icon: Tablet },
-  { name: "Ordinateurs", slug: "ordinateurs", icon: Laptop },
-  { name: "Montres connectées", slug: "montres-connectees", icon: Watch },
-  { name: "Audio", slug: "audio", icon: Headphones },
-  { name: "Accessoires", slug: "accessoires", icon: Cable },
-];
-
 export default async function HomePage() {
   const db = await getDb();
-  const [featured, promos] = await Promise.all([
+  const [featured, promos, topCategories] = await Promise.all([
     getProductsByCategory(db, "smartphones", { tri: "nouveau" }),
     getPromoProducts(db, 4),
+    getTopLevelCategories(db),
   ]);
   const heroSlides = await getActiveHeroSlides(db).catch((err: unknown) => {
     console.error("[HomePage] getActiveHeroSlides failed:", err);
@@ -48,18 +42,21 @@ export default async function HomePage() {
         <h2 className="text-2xl font-bold tracking-tight">Nos categories</h2>
         <p className="mt-2 text-muted-foreground">Explorez notre catalogue par categorie</p>
         <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
-          {categoryHighlights.map((cat) => (
-            <Link
-              key={cat.slug}
-              href={`/${cat.slug}`}
-              className="group flex flex-col items-center gap-3 rounded-xl border bg-card p-6 text-center transition-colors hover:border-primary/30 hover:bg-muted/50"
-            >
-              <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
-                <cat.icon className="size-6" />
-              </div>
-              <p className="text-sm font-medium">{cat.name}</p>
-            </Link>
-          ))}
+          {topCategories.map((cat) => {
+            const Icon = getCategoryIcon(cat.icon);
+            return (
+              <Link
+                key={cat.slug}
+                href={`/${cat.slug}`}
+                className="group flex flex-col items-center gap-3 rounded-xl border bg-card p-6 text-center transition-colors hover:border-primary/30 hover:bg-muted/50"
+              >
+                <div className="flex size-12 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors group-hover:bg-primary/20">
+                  <Icon className="size-6" />
+                </div>
+                <p className="text-sm font-medium">{cat.name}</p>
+              </Link>
+            );
+          })}
         </div>
       </section>
 
