@@ -29,7 +29,7 @@ function createMockDb(rows: unknown[] = []) {
       };
     }),
   };
-  return thenable as unknown;
+  return thenable as unknown as Record<string, ReturnType<typeof vi.fn>>;
 }
 
 // ── Tests ────────────────────────────────────────────────────────────────────
