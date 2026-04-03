@@ -18,7 +18,8 @@
     "db:migrate:remote": "wrangler d1 migrations apply dbs-store-db --remote",
     "db:seed": "tsx scripts/seed.ts",
     "db:seed-hero": "tsx scripts/seed-hero.ts",
-    "db:seed:categories": "tsx scripts/seed-categories.ts"
+    "db:seed:categories": "tsx scripts/seed-categories.ts",
+    "typecheck:scripts": "tsc -p tsconfig.scripts.json"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1000.0",
@@ -50,6 +51,7 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -62,7 +64,7 @@
     "tsx": "^4.21.0",
     "typescript": "^5",
     "vitest": "^4.0.18",
-    "wrangler": "^4.77.0"
+    "wrangler": "^4.80.0"
   },
   "ignoreScripts": [
     "sharp",
