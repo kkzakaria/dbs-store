@@ -105,28 +105,32 @@ export function CategoryFormDialog({
     setError(null);
     setSubmitting(true);
 
-    const data: CategoryFormData = {
-      name,
-      slug,
-      icon,
-      image: image[0] || null,
-      parent_id: parentId,
-      order,
-    };
+    try {
+      const data: CategoryFormData = {
+        name,
+        slug,
+        icon,
+        image: image[0] || null,
+        parent_id: parentId,
+        order,
+      };
 
-    const result = isEditing
-      ? await updateCategory(initial.id, data)
-      : await createCategory(data);
+      const result = isEditing
+        ? await updateCategory(initial.id, data)
+        : await createCategory(data);
 
-    setSubmitting(false);
+      if (result.error) {
+        setError(result.error);
+        return;
+      }
 
-    if (result.error) {
-      setError(result.error);
-      return;
+      onOpenChange(false);
+      router.refresh();
+    } catch {
+      setError("Une erreur inattendue est survenue. Veuillez réessayer.");
+    } finally {
+      setSubmitting(false);
     }
-
-    onOpenChange(false);
-    router.refresh();
   }
 
   const parentOptions = topLevelCategories.filter(

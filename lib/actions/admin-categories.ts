@@ -19,6 +19,8 @@ export type CategoryFormData = {
 function validate(data: CategoryFormData): string | null {
   if (!data.name?.trim()) return "Le nom est requis";
   if (!data.slug?.trim()) return "Le slug est requis";
+  if (!/^[a-z0-9-]+$/.test(data.slug.trim()))
+    return "Le slug ne doit contenir que des lettres minuscules, chiffres et tirets";
   if (!data.icon?.trim()) return "L'icône est requise";
   return null;
 }
@@ -30,12 +32,18 @@ export async function createCategory(
   const error = validate(data);
   if (error) return { error };
 
+  const slug = data.slug.trim();
+
+  if (data.parent_id === slug) {
+    return { error: "Une catégorie ne peut pas être son propre parent" };
+  }
+
   const db = await getDb();
 
   try {
     await db.insert(categories).values({
-      id: data.slug.trim(),
-      slug: data.slug.trim(),
+      id: slug,
+      slug,
       name: data.name.trim(),
       icon: data.icon.trim(),
       image: data.image || null,
@@ -45,7 +53,11 @@ export async function createCategory(
     });
   } catch (err) {
     console.error("[createCategory]", err);
-    return { error: "Erreur lors de la création (slug déjà utilisé ?)" };
+    const message = err instanceof Error ? err.message : "";
+    if (message.includes("UNIQUE constraint")) {
+      return { error: "Ce slug est déjà utilisé par une autre catégorie" };
+    }
+    return { error: "Erreur lors de la création" };
   }
 
   revalidatePath("/admin/categories");
@@ -81,6 +93,10 @@ export async function updateCategory(
       .where(eq(categories.id, id));
   } catch (err) {
     console.error("[updateCategory]", err);
+    const message = err instanceof Error ? err.message : "";
+    if (message.includes("UNIQUE constraint")) {
+      return { error: "Ce slug est déjà utilisé par une autre catégorie" };
+    }
     return { error: "Erreur lors de la mise à jour" };
   }
 
@@ -95,24 +111,24 @@ export async function deleteCategory(
   await requireOrgMember();
   const db = await getDb();
 
-  // Check for children
-  const children = await getSubcategories(db, id);
-  if (children.length > 0) {
-    return { error: "Supprimez d'abord les sous-catégories" };
-  }
-
-  // Check for products using this category
-  const productUsingCategory = await db
-    .select()
-    .from(products)
-    .where(or(eq(products.category_id, id), eq(products.subcategory_id, id)))
-    .limit(1);
-
-  if (productUsingCategory.length > 0) {
-    return { error: "Des produits utilisent cette catégorie" };
-  }
-
   try {
+    // Check for children
+    const children = await getSubcategories(db, id);
+    if (children.length > 0) {
+      return { error: "Supprimez d'abord les sous-catégories" };
+    }
+
+    // Check for products using this category
+    const productUsingCategory = await db
+      .select()
+      .from(products)
+      .where(or(eq(products.category_id, id), eq(products.subcategory_id, id)))
+      .limit(1);
+
+    if (productUsingCategory.length > 0) {
+      return { error: "Des produits utilisent cette catégorie" };
+    }
+
     await db.delete(categories).where(eq(categories.id, id));
   } catch (err) {
     console.error("[deleteCategory]", err);

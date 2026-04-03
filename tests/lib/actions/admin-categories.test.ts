@@ -71,11 +71,33 @@ describe("createCategory", () => {
     expect(result.error).toBe("L'icône est requise");
   });
 
+  it("rejette un slug avec des caractères invalides", async () => {
+    const result = await createCategory({ ...validData, slug: "Hello World!" });
+    expect(result.error).toMatch(/slug/i);
+  });
+
+  it("rejette un parent_id auto-référent", async () => {
+    const result = await createCategory({ ...validData, slug: "smartphones", parent_id: "smartphones" });
+    expect(result.error).toBe("Une catégorie ne peut pas être son propre parent");
+  });
+
   it("insère une catégorie valide", async () => {
     const result = await createCategory(validData);
     expect(result.error).toBeUndefined();
     expect(mockDb.insert).toHaveBeenCalled();
     expect(mockDb.values).toHaveBeenCalled();
+  });
+
+  it("retourne une erreur spécifique pour slug dupliqué", async () => {
+    mockDb.values.mockRejectedValueOnce(new Error("UNIQUE constraint failed: categories.slug"));
+    const result = await createCategory(validData);
+    expect(result.error).toMatch(/slug.*utilisé/i);
+  });
+
+  it("retourne une erreur générique pour autres erreurs DB", async () => {
+    mockDb.values.mockRejectedValueOnce(new Error("D1 connection timeout"));
+    const result = await createCategory(validData);
+    expect(result.error).toBe("Erreur lors de la création");
   });
 });
 
@@ -105,6 +127,12 @@ describe("updateCategory", () => {
     expect(mockDb.update).toHaveBeenCalled();
     expect(mockDb.set).toHaveBeenCalled();
   });
+
+  it("retourne une erreur spécifique pour slug dupliqué", async () => {
+    mockDb.where.mockRejectedValueOnce(new Error("UNIQUE constraint failed: categories.slug"));
+    const result = await updateCategory("smartphones", validData);
+    expect(result.error).toMatch(/slug.*utilisé/i);
+  });
 });
 
 describe("deleteCategory", () => {
@@ -130,5 +158,13 @@ describe("deleteCategory", () => {
     const result = await deleteCategory("smartphones");
     expect(result.error).toBeUndefined();
     expect(mockDb.delete).toHaveBeenCalled();
+  });
+
+  it("retourne une erreur si la suppression échoue", async () => {
+    mockDb.orderBy.mockResolvedValue([]);
+    mockDb.limit.mockResolvedValue([]);
+    mockDb.where.mockRejectedValueOnce(new Error("D1 error"));
+    const result = await deleteCategory("smartphones");
+    expect(result.error).toBe("Erreur lors de la suppression");
   });
 });

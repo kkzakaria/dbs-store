@@ -62,18 +62,22 @@ export function CategoryList({ initialCategories }: CategoryListProps) {
     setDeleting(true);
     setDeleteError(null);
 
-    const result = await deleteCategory(deletingCategory.id);
+    try {
+      const result = await deleteCategory(deletingCategory.id);
 
-    setDeleting(false);
+      if (result.error) {
+        setDeleteError(result.error);
+        return;
+      }
 
-    if (result.error) {
-      setDeleteError(result.error);
-      return;
+      setDeleteDialogOpen(false);
+      setDeletingCategory(null);
+      router.refresh();
+    } catch {
+      setDeleteError("Une erreur inattendue est survenue. Veuillez réessayer.");
+    } finally {
+      setDeleting(false);
     }
-
-    setDeleteDialogOpen(false);
-    setDeletingCategory(null);
-    router.refresh();
   }
 
   if (initialCategories.length === 0) {
