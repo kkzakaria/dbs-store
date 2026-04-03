@@ -23,7 +23,7 @@ function validate(data: CategoryFormData): string | null {
   if (!data.slug?.trim()) return "Le slug est requis";
   if (!/^[a-z0-9-]+$/.test(data.slug.trim()))
     return "Le slug ne doit contenir que des lettres minuscules, chiffres et tirets";
-  if (!data.icon?.trim()) return "L'icône est requise";
+  if (!data.icon) return "L'icône est requise";
   if (!CATEGORY_ICONS.includes(data.icon))
     return "Icône invalide";
   return null;
@@ -38,17 +38,18 @@ export async function createCategory(
 
   const db = await getDb();
 
-  if (data.parent_id) {
-    const parent = await getCategoryById(db, data.parent_id);
-    if (!parent) return { error: "La catégorie parente n'existe pas" };
-  }
-
   try {
+    // Verify parent exists if specified
+    if (data.parent_id) {
+      const parent = await getCategoryById(db, data.parent_id);
+      if (!parent) return { error: "La catégorie parente n'existe pas" };
+    }
+
     await db.insert(categories).values({
       id: randomUUID(),
       slug: data.slug.trim(),
       name: data.name.trim(),
-      icon: data.icon.trim(),
+      icon: data.icon,
       image: data.image || null,
       parent_id: data.parent_id || null,
       order: data.order,
@@ -82,18 +83,19 @@ export async function updateCategory(
 
   const db = await getDb();
 
-  if (data.parent_id) {
-    const parent = await getCategoryById(db, data.parent_id);
-    if (!parent) return { error: "La catégorie parente n'existe pas" };
-  }
-
   try {
+    // Verify parent exists if specified
+    if (data.parent_id) {
+      const parent = await getCategoryById(db, data.parent_id);
+      if (!parent) return { error: "La catégorie parente n'existe pas" };
+    }
+
     await db
       .update(categories)
       .set({
         slug: data.slug.trim(),
         name: data.name.trim(),
-        icon: data.icon.trim(),
+        icon: data.icon,
         image: data.image || null,
         parent_id: data.parent_id || null,
         order: data.order,

@@ -46,7 +46,7 @@ export function CategoryFormDialog({
 
   const [name, setName] = useState(initial?.name ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
-  const [icon, setIcon] = useState<CategoryIcon | "">(initial?.icon as CategoryIcon ?? "");
+  const [icon, setIcon] = useState<CategoryIcon | "">(initial?.icon ?? "");
   const [image, setImage] = useState<string[]>(
     initial?.image ? [initial.image] : []
   );
