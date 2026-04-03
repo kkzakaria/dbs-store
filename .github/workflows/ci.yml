@@ -37,7 +37,7 @@ jobs:
         run: npm rebuild better-sqlite3
 
       - name: Typecheck
-        run: tsc --noEmit
+        run: bunx tsc --noEmit
 
       - name: Typecheck scripts
         run: bun run typecheck:scripts
