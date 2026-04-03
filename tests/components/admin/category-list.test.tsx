@@ -90,11 +90,6 @@ describe("CategoryList", () => {
 
   it("renders edit and delete buttons for each category", () => {
     render(<CategoryList initialCategories={testCategories} />);
-    // 4 categories => 4 edit + 4 delete = 8 icon buttons
-    const buttons = screen.getAllByRole("button", { name: "" });
-    // Filter to icon buttons (ghost variant, size icon)
-    // Each category has 2 icon buttons (edit + delete)
-    // Plus the "Nouvelle catégorie" button = total visible buttons
     const allButtons = screen.getAllByRole("button");
     // 1 "Nouvelle catégorie" + 4 * 2 icon buttons = 9
     expect(allButtons.length).toBe(9);
