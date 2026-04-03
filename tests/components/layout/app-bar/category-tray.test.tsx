@@ -1,10 +1,17 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { CategoryTray } from "@/components/layout/app-bar/category-tray";
-import { getSubcategories } from "@/lib/data/categories";
+import type { Category } from "@/lib/db/schema";
+
+const subcategories: Category[] = [
+  { id: "iphone", slug: "iphone", name: "iPhone", icon: "smartphone", image: null, parent_id: "smartphones", order: 0, created_at: new Date() },
+  { id: "samsung-galaxy", slug: "samsung-galaxy", name: "Samsung Galaxy", icon: "smartphone", image: null, parent_id: "smartphones", order: 1, created_at: new Date() },
+  { id: "google-pixel", slug: "google-pixel", name: "Google Pixel", icon: "smartphone", image: null, parent_id: "smartphones", order: 2, created_at: new Date() },
+  { id: "xiaomi", slug: "xiaomi", name: "Xiaomi", icon: "smartphone", image: null, parent_id: "smartphones", order: 3, created_at: new Date() },
+  { id: "autres-marques", slug: "autres-marques", name: "Autres marques", icon: "smartphone", image: null, parent_id: "smartphones", order: 4, created_at: new Date() },
+];
 
 describe("CategoryTray", () => {
-  const subcategories = getSubcategories("smartphones");
   const onClose = vi.fn();
 
   beforeEach(() => {
