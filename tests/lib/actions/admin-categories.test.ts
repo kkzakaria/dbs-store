@@ -32,7 +32,7 @@ import type { CategoryFormData } from "@/lib/actions/admin-categories";
 const validData: CategoryFormData = {
   name: "Smartphones",
   slug: "smartphones",
-  icon: "Smartphone",
+  icon: "smartphone",
   image: null,
   parent_id: null,
   order: 0,
@@ -42,7 +42,6 @@ beforeEach(() => {
   vi.clearAllMocks();
   mockAuthApi.getSession.mockResolvedValue({ user: { id: "u1" } });
   mockAuthApi.listOrganizations.mockResolvedValue([{ slug: ORG_SLUG }]);
-  // Reset chain mocks
   mockDb.insert.mockReturnThis();
   mockDb.update.mockReturnThis();
   mockDb.delete.mockReturnThis();
@@ -67,8 +66,15 @@ describe("createCategory", () => {
   });
 
   it("rejette une icône vide", async () => {
+    // @ts-expect-error testing invalid icon
     const result = await createCategory({ ...validData, icon: "" });
     expect(result.error).toBe("L'icône est requise");
+  });
+
+  it("rejette une icône invalide", async () => {
+    // @ts-expect-error testing invalid icon
+    const result = await createCategory({ ...validData, icon: "invalid-icon" });
+    expect(result.error).toBe("Icône invalide");
   });
 
   it("rejette un slug avec des caractères invalides", async () => {
@@ -76,9 +82,11 @@ describe("createCategory", () => {
     expect(result.error).toMatch(/slug/i);
   });
 
-  it("rejette un parent_id auto-référent", async () => {
-    const result = await createCategory({ ...validData, slug: "smartphones", parent_id: "smartphones" });
-    expect(result.error).toBe("Une catégorie ne peut pas être son propre parent");
+  it("rejette un parent_id inexistant", async () => {
+    // getCategoryById returns null (via select().from().where().limit())
+    mockDb.limit.mockResolvedValueOnce([]);
+    const result = await createCategory({ ...validData, parent_id: "nonexistent" });
+    expect(result.error).toBe("La catégorie parente n'existe pas");
   });
 
   it("insère une catégorie valide", async () => {
@@ -120,6 +128,15 @@ describe("updateCategory", () => {
     );
   });
 
+  it("rejette un parent_id inexistant", async () => {
+    mockDb.limit.mockResolvedValueOnce([]);
+    const result = await updateCategory("smartphones", {
+      ...validData,
+      parent_id: "nonexistent",
+    });
+    expect(result.error).toBe("La catégorie parente n'existe pas");
+  });
+
   it("met à jour une catégorie valide", async () => {
     mockDb.where.mockResolvedValue(undefined);
     const result = await updateCategory("smartphones", validData);
@@ -137,16 +154,13 @@ describe("updateCategory", () => {
 
 describe("deleteCategory", () => {
   it("bloque si la catégorie a des enfants", async () => {
-    // getSubcategories uses select().from().where().orderBy()
     mockDb.orderBy.mockResolvedValue([{ id: "child1", name: "Child" }]);
     const result = await deleteCategory("smartphones");
     expect(result.error).toBe("Supprimez d'abord les sous-catégories");
   });
 
   it("bloque si des produits utilisent la catégorie", async () => {
-    // getSubcategories returns empty
     mockDb.orderBy.mockResolvedValue([]);
-    // products query uses select().from().where().limit()
     mockDb.limit.mockResolvedValue([{ id: "p1", name: "iPhone" }]);
     const result = await deleteCategory("smartphones");
     expect(result.error).toBe("Des produits utilisent cette catégorie");

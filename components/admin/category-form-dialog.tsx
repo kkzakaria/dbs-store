@@ -26,30 +26,7 @@ import {
 } from "@/lib/actions/admin-categories";
 import type { Category } from "@/lib/db/schema";
 import type { CategoryFormData } from "@/lib/actions/admin-categories";
-
-const ICON_OPTIONS = [
-  "smartphone",
-  "tablet",
-  "laptop",
-  "monitor",
-  "watch",
-  "headphones",
-  "speaker",
-  "mic",
-  "camera",
-  "gamepad-2",
-  "printer",
-  "projector",
-  "cable",
-  "percent",
-  "life-buoy",
-  "shield",
-  "hard-drive",
-  "keyboard",
-  "home",
-  "glasses",
-  "box",
-];
+import { CATEGORY_ICONS, type CategoryIcon } from "@/lib/data/category-icons";
 
 interface CategoryFormDialogProps {
   open: boolean;
@@ -69,7 +46,7 @@ export function CategoryFormDialog({
 
   const [name, setName] = useState(initial?.name ?? "");
   const [slug, setSlug] = useState(initial?.slug ?? "");
-  const [icon, setIcon] = useState(initial?.icon ?? "");
+  const [icon, setIcon] = useState<CategoryIcon | "">(initial?.icon ?? "");
   const [image, setImage] = useState<string[]>(
     initial?.image ? [initial.image] : []
   );
@@ -109,7 +86,7 @@ export function CategoryFormDialog({
       const data: CategoryFormData = {
         name,
         slug,
-        icon,
+        icon: icon as CategoryIcon,
         image: image[0] || null,
         parent_id: parentId,
         order,
@@ -176,12 +153,12 @@ export function CategoryFormDialog({
 
           <div className="space-y-2">
             <Label>Icône Lucide</Label>
-            <Select value={icon} onValueChange={setIcon}>
+            <Select value={icon} onValueChange={(v) => setIcon(v as CategoryIcon)}>
               <SelectTrigger>
                 <SelectValue placeholder="Choisir une icône" />
               </SelectTrigger>
               <SelectContent>
-                {ICON_OPTIONS.map((ic) => (
+                {CATEGORY_ICONS.map((ic) => (
                   <SelectItem key={ic} value={ic}>
                     {ic}
                   </SelectItem>

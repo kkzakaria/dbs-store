@@ -1,0 +1,25 @@
+export const CATEGORY_ICONS = [
+  "smartphone",
+  "tablet",
+  "laptop",
+  "monitor",
+  "watch",
+  "headphones",
+  "speaker",
+  "mic",
+  "camera",
+  "gamepad-2",
+  "printer",
+  "projector",
+  "cable",
+  "percent",
+  "life-buoy",
+  "shield",
+  "hard-drive",
+  "keyboard",
+  "home",
+  "glasses",
+  "box",
+] as const;
+
+export type CategoryIcon = (typeof CATEGORY_ICONS)[number];
