@@ -36,6 +36,12 @@ jobs:
       - name: Rebuild native modules
         run: npm rebuild better-sqlite3
 
+      - name: Typecheck
+        run: bunx tsc --noEmit
+
+      - name: Typecheck scripts
+        run: bun run typecheck:scripts
+
       - name: Lint
         run: bun run lint
 

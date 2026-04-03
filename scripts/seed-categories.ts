@@ -6,7 +6,7 @@ import { categories } from "../lib/db/schema";
 const db = drizzle(new Database(process.env.DATABASE_URL ?? "./dev.db"));
 const now = new Date();
 
-const seed = [
+const seed: (typeof categories.$inferInsert)[] = [
   // Top-level
   { id: "smartphones",    slug: "smartphones",        name: "Smartphones",          icon: "smartphone",  image: null, parent_id: null, order: 0,  created_at: now },
   { id: "tablettes",      slug: "tablettes",          name: "Tablettes",            icon: "tablet",      image: null, parent_id: null, order: 1,  created_at: now },

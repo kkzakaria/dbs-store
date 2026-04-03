@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "esnext",
+    "moduleResolution": "bundler",
+    "noEmit": true
+  },
+  "include": ["scripts/**/*", "worker-configuration.d.ts"],
+  "exclude": ["node_modules"]
+}
