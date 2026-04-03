@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { getDb } from "@/lib/db";
 import { getAdminProducts, PAGE_SIZE } from "@/lib/data/admin-products";
-import { categories } from "@/lib/data/categories";
+import { getAllCategories } from "@/lib/data/categories";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { toggleProductActive } from "@/lib/actions/admin-products";
@@ -12,12 +12,12 @@ export const dynamic = "force-dynamic";
 
 type Props = { searchParams: Promise<{ search?: string; cat?: string; page?: string }> };
 
-const categoryMap = Object.fromEntries(categories.map((c) => [c.id, c.name]));
-
 export default async function AdminProduitsPage({ searchParams }: Props) {
   const sp = await searchParams;
   const page = Math.max(1, Number(sp.page ?? 1));
   const db = await getDb();
+  const allCategories = await getAllCategories(db);
+  const categoryMap = Object.fromEntries(allCategories.map((c: { id: string; name: string }) => [c.id, c.name]));
   const { products, total } = await getAdminProducts(
     db,
     { search: sp.search, category_id: sp.cat },

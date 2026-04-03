@@ -101,3 +101,19 @@ export const hero_slides = sqliteTable("hero_slides", {
 
 export type HeroSlide = typeof hero_slides.$inferSelect;
 export type NewHeroSlide = typeof hero_slides.$inferInsert;
+
+// ── Categories ───────────────────────────────────────────────────────────────
+
+export const categories = sqliteTable("categories", {
+  id: text("id").primaryKey(),
+  slug: text("slug").notNull().unique(),
+  name: text("name").notNull(),
+  icon: text("icon").notNull(),
+  image: text("image"),
+  parent_id: text("parent_id"),
+  order: integer("order").default(0).notNull(),
+  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
+export type Category = typeof categories.$inferSelect;
+export type NewCategory = typeof categories.$inferInsert;

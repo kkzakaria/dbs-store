@@ -3,13 +3,14 @@
 import { useState } from "react";
 import dynamic from "next/dynamic";
 import { Menu } from "lucide-react";
+import type { Category } from "@/lib/db/schema";
 
 const MobileMenu = dynamic(
   () => import("./mobile-menu").then((m) => m.MobileMenu),
   { loading: () => <div className="fixed inset-0 z-50 bg-background" /> }
 );
 
-export function MobileMenuTrigger() {
+export function MobileMenuTrigger({ categories }: { categories: Category[] }) {
   const [open, setOpen] = useState(false);
 
   return (
@@ -21,7 +22,7 @@ export function MobileMenuTrigger() {
       >
         <Menu className="size-5" />
       </button>
-      {open && <MobileMenu onClose={() => setOpen(false)} />}
+      {open && <MobileMenu categories={categories} onClose={() => setOpen(false)} />}
     </>
   );
 }

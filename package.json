@@ -17,7 +17,8 @@
     "db:migrate:local": "wrangler d1 migrations apply dbs-store-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply dbs-store-db --remote",
     "db:seed": "tsx scripts/seed.ts",
-    "db:seed-hero": "tsx scripts/seed-hero.ts"
+    "db:seed-hero": "tsx scripts/seed-hero.ts",
+    "db:seed:categories": "tsx scripts/seed-categories.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1000.0",

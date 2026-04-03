@@ -1,7 +1,7 @@
 // app/(main)/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { categories, getSubcategories } from "@/lib/data/categories";
+import { getCategoryBySlug, getCategoryById, getSubcategories } from "@/lib/data/categories";
 import { getDb } from "@/lib/db";
 import { getProductsByCategory } from "@/lib/data/products";
 import type { ProductFilters as Filters } from "@/lib/data/products";
@@ -17,26 +17,21 @@ type Props = {
 
 const VALID_TRI = ["prix_asc", "prix_desc", "nouveau"] as const;
 
-export function generateStaticParams() {
-  return categories.map((c) => ({ slug: c.slug }));
-}
-
 export default async function CategoryPage({ params, searchParams }: Props) {
   const [{ slug }, filters] = await Promise.all([params, searchParams]);
 
-  const category = categories.find((c) => c.slug === slug);
+  const db = await getDb();
+  const category = await getCategoryBySlug(db, slug);
   if (!category) notFound();
 
   const parent = category.parent_id
-    ? categories.find((c) => c.id === category.parent_id)
+    ? await getCategoryById(db, category.parent_id)
     : null;
 
   const prixMax = filters.prix_max ? parseInt(filters.prix_max, 10) : undefined;
   const tri = (VALID_TRI as readonly string[]).includes(filters.tri ?? "")
     ? (filters.tri as Filters["tri"])
     : undefined;
-
-  const db = await getDb();
   const items = await getProductsByCategory(db, category.id, {
     brand: filters.marque,
     prix_max: prixMax !== undefined && Number.isFinite(prixMax) ? prixMax : undefined,
@@ -44,7 +39,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   });
 
   const brands = [...new Set(items.map((p) => p.brand))].sort();
-  const subcategories = getSubcategories(category.id);
+  const subcategories = await getSubcategories(db, category.id);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6">

@@ -5,20 +5,17 @@ import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ChevronRight, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  getTopLevelCategories,
-  getSubcategories,
-  type Category,
-} from "@/lib/data/categories";
+import type { Category } from "@/lib/db/schema";
 import { useFocusTrap } from "@/hooks/use-focus-trap";
 
 type MobileMenuProps = {
+  categories: Category[];
   onClose: () => void;
 };
 
-export function MobileMenu({ onClose }: MobileMenuProps) {
+export function MobileMenu({ categories, onClose }: MobileMenuProps) {
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
-  const topLevel = getTopLevelCategories();
+  const topLevel = categories.filter((c) => c.parent_id === null);
   const focusTrapRef = useFocusTrap();
   const onCloseRef = useRef(onClose);
   useLayoutEffect(() => { onCloseRef.current = onClose; }, [onClose]);
@@ -42,7 +39,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
   }, []);
 
   function handleCategoryClick(category: Category) {
-    const subs = getSubcategories(category.id);
+    const subs = categories.filter((c) => c.parent_id === category.id);
     if (subs.length > 0) {
       setActiveCategory(category);
     }
@@ -87,7 +84,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
         {!activeCategory ? (
           <div className="grid gap-2 pt-2">
             {topLevel.map((category) => {
-              const subs = getSubcategories(category.id);
+              const subs = categories.filter((c) => c.parent_id === category.id);
               const hasSubcategories = subs.length > 0;
 
               if (!hasSubcategories) {
@@ -124,7 +121,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
             >
               Tout voir {activeCategory.name}
             </Link>
-            {getSubcategories(activeCategory.id).map((sub) => (
+            {categories.filter((c) => c.parent_id === activeCategory.id).map((sub) => (
               <Link
                 key={sub.id}
                 href={`/${sub.slug}`}

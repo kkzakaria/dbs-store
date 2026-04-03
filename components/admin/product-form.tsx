@@ -16,20 +16,17 @@ import {
 import { SpecEditor } from "./spec-editor";
 import { ImageUploader } from "./image-uploader";
 import { slugify } from "@/lib/utils";
-import { categories } from "@/lib/data/categories";
 import type { ProductFormData } from "@/lib/actions/admin-products";
-import type { Product, ProductBadge } from "@/lib/db/schema";
-
-const topCategories = categories.filter((c) => c.parent_id === null);
-const subCategories = categories.filter((c) => c.parent_id !== null);
+import type { Product, ProductBadge, Category } from "@/lib/db/schema";
 
 interface ProductFormProps {
   initial?: Product;
   action: (data: ProductFormData) => Promise<{ error?: string }>;
   submitLabel: string;
+  categories: Category[];
 }
 
-export function ProductForm({ initial, action, submitLabel }: ProductFormProps) {
+export function ProductForm({ initial, action, submitLabel, categories }: ProductFormProps) {
   const router = useRouter();
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -82,7 +79,8 @@ export function ProductForm({ initial, action, submitLabel }: ProductFormProps) 
     // Si pas d'erreur, `action` redirige via redirect()
   }
 
-  const filteredSubs = subCategories.filter((s) => s.parent_id === categoryId);
+  const topCategories = categories.filter((c) => c.parent_id === null);
+  const filteredSubs = categories.filter((s) => s.parent_id === categoryId);
 
   return (
     <form onSubmit={handleSubmit} className="mx-auto max-w-2xl space-y-6">

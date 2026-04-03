@@ -2,6 +2,20 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MobileMenu } from "@/components/layout/app-bar/mobile-menu";
+import type { Category } from "@/lib/db/schema";
+
+const testCategories: Category[] = [
+  { id: "smartphones", slug: "smartphones", name: "Smartphones", icon: "smartphone", image: null, parent_id: null, order: 0, created_at: new Date() },
+  { id: "tablettes", slug: "tablettes", name: "Tablettes", icon: "tablet", image: null, parent_id: null, order: 1, created_at: new Date() },
+  { id: "ordinateurs", slug: "ordinateurs", name: "Ordinateurs", icon: "laptop", image: null, parent_id: null, order: 2, created_at: new Date() },
+  { id: "audio", slug: "audio", name: "Audio", icon: "headphones", image: null, parent_id: null, order: 4, created_at: new Date() },
+  { id: "accessoires", slug: "accessoires", name: "Accessoires", icon: "cable", image: null, parent_id: null, order: 8, created_at: new Date() },
+  { id: "offres", slug: "offres", name: "Offres", icon: "tag", image: null, parent_id: null, order: 9, created_at: new Date() },
+  { id: "support", slug: "support", name: "Support", icon: "headset", image: null, parent_id: null, order: 10, created_at: new Date() },
+  // Subcategories for Smartphones
+  { id: "iphone", slug: "iphone", name: "iPhone", icon: "smartphone", image: null, parent_id: "smartphones", order: 0, created_at: new Date() },
+  { id: "samsung-galaxy", slug: "samsung-galaxy", name: "Samsung Galaxy", icon: "smartphone", image: null, parent_id: "smartphones", order: 1, created_at: new Date() },
+];
 
 describe("MobileMenu", () => {
   const onClose = vi.fn();
@@ -11,12 +25,12 @@ describe("MobileMenu", () => {
   });
 
   it("renders with dialog role", () => {
-    render(<MobileMenu onClose={onClose} />);
+    render(<MobileMenu categories={testCategories} onClose={onClose} />);
     expect(screen.getByRole("dialog")).toBeInTheDocument();
   });
 
   it("renders all top-level categories", () => {
-    render(<MobileMenu onClose={onClose} />);
+    render(<MobileMenu categories={testCategories} onClose={onClose} />);
     expect(screen.getByText("Smartphones")).toBeInTheDocument();
     expect(screen.getByText("Tablettes")).toBeInTheDocument();
     expect(screen.getByText("Ordinateurs")).toBeInTheDocument();
@@ -28,7 +42,7 @@ describe("MobileMenu", () => {
 
   it("shows subcategories when category is tapped", async () => {
     const user = userEvent.setup();
-    render(<MobileMenu onClose={onClose} />);
+    render(<MobileMenu categories={testCategories} onClose={onClose} />);
 
     await user.click(screen.getByText("Smartphones"));
 
@@ -38,7 +52,7 @@ describe("MobileMenu", () => {
 
   it("shows back button in subcategory view", async () => {
     const user = userEvent.setup();
-    render(<MobileMenu onClose={onClose} />);
+    render(<MobileMenu categories={testCategories} onClose={onClose} />);
 
     await user.click(screen.getByText("Smartphones"));
 
@@ -47,7 +61,7 @@ describe("MobileMenu", () => {
 
   it("goes back to categories from subcategories", async () => {
     const user = userEvent.setup();
-    render(<MobileMenu onClose={onClose} />);
+    render(<MobileMenu categories={testCategories} onClose={onClose} />);
 
     await user.click(screen.getByText("Smartphones"));
     await user.click(screen.getByRole("button", { name: /retour/i }));
@@ -57,7 +71,7 @@ describe("MobileMenu", () => {
 
   it("calls onClose when close button is clicked", async () => {
     const user = userEvent.setup();
-    render(<MobileMenu onClose={onClose} />);
+    render(<MobileMenu categories={testCategories} onClose={onClose} />);
 
     await user.click(screen.getByRole("button", { name: /fermer/i }));
 
@@ -65,7 +79,7 @@ describe("MobileMenu", () => {
   });
 
   it("calls onClose when Escape is pressed", () => {
-    render(<MobileMenu onClose={onClose} />);
+    render(<MobileMenu categories={testCategories} onClose={onClose} />);
     fireEvent.keyDown(document, { key: "Escape" });
     expect(onClose).toHaveBeenCalled();
   });
