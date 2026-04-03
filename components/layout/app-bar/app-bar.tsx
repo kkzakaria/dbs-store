@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { Category } from "@/lib/db/schema";
 import { useScrollState } from "@/hooks/use-scroll-state";
 import { DesktopNav } from "./desktop-nav";
 import { MobileMenuTrigger } from "./mobile-menu-trigger";
@@ -24,7 +25,11 @@ const CartDrawer = dynamic(
   { ssr: false }
 );
 
-export function AppBar() {
+interface AppBarProps {
+  categories: Category[];
+}
+
+export function AppBar({ categories }: AppBarProps) {
   const { isScrolled } = useScrollState(50);
   const [searchOpen, setSearchOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
@@ -40,7 +45,7 @@ export function AppBar() {
         <div className="mx-auto flex max-w-7xl items-start gap-1 px-3 lg:px-4">
           {/* Mobile menu button — outside the pill */}
           <div className="flex h-[52px] items-center lg:hidden">
-            <MobileMenuTrigger />
+            <MobileMenuTrigger categories={categories} />
           </div>
 
           {/* Pill container */}
@@ -58,7 +63,7 @@ export function AppBar() {
             </Link>
 
             <div className="hidden flex-1 lg:flex">
-              <DesktopNav />
+              <DesktopNav categories={categories} />
             </div>
 
             <div className="ml-auto flex items-center gap-2">

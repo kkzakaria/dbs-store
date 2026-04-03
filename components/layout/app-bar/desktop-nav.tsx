@@ -3,11 +3,7 @@
 import Link from "next/link";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  getTopLevelCategories,
-  getSubcategories,
-  type Category,
-} from "@/lib/data/categories";
+import type { Category } from "@/lib/db/schema";
 import { CategoryTray } from "./category-tray";
 import { useState, useRef, useEffect } from "react";
 
@@ -16,6 +12,7 @@ const MAX_VISIBLE = 6;
 
 function NavItem({
   category,
+  allCategories,
   openTray,
   onMouseEnter,
   onMouseLeave,
@@ -23,13 +20,14 @@ function NavItem({
   onClose,
 }: {
   category: Category;
+  allCategories: Category[];
   openTray: string | null;
   onMouseEnter: (id: string) => void;
   onMouseLeave: () => void;
   onKeyToggle: (id: string) => void;
   onClose: () => void;
 }) {
-  const subcategories = getSubcategories(category.id);
+  const subcategories = allCategories.filter((c) => c.parent_id === category.id);
   if (subcategories.length === 0) {
     return (
       <Link
@@ -75,8 +73,12 @@ function NavItem({
   );
 }
 
-export function DesktopNav() {
-  const topLevel = getTopLevelCategories();
+interface DesktopNavProps {
+  categories: Category[];
+}
+
+export function DesktopNav({ categories }: DesktopNavProps) {
+  const topLevel = categories.filter((c) => c.parent_id === null);
   const [openTray, setOpenTray] = useState<string | null>(null);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -119,7 +121,7 @@ export function DesktopNav() {
   return (
     <nav aria-label="Navigation principale" className="flex items-center gap-0.5">
       {visible.map((category) => (
-        <NavItem key={category.id} category={category} {...navItemProps} />
+        <NavItem key={category.id} category={category} allCategories={categories} {...navItemProps} />
       ))}
 
       {overflow.length > 0 && (
@@ -142,7 +144,7 @@ export function DesktopNav() {
           {openTray === "__more__" && (
             <div className="absolute left-0 top-full z-50 mt-1 min-w-[180px] rounded-xl border bg-background p-1.5 shadow-lg">
               {overflow.map((category) => {
-                const subcategories = getSubcategories(category.id);
+                const subcategories = categories.filter((c) => c.parent_id === category.id);
                 return (
                   <Link
                     key={category.id}
