@@ -1,5 +1,5 @@
 // lib/db/schema.ts
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, type AnySQLiteColumn } from "drizzle-orm/sqlite-core";
 
 export const products = sqliteTable("products", {
   id: text("id").primaryKey(),
@@ -110,10 +110,9 @@ export const categories = sqliteTable("categories", {
   name: text("name").notNull(),
   icon: text("icon").notNull(),
   image: text("image"),
-  parent_id: text("parent_id"),
+  parent_id: text("parent_id").references((): AnySQLiteColumn => categories.id),
   order: integer("order").default(0).notNull(),
   created_at: integer("created_at", { mode: "timestamp" }).notNull(),
 });
 
 export type Category = typeof categories.$inferSelect;
-export type NewCategory = typeof categories.$inferInsert;

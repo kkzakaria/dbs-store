@@ -1,16 +1,18 @@
 "use server";
 
+import { randomUUID } from "crypto";
 import { eq, or } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 import { requireOrgMember } from "@/lib/actions/admin-auth";
 import { getDb } from "@/lib/db";
 import { categories, products } from "@/lib/db/schema";
-import { getSubcategories } from "@/lib/data/categories";
+import { getSubcategories, getCategoryById } from "@/lib/data/categories";
+import { CATEGORY_ICONS, type CategoryIcon } from "@/lib/data/category-icons";
 
 export type CategoryFormData = {
   name: string;
   slug: string;
-  icon: string;
+  icon: CategoryIcon;
   image: string | null;
   parent_id: string | null;
   order: number;
@@ -22,6 +24,8 @@ function validate(data: CategoryFormData): string | null {
   if (!/^[a-z0-9-]+$/.test(data.slug.trim()))
     return "Le slug ne doit contenir que des lettres minuscules, chiffres et tirets";
   if (!data.icon?.trim()) return "L'icône est requise";
+  if (!CATEGORY_ICONS.includes(data.icon))
+    return "Icône invalide";
   return null;
 }
 
@@ -32,18 +36,17 @@ export async function createCategory(
   const error = validate(data);
   if (error) return { error };
 
-  const slug = data.slug.trim();
-
-  if (data.parent_id === slug) {
-    return { error: "Une catégorie ne peut pas être son propre parent" };
-  }
-
   const db = await getDb();
+
+  if (data.parent_id) {
+    const parent = await getCategoryById(db, data.parent_id);
+    if (!parent) return { error: "La catégorie parente n'existe pas" };
+  }
 
   try {
     await db.insert(categories).values({
-      id: slug,
-      slug,
+      id: randomUUID(),
+      slug: data.slug.trim(),
       name: data.name.trim(),
       icon: data.icon.trim(),
       image: data.image || null,
@@ -78,6 +81,11 @@ export async function updateCategory(
   }
 
   const db = await getDb();
+
+  if (data.parent_id) {
+    const parent = await getCategoryById(db, data.parent_id);
+    if (!parent) return { error: "La catégorie parente n'existe pas" };
+  }
 
   try {
     await db
