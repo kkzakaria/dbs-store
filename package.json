@@ -19,7 +19,8 @@
     "db:seed": "tsx scripts/seed.ts",
     "db:seed-hero": "tsx scripts/seed-hero.ts",
     "db:seed:categories": "tsx scripts/seed-categories.ts",
-    "typecheck:scripts": "tsc -p tsconfig.scripts.json"
+    "typecheck:scripts": "tsc -p tsconfig.scripts.json",
+    "prepare": "husky"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1000.0",
@@ -59,6 +60,7 @@
     "drizzle-kit": "^0.31.9",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "husky": "^9.1.7",
     "jsdom": "^28.1.0",
     "tailwindcss": "^4",
     "tsx": "^4.21.0",

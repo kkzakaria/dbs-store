@@ -1,0 +1,3 @@
+tsc --noEmit
+bun run typecheck:scripts
+bun run lint
