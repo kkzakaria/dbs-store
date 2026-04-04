@@ -185,3 +185,47 @@ export async function searchProducts(
     total: Number(countResult[0]?.count ?? 0),
   };
 }
+
+export type ProductSuggestion = {
+  id: string;
+  name: string;
+  slug: string;
+  brand: string;
+  price: number;
+  image: string;
+};
+
+export async function suggestProducts(
+  db: Db,
+  query: string,
+  limit = 5
+): Promise<ProductSuggestion[]> {
+  const pattern = `%${query}%`;
+
+  const rows = await db
+    .select({
+      id: products.id,
+      name: products.name,
+      slug: products.slug,
+      brand: products.brand,
+      price: products.price,
+      images: products.images,
+    })
+    .from(products)
+    .where(
+      and(
+        or(like(products.name, pattern), like(products.brand, pattern)),
+        eq(products.is_active, true)
+      )
+    )
+    .limit(limit);
+
+  return rows.map((row) => {
+    let image = "/images/products/placeholder.svg";
+    try {
+      const parsed = JSON.parse(row.images);
+      if (Array.isArray(parsed) && parsed.length > 0) image = parsed[0];
+    } catch { /* use placeholder */ }
+    return { id: row.id, name: row.name, slug: row.slug, brand: row.brand, price: row.price, image };
+  });
+}

@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "@/lib/db/schema";
-import { searchProducts } from "@/lib/data/products";
+import { searchProducts, suggestProducts } from "@/lib/data/products";
 
 function createTestDb() {
   const sqlite = new Database(":memory:");
@@ -175,5 +175,65 @@ describe("searchProducts", () => {
     await db.insert(schema.products).values([descOnly, BASE]);
     const result = await searchProducts(db, "iPhone");
     expect(result.products[0].name).toBe("iPhone 16 Pro");
+  });
+});
+
+describe("suggestProducts", () => {
+  it("matches by name", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values(BASE);
+    const results = await suggestProducts(db, "iPhone");
+    expect(results).toHaveLength(1);
+    expect(results[0].name).toBe("iPhone 16 Pro");
+  });
+
+  it("matches by brand", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values(BASE);
+    const results = await suggestProducts(db, "Apple");
+    expect(results).toHaveLength(1);
+  });
+
+  it("does NOT match description-only", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values(BASE);
+    const results = await suggestProducts(db, "puce A18");
+    expect(results).toHaveLength(0);
+  });
+
+  it("excludes inactive products", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values({ ...BASE, is_active: false });
+    const results = await suggestProducts(db, "iPhone");
+    expect(results).toHaveLength(0);
+  });
+
+  it("limits to 5 results by default", async () => {
+    const db = createTestDb();
+    const items = Array.from({ length: 8 }, (_, i) => ({
+      ...BASE,
+      id: `phone-${i}`,
+      slug: `phone-${i}`,
+      name: `Phone ${i}`,
+      subcategory_id: null,
+    }));
+    await db.insert(schema.products).values(items);
+    const results = await suggestProducts(db, "Phone");
+    expect(results).toHaveLength(5);
+  });
+
+  it("returns lightweight fields only (id, name, slug, brand, price, image)", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values(BASE);
+    const results = await suggestProducts(db, "iPhone");
+    const result = results[0];
+    expect(result).toEqual({
+      id: "iphone-16-pro",
+      name: "iPhone 16 Pro",
+      slug: "iphone-16-pro",
+      brand: "Apple",
+      price: 899000,
+      image: "/placeholder.svg",
+    });
   });
 });
