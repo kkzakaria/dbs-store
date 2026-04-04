@@ -128,6 +128,10 @@ export type SearchFilters = {
   tri?: "prix_asc" | "prix_desc" | "nouveau";
 };
 
+function escapeLike(s: string): string {
+  return s.replace(/%/g, "\\%").replace(/_/g, "\\_");
+}
+
 export async function searchProducts(
   db: Db,
   query: string,
@@ -135,7 +139,7 @@ export async function searchProducts(
   offset = 0,
   limit = 12
 ): Promise<{ products: Product[]; hasMore: boolean; total: number }> {
-  const pattern = `%${query}%`;
+  const pattern = `%${escapeLike(query)}%`;
 
   const conditions: SQL[] = [
     or(
@@ -200,7 +204,7 @@ export async function suggestProducts(
   query: string,
   limit = 5
 ): Promise<ProductSuggestion[]> {
-  const pattern = `%${query}%`;
+  const pattern = `%${escapeLike(query)}%`;
 
   const rows = await db
     .select({

@@ -41,6 +41,12 @@ export function SearchOverlay({ onClose }: SearchOverlayProps) {
     return () => document.removeEventListener("keydown", handleEscape);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, []);
+
   const fetchSuggestions = useCallback(async (value: string) => {
     if (value.length < 3) {
       setSuggestions([]);
@@ -118,7 +124,7 @@ export function SearchOverlay({ onClose }: SearchOverlayProps) {
               role="combobox"
               aria-expanded={suggestions.length > 0}
               aria-autocomplete="list"
-              aria-controls="search-suggestions"
+              aria-controls={suggestions.length > 0 ? "search-suggestions" : undefined}
               aria-activedescendant={selectedIndex >= 0 ? `suggestion-${selectedIndex}` : undefined}
             />
 

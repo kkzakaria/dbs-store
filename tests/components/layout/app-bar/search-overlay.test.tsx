@@ -111,4 +111,37 @@ describe("SearchOverlay", () => {
     fireEvent.keyDown(input, { key: "Enter" });
     expect(mockPush).not.toHaveBeenCalled();
   });
+
+  it("navigates suggestions with ArrowDown/ArrowUp and selects with Enter", async () => {
+    mockSearchSuggestions.mockResolvedValue([
+      { id: "1", name: "iPhone 16 Pro", slug: "iphone-16-pro", brand: "Apple", price: 899000, image: "/img.jpg" },
+      { id: "2", name: "iPhone 15", slug: "iphone-15", brand: "Apple", price: 699000, image: "/img2.jpg" },
+    ]);
+
+    render(<SearchOverlay onClose={onClose} />);
+    const input = screen.getByPlaceholderText(/rechercher/i);
+    fireEvent.change(input, { target: { value: "iphone" } });
+    await vi.advanceTimersByTimeAsync(400);
+
+    await waitFor(() => {
+      expect(screen.getByText("iPhone 16 Pro")).toBeInTheDocument();
+    });
+
+    // ArrowDown selects first suggestion
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    expect(screen.getByText("iPhone 16 Pro").closest("li")).toHaveAttribute("aria-selected", "true");
+
+    // ArrowDown again selects second
+    fireEvent.keyDown(input, { key: "ArrowDown" });
+    expect(screen.getByText("iPhone 15").closest("li")).toHaveAttribute("aria-selected", "true");
+
+    // ArrowUp goes back to first
+    fireEvent.keyDown(input, { key: "ArrowUp" });
+    expect(screen.getByText("iPhone 16 Pro").closest("li")).toHaveAttribute("aria-selected", "true");
+
+    // Enter navigates to selected product
+    fireEvent.keyDown(input, { key: "Enter" });
+    expect(mockPush).toHaveBeenCalledWith("/produits/iphone-16-pro");
+    expect(onClose).toHaveBeenCalled();
+  });
 });
