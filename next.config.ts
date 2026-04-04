@@ -4,6 +4,7 @@ import { initOpenNextCloudflareForDev } from "@opennextjs/cloudflare";
 initOpenNextCloudflareForDev();
 
 const nextConfig: NextConfig = {
+  serverExternalPackages: ["better-sqlite3"],
   experimental: {
     optimizePackageImports: ["lucide-react"],
   },

@@ -14,6 +14,7 @@
     "preview": "wrangler dev",
     "deploy": "wrangler deploy",
     "db:generate": "drizzle-kit generate",
+    "db:migrate:dev": "tsx scripts/migrate-dev.ts",
     "db:migrate:local": "wrangler d1 migrations apply dbs-store-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply dbs-store-db --remote",
     "db:seed": "tsx scripts/seed.ts",

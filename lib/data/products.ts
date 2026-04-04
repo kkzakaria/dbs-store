@@ -1,6 +1,7 @@
 // lib/data/products.ts
 import { cache } from "react";
-import { eq, or, and, ne, lte, gte, asc, desc, isNotNull } from "drizzle-orm";
+import { eq, or, and, ne, lte, gte, asc, desc, isNotNull, sql } from "drizzle-orm";
+import type { SQL } from "drizzle-orm";
 import { products } from "@/lib/db/schema";
 import type { Product, ProductBadge } from "@/lib/db/schema";
 import { getDb, type Db } from "@/lib/db";
@@ -118,3 +119,154 @@ export async function getPromoProducts(db: Db, limit = 4): Promise<Product[]> {
 export const getProductCached = cache(async (slug: string): Promise<Product | null> => {
   return getProduct(await getDb(), slug);
 });
+
+export type SearchFilters = {
+  category_id?: string;
+  brand?: string;
+  prix_min?: number;
+  prix_max?: number;
+  tri?: "prix_asc" | "prix_desc" | "nouveau";
+};
+
+function escapeLike(s: string): string {
+  return s.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
+}
+
+export async function searchProducts(
+  db: Db,
+  query: string,
+  filters: SearchFilters = {},
+  offset = 0,
+  limit = 12
+): Promise<{ products: Product[]; hasMore: boolean; total: number }> {
+  const pattern = `%${escapeLike(query)}%`;
+
+  const conditions: SQL[] = [
+    or(
+      sql`${products.name} LIKE ${pattern} ESCAPE '\\'`,
+      sql`${products.description} LIKE ${pattern} ESCAPE '\\'`,
+      sql`${products.brand} LIKE ${pattern} ESCAPE '\\'`
+    )!,
+    eq(products.is_active, true),
+  ];
+
+  if (filters.category_id) conditions.push(eq(products.category_id, filters.category_id));
+  if (filters.brand) conditions.push(eq(products.brand, filters.brand));
+  if (filters.prix_min !== undefined) conditions.push(gte(products.price, filters.prix_min));
+  if (filters.prix_max !== undefined) conditions.push(lte(products.price, filters.prix_max));
+
+  const where = and(...conditions);
+
+  const orderBy =
+    filters.tri === "prix_asc"
+      ? asc(products.price)
+      : filters.tri === "prix_desc"
+        ? desc(products.price)
+        : filters.tri === "nouveau"
+          ? desc(products.created_at)
+          : sql`CASE WHEN ${products.name} LIKE ${pattern} ESCAPE '\\' THEN 0 ELSE 1 END, ${products.created_at} DESC`;
+
+  const [rows, countResult] = await Promise.all([
+    db
+      .select()
+      .from(products)
+      .where(where)
+      .orderBy(orderBy)
+      .limit(limit + 1)
+      .offset(offset),
+    db
+      .select({ count: sql<number>`count(*)` })
+      .from(products)
+      .where(where),
+  ]);
+
+  const hasMore = rows.length > limit;
+  const sliced = hasMore ? rows.slice(0, limit) : rows;
+
+  return {
+    products: sliced.map(parseProduct),
+    hasMore,
+    total: Number(countResult[0]?.count ?? 0),
+  };
+}
+
+export async function getSearchBrands(
+  db: Db,
+  query: string,
+  filters: Omit<SearchFilters, "brand"> = {}
+): Promise<string[]> {
+  const pattern = `%${escapeLike(query)}%`;
+
+  const conditions: SQL[] = [
+    or(
+      sql`${products.name} LIKE ${pattern} ESCAPE '\\'`,
+      sql`${products.description} LIKE ${pattern} ESCAPE '\\'`,
+      sql`${products.brand} LIKE ${pattern} ESCAPE '\\'`
+    )!,
+    eq(products.is_active, true),
+  ];
+
+  if (filters.category_id) conditions.push(eq(products.category_id, filters.category_id));
+  if (filters.prix_min !== undefined) conditions.push(gte(products.price, filters.prix_min));
+  if (filters.prix_max !== undefined) conditions.push(lte(products.price, filters.prix_max));
+
+  const rows = await db
+    .selectDistinct({ brand: products.brand })
+    .from(products)
+    .where(and(...conditions))
+    .orderBy(asc(products.brand));
+
+  return rows.map((r) => r.brand);
+}
+
+export type ProductSuggestion = {
+  id: string;
+  name: string;
+  slug: string;
+  brand: string;
+  price: number;
+  image: string;
+};
+
+export async function suggestProducts(
+  db: Db,
+  query: string,
+  limit = 5
+): Promise<ProductSuggestion[]> {
+  const pattern = `%${escapeLike(query)}%`;
+
+  const rows = await db
+    .select({
+      id: products.id,
+      name: products.name,
+      slug: products.slug,
+      brand: products.brand,
+      price: products.price,
+      images: products.images,
+    })
+    .from(products)
+    .where(
+      and(
+        or(
+          sql`${products.name} LIKE ${pattern} ESCAPE '\\'`,
+          sql`${products.brand} LIKE ${pattern} ESCAPE '\\'`
+        ),
+        eq(products.is_active, true)
+      )
+    )
+    .limit(limit);
+
+  return rows.map((row) => {
+    let image = "/images/products/placeholder.svg";
+    try {
+      const parsed = JSON.parse(row.images);
+      if (Array.isArray(parsed)) {
+        const first = parsed.find((v): v is string => typeof v === "string" && v.length > 0);
+        if (first) image = first;
+      }
+    } catch {
+      console.error(`[suggestProducts] JSON invalide dans images pour "${row.slug}"`);
+    }
+    return { id: row.id, name: row.name, slug: row.slug, brand: row.brand, price: row.price, image };
+  });
+}
