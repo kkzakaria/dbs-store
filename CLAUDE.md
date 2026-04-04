@@ -32,7 +32,7 @@ E-commerce store for electronics in Ivory Coast / UEMOA zone. French locale.
 - `components/ui/` — Shadcn UI primitives
 - `components/layout/` — Layout components (app-bar, etc.)
 - `hooks/` — Custom React hooks
-- `lib/data/` — Static data (categories, etc.)
+- `lib/data/` — Data access functions (products, categories, etc.)
 - `lib/utils.ts` — cn() utility (clsx + tailwind-merge)
 - `tests/` — Mirrors source structure
 
@@ -70,3 +70,8 @@ E-commerce store for electronics in Ivory Coast / UEMOA zone. French locale.
 - `bun run dev` uses `./dev.db` (better-sqlite3) — run `bun run db:migrate:dev && bun run db:seed:categories && bun run db:seed` to set up
 - `bun run preview` uses D1 via wrangler (port 8788) — run `bun run db:migrate:local` to set up
 - Set `USE_D1=1` env var to force D1 usage in dev mode (e.g., for testing Cloudflare-specific behavior)
+- `.open-next/` and `.wrangler/` are excluded from ESLint — do NOT remove these ignores from `eslint.config.mjs` or lint will OOM
+- D1 migrations are immutable once applied — never modify existing files in `migrations/`, always create a new numbered file
+- Server actions (`"use server"`) are public HTTP endpoints — always validate inputs at runtime, TypeScript types provide no protection
+- SQLite LIKE requires explicit `ESCAPE '\\'` clause — Drizzle's `like()` does NOT add it, use `sql` template literals with ESCAPE instead
+- `db.batch()` in dev mode uses a SQLite transaction polyfill — test atomic scenarios against D1 via `bun run preview`
