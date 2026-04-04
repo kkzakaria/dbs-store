@@ -12,7 +12,17 @@ export async function getDb(): Promise<Db> {
     if (!devDb) {
       const Database = (await import("better-sqlite3")).default;
       const { drizzle: drizzleSqlite } = await import("drizzle-orm/better-sqlite3");
-      devDb = drizzleSqlite(new Database("./dev.db"), { schema });
+      const sqliteDb = new Database("./dev.db");
+      sqliteDb.pragma("journal_mode = WAL");
+      const db = drizzleSqlite(sqliteDb, { schema });
+      // Polyfill D1's batch() for dev: run all statements sequentially
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (db as any).batch = async (queries: any[]) => {
+        const results = [];
+        for (const q of queries) results.push(await q);
+        return results;
+      };
+      devDb = db;
     }
     return devDb as Db;
   }

@@ -102,7 +102,7 @@ export default async function RecherchePage({ searchParams }: Props) {
           <EmptyState query={query} db={db} />
         ) : (
           <SearchLoadMore
-            key={`${query}-${params.categorie}-${params.marque}-${params.prix_max}-${params.tri}`}
+            key={`${query}-${params.categorie}-${params.marque}-${params.prix_min}-${params.prix_max}-${params.tri}`}
             initialProducts={products}
             initialHasMore={hasMore}
             query={query}

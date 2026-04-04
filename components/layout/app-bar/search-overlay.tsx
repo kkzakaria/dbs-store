@@ -61,6 +61,11 @@ export function SearchOverlay({ onClose }: SearchOverlayProps) {
       if (latestQueryRef.current !== value) return;
       setSuggestions(results);
       setSelectedIndex(-1);
+    } catch {
+      if (latestQueryRef.current === value) {
+        setSuggestions([]);
+        setSelectedIndex(-1);
+      }
     } finally {
       if (latestQueryRef.current === value) {
         setIsLoading(false);
@@ -78,7 +83,9 @@ export function SearchOverlay({ onClose }: SearchOverlayProps) {
       setIsLoading(false);
       return;
     }
-    debounceRef.current = setTimeout(() => fetchSuggestions(value), 300);
+    debounceRef.current = setTimeout(() => {
+      void fetchSuggestions(value);
+    }, 300);
   }
 
   function navigateToSearch() {

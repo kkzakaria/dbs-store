@@ -1,6 +1,6 @@
 // lib/data/products.ts
 import { cache } from "react";
-import { eq, or, and, ne, lte, gte, asc, desc, isNotNull, like, sql } from "drizzle-orm";
+import { eq, or, and, ne, lte, gte, asc, desc, isNotNull, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { products } from "@/lib/db/schema";
 import type { Product, ProductBadge } from "@/lib/db/schema";
@@ -129,7 +129,7 @@ export type SearchFilters = {
 };
 
 function escapeLike(s: string): string {
-  return s.replace(/%/g, "\\%").replace(/_/g, "\\_");
+  return s.replace(/\\/g, "\\\\").replace(/%/g, "\\%").replace(/_/g, "\\_");
 }
 
 export async function searchProducts(
@@ -143,9 +143,9 @@ export async function searchProducts(
 
   const conditions: SQL[] = [
     or(
-      like(products.name, pattern),
-      like(products.description, pattern),
-      like(products.brand, pattern)
+      sql`${products.name} LIKE ${pattern} ESCAPE '\\'`,
+      sql`${products.description} LIKE ${pattern} ESCAPE '\\'`,
+      sql`${products.brand} LIKE ${pattern} ESCAPE '\\'`
     )!,
     eq(products.is_active, true),
   ];
@@ -164,7 +164,7 @@ export async function searchProducts(
         ? desc(products.price)
         : filters.tri === "nouveau"
           ? desc(products.created_at)
-          : sql`CASE WHEN ${products.name} LIKE ${pattern} THEN 0 ELSE 1 END, ${products.created_at} DESC`;
+          : sql`CASE WHEN ${products.name} LIKE ${pattern} ESCAPE '\\' THEN 0 ELSE 1 END, ${products.created_at} DESC`;
 
   const [rows, countResult] = await Promise.all([
     db
@@ -199,9 +199,9 @@ export async function getSearchBrands(
 
   const conditions: SQL[] = [
     or(
-      like(products.name, pattern),
-      like(products.description, pattern),
-      like(products.brand, pattern)
+      sql`${products.name} LIKE ${pattern} ESCAPE '\\'`,
+      sql`${products.description} LIKE ${pattern} ESCAPE '\\'`,
+      sql`${products.brand} LIKE ${pattern} ESCAPE '\\'`
     )!,
     eq(products.is_active, true),
   ];
@@ -247,7 +247,10 @@ export async function suggestProducts(
     .from(products)
     .where(
       and(
-        or(like(products.name, pattern), like(products.brand, pattern)),
+        or(
+          sql`${products.name} LIKE ${pattern} ESCAPE '\\'`,
+          sql`${products.brand} LIKE ${pattern} ESCAPE '\\'`
+        ),
         eq(products.is_active, true)
       )
     )
@@ -257,7 +260,10 @@ export async function suggestProducts(
     let image = "/images/products/placeholder.svg";
     try {
       const parsed = JSON.parse(row.images);
-      if (Array.isArray(parsed) && parsed.length > 0) image = parsed[0];
+      if (Array.isArray(parsed)) {
+        const first = parsed.find((v): v is string => typeof v === "string" && v.length > 0);
+        if (first) image = first;
+      }
     } catch { /* use placeholder */ }
     return { id: row.id, name: row.name, slug: row.slug, brand: row.brand, price: row.price, image };
   });
