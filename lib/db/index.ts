@@ -4,8 +4,7 @@ import * as schema from "./schema";
 
 export type Db = DrizzleD1Database<typeof schema>;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-let devDb: any = null;
+let devDb: Db | null = null;
 
 export async function getDb(): Promise<Db> {
   if (process.env.NODE_ENV === "development" && !process.env.USE_D1) {
@@ -15,16 +14,19 @@ export async function getDb(): Promise<Db> {
       const sqliteDb = new Database("./dev.db");
       sqliteDb.pragma("journal_mode = WAL");
       const db = drizzleSqlite(sqliteDb, { schema });
-      // Polyfill D1's batch() for dev: run all statements sequentially
+      // Polyfill D1's batch() for dev: runs statements sequentially.
+      // WARNING: Unlike D1's batch(), this is NOT atomic — if a statement
+      // in the middle fails, earlier statements are already committed.
+      // Test atomic scenarios against D1 via `bun run preview`.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (db as any).batch = async (queries: any[]) => {
         const results = [];
         for (const q of queries) results.push(await q);
         return results;
       };
-      devDb = db;
+      devDb = db as unknown as Db;
     }
-    return devDb as Db;
+    return devDb;
   }
   const { getCloudflareContext } = await import("@opennextjs/cloudflare");
   const { env } = await getCloudflareContext<CloudflareEnv>();

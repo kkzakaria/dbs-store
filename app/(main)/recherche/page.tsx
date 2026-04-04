@@ -31,7 +31,7 @@ async function resolveCategorySlug(db: Db, slug: string): Promise<string | undef
 
 export default async function RecherchePage({ searchParams }: Props) {
   const params = await searchParams;
-  const query = params.q?.trim() ?? "";
+  const query = (params.q?.trim() ?? "").slice(0, 200);
   const db = await getDb();
 
   if (!query) {

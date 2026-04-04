@@ -22,13 +22,20 @@ export function SearchLoadMore({
 }: SearchLoadMoreProps) {
   const [products, setProducts] = useState(initialProducts);
   const [hasMore, setHasMore] = useState(initialHasMore);
+  const [loadError, setLoadError] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   function handleLoadMore() {
     startTransition(async () => {
-      const result = await loadMoreSearchResults(query, filters, products.length);
-      setProducts((prev) => [...prev, ...result.products]);
-      setHasMore(result.hasMore);
+      try {
+        setLoadError(false);
+        const result = await loadMoreSearchResults(query, filters, products.length);
+        setProducts((prev) => [...prev, ...result.products]);
+        setHasMore(result.hasMore);
+      } catch {
+        console.error("[SearchLoadMore] Failed to load more results");
+        setLoadError(true);
+      }
     });
   }
 
@@ -40,7 +47,14 @@ export function SearchLoadMore({
         ))}
       </div>
 
-      {hasMore ? (
+      {loadError ? (
+        <div className="mt-8 flex flex-col items-center gap-2">
+          <p className="text-sm text-muted-foreground">Impossible de charger plus de résultats.</p>
+          <Button variant="outline" onClick={handleLoadMore}>
+            Réessayer
+          </Button>
+        </div>
+      ) : hasMore ? (
         <div className="mt-8 flex justify-center">
           <Button
             variant="outline"

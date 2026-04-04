@@ -3,7 +3,7 @@ import { describe, it, expect } from "vitest";
 import Database from "better-sqlite3";
 import { drizzle } from "drizzle-orm/better-sqlite3";
 import * as schema from "@/lib/db/schema";
-import { searchProducts, suggestProducts } from "@/lib/data/products";
+import { searchProducts, suggestProducts, getSearchBrands } from "@/lib/data/products";
 
 function createTestDb() {
   const sqlite = new Database(":memory:");
@@ -235,5 +235,85 @@ describe("suggestProducts", () => {
       price: 899000,
       image: "/placeholder.svg",
     });
+  });
+});
+
+describe("searchProducts — escapeLike", () => {
+  it("treats % in query as literal, not wildcard", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values(BASE);
+    const result = await searchProducts(db, "%");
+    expect(result.products).toHaveLength(0);
+  });
+
+  it("treats _ in query as literal, not wildcard", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values(BASE);
+    const result = await searchProducts(db, "_");
+    expect(result.products).toHaveLength(0);
+  });
+});
+
+describe("searchProducts — prix_min filter", () => {
+  it("filters by prix_min", async () => {
+    const db = createTestDb();
+    const cheap = {
+      ...BASE, id: "se", slug: "se", name: "iPhone SE",
+      price: 350000, subcategory_id: null, description: "iPhone abordable.",
+    };
+    await db.insert(schema.products).values([BASE, cheap]);
+    const result = await searchProducts(db, "iPhone", { prix_min: 500000 });
+    expect(result.products).toHaveLength(1);
+    expect(result.products[0].price).toBe(899000);
+  });
+});
+
+describe("getSearchBrands", () => {
+  it("returns distinct brands for matching products", async () => {
+    const db = createTestDb();
+    const samsung = {
+      ...BASE, id: "s25", slug: "s25", name: "Galaxy S25",
+      brand: "Samsung", subcategory_id: null, description: "Smartphone Samsung.",
+    };
+    await db.insert(schema.products).values([BASE, samsung]);
+    const brands = await getSearchBrands(db, "Galaxy");
+    expect(brands).toEqual(["Samsung"]);
+  });
+
+  it("returns brands from all matching products, not just first page", async () => {
+    const db = createTestDb();
+    const items = [
+      { ...BASE, id: "a1", slug: "a1", name: "Phone Alpha", brand: "Alpha", subcategory_id: null },
+      { ...BASE, id: "b1", slug: "b1", name: "Phone Beta", brand: "Beta", subcategory_id: null },
+      { ...BASE, id: "g1", slug: "g1", name: "Phone Gamma", brand: "Gamma", subcategory_id: null },
+    ];
+    await db.insert(schema.products).values(items);
+    const brands = await getSearchBrands(db, "Phone");
+    expect(brands).toEqual(["Alpha", "Beta", "Gamma"]);
+  });
+
+  it("excludes inactive products", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values({ ...BASE, is_active: false });
+    const brands = await getSearchBrands(db, "iPhone");
+    expect(brands).toEqual([]);
+  });
+
+  it("respects category_id filter", async () => {
+    const db = createTestDb();
+    const tablet = {
+      ...BASE, id: "ipad", slug: "ipad", name: "iPad Pro",
+      category_id: "tablettes", subcategory_id: null,
+      description: "Tablette Apple.", brand: "Apple",
+    };
+    await db.insert(schema.products).values([BASE, tablet]);
+    const brands = await getSearchBrands(db, "Apple", { category_id: "tablettes" });
+    expect(brands).toEqual(["Apple"]);
+  });
+
+  it("returns empty array when no products match", async () => {
+    const db = createTestDb();
+    const brands = await getSearchBrands(db, "nonexistent");
+    expect(brands).toEqual([]);
   });
 });

@@ -264,7 +264,9 @@ export async function suggestProducts(
         const first = parsed.find((v): v is string => typeof v === "string" && v.length > 0);
         if (first) image = first;
       }
-    } catch { /* use placeholder */ }
+    } catch {
+      console.error(`[suggestProducts] JSON invalide dans images pour "${row.slug}"`);
+    }
     return { id: row.id, name: row.name, slug: row.slug, brand: row.brand, price: row.price, image };
   });
 }
