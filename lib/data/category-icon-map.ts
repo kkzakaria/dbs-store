@@ -32,5 +32,5 @@ const iconMap: Record<CategoryIcon, LucideIcon> = {
 };
 
 export function getCategoryIcon(name: CategoryIcon): LucideIcon {
-  return iconMap[name];
+  return iconMap[name] ?? Box;
 }
