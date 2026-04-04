@@ -25,20 +25,12 @@
 
 ## Phase 2 — Catégories dynamiques en D1 + admin CRUD
 
-**Statut : A faire**
+**Statut : DONE**
 
-**Scope :**
-- Migration des catégories hardcodées (lib/data/) vers table D1
-- Schéma categories avec hiérarchie parent/enfant
-- Admin CRUD catégories et sous-catégories
-- Migration des données existantes
-- Mise à jour de toutes les pages qui lisent les catégories
-
-**Checkpoint :**
-- [ ] Table categories en D1 avec données migrées
-- [ ] Admin peut créer/modifier/supprimer des catégories
-- [ ] Toutes les pages storefront utilisent les catégories D1
-- [ ] Tests passent, CI verte, deploy prod OK
+- [x] Table categories en D1 avec données migrées
+- [x] Admin CRUD catégories et sous-catégories
+- [x] Toutes les pages storefront utilisent les catégories D1
+- [x] Tests passent, CI verte, deploy prod OK
 
 ---
 
@@ -184,7 +176,7 @@
 | Phase | Feature | Complexité | Statut |
 |-------|---------|------------|--------|
 | 1 | CI/CD | Moyenne | **Done** |
-| 2 | Catégories dynamiques | Haute | A faire |
+| 2 | Catégories dynamiques | Haute | **Done** |
 | 3 | Recherche | Moyenne | A faire |
 | 4 | Cloudflare KV | Moyenne | A faire |
 | 5 | Cloudflare Queue | Moyenne | A faire |
