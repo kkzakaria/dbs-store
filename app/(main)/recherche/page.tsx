@@ -76,9 +76,9 @@ export default async function RecherchePage({ searchParams }: Props) {
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
       {/* Breadcrumb */}
-      <nav className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
+      <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-sm text-muted-foreground">
         <Link href="/" className="hover:text-foreground">Accueil</Link>
-        <span>/</span>
+        <span aria-hidden="true">/</span>
         <span className="font-medium text-foreground">Recherche</span>
       </nav>
 
