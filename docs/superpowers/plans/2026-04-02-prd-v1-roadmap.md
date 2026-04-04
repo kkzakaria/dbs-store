@@ -36,19 +36,16 @@
 
 ## Phase 3 — Page Recherche
 
-**Statut : A faire**
+**Statut : DONE**
 
-**Scope :**
-- Page /recherche avec résultats produits
-- Recherche full-text sur nom, description, marque
-- Filtres (catégorie, prix, marque, tri)
-- Pagination
-- Intégration avec la search overlay de l'app-bar
-
-**Checkpoint :**
-- [ ] Recherche fonctionnelle avec filtres
-- [ ] Search overlay redirige vers /recherche
-- [ ] Tests passent, CI verte, deploy prod OK
+- [x] Page /recherche avec résultats produits (LIKE sur nom, description, marque)
+- [x] Filtres horizontaux (catégorie, prix, marque, tri)
+- [x] Pagination "Charger plus" (12 produits/batch)
+- [x] Suggestions live dans l'overlay (debounce 300ms, max 5, après 3 chars)
+- [x] État vide avec produits populaires
+- [x] Validation server actions + LIKE escape + ARIA combobox
+- [x] Dev local avec better-sqlite3 (bun run dev sur port 33000)
+- [x] 63+ tests, CI verte
 
 ---
 
@@ -177,7 +174,7 @@
 |-------|---------|------------|--------|
 | 1 | CI/CD | Moyenne | **Done** |
 | 2 | Catégories dynamiques | Haute | **Done** |
-| 3 | Recherche | Moyenne | A faire |
+| 3 | Recherche | Moyenne | **Done** |
 | 4 | Cloudflare KV | Moyenne | A faire |
 | 5 | Cloudflare Queue | Moyenne | A faire |
 | 6 | Offres/Promotions | Faible | A faire |
