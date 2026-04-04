@@ -14,15 +14,18 @@ export const dynamic = "force-dynamic";
 const VALID_TRI = ["prix_asc", "prix_desc", "nouveau"] as const;
 
 type Props = {
-  searchParams: Promise<{
-    q?: string;
-    categorie?: string;
-    marque?: string;
-    prix_min?: string;
-    prix_max?: string;
-    tri?: string;
-  }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 };
+
+function firstString(value: string | string[] | undefined): string | undefined {
+  if (Array.isArray(value)) return value[0];
+  return value;
+}
+
+function parsePositiveInt(value: string | undefined): number | undefined {
+  if (!value || !/^\d+$/.test(value)) return undefined;
+  return parseInt(value, 10);
+}
 
 async function resolveCategorySlug(db: Db, slug: string): Promise<string | undefined> {
   const category = await getCategoryBySlug(db, slug);
@@ -30,11 +33,17 @@ async function resolveCategorySlug(db: Db, slug: string): Promise<string | undef
 }
 
 export default async function RecherchePage({ searchParams }: Props) {
-  const params = await searchParams;
-  const query = (params.q?.trim() ?? "").slice(0, 200);
+  const raw = await searchParams;
+  const q = firstString(raw.q)?.trim()?.slice(0, 200) ?? "";
+  const categorie = firstString(raw.categorie);
+  const marque = firstString(raw.marque);
+  const rawPrixMin = firstString(raw.prix_min);
+  const rawPrixMax = firstString(raw.prix_max);
+  const rawTri = firstString(raw.tri);
+
   const db = await getDb();
 
-  if (!query) {
+  if (!q) {
     return (
       <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
         <h1 className="text-2xl font-bold tracking-tight">Recherche</h1>
@@ -45,25 +54,23 @@ export default async function RecherchePage({ searchParams }: Props) {
     );
   }
 
-  const tri = (VALID_TRI as readonly string[]).includes(params.tri ?? "")
-    ? (params.tri as SearchFilters["tri"])
+  const tri = (VALID_TRI as readonly string[]).includes(rawTri ?? "")
+    ? (rawTri as SearchFilters["tri"])
     : undefined;
-  const prixMin = params.prix_min ? parseInt(params.prix_min, 10) : undefined;
-  const prixMax = params.prix_max ? parseInt(params.prix_max, 10) : undefined;
 
   const filters: SearchFilters = {
-    category_id: params.categorie ? await resolveCategorySlug(db, params.categorie) : undefined,
-    brand: params.marque,
-    prix_min: prixMin !== undefined && Number.isFinite(prixMin) ? prixMin : undefined,
-    prix_max: prixMax !== undefined && Number.isFinite(prixMax) ? prixMax : undefined,
+    category_id: categorie ? await resolveCategorySlug(db, categorie) : undefined,
+    brand: marque,
+    prix_min: parsePositiveInt(rawPrixMin),
+    prix_max: parsePositiveInt(rawPrixMax),
     tri,
   };
 
   const filtersWithoutBrand = { ...filters, brand: undefined };
   const [{ products, hasMore, total }, categories, brands] = await Promise.all([
-    searchProducts(db, query, filters, 0, 12),
+    searchProducts(db, q, filters, 0, 12),
     getTopLevelCategories(db),
-    getSearchBrands(db, query, filtersWithoutBrand),
+    getSearchBrands(db, q, filtersWithoutBrand),
   ]);
 
   return (
@@ -76,7 +83,7 @@ export default async function RecherchePage({ searchParams }: Props) {
       </nav>
 
       <h1 className="text-2xl font-bold tracking-tight">
-        Résultats pour &laquo;{query}&raquo;
+        Résultats pour &laquo;{q}&raquo;
       </h1>
       <p className="mt-1 text-sm text-muted-foreground">
         {total} résultat{total !== 1 ? "s" : ""}
@@ -88,10 +95,10 @@ export default async function RecherchePage({ searchParams }: Props) {
           categories={categories.map((c) => ({ slug: c.slug, name: c.name }))}
           brands={brands}
           current={{
-            categorie: params.categorie,
-            marque: params.marque,
-            prix_max: params.prix_max,
-            tri: params.tri,
+            categorie,
+            marque,
+            prix_max: rawPrixMax,
+            tri: rawTri,
           }}
         />
       </div>
@@ -99,13 +106,13 @@ export default async function RecherchePage({ searchParams }: Props) {
       {/* Results */}
       <div className="mt-8">
         {products.length === 0 ? (
-          <EmptyState query={query} db={db} />
+          <EmptyState query={q} db={db} />
         ) : (
           <SearchLoadMore
-            key={`${query}-${params.categorie}-${params.marque}-${params.prix_min}-${params.prix_max}-${params.tri}`}
+            key={`${q}-${categorie}-${marque}-${rawPrixMin}-${rawPrixMax}-${rawTri}`}
             initialProducts={products}
             initialHasMore={hasMore}
-            query={query}
+            query={q}
             filters={filters}
           />
         )}

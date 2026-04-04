@@ -252,6 +252,18 @@ describe("searchProducts — escapeLike", () => {
     const result = await searchProducts(db, "_");
     expect(result.products).toHaveLength(0);
   });
+
+  it("treats backslash in query as literal", async () => {
+    const db = createTestDb();
+    const item = {
+      ...BASE, id: "slash", slug: "slash", name: "Test\\Product",
+      subcategory_id: null,
+    };
+    await db.insert(schema.products).values(item);
+    const result = await searchProducts(db, "\\");
+    expect(result.products).toHaveLength(1);
+    expect(result.products[0].name).toBe("Test\\Product");
+  });
 });
 
 describe("searchProducts — prix_min filter", () => {

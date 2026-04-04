@@ -14,15 +14,19 @@ export async function getDb(): Promise<Db> {
       const sqliteDb = new Database("./dev.db");
       sqliteDb.pragma("journal_mode = WAL");
       const db = drizzleSqlite(sqliteDb, { schema });
-      // Polyfill D1's batch() for dev: runs statements sequentially.
-      // WARNING: Unlike D1's batch(), this is NOT atomic — if a statement
-      // in the middle fails, earlier statements are already committed.
-      // Test atomic scenarios against D1 via `bun run preview`.
+      // Polyfill D1's batch() for dev: wraps statements in a SQLite transaction.
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (db as any).batch = async (queries: any[]) => {
-        const results = [];
-        for (const q of queries) results.push(await q);
-        return results;
+        sqliteDb.exec("BEGIN");
+        try {
+          const results = [];
+          for (const q of queries) results.push(await q);
+          sqliteDb.exec("COMMIT");
+          return results;
+        } catch (error) {
+          sqliteDb.exec("ROLLBACK");
+          throw error;
+        }
       };
       devDb = db as unknown as Db;
     }
