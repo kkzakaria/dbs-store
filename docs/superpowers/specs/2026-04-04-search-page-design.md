@@ -158,7 +158,7 @@ Pattern : Vitest + React Testing Library + jsdom, fichiers dans `tests/` miroir 
 - `tests/lib/data/search-products.test.ts`
 - `tests/components/search/search-filters.test.tsx`
 - `tests/components/search/search-load-more.test.tsx`
-- `tests/components/layout/search-overlay.test.tsx`
+- `tests/components/layout/app-bar/search-overlay.test.tsx`
 
 **Modifiés :**
 - `lib/data/products.ts` — ajout `searchProducts()`, `suggestProducts()`

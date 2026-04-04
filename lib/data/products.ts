@@ -190,6 +190,35 @@ export async function searchProducts(
   };
 }
 
+export async function getSearchBrands(
+  db: Db,
+  query: string,
+  filters: Omit<SearchFilters, "brand"> = {}
+): Promise<string[]> {
+  const pattern = `%${escapeLike(query)}%`;
+
+  const conditions: SQL[] = [
+    or(
+      like(products.name, pattern),
+      like(products.description, pattern),
+      like(products.brand, pattern)
+    )!,
+    eq(products.is_active, true),
+  ];
+
+  if (filters.category_id) conditions.push(eq(products.category_id, filters.category_id));
+  if (filters.prix_min !== undefined) conditions.push(gte(products.price, filters.prix_min));
+  if (filters.prix_max !== undefined) conditions.push(lte(products.price, filters.prix_max));
+
+  const rows = await db
+    .selectDistinct({ brand: products.brand })
+    .from(products)
+    .where(and(...conditions))
+    .orderBy(asc(products.brand));
+
+  return rows.map((r) => r.brand);
+}
+
 export type ProductSuggestion = {
   id: string;
   name: string;

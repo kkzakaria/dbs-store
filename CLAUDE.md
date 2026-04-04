@@ -12,17 +12,19 @@ E-commerce store for electronics in Ivory Coast / UEMOA zone. French locale.
 
 ## Commands
 
-- `bun run dev` — Next.js dev server on port 33000 (local only, no D1)
-- `bun run preview` — wrangler dev (local Workers + D1)
+- `bun run dev` — Next.js dev server on port 33000 (uses `./dev.db` SQLite)
+- `bun run preview` — wrangler dev (local Workers + D1, port 8788)
 - `bun run test` — run all tests (vitest run)
 - `bun run test:watch` — watch mode
 - `bun run lint` — ESLint
 - `bun run build` — Next.js production build
 - `bun run build:worker` — full Cloudflare Workers build (next build + opennextjs adapter)
 - `bun run deploy` — deploy to Cloudflare Workers
-- `bun run db:migrate:local` — apply D1 migrations locally
+- `bun run db:migrate:dev` — apply migrations to `./dev.db` (for `bun run dev`)
+- `bun run db:migrate:local` — apply D1 migrations locally (for `bun run preview`)
 - `bun run db:migrate:remote` — apply D1 migrations to production
-- `bun run db:seed` — insert demo products (runs via tsx/Node, not Bun runtime)
+- `bun run db:seed` — insert demo products into `./dev.db` (runs via tsx/Node, not Bun runtime)
+- `bun run db:seed:categories` — insert categories into `./dev.db`
 
 ## Project Structure
 
@@ -65,4 +67,6 @@ E-commerce store for electronics in Ivory Coast / UEMOA zone. French locale.
 - `getDb()` and `getAuth()` are async — always `await` them
 - D1 transactions use `db.batch([...])` for atomic multi-statement writes
 - Secrets must be set via `wrangler secret put <NAME>` for production
-- Local dev with D1 uses `wrangler dev` (port 8788), not `next dev`
+- `bun run dev` uses `./dev.db` (better-sqlite3) — run `bun run db:migrate:dev && bun run db:seed:categories && bun run db:seed` to set up
+- `bun run preview` uses D1 via wrangler (port 8788) — run `bun run db:migrate:local` to set up
+- Set `USE_D1=1` env var to force D1 usage in dev mode (e.g., for testing Cloudflare-specific behavior)

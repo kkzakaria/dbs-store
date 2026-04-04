@@ -26,6 +26,7 @@ export function SearchOverlay({ onClose }: SearchOverlayProps) {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const [isLoading, setIsLoading] = useState(false);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>(null);
+  const latestQueryRef = useRef("");
 
   useEffect(() => {
     requestAnimationFrame(() => {
@@ -50,23 +51,31 @@ export function SearchOverlay({ onClose }: SearchOverlayProps) {
   const fetchSuggestions = useCallback(async (value: string) => {
     if (value.length < 3) {
       setSuggestions([]);
+      setSelectedIndex(-1);
+      setIsLoading(false);
       return;
     }
     setIsLoading(true);
     try {
       const results = await searchSuggestions(value);
+      if (latestQueryRef.current !== value) return;
       setSuggestions(results);
       setSelectedIndex(-1);
     } finally {
-      setIsLoading(false);
+      if (latestQueryRef.current === value) {
+        setIsLoading(false);
+      }
     }
   }, []);
 
   function handleChange(value: string) {
+    latestQueryRef.current = value;
     setQuery(value);
+    setSelectedIndex(-1);
     if (debounceRef.current) clearTimeout(debounceRef.current);
     if (value.length < 3) {
       setSuggestions([]);
+      setIsLoading(false);
       return;
     }
     debounceRef.current = setTimeout(() => fetchSuggestions(value), 300);

@@ -1,7 +1,7 @@
 // app/(main)/recherche/page.tsx
 import Link from "next/link";
 import { getDb } from "@/lib/db";
-import { searchProducts, getPromoProducts } from "@/lib/data/products";
+import { searchProducts, getPromoProducts, getSearchBrands } from "@/lib/data/products";
 import type { SearchFilters } from "@/lib/data/products";
 import { getTopLevelCategories, getCategoryBySlug } from "@/lib/data/categories";
 import type { Db } from "@/lib/db";
@@ -59,12 +59,12 @@ export default async function RecherchePage({ searchParams }: Props) {
     tri,
   };
 
-  const [{ products, hasMore, total }, categories] = await Promise.all([
+  const filtersWithoutBrand = { ...filters, brand: undefined };
+  const [{ products, hasMore, total }, categories, brands] = await Promise.all([
     searchProducts(db, query, filters, 0, 12),
     getTopLevelCategories(db),
+    getSearchBrands(db, query, filtersWithoutBrand),
   ]);
-
-  const brands = [...new Set(products.map((p) => p.brand))].sort();
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
@@ -102,6 +102,7 @@ export default async function RecherchePage({ searchParams }: Props) {
           <EmptyState query={query} db={db} />
         ) : (
           <SearchLoadMore
+            key={`${query}-${params.categorie}-${params.marque}-${params.prix_max}-${params.tri}`}
             initialProducts={products}
             initialHasMore={hasMore}
             query={query}
