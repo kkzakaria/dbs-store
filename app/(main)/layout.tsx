@@ -8,7 +8,10 @@ export default async function MainLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const allCategories = await getCachedAllCategories();
+  const allCategories = await getCachedAllCategories().catch((err) => {
+    console.error("[MainLayout] getCachedAllCategories failed:", err);
+    return [];
+  });
 
   return (
     <>

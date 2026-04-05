@@ -1,17 +1,16 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
 
 // ── Mocks ──────────────────────────────────────────────────────────────────
 
-const { mockUnstableCache } = vi.hoisted(() => {
+const { mockUnstableCache, mockGetDb } = vi.hoisted(() => {
   const mockUnstableCache = vi.fn((fn: (...args: unknown[]) => unknown, keyParts?: string[], options?: Record<string, unknown>) => {
-    // Return a wrapped function that calls the original
     const wrapped = (...args: unknown[]) => fn(...args);
-    // Attach metadata for assertions
     (wrapped as any)._keyParts = keyParts;
     (wrapped as any)._options = options;
     return wrapped;
   });
-  return { mockUnstableCache };
+  const mockGetDb = vi.fn();
+  return { mockUnstableCache, mockGetDb };
 });
 
 vi.mock("next/cache", () => ({
@@ -31,7 +30,8 @@ const mockDb = {
   limit: vi.fn().mockResolvedValue(mockRows),
 };
 
-vi.mock("@/lib/db", () => ({ getDb: vi.fn(() => mockDb) }));
+mockGetDb.mockReturnValue(mockDb);
+vi.mock("@/lib/db", () => ({ getDb: mockGetDb }));
 
 import {
   getCachedAllCategories,
@@ -69,5 +69,53 @@ describe("cached category functions", () => {
 
   it("unstable_cache was called 4 times (one per cached function)", () => {
     expect(mockUnstableCache).toHaveBeenCalledTimes(4);
+  });
+});
+
+describe("cached function invocation", () => {
+  const category = { id: "1", slug: "smartphones", name: "Smartphones", icon: "smartphone", image: null, parent_id: null, order: 0, created_at: new Date() };
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockGetDb.mockReturnValue(mockDb);
+    mockDb.select.mockReturnThis();
+    mockDb.from.mockReturnThis();
+    mockDb.where.mockReturnThis();
+    mockDb.orderBy.mockImplementation(() => ({
+      then: (resolve: (v: unknown) => void) => resolve([category]),
+      limit: vi.fn().mockResolvedValue([category]),
+    }));
+    mockDb.limit.mockResolvedValue([category]);
+  });
+
+  it("getCachedAllCategories calls getDb and returns data", async () => {
+    const result = await getCachedAllCategories();
+    expect(mockGetDb).toHaveBeenCalled();
+    expect(result).toEqual([category]);
+  });
+
+  it("getCachedTopLevelCategories calls getDb and returns data", async () => {
+    const result = await getCachedTopLevelCategories();
+    expect(mockGetDb).toHaveBeenCalled();
+    expect(result).toEqual([category]);
+  });
+
+  it("getCachedSubcategories forwards parentId argument", async () => {
+    const result = await getCachedSubcategories("parent-123");
+    expect(mockGetDb).toHaveBeenCalled();
+    expect(mockDb.where).toHaveBeenCalled();
+    expect(result).toEqual([category]);
+  });
+
+  it("getCachedCategoryBySlug forwards slug argument", async () => {
+    const result = await getCachedCategoryBySlug("smartphones");
+    expect(mockGetDb).toHaveBeenCalled();
+    expect(mockDb.where).toHaveBeenCalled();
+    expect(result).toEqual(category);
+  });
+
+  it("propagates DB errors to the caller", async () => {
+    mockGetDb.mockImplementation(() => { throw new Error("D1 unavailable"); });
+    await expect(getCachedAllCategories()).rejects.toThrow("D1 unavailable");
   });
 });
