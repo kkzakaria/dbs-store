@@ -25,6 +25,7 @@ vi.mock("next/cache", () => ({
   unstable_cache: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
 }));
 
+import { revalidateTag } from "next/cache";
 import { ORG_SLUG } from "@/lib/constants";
 import {
   createCategory,
@@ -98,6 +99,7 @@ describe("createCategory", () => {
     expect(result.error).toBeUndefined();
     expect(mockDb.insert).toHaveBeenCalled();
     expect(mockDb.values).toHaveBeenCalled();
+    expect(revalidateTag).toHaveBeenCalledWith("categories", "max");
   });
 
   it("retourne une erreur spécifique pour slug dupliqué", async () => {
@@ -147,6 +149,7 @@ describe("updateCategory", () => {
     expect(result.error).toBeUndefined();
     expect(mockDb.update).toHaveBeenCalled();
     expect(mockDb.set).toHaveBeenCalled();
+    expect(revalidateTag).toHaveBeenCalledWith("categories", "max");
   });
 
   it("retourne une erreur spécifique pour slug dupliqué", async () => {
@@ -176,6 +179,7 @@ describe("deleteCategory", () => {
     const result = await deleteCategory("smartphones");
     expect(result.error).toBeUndefined();
     expect(mockDb.delete).toHaveBeenCalled();
+    expect(revalidateTag).toHaveBeenCalledWith("categories", "max");
   });
 
   it("retourne une erreur si la suppression échoue", async () => {
