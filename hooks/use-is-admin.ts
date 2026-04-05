@@ -21,7 +21,7 @@ export function useIsAdmin(): boolean {
         if (!cancelled) setIsAdmin(false);
       });
     return () => { cancelled = true; };
-  }, [session?.user?.id]);
+  }, [session?.user]);
 
   // When there is no session, derive false without a setState call
   return session?.user ? isAdmin : false;

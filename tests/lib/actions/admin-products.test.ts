@@ -1,6 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 
-const mockDbStore: Record<string, unknown[]> = {};
 const mockDb = {
   insert: vi.fn().mockReturnThis(),
   update: vi.fn().mockReturnThis(),
