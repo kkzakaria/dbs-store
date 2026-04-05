@@ -21,7 +21,8 @@ export function useIsAdmin(): boolean {
         if (!cancelled) setIsAdmin(false);
       });
     return () => { cancelled = true; };
-  }, [session?.user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- session?.user is an unstable object ref; use .id (primitive) to avoid re-fetching on every render
+  }, [session?.user?.id]);
 
   // When there is no session, derive false without a setState call
   return session?.user ? isAdmin : false;
