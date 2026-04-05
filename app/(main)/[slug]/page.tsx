@@ -1,7 +1,7 @@
 // app/(main)/[slug]/page.tsx
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { getCategoryBySlug, getCategoryById, getSubcategories } from "@/lib/data/categories";
+import { getCachedCategoryBySlug, getCategoryById, getCachedSubcategories } from "@/lib/data/categories";
 import { getDb } from "@/lib/db";
 import { getProductsByCategory } from "@/lib/data/products";
 import type { ProductFilters as Filters } from "@/lib/data/products";
@@ -21,7 +21,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   const [{ slug }, filters] = await Promise.all([params, searchParams]);
 
   const db = await getDb();
-  const category = await getCategoryBySlug(db, slug);
+  const category = await getCachedCategoryBySlug(slug);
   if (!category) notFound();
 
   const parent = category.parent_id
@@ -39,7 +39,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   });
 
   const brands = [...new Set(items.map((p) => p.brand))].sort();
-  const subcategories = await getSubcategories(db, category.id);
+  const subcategories = await getCachedSubcategories(category.id);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6">

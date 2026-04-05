@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { getDb } from "@/lib/db";
 import { getProductsByCategory, getPromoProducts } from "@/lib/data/products";
-import { getTopLevelCategories } from "@/lib/data/categories";
+import { getCachedTopLevelCategories } from "@/lib/data/categories";
 import { getCategoryIcon } from "@/lib/data/category-icon-map";
 import { ProductCard } from "@/components/products/product-card";
 import { HeroCarousel } from "@/components/hero/hero-carousel";
@@ -17,7 +17,7 @@ export default async function HomePage() {
   const [featured, promos, topCategories] = await Promise.all([
     getProductsByCategory(db, "smartphones", { tri: "nouveau" }),
     getPromoProducts(db, 4),
-    getTopLevelCategories(db),
+    getCachedTopLevelCategories(),
   ]);
   const heroSlides = await getActiveHeroSlides(db).catch((err: unknown) => {
     console.error("[HomePage] getActiveHeroSlides failed:", err);

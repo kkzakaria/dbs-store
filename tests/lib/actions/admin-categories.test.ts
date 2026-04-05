@@ -19,7 +19,11 @@ vi.mock("@/lib/auth", () => ({
   getAuth: vi.fn(() => Promise.resolve({ api: mockAuthApi })),
 }));
 vi.mock("next/headers", () => ({ headers: vi.fn(() => new Headers()) }));
-vi.mock("next/cache", () => ({ revalidatePath: vi.fn() }));
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+  revalidateTag: vi.fn((_tag: string, _profile: string) => {}),
+  unstable_cache: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
+}));
 
 import { ORG_SLUG } from "@/lib/constants";
 import {
