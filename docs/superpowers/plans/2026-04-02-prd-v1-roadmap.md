@@ -51,7 +51,7 @@
 
 ## Phase 4 — Cloudflare KV (sessions, cache)
 
-**Statut : EN COURS**
+**Statut : DONE**
 
 **Scope :**
 - KV namespace pour le cache de navigation (catégories)
@@ -62,7 +62,7 @@
 **Checkpoint :**
 - [x] KV configuré et fonctionnel
 - [x] Cache navigation accélère le chargement
-- [ ] Tests passent, CI verte, deploy prod OK (à valider après merge + deploy)
+- [x] Tests passent, CI verte, deploy prod OK
 
 ---
 
@@ -175,7 +175,7 @@
 | 1 | CI/CD | Moyenne | **Done** |
 | 2 | Catégories dynamiques | Haute | **Done** |
 | 3 | Recherche | Moyenne | **Done** |
-| 4 | Cloudflare KV | Moyenne | **En cours** |
+| 4 | Cloudflare KV | Moyenne | **Done** |
 | 5 | Cloudflare Queue | Moyenne | A faire |
 | 6 | Offres/Promotions | Faible | A faire |
 | 7 | Support | Faible | A faire |
