@@ -16,6 +16,16 @@
       "migrations_dir": "migrations"
     }
   ],
+  "kv_namespaces": [
+    {
+      "binding": "NEXT_INC_CACHE_KV",
+      "id": "39bcb6a5e3c64da68c06a623208ee034"
+    },
+    {
+      "binding": "NEXT_TAG_CACHE_KV",
+      "id": "bc48d15c29d44df5afd5ee67b121a574"
+    }
+  ],
   "vars": {
     "BETTER_AUTH_URL": "https://dbs-store.ci",
     "NEXT_PUBLIC_BETTER_AUTH_URL": "https://dbs-store.ci"

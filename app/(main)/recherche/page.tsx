@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getDb } from "@/lib/db";
 import { searchProducts, getPromoProducts, getSearchBrands } from "@/lib/data/products";
 import type { SearchFilters } from "@/lib/data/products";
-import { getTopLevelCategories, getCategoryBySlug } from "@/lib/data/categories";
+import { getCachedTopLevelCategories, getCachedCategoryBySlug } from "@/lib/data/categories";
 import type { Db } from "@/lib/db";
 import { ProductCard } from "@/components/products/product-card";
 import { SearchFilters as SearchFiltersBar } from "@/components/search/search-filters";
@@ -27,8 +27,8 @@ function parsePositiveInt(value: string | undefined): number | undefined {
   return parseInt(value, 10);
 }
 
-async function resolveCategorySlug(db: Db, slug: string): Promise<string | undefined> {
-  const category = await getCategoryBySlug(db, slug);
+async function resolveCategorySlug(slug: string): Promise<string | undefined> {
+  const category = await getCachedCategoryBySlug(slug);
   return category?.id;
 }
 
@@ -59,7 +59,7 @@ export default async function RecherchePage({ searchParams }: Props) {
     : undefined;
 
   const filters: SearchFilters = {
-    category_id: categorie ? await resolveCategorySlug(db, categorie) : undefined,
+    category_id: categorie ? await resolveCategorySlug(categorie) : undefined,
     brand: marque,
     prix_min: parsePositiveInt(rawPrixMin),
     prix_max: parsePositiveInt(rawPrixMax),
@@ -69,7 +69,7 @@ export default async function RecherchePage({ searchParams }: Props) {
   const filtersWithoutBrand = { ...filters, brand: undefined };
   const [{ products, hasMore, total }, categories, brands] = await Promise.all([
     searchProducts(db, q, filters, 0, 12),
-    getTopLevelCategories(db),
+    getCachedTopLevelCategories(),
     getSearchBrands(db, q, filtersWithoutBrand),
   ]);
 

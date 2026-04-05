@@ -2,7 +2,7 @@
 
 import { randomUUID } from "crypto";
 import { eq, or } from "drizzle-orm";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, revalidateTag } from "next/cache";
 import { requireOrgMember } from "@/lib/actions/admin-auth";
 import { getDb } from "@/lib/db";
 import { categories, products } from "@/lib/db/schema";
@@ -64,8 +64,13 @@ export async function createCategory(
     return { error: "Erreur lors de la création" };
   }
 
-  revalidatePath("/admin/categories");
-  revalidatePath("/");
+  try {
+    revalidateTag("categories", "max");
+    revalidatePath("/admin/categories");
+    revalidatePath("/");
+  } catch (err) {
+    console.error("[createCategory] Cache revalidation failed:", err);
+  }
   return {};
 }
 
@@ -110,8 +115,13 @@ export async function updateCategory(
     return { error: "Erreur lors de la mise à jour" };
   }
 
-  revalidatePath("/admin/categories");
-  revalidatePath("/");
+  try {
+    revalidateTag("categories", "max");
+    revalidatePath("/admin/categories");
+    revalidatePath("/");
+  } catch (err) {
+    console.error("[updateCategory] Cache revalidation failed:", err);
+  }
   return {};
 }
 
@@ -145,7 +155,12 @@ export async function deleteCategory(
     return { error: "Erreur lors de la suppression" };
   }
 
-  revalidatePath("/admin/categories");
-  revalidatePath("/");
+  try {
+    revalidateTag("categories", "max");
+    revalidatePath("/admin/categories");
+    revalidatePath("/");
+  } catch (err) {
+    console.error("[deleteCategory] Cache revalidation failed:", err);
+  }
   return {};
 }
