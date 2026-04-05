@@ -21,7 +21,7 @@ vi.mock("@/lib/auth", () => ({
 vi.mock("next/headers", () => ({ headers: vi.fn(() => new Headers()) }));
 vi.mock("next/cache", () => ({
   revalidatePath: vi.fn(),
-  revalidateTag: vi.fn((_tag: string, _profile: string) => {}),
+  revalidateTag: vi.fn(),
   unstable_cache: vi.fn((fn: (...args: unknown[]) => unknown) => fn),
 }));
 
