@@ -554,6 +554,7 @@ Create `tests/lib/email/consumer.test.ts`:
 
 ```ts
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { MessageBatch } from "@cloudflare/workers-types";
 
 const mockSendEmail = vi.fn();
 

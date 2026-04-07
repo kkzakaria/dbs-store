@@ -22,7 +22,7 @@
 
 ## Architecture
 
-```
+```text
 [Server code]            [Producer]              [Cloudflare Queue]      [Consumer Worker]      [Resend API]
    sendOtpEmail   →   enqueueEmail(msg)   →    EMAIL_QUEUE binding   →   queue() handler   →   resend.emails.send
                             │                                                    │
@@ -47,7 +47,7 @@ export type EmailMessage = {
 `sendEmail(msg: EmailMessage): Promise<void>` — appel bas-niveau Resend (extrait de `lib/email.ts` actuel). Aucune logique OTP. Throw sur erreur Resend (utilisé par le consumer pour déclencher retry).
 
 ### `lib/email/templates.ts`
-`buildOtpEmail(otp: string, type: OtpType): EmailMessage` — déménagement du HTML actuel + des `SUBJECTS`. Pure function, facilement testable.
+`buildOtpEmail(to: string, otp: string, type: OtpType): EmailMessage` — déménagement du HTML actuel + des `SUBJECTS`. Pure function, facilement testable.
 
 ### `lib/email/enqueue.ts`
 `enqueueEmail(msg: EmailMessage): Promise<void>` :
@@ -116,7 +116,7 @@ Documenté dans le checkpoint de la phase. Pas de migration D1.
 | Retry 1, 2, 3 | Backoff exponentiel géré par Cloudflare |
 | Échec définitif (3x) | Message routé vers `dbs-store-emails-dlq` |
 | Investigation | `wrangler queues consumer dbs-store-emails-dlq peek` |
-| Consumer DLQ | **Aucun** (out of scope) |
+| Consumer DLQ | `handleEmailDlq` archive le message dans `failed_emails` (D1) avec rétention 90j |
 
 ## Comportement en dev local
 
