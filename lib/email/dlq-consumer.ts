@@ -52,6 +52,17 @@ export async function handleEmailDlq(
         );
         message.ack();
       } catch (err) {
+        // Cloudflare Queues is at-least-once — if the same DLQ message is
+        // redelivered after we already archived it, the UNIQUE constraint on
+        // failed_emails.id will fire. Treat that as an idempotent success.
+        const errorText = err instanceof Error ? err.message : String(err);
+        if (errorText.includes("UNIQUE constraint failed: failed_emails.id")) {
+          console.error(
+            `[email-dlq] message ${message.id} already archived; acking duplicate`
+          );
+          message.ack();
+          return;
+        }
         console.error(
           `[email-dlq] failed to archive message ${message.id}:`,
           err

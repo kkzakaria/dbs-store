@@ -19,7 +19,7 @@
 - `lib/email/send.ts` — `sendEmail(msg)` Resend wrapper (throws on error)
 - `lib/email/templates.ts` — `buildOtpEmail(to, otp, type)` pure function
 - `lib/email/enqueue.ts` — `enqueueEmail(msg)` with sync fallback
-- `lib/email/consumer.ts` — `handleEmailQueue(batch, env)` queue consumer logic
+- `lib/email/consumer.ts` — `handleEmailQueue(batch)` queue consumer logic
 - `worker/index.ts` — Custom worker wrapper re-exporting OpenNext `fetch` + adding `queue`
 - `tests/lib/email/templates.test.ts`
 - `tests/lib/email/send.test.ts`
@@ -66,7 +66,7 @@ import { handleEmailQueue } from "../lib/email/consumer";
 export default {
   fetch: openNextWorker.fetch,
   async queue(batch: MessageBatch<unknown>, env: CloudflareEnv): Promise<void> {
-    await handleEmailQueue(batch, env);
+    await handleEmailQueue(batch);
   },
 };
 
@@ -596,7 +596,7 @@ describe("handleEmailQueue", () => {
       { id: "2", body: { to: "b@x.ci", subject: "S", html: "H" } },
     ]);
 
-    await handleEmailQueue(batch, {} as CloudflareEnv);
+    await handleEmailQueue(batch);
 
     expect(mockSendEmail).toHaveBeenCalledTimes(2);
     expect(acks).toEqual(["1", "2"]);
@@ -611,7 +611,7 @@ describe("handleEmailQueue", () => {
       { id: "2", body: { to: "b@x.ci", subject: "S", html: "H" } },
     ]);
 
-    await handleEmailQueue(batch, {} as CloudflareEnv);
+    await handleEmailQueue(batch);
 
     expect(acks).toEqual(["1"]);
     expect(retries).toEqual(["2"]);

@@ -68,11 +68,11 @@ Better Auth et tous les appelants existants ne changent pas.
 `handleEmailDlq(batch, env): Promise<void>` — consumer pour la DLQ `dbs-store-emails-dlq`. Archive chaque message mort dans la table D1 `failed_emails` via Drizzle. Sur succès D1 : `message.ack()`. Sur erreur D1 : `message.retry()` (Cloudflare droppera après `max_retries`, acceptable pour la DLQ). Chaque message est traité via `Promise.allSettled` pour isolation des échecs.
 
 ### Consumer worker — `queue()` handler
-Handler `queue(batch, env)` qui :
-1. Itère sur `batch.messages`
-2. Pour chaque message : `await sendEmail(msg.body)`
-3. Sur succès : `message.ack()`
-4. Sur erreur : laisse remonter (retry automatique Cloudflare)
+Handler `queue(batch)` qui, via `Promise.allSettled` pour isoler les messages :
+1. Valide la shape du payload (`isEmailMessage`). Si invalide → `message.ack()` (poison message droppé).
+2. `await sendEmail(body)` dans un try/catch.
+3. Sur succès : `message.ack()`.
+4. Sur erreur : log structuré avec PII rédactée, puis `message.retry()` (Cloudflare re-livrera jusqu'à `max_retries`, puis routera vers la DLQ).
 
 **Intégration avec OpenNext (point délicat) :**
 `@opennextjs/cloudflare` génère un worker `fetch()` only. Approche retenue :

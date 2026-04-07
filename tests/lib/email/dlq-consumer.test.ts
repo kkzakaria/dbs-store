@@ -89,4 +89,18 @@ describe("handleEmailDlq", () => {
     expect(retries).toEqual(["m1"]);
     expect(acks).toEqual([]);
   });
+
+  it("acks duplicates (UNIQUE constraint on failed_emails.id) idempotently", async () => {
+    mockValues.mockRejectedValue(
+      new Error("UNIQUE constraint failed: failed_emails.id")
+    );
+    const { batch, acks, retries } = makeBatch([
+      { id: "m1", body: { to: "a@x.ci", subject: "S", html: "H" } },
+    ]);
+
+    await handleEmailDlq(batch, { DB: {} } as unknown as CloudflareEnv);
+
+    expect(acks).toEqual(["m1"]);
+    expect(retries).toEqual([]);
+  });
 });
