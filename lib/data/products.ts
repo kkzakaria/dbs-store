@@ -1,6 +1,6 @@
 // lib/data/products.ts
 import { cache } from "react";
-import { eq, or, and, ne, lte, gte, asc, desc, isNotNull, sql } from "drizzle-orm";
+import { eq, or, and, ne, lte, gte, gt, asc, desc, isNotNull, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { products } from "@/lib/db/schema";
 import type { Product, ProductBadge } from "@/lib/db/schema";
@@ -122,7 +122,7 @@ export async function getPromoProductsFiltered(
   filters: PromoFilters = {}
 ): Promise<Product[]> {
   const conditions = [
-    isNotNull(products.old_price),
+    gt(products.old_price, 0),
     eq(products.is_active, true),
   ];
 

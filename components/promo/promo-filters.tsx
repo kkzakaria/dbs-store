@@ -39,16 +39,22 @@ export function PromoFilters({ categories, current }: PromoFiltersProps) {
     <div className="flex flex-wrap items-center gap-6">
       <div className="flex flex-wrap items-center gap-1.5">
         <span className="text-sm font-semibold">Tri</span>
-        {TRI_OPTIONS.map((opt) => (
-          <Button
-            key={opt.value}
-            variant={current.tri === opt.value || (!current.tri && opt.value === "remise_desc") ? "default" : "ghost"}
-            size="sm"
-            onClick={() => toggle("tri", opt.value)}
-          >
-            {opt.label}
-          </Button>
-        ))}
+        {TRI_OPTIONS.map((opt) => {
+          const isActive = current.tri === opt.value || (!current.tri && opt.value === "remise_desc");
+          return (
+            <Button
+              key={opt.value}
+              variant={isActive ? "default" : "ghost"}
+              size="sm"
+              onClick={() => {
+                if (isActive && opt.value === "remise_desc" && !current.tri) return;
+                toggle("tri", opt.value);
+              }}
+            >
+              {opt.label}
+            </Button>
+          );
+        })}
       </div>
 
       {categories.length > 0 ? (

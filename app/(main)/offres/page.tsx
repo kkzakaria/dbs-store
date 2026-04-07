@@ -29,9 +29,16 @@ export default async function OffresPage({ searchParams }: Props) {
     ? (rawTri as PromoFiltersType["tri"])
     : undefined;
 
-  const categoryId = categorieSlug
-    ? (await getCachedCategoryBySlug(categorieSlug))?.id
-    : undefined;
+  let categoryId: string | undefined;
+  let categoryNotFound = false;
+  if (categorieSlug) {
+    const resolved = await getCachedCategoryBySlug(categorieSlug);
+    if (resolved) {
+      categoryId = resolved.id;
+    } else {
+      categoryNotFound = true;
+    }
+  }
 
   const filters: PromoFiltersType = {
     category_id: categoryId,
@@ -39,10 +46,12 @@ export default async function OffresPage({ searchParams }: Props) {
   };
 
   const db = await getDb();
-  const [products, categories] = await Promise.all([
-    getPromoProductsFiltered(db, filters),
-    getCachedTopLevelCategories(),
-  ]);
+  const [products, categories] = categoryNotFound
+    ? [[] as Awaited<ReturnType<typeof getPromoProductsFiltered>>, await getCachedTopLevelCategories()]
+    : await Promise.all([
+        getPromoProductsFiltered(db, filters),
+        getCachedTopLevelCategories(),
+      ]);
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6">
@@ -60,12 +69,19 @@ export default async function OffresPage({ searchParams }: Props) {
       <div className="mt-6">
         <PromoFilters
           categories={categories.map((c) => ({ slug: c.slug, name: c.name }))}
-          current={{ categorie: categorieSlug, tri: rawTri }}
+          current={{ categorie: categorieSlug, tri }}
         />
       </div>
 
       <div className="mt-8">
-        {products.length === 0 ? (
+        {categoryNotFound ? (
+          <div className="py-12 text-center">
+            <p className="text-lg font-medium">Catégorie introuvable</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              La catégorie « {categorieSlug} » n&apos;existe pas. Essayez une autre catégorie.
+            </p>
+          </div>
+        ) : products.length === 0 ? (
           <div className="py-12 text-center">
             <p className="text-lg font-medium">Aucune promotion en cours</p>
             <p className="mt-1 text-sm text-muted-foreground">

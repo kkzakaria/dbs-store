@@ -71,6 +71,14 @@ describe("OffresPage", () => {
     expect(screen.getByText(/Aucune promotion/i)).toBeInTheDocument();
   });
 
+  it("renders catégorie introuvable when slug is unknown", async () => {
+    vi.mocked(getCachedCategoryBySlug).mockResolvedValue(null);
+    vi.mocked(getPromoProductsFiltered).mockResolvedValue([]);
+    const ui = await OffresPage({ searchParams: Promise.resolve({ categorie: "inexistante" }) });
+    render(ui);
+    expect(screen.getByText(/Catégorie introuvable/i)).toBeInTheDocument();
+  });
+
   it("resolves category slug to id when categorie param is set", async () => {
      
     vi.mocked(getCachedCategoryBySlug).mockResolvedValue({ id: "smartphones", slug: "smartphones" } as any);
