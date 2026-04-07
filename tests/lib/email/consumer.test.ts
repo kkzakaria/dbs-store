@@ -9,7 +9,7 @@ vi.mock("@/lib/email/send", () => ({
 
 const { handleEmailQueue } = await import("@/lib/email/consumer");
 
-function makeBatch(messages: Array<{ id: string; body: unknown }>) {
+function makeBatch(messages: Array<{ id: string; body: unknown; attempts?: number }>) {
   const acks: string[] = [];
   const retries: string[] = [];
   return {
@@ -19,7 +19,7 @@ function makeBatch(messages: Array<{ id: string; body: unknown }>) {
         id: m.id,
         timestamp: new Date(),
         body: m.body,
-        attempts: 1,
+        attempts: m.attempts ?? 1,
         ack: () => acks.push(m.id),
         retry: () => retries.push(m.id),
       })),
@@ -60,5 +60,25 @@ describe("handleEmailQueue", () => {
 
     expect(acks).toEqual(["1"]);
     expect(retries).toEqual(["2"]);
+  });
+
+  it("retries the failing message and acks the later successful one", async () => {
+    // Failure-then-success isolation: an early failure must NOT prevent
+    // later messages from being attempted/acked.
+    mockSendEmail
+      .mockRejectedValueOnce(new Error("first down"))
+      .mockResolvedValueOnce(undefined);
+    const { batch, acks, retries } = makeBatch([
+      { id: "1", body: { to: "a@x.ci", subject: "S", html: "H" } },
+      { id: "2", body: { to: "b@x.ci", subject: "S", html: "H" } },
+    ]);
+
+    await handleEmailQueue(batch, {} as CloudflareEnv);
+
+    expect(mockSendEmail).toHaveBeenCalledTimes(2);
+    expect(acks).toContain("2");
+    expect(retries).toContain("1");
+    expect(acks).toHaveLength(1);
+    expect(retries).toHaveLength(1);
   });
 });
