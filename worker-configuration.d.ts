@@ -3,6 +3,7 @@ interface CloudflareEnv {
   [key: string]: unknown;
   DB: D1Database;
   ASSETS: Fetcher;
+  EMAIL_QUEUE: Queue;
   BETTER_AUTH_SECRET: string;
   BETTER_AUTH_URL: string;
   NEXT_PUBLIC_BETTER_AUTH_URL: string;

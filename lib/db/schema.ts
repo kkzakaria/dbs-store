@@ -117,3 +117,15 @@ export const categories = sqliteTable("categories", {
 });
 
 export type Category = typeof categories.$inferSelect;
+
+// ── Failed Emails ─────────────────────────────────────────────────────────────
+
+export const failed_emails = sqliteTable("failed_emails", {
+  id: text("id").primaryKey(),
+  to_domain: text("to_domain").notNull(),
+  subject: text("subject").notNull(),
+  attempts: integer("attempts").notNull(),
+  error: text("error"),
+  failed_at: integer("failed_at", { mode: "timestamp" }).notNull(),
+  expires_at: integer("expires_at", { mode: "timestamp" }).notNull(),
+});
