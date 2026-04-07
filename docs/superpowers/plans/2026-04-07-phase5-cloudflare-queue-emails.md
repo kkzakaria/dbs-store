@@ -629,25 +629,45 @@ Expected: FAIL — stub does nothing, no acks recorded.
 Replace `lib/email/consumer.ts` contents:
 
 ```ts
+import type { MessageBatch } from "@cloudflare/workers-types";
 import { sendEmail } from "./send";
 import type { EmailMessage } from "./types";
 
+function isEmailMessage(v: unknown): v is EmailMessage {
+  if (!v || typeof v !== "object") return false;
+  const x = v as Record<string, unknown>;
+  return (
+    typeof x.to === "string" &&
+    typeof x.subject === "string" &&
+    typeof x.html === "string"
+  );
+}
+
 export async function handleEmailQueue(
-  batch: MessageBatch<unknown>,
-  _env: CloudflareEnv
+  batch: MessageBatch<unknown>
 ): Promise<void> {
-  for (const message of batch.messages) {
-    try {
-      await sendEmail(message.body as EmailMessage);
-      message.ack();
-    } catch (err) {
-      console.error(
-        `[email-queue] send failed for message ${message.id} (attempt ${message.attempts}):`,
-        err
-      );
-      message.retry();
-    }
-  }
+  await Promise.allSettled(
+    batch.messages.map(async (message) => {
+      if (!isEmailMessage(message.body)) {
+        // Poison message: ack immediately rather than loop until DLQ
+        console.error(
+          `[email-queue] invalid payload for message ${message.id}; acking to drop`
+        );
+        message.ack();
+        return;
+      }
+      try {
+        await sendEmail(message.body);
+        message.ack();
+      } catch (err) {
+        console.error(
+          `[email-queue] send failed for message ${message.id} (attempt ${message.attempts}):`,
+          err
+        );
+        message.retry();
+      }
+    })
+  );
 }
 ```
 

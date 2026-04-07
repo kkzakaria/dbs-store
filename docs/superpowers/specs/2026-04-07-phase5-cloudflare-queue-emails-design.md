@@ -131,7 +131,7 @@ Documenté dans le checkpoint de la phase. Pas de migration D1.
 | `lib/email/templates.test.ts` | Snapshots HTML pour les 3 types OTP (sign-in, email-verification, forget-password) — n'existait pas, ajout |
 | `lib/email/send.test.ts` | `sendEmail` appelle Resend correctement, throw sur erreur |
 | `lib/email/enqueue.test.ts` | Fallback sync en l'absence de binding ; appel `EMAIL_QUEUE.send` quand binding mocké |
-| Consumer queue handler | Test unitaire avec batch mocké : ack sur succès, throw sur échec Resend |
+| Consumer queue handler | Test unitaire avec batch mocké : ack sur succès, `message.retry()` sur échec Resend, ack immédiat sur payload invalide |
 
 Pas de test e2e Queue (nécessite miniflare avec support queues, hors stack vitest actuelle). Validation manuelle via `bun run preview` et prod.
 

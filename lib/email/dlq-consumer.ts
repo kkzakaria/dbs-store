@@ -17,6 +17,14 @@ function safeString(v: unknown, fallback = ""): string {
   return typeof v === "string" ? v : fallback;
 }
 
+function safePreview(value: unknown): string {
+  try {
+    return JSON.stringify(value).slice(0, 200);
+  } catch {
+    return "[unserializable payload]";
+  }
+}
+
 export async function handleEmailDlq(
   batch: MessageBatch<unknown>,
   env: CloudflareEnv
@@ -35,7 +43,7 @@ export async function handleEmailDlq(
 
       const errorMarker = isValidShape
         ? safeString(body._error, null as unknown as string) || null
-        : `INVALID_PAYLOAD: ${JSON.stringify(body).slice(0, 200)}`;
+        : `INVALID_PAYLOAD: ${safePreview(body)}`;
 
       try {
         await db.insert(failed_emails).values({
