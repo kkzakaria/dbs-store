@@ -5,10 +5,18 @@
 // Unit tests for the queue logic live in `tests/lib/email/`.
 
 import type { MessageBatch } from "@cloudflare/workers-types";
+// The OpenNext-generated worker file does not exist before `bun run build:worker`,
+// so TypeScript cannot resolve it during `next build`. Suppressing here is the
+// pragmatic option; explicit named imports below still ensure the bundler will
+// fail loudly at build time if OpenNext renames a symbol.
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore - generated file, no types; missing pre-build
 import openNextWorker, {
   DOQueueHandler,
   DOShardedTagCache,
   BucketCachePurge,
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore - generated file, no types
 } from "../.open-next/worker.js";
 import { handleEmailQueue } from "../lib/email/consumer";
 import { handleEmailDlq } from "../lib/email/dlq-consumer";
