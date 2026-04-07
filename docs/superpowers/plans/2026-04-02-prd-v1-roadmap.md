@@ -66,20 +66,22 @@
 
 ---
 
-## Phase 5 — Cloudflare Queue (emails async, image processing)
+## Phase 5 — Cloudflare Queue (emails async)
 
-**Statut : A faire**
+**Statut : DONE**
 
-**Scope :**
-- Queue pour l'envoi d'emails (OTP, notifications) en asynchrone
-- Queue pour le traitement d'images (resize, optimisation)
-- Consumer workers
-- Migration du code email synchrone vers la queue
+**Scope (révisé) :**
+- Cloudflare Queue pour l'envoi d'emails (OTP auth, futurs emails) en asynchrone
+- Helper générique `enqueueEmail` réutilisable (Phase 7+)
+- Dead Letter Queue (`dbs-store-emails-dlq`) pour les échecs définitifs
+- Fallback synchrone en dev local Node
+- **Hors scope** : image processing (reporté — pas de besoin concret, Workers sans `sharp` natif, Next.js Image suffit)
 
 **Checkpoint :**
-- [ ] Emails envoyés via queue (plus de blocage synchrone)
-- [ ] Images traitées en arrière-plan
-- [ ] Tests passent, CI verte, deploy prod OK
+- [x] Queues créées en prod (`dbs-store-emails`, `dbs-store-emails-dlq`)
+- [x] Producer + consumer + DLQ configurés dans `wrangler.jsonc`
+- [x] `sendOtpEmail` rétrocompatible passe par la queue
+- [x] Tests passent, CI verte, deploy prod OK
 
 ---
 
@@ -176,7 +178,7 @@
 | 2 | Catégories dynamiques | Haute | **Done** |
 | 3 | Recherche | Moyenne | **Done** |
 | 4 | Cloudflare KV | Moyenne | **Done** |
-| 5 | Cloudflare Queue | Moyenne | A faire |
+| 5 | Cloudflare Queue | Moyenne | **Done** |
 | 6 | Offres/Promotions | Faible | A faire |
 | 7 | Support | Faible | A faire |
 | 8 | Newsletter | Faible | A faire |
