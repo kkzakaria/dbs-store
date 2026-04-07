@@ -12,10 +12,10 @@
 - API générique `enqueueEmail({ to, subject, html })` réutilisable pour Phase 7 et futurs emails
 - Dead Letter Queue (DLQ) pour les échecs définitifs
 - Fallback synchrone en dev local (Node + better-sqlite3)
+- Consumer DLQ qui archive les échecs définitifs dans la table D1 `failed_emails`
 
 **Exclus (out of scope, sortis du roadmap initial) :**
 - Image processing / resize via queue (reporté — Workers n'a pas `sharp` natif, gain marginal vs Next.js Image, à reconsidérer si besoin concret)
-- Consumer DLQ automatique + table `failed_emails`
 - Nouveaux templates email (commande, contact) — la Phase 5 fournit l'API, les use-cases viendront avec leurs phases respectives
 
 > ⚠️ Le roadmap PRD v1 (`docs/superpowers/plans/2026-04-02-prd-v1-roadmap.md`) doit être mis à jour pour refléter le retrait du scope image de la Phase 5.
@@ -63,6 +63,9 @@ export async function sendOtpEmail(to, otp, type) {
 }
 ```
 Better Auth et tous les appelants existants ne changent pas.
+
+### `lib/email/dlq-consumer.ts`
+`handleEmailDlq(batch, env): Promise<void>` — consumer pour la DLQ `dbs-store-emails-dlq`. Archive chaque message mort dans la table D1 `failed_emails` via Drizzle. Sur succès D1 : `message.ack()`. Sur erreur D1 : `message.retry()` (Cloudflare droppera après `max_retries`, acceptable pour la DLQ). Chaque message est traité via `Promise.allSettled` pour isolation des échecs.
 
 ### Consumer worker — `queue()` handler
 Handler `queue(batch, env)` qui :
