@@ -31,4 +31,13 @@ describe("buildOtpEmail", () => {
     const msg = buildOtpEmail("u@x.ci", "1", "sign-in");
     expect(msg.html).toContain("DBS Store");
   });
+
+  it("returns distinct subjects for each OTP type", () => {
+    const subjects = new Set([
+      buildOtpEmail("u@x.ci", "1", "sign-in").subject,
+      buildOtpEmail("u@x.ci", "1", "email-verification").subject,
+      buildOtpEmail("u@x.ci", "1", "forget-password").subject,
+    ]);
+    expect(subjects.size).toBe(3);
+  });
 });

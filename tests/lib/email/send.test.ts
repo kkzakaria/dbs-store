@@ -39,4 +39,11 @@ describe("sendEmail", () => {
       sendEmail({ to: "u@x.ci", subject: "S", html: "H" })
     ).rejects.toThrow("RateLimitError");
   });
+
+  it("throws 'Resend: unknown error' when error has neither message nor name", async () => {
+    mockSend.mockResolvedValue({ data: null, error: {} });
+    await expect(
+      sendEmail({ to: "u@x.ci", subject: "S", html: "H" })
+    ).rejects.toThrow("Resend: unknown error");
+  });
 });
