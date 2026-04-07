@@ -112,6 +112,47 @@ export async function getPromoProducts(db: Db, limit = 4): Promise<Product[]> {
   return rows.map(parseProduct);
 }
 
+export type PromoFilters = {
+  category_id?: string;
+  tri?: "remise_desc" | "prix_asc" | "prix_desc" | "nouveau";
+};
+
+export async function getPromoProductsFiltered(
+  db: Db,
+  filters: PromoFilters = {}
+): Promise<Product[]> {
+  const conditions = [
+    isNotNull(products.old_price),
+    eq(products.is_active, true),
+  ];
+
+  if (filters.category_id) {
+    conditions.push(
+      or(
+        eq(products.category_id, filters.category_id),
+        eq(products.subcategory_id, filters.category_id)
+      )!
+    );
+  }
+
+  const orderBy =
+    filters.tri === "prix_asc"
+      ? asc(products.price)
+      : filters.tri === "prix_desc"
+        ? desc(products.price)
+        : filters.tri === "nouveau"
+          ? desc(products.created_at)
+          : sql`(${products.old_price} - ${products.price}) * 1.0 / ${products.old_price} DESC`;
+
+  const rows = await db
+    .select()
+    .from(products)
+    .where(and(...conditions))
+    .orderBy(orderBy);
+
+  return rows.map(parseProduct);
+}
+
 // React.cache() — déduplication par requête (scope: arbre React d'un seul rendu).
 // Évite une double requête DB quand generateMetadata et le composant page
 // appellent getProduct pour le même slug dans la même requête.
