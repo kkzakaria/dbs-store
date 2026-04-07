@@ -26,6 +26,23 @@
       "id": "bc48d15c29d44df5afd5ee67b121a574"
     }
   ],
+  "queues": {
+    "producers": [
+      {
+        "binding": "EMAIL_QUEUE",
+        "queue": "dbs-store-emails"
+      }
+    ],
+    "consumers": [
+      {
+        "queue": "dbs-store-emails",
+        "max_batch_size": 10,
+        "max_batch_timeout": 5,
+        "max_retries": 3,
+        "dead_letter_queue": "dbs-store-emails-dlq"
+      }
+    ]
+  },
   "vars": {
     "BETTER_AUTH_URL": "https://dbs-store.ci",
     "NEXT_PUBLIC_BETTER_AUTH_URL": "https://dbs-store.ci"
