@@ -56,9 +56,26 @@ describe("handleEmailDlq", () => {
     expect(mockValues).toHaveBeenCalledTimes(1);
     const inserted = mockValues.mock.calls[0][0];
     expect(inserted.id).toBe("m1");
-    expect(inserted.to).toBe("a@x.ci");
+    expect(inserted.to_domain).toBe("x.ci");
+    expect(inserted.subject).toBe("S");
     expect(inserted.attempts).toBe(3);
+    expect(inserted.html).toBeUndefined();
+    expect(inserted.expires_at).toBeInstanceOf(Date);
+    expect(inserted.expires_at.getTime()).toBeGreaterThan(Date.now());
     expect(acks).toEqual(["m1"]);
+  });
+
+  it("archives invalid payloads with INVALID_PAYLOAD marker instead of silently dropping", async () => {
+    const { batch, acks } = makeBatch([
+      { id: "bad", body: { garbage: true }, attempts: 3 },
+    ]);
+
+    await handleEmailDlq(batch, { DB: {} } as unknown as CloudflareEnv);
+
+    const inserted = mockValues.mock.calls[0][0];
+    expect(inserted.to_domain).toBe("invalid");
+    expect(inserted.error).toMatch(/^INVALID_PAYLOAD:/);
+    expect(acks).toEqual(["bad"]);
   });
 
   it("retries when the D1 insert throws", async () => {

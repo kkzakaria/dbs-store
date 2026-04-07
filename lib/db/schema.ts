@@ -122,10 +122,10 @@ export type Category = typeof categories.$inferSelect;
 
 export const failed_emails = sqliteTable("failed_emails", {
   id: text("id").primaryKey(),
-  to: text("to").notNull(),
+  to_domain: text("to_domain").notNull(),
   subject: text("subject").notNull(),
-  html: text("html").notNull(),
   attempts: integer("attempts").notNull(),
   error: text("error"),
   failed_at: integer("failed_at", { mode: "timestamp" }).notNull(),
+  expires_at: integer("expires_at", { mode: "timestamp" }).notNull(),
 });
