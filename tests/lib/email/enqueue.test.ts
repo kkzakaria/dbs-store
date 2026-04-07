@@ -51,4 +51,17 @@ describe("enqueueEmail", () => {
 
     expect(mockSendEmail).toHaveBeenCalledWith(msg);
   });
+
+  it("falls back to sendEmail when queue.send rejects", async () => {
+    mockGetCfContext.mockResolvedValue({
+      env: { EMAIL_QUEUE: { send: mockQueueSend } },
+    });
+    mockQueueSend.mockRejectedValue(new Error("queue down"));
+
+    const msg = { to: "u@x.ci", subject: "S", html: "H" };
+    await enqueueEmail(msg);
+
+    expect(mockQueueSend).toHaveBeenCalledWith(msg);
+    expect(mockSendEmail).toHaveBeenCalledWith(msg);
+  });
 });
