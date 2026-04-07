@@ -124,6 +124,13 @@ export function DesktopNav({ categories }: DesktopNavProps) {
         <NavItem key={category.id} category={category} allCategories={categories} {...navItemProps} />
       ))}
 
+      <Link
+        href="/offres"
+        className="rounded-full px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-muted"
+      >
+        Offres
+      </Link>
+
       {overflow.length > 0 && (
         <div
           className="relative"
