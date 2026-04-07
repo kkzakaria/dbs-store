@@ -52,16 +52,14 @@ describe("enqueueEmail", () => {
     expect(mockSendEmail).toHaveBeenCalledWith(msg);
   });
 
-  it("falls back to sendEmail when queue.send rejects", async () => {
+  it("propagates queue.send errors instead of falling back (avoid duplicates)", async () => {
     mockGetCfContext.mockResolvedValue({
       env: { EMAIL_QUEUE: { send: mockQueueSend } },
     });
     mockQueueSend.mockRejectedValue(new Error("queue down"));
 
     const msg = { to: "u@x.ci", subject: "S", html: "H" };
-    await enqueueEmail(msg);
-
-    expect(mockQueueSend).toHaveBeenCalledWith(msg);
-    expect(mockSendEmail).toHaveBeenCalledWith(msg);
+    await expect(enqueueEmail(msg)).rejects.toThrow("queue down");
+    expect(mockSendEmail).not.toHaveBeenCalled();
   });
 });

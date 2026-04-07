@@ -8,20 +8,19 @@ export async function enqueueEmail(msg: EmailMessage): Promise<void> {
     ({ env } = await getCloudflareContext<CloudflareEnv>());
   } catch {
     // No Cloudflare context (e.g. Node dev) — fall through to sync send
+    await sendEmail(msg);
+    return;
   }
 
-  if (env?.EMAIL_QUEUE) {
-    try {
-      await env.EMAIL_QUEUE.send(msg);
-      return;
-    } catch (err) {
-      console.error(
-        "[email-queue] enqueue failed, falling back to sync send:",
-        err
-      );
-      // Intentional fall-through: degraded mode is better than dropping the email
-    }
+  if (!env?.EMAIL_QUEUE) {
+    // Workers context but no binding — sync send is the only option
+    await sendEmail(msg);
+    return;
   }
 
-  await sendEmail(msg);
+  // Let queue.send errors propagate. Cloudflare Queues is at-least-once;
+  // a thrown error does not guarantee the message was not enqueued, so a
+  // sync fallback here would risk duplicate emails. The caller (Better Auth)
+  // will surface the failure to the user, who can retry.
+  await env.EMAIL_QUEUE.send(msg);
 }
