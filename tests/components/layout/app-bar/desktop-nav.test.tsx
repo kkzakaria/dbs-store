@@ -44,7 +44,7 @@ describe("DesktopNav", () => {
 
     await user.hover(screen.getByRole("button", { name: /plus de catégories/i }));
 
-    expect(screen.getByRole("link", { name: /offres/i })).toBeInTheDocument();
+    // "offres" slug is filtered out of categories (handled by hardcoded link)
     expect(screen.getByRole("link", { name: /support/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /accessoires/i })).toBeInTheDocument();
   });

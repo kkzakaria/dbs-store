@@ -1,6 +1,6 @@
 // lib/data/products.ts
 import { cache } from "react";
-import { eq, or, and, ne, lte, gte, asc, desc, isNotNull, sql } from "drizzle-orm";
+import { eq, or, and, ne, lte, gte, gt, asc, desc, isNotNull, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { products } from "@/lib/db/schema";
 import type { Product, ProductBadge } from "@/lib/db/schema";
@@ -109,6 +109,47 @@ export async function getPromoProducts(db: Db, limit = 4): Promise<Product[]> {
     .where(and(isNotNull(products.old_price), eq(products.is_active, true)))
     .orderBy(desc(products.created_at))
     .limit(limit);
+  return rows.map(parseProduct);
+}
+
+export type PromoFilters = {
+  category_id?: string;
+  tri?: "remise_desc" | "prix_asc" | "prix_desc" | "nouveau";
+};
+
+export async function getPromoProductsFiltered(
+  db: Db,
+  filters: PromoFilters = {}
+): Promise<Product[]> {
+  const conditions = [
+    gt(products.old_price, 0),
+    eq(products.is_active, true),
+  ];
+
+  if (filters.category_id) {
+    conditions.push(
+      or(
+        eq(products.category_id, filters.category_id),
+        eq(products.subcategory_id, filters.category_id)
+      )!
+    );
+  }
+
+  const orderBy =
+    filters.tri === "prix_asc"
+      ? asc(products.price)
+      : filters.tri === "prix_desc"
+        ? desc(products.price)
+        : filters.tri === "nouveau"
+          ? desc(products.created_at)
+          : sql`(${products.old_price} - ${products.price}) * 1.0 / ${products.old_price} DESC`;
+
+  const rows = await db
+    .select()
+    .from(products)
+    .where(and(...conditions))
+    .orderBy(orderBy);
+
   return rows.map(parseProduct);
 }
 
