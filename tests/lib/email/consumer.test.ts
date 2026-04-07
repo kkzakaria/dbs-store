@@ -41,7 +41,7 @@ describe("handleEmailQueue", () => {
       { id: "2", body: { to: "b@x.ci", subject: "S", html: "H" } },
     ]);
 
-    await handleEmailQueue(batch, {} as CloudflareEnv);
+    await handleEmailQueue(batch);
 
     expect(mockSendEmail).toHaveBeenCalledTimes(2);
     expect(acks).toEqual(["1", "2"]);
@@ -56,7 +56,7 @@ describe("handleEmailQueue", () => {
       { id: "2", body: { to: "b@x.ci", subject: "S", html: "H" } },
     ]);
 
-    await handleEmailQueue(batch, {} as CloudflareEnv);
+    await handleEmailQueue(batch);
 
     expect(acks).toEqual(["1"]);
     expect(retries).toEqual(["2"]);
@@ -73,12 +73,24 @@ describe("handleEmailQueue", () => {
       { id: "2", body: { to: "b@x.ci", subject: "S", html: "H" } },
     ]);
 
-    await handleEmailQueue(batch, {} as CloudflareEnv);
+    await handleEmailQueue(batch);
 
     expect(mockSendEmail).toHaveBeenCalledTimes(2);
     expect(acks).toContain("2");
     expect(retries).toContain("1");
     expect(acks).toHaveLength(1);
     expect(retries).toHaveLength(1);
+  });
+
+  it("acks invalid payloads instead of retrying them", async () => {
+    const { batch, acks, retries } = makeBatch([
+      { id: "bad", body: { not: "an email" } },
+    ]);
+
+    await handleEmailQueue(batch);
+
+    expect(mockSendEmail).not.toHaveBeenCalled();
+    expect(acks).toEqual(["bad"]);
+    expect(retries).toEqual([]);
   });
 });

@@ -36,6 +36,6 @@ export default {
       await handleEmailDlq(batch, env);
       return;
     }
-    await handleEmailQueue(batch, env);
+    await handleEmailQueue(batch);
   },
 };
