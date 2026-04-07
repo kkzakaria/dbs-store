@@ -79,7 +79,7 @@ function ResetPasswordForm() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, otp }),
       });
-      const data = await res.json();
+      const data = (await res.json()) as { valid: boolean; reason?: string };
 
       if (!data.valid) {
         const messages: Record<string, string> = {
@@ -87,7 +87,7 @@ function ResetPasswordForm() {
           invalid: "Code incorrect.",
           not_found: "Code incorrect ou expiré.",
         };
-        setError(messages[data.reason] ?? "Code incorrect ou expiré.");
+        setError((data.reason ? messages[data.reason] : null) ?? "Code incorrect ou expiré.");
       } else {
         setStep("password");
       }
