@@ -703,7 +703,7 @@ Visit `http://localhost:33000/offres` — verify list, filters, header link (des
 - [ ] **Step 5: Push and open PR**
 
 ```bash
-git push -u origin feat/phase5-queue-emails  # or current branch
+git push -u origin feat/phase6-offres  # or current branch
 gh pr create --title "feat: phase 6 — page Offres/Promotions" --body "..."
 ```
 

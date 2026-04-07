@@ -45,13 +45,11 @@ export default async function OffresPage({ searchParams }: Props) {
     tri,
   };
 
-  const db = await getDb();
-  const [products, categories] = categoryNotFound
-    ? [[] as Awaited<ReturnType<typeof getPromoProductsFiltered>>, await getCachedTopLevelCategories()]
-    : await Promise.all([
-        getPromoProductsFiltered(db, filters),
-        getCachedTopLevelCategories(),
-      ]);
+  const categoriesPromise = getCachedTopLevelCategories();
+  const products: Awaited<ReturnType<typeof getPromoProductsFiltered>> = categoryNotFound
+    ? []
+    : await getPromoProductsFiltered(await getDb(), filters);
+  const categories = await categoriesPromise;
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 lg:px-6">

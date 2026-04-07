@@ -41,7 +41,7 @@ export async function getPromoProductsFiltered(
 ```
 
 - Conditions : `is_active = 1 AND old_price IS NOT NULL`
-- Ajoute `OR(category_id, subcategory_id) = filters.category_id` si fourni
+- Ajoute `(category_id = filters.category_id OR subcategory_id = filters.category_id)` si fourni
 - Tris :
   - `remise_desc` (défaut) : `ORDER BY (old_price - price) * 1.0 / old_price DESC`
   - `prix_asc` / `prix_desc` : sur `price`
@@ -71,7 +71,7 @@ export async function getPromoProductsFiltered(
 ### Navigation
 
 - `components/layout/app-bar/desktop-nav.tsx` : ajout d'un `<Link href="/offres">Offres</Link>` après les NavItems catégories (avant le bouton "Plus")
-- `components/layout/app-bar/mobile-menu.tsx` : ajout d'une entrée "Offres" en tête de la liste top-level (style identique aux catégories sans sous-catégories)
+- `components/layout/app-bar/mobile-menu.tsx` : ajout d'une entrée hardcodée "Offres & Promotions" en tête de la liste top-level, avec un style mis en avant (fond `bg-red-50`, texte `text-red-600`) pour la distinguer des catégories normales
 
 ## Tests
 

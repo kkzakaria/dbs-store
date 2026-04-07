@@ -44,8 +44,7 @@ describe("DesktopNav", () => {
 
     await user.hover(screen.getByRole("button", { name: /plus de catégories/i }));
 
-    // Hardcoded "Offres" link + overflow "Offres" category both match by name
-    expect(screen.getAllByRole("link", { name: /offres/i }).length).toBeGreaterThanOrEqual(2);
+    // "offres" slug is filtered out of categories (handled by hardcoded link)
     expect(screen.getByRole("link", { name: /support/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /accessoires/i })).toBeInTheDocument();
   });

@@ -15,7 +15,8 @@ type MobileMenuProps = {
 
 export function MobileMenu({ categories, onClose }: MobileMenuProps) {
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
-  const topLevel = categories.filter((c) => c.parent_id === null);
+  // Exclude "offres" slug — handled by hardcoded entry below
+  const topLevel = categories.filter((c) => c.parent_id === null && c.slug !== "offres");
   const focusTrapRef = useFocusTrap();
   const onCloseRef = useRef(onClose);
   useLayoutEffect(() => { onCloseRef.current = onClose; }, [onClose]);
