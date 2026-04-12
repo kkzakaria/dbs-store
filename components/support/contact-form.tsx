@@ -28,22 +28,28 @@ export function ContactForm({ action }: ContactFormProps) {
     const formData = new FormData(form);
 
     const data: ContactFormData = {
-      name: formData.get("name") as string,
-      email: formData.get("email") as string,
-      subject: formData.get("subject") as string,
-      message: formData.get("message") as string,
+      name: (formData.get("name") as string) ?? "",
+      email: (formData.get("email") as string) ?? "",
+      subject: (formData.get("subject") as string) ?? "",
+      message: (formData.get("message") as string) ?? "",
     };
 
-    const submit = action ?? submitContactForm;
-    const result = await submit(data);
+    try {
+      const submit = action ?? submitContactForm;
+      const result = await submit(data);
 
-    if (result.error) {
-      setServerError(result.error);
+      if (result.error) {
+        setServerError(result.error);
+      } else {
+        setSuccess(true);
+        form.reset();
+      }
+    } catch {
+      setServerError(
+        "Impossible de contacter le serveur. Vérifiez votre connexion et réessayez."
+      );
+    } finally {
       setSubmitting(false);
-    } else {
-      setSuccess(true);
-      setSubmitting(false);
-      form.reset();
     }
   }
 

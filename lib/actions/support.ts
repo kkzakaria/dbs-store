@@ -4,7 +4,7 @@ import { enqueueEmail } from "@/lib/email/enqueue";
 import { buildContactEmail } from "@/lib/email/templates";
 import type { ContactFormData } from "@/lib/email/templates";
 
-const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const EMAIL_REGEX = /^[a-zA-Z0-9_+&*-]+(?:\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
 
 function validateContactForm(
   data: ContactFormData

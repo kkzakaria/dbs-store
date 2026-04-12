@@ -96,6 +96,46 @@ describe("submitContactForm", () => {
     expect(emailArg.html).toContain("kouame@test.ci");
   });
 
+  it("returns error when name is whitespace-only", async () => {
+    const result = await submitContactForm({
+      name: "   ",
+      email: "a@test.ci",
+      subject: "Hello world",
+      message: "Un message assez long.",
+    });
+    expect(result.error).toBeDefined();
+  });
+
+  it("returns error when name exceeds 100 characters", async () => {
+    const result = await submitContactForm({
+      name: "A".repeat(101),
+      email: "a@test.ci",
+      subject: "Hello world",
+      message: "Un message assez long.",
+    });
+    expect(result.error).toBeDefined();
+  });
+
+  it("returns error when subject exceeds 200 characters", async () => {
+    const result = await submitContactForm({
+      name: "Kouamé",
+      email: "a@test.ci",
+      subject: "A".repeat(201),
+      message: "Un message assez long.",
+    });
+    expect(result.error).toBeDefined();
+  });
+
+  it("returns error when message exceeds 2000 characters", async () => {
+    const result = await submitContactForm({
+      name: "Kouamé",
+      email: "a@test.ci",
+      subject: "Hello world",
+      message: "A".repeat(2001),
+    });
+    expect(result.error).toBeDefined();
+  });
+
   it("returns error when enqueueEmail fails", async () => {
     mockEnqueueEmail.mockRejectedValue(new Error("queue down"));
     const result = await submitContactForm({

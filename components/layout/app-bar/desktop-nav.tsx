@@ -78,8 +78,8 @@ interface DesktopNavProps {
 }
 
 export function DesktopNav({ categories }: DesktopNavProps) {
-  // Exclude "offres" and "support" slugs — they have hardcoded links below
-  const topLevel = categories.filter((c) => c.parent_id === null && c.slug !== "offres" && c.slug !== "support");
+  // Exclude "offres" slug — it has a hardcoded link below to point to the promo page
+  const topLevel = categories.filter((c) => c.parent_id === null && c.slug !== "offres");
   const [openTray, setOpenTray] = useState<string | null>(null);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 

@@ -82,9 +82,21 @@ export type ContactFormData = {
   message: string;
 };
 
-const ADMIN_EMAIL = process.env.CONTACT_EMAIL ?? "contact@dbstore.ci";
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 function buildContactHtml(data: ContactFormData): string {
+  const name = escapeHtml(data.name);
+  const email = escapeHtml(data.email);
+  const subject = escapeHtml(data.subject);
+  const message = escapeHtml(data.message);
+
   return `<!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -108,21 +120,21 @@ function buildContactHtml(data: ContactFormData): string {
               <table width="100%" cellpadding="0" cellspacing="0" style="font-size:15px;color:#334155;line-height:1.6;">
                 <tr>
                   <td style="padding:8px 0;font-weight:600;color:#64748b;width:80px;vertical-align:top;">Nom</td>
-                  <td style="padding:8px 0;">${data.name}</td>
+                  <td style="padding:8px 0;">${name}</td>
                 </tr>
                 <tr>
                   <td style="padding:8px 0;font-weight:600;color:#64748b;vertical-align:top;">Email</td>
-                  <td style="padding:8px 0;"><a href="mailto:${data.email}" style="color:#2563eb;text-decoration:none;">${data.email}</a></td>
+                  <td style="padding:8px 0;"><a href="mailto:${email}" style="color:#2563eb;text-decoration:none;">${email}</a></td>
                 </tr>
                 <tr>
                   <td style="padding:8px 0;font-weight:600;color:#64748b;vertical-align:top;">Sujet</td>
-                  <td style="padding:8px 0;">${data.subject}</td>
+                  <td style="padding:8px 0;">${subject}</td>
                 </tr>
                 <tr>
                   <td colspan="2" style="padding:16px 0 8px;font-weight:600;color:#64748b;">Message</td>
                 </tr>
                 <tr>
-                  <td colspan="2" style="padding:8px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;white-space:pre-wrap;">${data.message}</td>
+                  <td colspan="2" style="padding:8px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;white-space:pre-wrap;">${message}</td>
                 </tr>
               </table>
             </td>
@@ -141,9 +153,10 @@ function buildContactHtml(data: ContactFormData): string {
 }
 
 export function buildContactEmail(data: ContactFormData): EmailMessage {
+  const adminEmail = process.env.CONTACT_EMAIL ?? "contact@dbstore.ci";
   return {
-    to: ADMIN_EMAIL,
-    subject: `[Contact] ${data.subject}`,
+    to: adminEmail,
+    subject: `[Contact] ${escapeHtml(data.subject)}`,
     html: buildContactHtml(data),
   };
 }

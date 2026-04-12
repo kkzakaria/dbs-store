@@ -52,7 +52,7 @@ describe("buildContactEmail", () => {
 
   it("sends to the admin email address", () => {
     const msg = buildContactEmail(data);
-    expect(msg.to).toContain("@");
+    expect(msg.to).toBe("contact@dbstore.ci");
   });
 
   it("prefixes the subject with [Contact]", () => {
@@ -78,5 +78,31 @@ describe("buildContactEmail", () => {
   it("includes the DBS Store header", () => {
     const msg = buildContactEmail(data);
     expect(msg.html).toContain("DBS Store");
+  });
+
+  it("escapes HTML characters in user input", () => {
+    const malicious = {
+      name: '<script>alert("xss")</script>',
+      email: "attacker@test.ci",
+      subject: "Test <b>bold</b>",
+      message: 'Inject <img src="x" onerror="alert(1)">',
+    };
+    const msg = buildContactEmail(malicious);
+    expect(msg.html).not.toContain("<script>");
+    expect(msg.html).not.toContain("<b>");
+    expect(msg.html).not.toContain("<img");
+    expect(msg.html).toContain("&lt;script&gt;");
+    expect(msg.html).toContain("&lt;b&gt;");
+  });
+
+  it("escapes subject in email subject line", () => {
+    const data = {
+      name: "Test",
+      email: "t@t.ci",
+      subject: "Hello <script>",
+      message: "Un message normal de test.",
+    };
+    const msg = buildContactEmail(data);
+    expect(msg.subject).toContain("&lt;script&gt;");
   });
 });

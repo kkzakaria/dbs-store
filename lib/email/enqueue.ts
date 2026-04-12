@@ -8,6 +8,7 @@ export async function enqueueEmail(msg: EmailMessage): Promise<void> {
     ({ env } = await getCloudflareContext<CloudflareEnv>());
   } catch {
     // No Cloudflare context (e.g. Node dev) — fall through to sync send
+    console.warn("[enqueueEmail] Cloudflare context unavailable, falling back to sync send");
     await sendEmail(msg);
     return;
   }

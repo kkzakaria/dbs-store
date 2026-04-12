@@ -55,8 +55,56 @@ describe("ContactForm", () => {
     expect(await screen.findByText("Email invalide")).toBeInTheDocument();
   });
 
-  it("calls the default server action when no action prop is provided", async () => {
-    render(<ContactForm />);
-    expect(screen.getByRole("button", { name: /envoyer/i })).toBeInTheDocument();
+  it("shows error message when the action throws (network error)", async () => {
+    const user = userEvent.setup();
+    const mockAction = vi.fn().mockRejectedValue(new Error("Network error"));
+    render(<ContactForm action={mockAction} />);
+
+    await user.type(screen.getByLabelText(/nom/i), "Kouamé");
+    await user.type(screen.getByLabelText(/email/i), "k@t.ci");
+    await user.type(screen.getByLabelText(/sujet/i), "Question test");
+    await user.type(screen.getByLabelText(/message/i), "Un message de test assez long");
+    await user.click(screen.getByRole("button", { name: /envoyer/i }));
+
+    expect(await screen.findByText(/impossible.*serveur/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /envoyer/i })).not.toBeDisabled();
+  });
+
+  it("returns to form when clicking 'send another message'", async () => {
+    const user = userEvent.setup();
+    const mockAction = vi.fn().mockResolvedValue({});
+    render(<ContactForm action={mockAction} />);
+
+    await user.type(screen.getByLabelText(/nom/i), "Kouamé");
+    await user.type(screen.getByLabelText(/email/i), "k@t.ci");
+    await user.type(screen.getByLabelText(/sujet/i), "Question test");
+    await user.type(screen.getByLabelText(/message/i), "Un message de test assez long");
+    await user.click(screen.getByRole("button", { name: /envoyer/i }));
+
+    expect(await screen.findByText(/message.*envoyé/i)).toBeInTheDocument();
+
+    await user.click(screen.getByRole("button", { name: /autre message/i }));
+
+    expect(screen.getByLabelText(/nom/i)).toBeInTheDocument();
+    expect(screen.queryByText(/message.*envoyé/i)).not.toBeInTheDocument();
+  });
+
+  it("passes correct data to the action", async () => {
+    const user = userEvent.setup();
+    const mockAction = vi.fn().mockResolvedValue({});
+    render(<ContactForm action={mockAction} />);
+
+    await user.type(screen.getByLabelText(/nom/i), "Kouamé");
+    await user.type(screen.getByLabelText(/email/i), "k@t.ci");
+    await user.type(screen.getByLabelText(/sujet/i), "Question test");
+    await user.type(screen.getByLabelText(/message/i), "Un message de test assez long");
+    await user.click(screen.getByRole("button", { name: /envoyer/i }));
+
+    expect(mockAction).toHaveBeenCalledWith({
+      name: "Kouamé",
+      email: "k@t.ci",
+      subject: "Question test",
+      message: "Un message de test assez long",
+    });
   });
 });
