@@ -11,7 +11,6 @@ const testCategories: Category[] = [
   { id: "audio", slug: "audio", name: "Audio", icon: "headphones", image: null, parent_id: null, order: 4, created_at: new Date() },
   { id: "accessoires", slug: "accessoires", name: "Accessoires", icon: "cable", image: null, parent_id: null, order: 8, created_at: new Date() },
   { id: "offres", slug: "offres", name: "Offres", icon: "percent", image: null, parent_id: null, order: 9, created_at: new Date() },
-  { id: "support", slug: "support", name: "Support", icon: "life-buoy", image: null, parent_id: null, order: 10, created_at: new Date() },
   // Subcategories for Smartphones
   { id: "iphone", slug: "iphone", name: "iPhone", icon: "smartphone", image: null, parent_id: "smartphones", order: 0, created_at: new Date() },
   { id: "samsung-galaxy", slug: "samsung-galaxy", name: "Samsung Galaxy", icon: "smartphone", image: null, parent_id: "smartphones", order: 1, created_at: new Date() },

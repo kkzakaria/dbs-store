@@ -132,6 +132,13 @@ export function DesktopNav({ categories }: DesktopNavProps) {
         Offres
       </Link>
 
+      <Link
+        href="/support"
+        className="rounded-full px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+      >
+        Support
+      </Link>
+
       {overflow.length > 0 && (
         <div
           className="relative"

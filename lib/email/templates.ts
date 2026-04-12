@@ -74,3 +74,89 @@ export function buildOtpEmail(
     html: buildHtml(otp, type),
   };
 }
+
+export type ContactFormData = {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+};
+
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function buildContactHtml(data: ContactFormData): string {
+  const name = escapeHtml(data.name);
+  const email = escapeHtml(data.email);
+  const subject = escapeHtml(data.subject);
+  const message = escapeHtml(data.message);
+
+  return `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nouveau message de contact</title>
+</head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.08);overflow:hidden;">
+          <tr>
+            <td style="background:#0f172a;padding:24px 32px;text-align:center;">
+              <span style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">⚡ DBS Store</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:40px 32px 32px;">
+              <h1 style="margin:0 0 24px;font-size:22px;font-weight:700;color:#0f172a;">Nouveau message de contact</h1>
+              <table width="100%" cellpadding="0" cellspacing="0" style="font-size:15px;color:#334155;line-height:1.6;">
+                <tr>
+                  <td style="padding:8px 0;font-weight:600;color:#64748b;width:80px;vertical-align:top;">Nom</td>
+                  <td style="padding:8px 0;">${name}</td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0;font-weight:600;color:#64748b;vertical-align:top;">Email</td>
+                  <td style="padding:8px 0;"><a href="mailto:${email}" style="color:#2563eb;text-decoration:none;">${email}</a></td>
+                </tr>
+                <tr>
+                  <td style="padding:8px 0;font-weight:600;color:#64748b;vertical-align:top;">Sujet</td>
+                  <td style="padding:8px 0;">${subject}</td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="padding:16px 0 8px;font-weight:600;color:#64748b;">Message</td>
+                </tr>
+                <tr>
+                  <td colspan="2" style="padding:8px 16px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;white-space:pre-wrap;">${message}</td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
+            <td style="border-top:1px solid #e2e8f0;padding:16px 32px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#94a3b8;">© 2026 DBS Store — Abidjan, Côte d'Ivoire</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+}
+
+export function buildContactEmail(data: ContactFormData): EmailMessage {
+  const adminEmail = process.env.CONTACT_EMAIL ?? "contact@dbstore.ci";
+  return {
+    to: adminEmail,
+    subject: `[Contact] ${escapeHtml(data.subject)}`,
+    html: buildContactHtml(data),
+  };
+}

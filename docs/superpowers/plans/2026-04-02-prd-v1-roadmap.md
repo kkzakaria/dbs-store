@@ -87,7 +87,7 @@
 
 ## Phase 6 — Page Offres/Promotions
 
-**Statut : A faire**
+**Statut : DONE**
 
 **Scope :**
 - Page /offres listant les produits avec remise (old_price défini)
@@ -96,25 +96,25 @@
 - Lien dans la navigation
 
 **Checkpoint :**
-- [ ] Page offres fonctionnelle avec produits en promo
-- [ ] Accessible depuis la navigation
-- [ ] Tests passent, CI verte, deploy prod OK
+- [x] Page offres fonctionnelle avec produits en promo
+- [x] Accessible depuis la navigation
+- [x] Tests passent, CI verte, deploy prod OK
 
 ---
 
 ## Phase 7 — Page Support
 
-**Statut : A faire**
+**Statut : DONE**
 
 **Scope :**
-- Page /support avec FAQ
-- Formulaire de contact
-- Envoi d'email via Resend (ou Queue si Phase 5 est faite)
+- Page /support avec FAQ (accordion Shadcn, données statiques)
+- Formulaire de contact (server action + enqueueEmail via Queue)
+- Lien Support dans la navigation desktop et mobile
 
 **Checkpoint :**
-- [ ] FAQ affichée
-- [ ] Formulaire de contact fonctionnel
-- [ ] Tests passent, CI verte, deploy prod OK
+- [x] FAQ affichée
+- [x] Formulaire de contact fonctionnel
+- [x] Tests passent, CI verte, deploy prod OK
 
 ---
 
@@ -179,8 +179,8 @@
 | 3 | Recherche | Moyenne | **Done** |
 | 4 | Cloudflare KV | Moyenne | **Done** |
 | 5 | Cloudflare Queue | Moyenne | **Done** |
-| 6 | Offres/Promotions | Faible | A faire |
-| 7 | Support | Faible | A faire |
+| 6 | Offres/Promotions | Faible | **Done** |
+| 7 | Support | Faible | **Done** |
 | 8 | Newsletter | Faible | A faire |
 | 9 | Pages légales | Faible | A faire |
 | 10 | SEO | Faible | A faire |
