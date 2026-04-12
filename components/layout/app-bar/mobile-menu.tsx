@@ -15,8 +15,8 @@ type MobileMenuProps = {
 
 export function MobileMenu({ categories, onClose }: MobileMenuProps) {
   const [activeCategory, setActiveCategory] = useState<Category | null>(null);
-  // Exclude "offres" slug — handled by hardcoded entry below
-  const topLevel = categories.filter((c) => c.parent_id === null && c.slug !== "offres");
+  // Exclude "offres" and "support" slugs — handled by hardcoded entries below
+  const topLevel = categories.filter((c) => c.parent_id === null && c.slug !== "offres" && c.slug !== "support");
   const focusTrapRef = useFocusTrap();
   const onCloseRef = useRef(onClose);
   useLayoutEffect(() => { onCloseRef.current = onClose; }, [onClose]);
@@ -90,6 +90,13 @@ export function MobileMenu({ categories, onClose }: MobileMenuProps) {
               onClick={handleClose}
             >
               Offres &amp; Promotions
+            </Link>
+            <Link
+              href="/support"
+              className="flex items-center justify-between rounded-xl bg-muted/50 px-4 py-4 text-base font-medium transition-colors hover:bg-muted"
+              onClick={handleClose}
+            >
+              Support
             </Link>
             {topLevel.map((category) => {
               const subs = categories.filter((c) => c.parent_id === category.id);

@@ -78,8 +78,8 @@ interface DesktopNavProps {
 }
 
 export function DesktopNav({ categories }: DesktopNavProps) {
-  // Exclude "offres" slug — it has a hardcoded link below to point to the promo page
-  const topLevel = categories.filter((c) => c.parent_id === null && c.slug !== "offres");
+  // Exclude "offres" and "support" slugs — they have hardcoded links below
+  const topLevel = categories.filter((c) => c.parent_id === null && c.slug !== "offres" && c.slug !== "support");
   const [openTray, setOpenTray] = useState<string | null>(null);
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -130,6 +130,13 @@ export function DesktopNav({ categories }: DesktopNavProps) {
         className="rounded-full px-3 py-2 text-sm font-medium text-red-600 transition-colors hover:bg-muted"
       >
         Offres
+      </Link>
+
+      <Link
+        href="/support"
+        className="rounded-full px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
+      >
+        Support
       </Link>
 
       {overflow.length > 0 && (
