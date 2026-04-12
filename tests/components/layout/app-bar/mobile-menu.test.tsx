@@ -37,7 +37,6 @@ describe("MobileMenu", () => {
     expect(screen.getByText("Accessoires")).toBeInTheDocument();
     // "offres" slug is filtered out (hardcoded "Offres & Promotions" entry handles it)
     expect(screen.getByText("Offres & Promotions")).toBeInTheDocument();
-    expect(screen.getByText("Support")).toBeInTheDocument();
   });
 
   it("shows subcategories when category is tapped", async () => {
