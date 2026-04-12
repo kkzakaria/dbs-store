@@ -91,13 +91,6 @@ export function MobileMenu({ categories, onClose }: MobileMenuProps) {
             >
               Offres &amp; Promotions
             </Link>
-            <Link
-              href="/support"
-              className="flex items-center justify-between rounded-xl bg-muted/50 px-4 py-4 text-base font-medium transition-colors hover:bg-muted"
-              onClick={handleClose}
-            >
-              Support
-            </Link>
             {topLevel.map((category) => {
               const subs = categories.filter((c) => c.parent_id === category.id);
               const hasSubcategories = subs.length > 0;
