@@ -127,20 +127,7 @@ L'adresse email admin sera une constante dans `lib/email/templates.ts` (e.g. `co
 
 ## Navigation
 
-### Desktop (`desktop-nav.tsx`)
-
-Ajouter un lien "Support" après le lien "Offres", avec le même style que les autres liens :
-
-```tsx
-<Link
-  href="/support"
-  className="rounded-full px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"
->
-  Support
-</Link>
-```
-
-### Mobile (`mobile-menu.tsx`)
+Le lien Support est accessible via le footer de la homepage (liens existants vers `/support`). Pas de lien dans l'app bar (desktop/mobile) pour éviter l'encombrement de la navigation.
 
 Ajouter un lien "Support" dans la liste des liens principaux, après "Offres & Promotions" :
 
@@ -179,8 +166,6 @@ export const metadata: Metadata = {
 | `components/support/contact-form.tsx` | Créer | Formulaire client |
 | `lib/actions/support.ts` | Créer | Server action + validation |
 | `lib/email/templates.ts` | Modifier | Ajouter `buildContactEmail()` |
-| `components/layout/app-bar/desktop-nav.tsx` | Modifier | Ajouter lien Support |
-| `components/layout/app-bar/mobile-menu.tsx` | Modifier | Ajouter lien Support |
 
 ---
 
