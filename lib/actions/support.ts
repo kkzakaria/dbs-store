@@ -7,40 +7,51 @@ import type { ContactFormData } from "@/lib/email/templates";
 const EMAIL_REGEX = /^[a-zA-Z0-9_+&*-]+(?:\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
 
 function validateContactForm(
-  data: ContactFormData
-): { success: true } | { success: false; error: string } {
-  if (!data.name || data.name.trim().length < 2 || data.name.trim().length > 100) {
+  data: unknown
+): { success: true; data: ContactFormData } | { success: false; error: string } {
+  if (!data || typeof data !== "object") {
+    return { success: false, error: "Données invalides." };
+  }
+
+  const obj = data as Record<string, unknown>;
+  const name = typeof obj.name === "string" ? obj.name : "";
+  const email = typeof obj.email === "string" ? obj.email : "";
+  const subject = typeof obj.subject === "string" ? obj.subject : "";
+  const message = typeof obj.message === "string" ? obj.message : "";
+
+  if (name.trim().length < 2 || name.trim().length > 100) {
     return { success: false, error: "Le nom doit contenir entre 2 et 100 caractères." };
   }
-  if (!data.email || !EMAIL_REGEX.test(data.email.trim())) {
+  if (!EMAIL_REGEX.test(email.trim())) {
     return { success: false, error: "Veuillez entrer une adresse email valide." };
   }
-  if (!data.subject || data.subject.trim().length < 5 || data.subject.trim().length > 200) {
+  if (subject.trim().length < 5 || subject.trim().length > 200) {
     return { success: false, error: "Le sujet doit contenir entre 5 et 200 caractères." };
   }
-  if (!data.message || data.message.trim().length < 10 || data.message.trim().length > 2000) {
+  if (message.trim().length < 10 || message.trim().length > 2000) {
     return { success: false, error: "Le message doit contenir entre 10 et 2000 caractères." };
   }
-  return { success: true };
+  return {
+    success: true,
+    data: {
+      name: name.trim(),
+      email: email.trim(),
+      subject: subject.trim(),
+      message: message.trim(),
+    },
+  };
 }
 
 export async function submitContactForm(
-  data: ContactFormData
+  data: unknown
 ): Promise<{ error?: string }> {
   const validation = validateContactForm(data);
   if (!validation.success) {
     return { error: validation.error };
   }
 
-  const trimmed: ContactFormData = {
-    name: data.name.trim(),
-    email: data.email.trim(),
-    subject: data.subject.trim(),
-    message: data.message.trim(),
-  };
-
   try {
-    const emailMessage = buildContactEmail(trimmed);
+    const emailMessage = buildContactEmail(validation.data);
     await enqueueEmail(emailMessage);
     return {};
   } catch (err) {

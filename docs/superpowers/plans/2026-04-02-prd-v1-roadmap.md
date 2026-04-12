@@ -87,7 +87,7 @@
 
 ## Phase 6 — Page Offres/Promotions
 
-**Statut : A faire**
+**Statut : DONE**
 
 **Scope :**
 - Page /offres listant les produits avec remise (old_price défini)
@@ -96,9 +96,9 @@
 - Lien dans la navigation
 
 **Checkpoint :**
-- [ ] Page offres fonctionnelle avec produits en promo
-- [ ] Accessible depuis la navigation
-- [ ] Tests passent, CI verte, deploy prod OK
+- [x] Page offres fonctionnelle avec produits en promo
+- [x] Accessible depuis la navigation
+- [x] Tests passent, CI verte, deploy prod OK
 
 ---
 

@@ -22,6 +22,26 @@ describe("submitContactForm", () => {
     mockEnqueueEmail.mockResolvedValue(undefined);
   });
 
+  it("returns error when data is null", async () => {
+    const result = await submitContactForm(null);
+    expect(result.error).toBeDefined();
+  });
+
+  it("returns error when data is not an object", async () => {
+    const result = await submitContactForm("string");
+    expect(result.error).toBeDefined();
+  });
+
+  it("returns error when fields are non-string types", async () => {
+    const result = await submitContactForm({
+      name: 123,
+      email: null,
+      subject: ["array"],
+      message: {},
+    });
+    expect(result.error).toBeDefined();
+  });
+
   it("returns error when name is empty", async () => {
     const result = await submitContactForm({
       name: "",
