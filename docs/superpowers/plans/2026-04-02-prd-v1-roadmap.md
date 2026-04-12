@@ -109,7 +109,7 @@
 **Scope :**
 - Page /support avec FAQ (accordion Shadcn, données statiques)
 - Formulaire de contact (server action + enqueueEmail via Queue)
-- Lien Support dans la navigation desktop et mobile
+- Lien Support accessible via le footer
 
 **Checkpoint :**
 - [x] FAQ affichée
