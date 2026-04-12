@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildOtpEmail } from "@/lib/email/templates";
+import { buildOtpEmail, buildContactEmail } from "@/lib/email/templates";
 
 describe("buildOtpEmail", () => {
   it("returns an EmailMessage with the recipient", () => {
@@ -39,5 +39,44 @@ describe("buildOtpEmail", () => {
       buildOtpEmail("u@x.ci", "1", "forget-password").subject,
     ]);
     expect(subjects.size).toBe(3);
+  });
+});
+
+describe("buildContactEmail", () => {
+  const data = {
+    name: "Kouamé",
+    email: "kouame@test.ci",
+    subject: "Question livraison",
+    message: "Bonjour, quand sera livrée ma commande ?",
+  };
+
+  it("sends to the admin email address", () => {
+    const msg = buildContactEmail(data);
+    expect(msg.to).toContain("@");
+  });
+
+  it("prefixes the subject with [Contact]", () => {
+    const msg = buildContactEmail(data);
+    expect(msg.subject).toBe("[Contact] Question livraison");
+  });
+
+  it("includes the sender name in the HTML body", () => {
+    const msg = buildContactEmail(data);
+    expect(msg.html).toContain("Kouamé");
+  });
+
+  it("includes the sender email in the HTML body", () => {
+    const msg = buildContactEmail(data);
+    expect(msg.html).toContain("kouame@test.ci");
+  });
+
+  it("includes the message in the HTML body", () => {
+    const msg = buildContactEmail(data);
+    expect(msg.html).toContain("Bonjour, quand sera livrée ma commande ?");
+  });
+
+  it("includes the DBS Store header", () => {
+    const msg = buildContactEmail(data);
+    expect(msg.html).toContain("DBS Store");
   });
 });
