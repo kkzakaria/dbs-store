@@ -27,7 +27,7 @@
     },
     {
       "binding": "KV_RATE_LIMIT",
-      "id": "<to-be-created-in-prod>"
+      "id": "df0a6f6c43b844d68541ec7f6e5f44cd"
     }
   ],
   "queues": {
