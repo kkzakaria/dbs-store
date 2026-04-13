@@ -3,6 +3,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 const mockDb = {
   select: vi.fn(),
   insert: vi.fn(),
+  update: vi.fn(),
 };
 
 vi.mock("@/lib/db", () => ({
@@ -18,7 +19,7 @@ vi.mock("next/headers", () => ({
   headers: () => mockHeaders(),
 }));
 
-const { subscribeNewsletter } = await import("@/lib/actions/newsletter");
+const { subscribeNewsletter, unsubscribeNewsletter } = await import("@/lib/actions/newsletter");
 const { checkRateLimit } = await import("@/lib/rate-limit");
 
 beforeEach(() => {
@@ -89,5 +90,42 @@ describe("subscribeNewsletter", () => {
     await subscribeNewsletter({ email: "  TEST@Example.CI  " });
     const insertedData = mockValues.mock.calls[0][0];
     expect(insertedData.email).toBe("test@example.ci");
+  });
+});
+
+describe("unsubscribeNewsletter", () => {
+  it("returns error when token is not a string", async () => {
+    const result = await unsubscribeNewsletter(123 as unknown as string);
+    expect((result as { error?: string }).error).toBeDefined();
+  });
+
+  it("returns error when token is empty", async () => {
+    const result = await unsubscribeNewsletter("");
+    expect((result as { error?: string }).error).toBeDefined();
+  });
+
+  it("returns error when token is not found", async () => {
+    mockDb.select.mockReturnValue({
+      from: vi.fn().mockReturnValue({
+        where: vi.fn().mockResolvedValue([]),
+      }),
+    });
+    const result = await unsubscribeNewsletter("non-existent-token");
+    expect((result as { error?: string }).error).toBeDefined();
+  });
+
+  it("sets is_active to false for valid token", async () => {
+    mockDb.select.mockReturnValue({
+      from: vi.fn().mockReturnValue({
+        where: vi.fn().mockResolvedValue([{ id: "sub-1", token: "valid-token" }]),
+      }),
+    });
+    const mockSet = vi.fn().mockReturnValue({
+      where: vi.fn().mockResolvedValue(undefined),
+    });
+    mockDb.update = vi.fn().mockReturnValue({ set: mockSet });
+    const result = await unsubscribeNewsletter("valid-token");
+    expect(result.success).toBe(true);
+    expect(mockDb.update).toHaveBeenCalled();
   });
 });

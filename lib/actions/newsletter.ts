@@ -64,3 +64,27 @@ export async function subscribeNewsletter(data: unknown): Promise<NewsletterResu
 
   return { success: true };
 }
+
+export async function unsubscribeNewsletter(token: unknown): Promise<NewsletterResult> {
+  if (typeof token !== "string" || token.trim().length === 0) {
+    return { error: "Lien de desinscription invalide." };
+  }
+
+  const db = await getDb();
+
+  const existing = await db
+    .select()
+    .from(newsletter_subscribers)
+    .where(eq(newsletter_subscribers.token, token.trim()));
+
+  if (existing.length === 0) {
+    return { error: "Lien de desinscription invalide." };
+  }
+
+  await db
+    .update(newsletter_subscribers)
+    .set({ is_active: false })
+    .where(eq(newsletter_subscribers.token, token.trim()));
+
+  return { success: true };
+}
