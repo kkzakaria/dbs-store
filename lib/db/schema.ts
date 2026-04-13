@@ -129,3 +129,15 @@ export const failed_emails = sqliteTable("failed_emails", {
   failed_at: integer("failed_at", { mode: "timestamp" }).notNull(),
   expires_at: integer("expires_at", { mode: "timestamp" }).notNull(),
 });
+
+// -- Newsletter Subscribers ------------------------------------------------
+
+export const newsletter_subscribers = sqliteTable("newsletter_subscribers", {
+  id: text("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  token: text("token").notNull().unique(),
+  is_active: integer("is_active", { mode: "boolean" }).default(true).notNull(),
+  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
+export type NewsletterSubscriber = typeof newsletter_subscribers.$inferSelect;
