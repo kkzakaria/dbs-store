@@ -24,6 +24,10 @@
     {
       "binding": "NEXT_TAG_CACHE_KV",
       "id": "bc48d15c29d44df5afd5ee67b121a574"
+    },
+    {
+      "binding": "KV_RATE_LIMIT",
+      "id": "<to-be-created-in-prod>"
     }
   ],
   "queues": {
