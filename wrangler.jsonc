@@ -24,6 +24,10 @@
     {
       "binding": "NEXT_TAG_CACHE_KV",
       "id": "bc48d15c29d44df5afd5ee67b121a574"
+    },
+    {
+      "binding": "KV_RATE_LIMIT",
+      "id": "df0a6f6c43b844d68541ec7f6e5f44cd"
     }
   ],
   "queues": {

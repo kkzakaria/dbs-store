@@ -1,6 +1,7 @@
 import { Percent, Truck, ShieldCheck, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { NewsletterForm } from "@/components/newsletter-form";
 import { getDb } from "@/lib/db";
 import { getProductsByCategory, getPromoProducts } from "@/lib/data/products";
 import { getCachedTopLevelCategories } from "@/lib/data/categories";
@@ -147,13 +148,8 @@ export default async function HomePage() {
             Inscrivez-vous a notre newsletter pour recevoir nos offres exclusives
             et les dernieres nouveautes.
           </p>
-          <div className="mx-auto mt-6 flex max-w-sm gap-2">
-            <input
-              type="email"
-              placeholder="Votre adresse email"
-              className="flex-1 rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-primary"
-            />
-            <Button>S&apos;inscrire</Button>
+          <div className="mt-6">
+            <NewsletterForm />
           </div>
         </div>
       </section>
