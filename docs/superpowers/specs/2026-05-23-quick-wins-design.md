@@ -8,9 +8,11 @@ Trois correctifs indépendants, faible risque, livrés dans un seul PR. Ordre im
 
 ---
 
-## #0 — Fix TypeScript `OtpType` (débloque le pre-commit)
+## #0 — Fix TypeScript `OtpType` (débloque le pre-commit) — ❌ ANNULÉ (bug fantôme)
 
-### Problème
+> **Mise à jour 2026-05-23** : ce bug n'existe PAS dans le codebase commité. Il provenait d'un `node_modules` pollué par un `pnpm install` parasite, qui résolvait `better-auth@1.6.11` (range `^1.4.18`) au lieu du `1.4.18` épinglé dans `bun.lock`. better-auth 1.6.x ajoute `change-email` au callback emailOTP ; 1.4.18 ne l'a pas. CI (`bun install --frozen-lockfile`) est vert. Résolution : suppression des fichiers pnpm + `bun install --frozen-lockfile` + `npm rebuild better-sqlite3` (voir GOTCHAS §16). **Aucun changement de code requis.** Le guard `if (type === "change-email")` aurait d'ailleurs cassé la CI sous 1.4.18 (TS2367 « no overlap »).
+
+### Problème (historique — ne s'applique qu'avec deps pnpm drift)
 
 `getAuth()` (`lib/auth.ts:69`) passe le paramètre `type` du callback `sendVerificationOTP` — typé par better-auth comme `"sign-in" | "email-verification" | "forget-password" | "change-email"` — à `sendOtpEmail()`, qui attend `OtpType` (`lib/email/types.ts`) ne couvrant que les 3 premières valeurs. D'où :
 

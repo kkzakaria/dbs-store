@@ -4,7 +4,7 @@
 
 **Goal:** Fix the blocking TypeScript error in the OTP email flow, add the 10 missing production DB indexes, and allow R2-hosted images in `next/image`.
 
-**Architecture:** Three independent, low-risk changes shipped in one PR on branch `fix/quick-wins-indexes-otptype-images`. Task 1 (OtpType) goes first because the husky pre-commit hook runs `bunx tsc --noEmit`; until it is fixed, every commit needs `--no-verify`. Once Task 1 lands, Tasks 2 and 3 commit through the hook normally.
+**Architecture:** Originally three changes; **Task 1 (OtpType) was VOIDED** — it was a phantom bug from a stray `pnpm install` drifting `better-auth` to 1.6.11 locally (CI/`bun.lock` use 1.4.18). Resolved by restoring the Bun env (see GOTCHAS §16); no code change. Remaining work = Task 2 (DB indexes) + Task 3 (R2 images), shipped in one PR on branch `fix/quick-wins-indexes-otptype-images`. The pre-commit hook now passes cleanly under the Bun install.
 
 **Tech Stack:** Next.js 16, TypeScript (strict), better-auth (emailOTP plugin), Drizzle ORM + Cloudflare D1 (SQLite), raw SQL migrations in `migrations/`, Vitest + better-sqlite3 for tests.
 
@@ -22,7 +22,9 @@
 
 ---
 
-## Task 1: Fix `OtpType` TypeScript error (unblocks pre-commit)
+## Task 1: Fix `OtpType` TypeScript error (unblocks pre-commit) — ❌ VOIDED
+
+> **VOIDED 2026-05-23:** Phantom bug from a stray local `pnpm install` (resolved `better-auth@1.6.11` vs `bun.lock`'s `1.4.18`; 1.6.x adds `change-email` to the emailOTP union). CI was always green. Fixed by `rm -f pnpm-lock.yaml pnpm-workspace.yaml && rm -rf node_modules && bun install --frozen-lockfile && npm rebuild better-sqlite3`. No code change — the guard below would actually BREAK CI under 1.4.18 (TS2367 no-overlap). See GOTCHAS §16. The steps below are kept for historical record only; **do not implement**.
 
 **Files:**
 - Modify: `lib/auth.ts` (the `emailOTP({ sendVerificationOTP })` callback, around line 64-72)
