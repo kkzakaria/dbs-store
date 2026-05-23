@@ -654,6 +654,40 @@ export function ProductList() {
 
 ---
 
+## 16. 📦 **Ne JAMAIS `pnpm install` — le projet est sous Bun**
+
+### Le Piège
+Lancer `pnpm install` (au lieu de `bun install`) génère un `pnpm-lock.yaml` + `pnpm-workspace.yaml` et un `node_modules` pnpm qui **résout des versions plus récentes** que `bun.lock` (le lockfile commité, utilisé par CI).
+
+`package.json` déclare des ranges souples (`better-auth: ^1.4.18`). pnpm résout vers le plus récent (`better-auth@1.6.11`), Bun reste épinglé (`1.4.18`).
+
+### Symptômes (faux positifs locaux)
+Le hook pre-commit (`tsc --noEmit` + `lint`) échoue alors que **la CI est verte** :
+- `lib/auth.ts: error TS2345 ... '"change-email"' is not assignable to 'OtpType'` → better-auth 1.6.x a ajouté `change-email` au callback emailOTP ; 1.4.18 ne l'a pas.
+- Dizaines d'erreurs `react-hooks/set-state-in-effect` → plugins ESLint plus récents tirés par pnpm.
+
+Ces erreurs **n'existent pas en CI** (qui fait `bun install --frozen-lockfile` depuis `bun.lock`).
+
+### ✅ La Solution — revenir à Bun
+```bash
+rm -f pnpm-lock.yaml pnpm-workspace.yaml
+rm -rf node_modules
+bun install --frozen-lockfile
+npm rebuild better-sqlite3   # ABI natif pour les tests (comme la CI)
+```
+Vérifier : `bunx tsc --noEmit && bun run lint && bun run test` doivent tous passer.
+
+### Diagnostic rapide
+```bash
+ls node_modules/.pnpm 2>/dev/null && echo "POLLUÉ PAR PNPM"   # si ce dossier existe
+node -p "require('./node_modules/better-auth/package.json').version"  # doit être 1.4.18
+```
+
+### Pourquoi Ça Importe
+La source de vérité est **`bun.lock`** + CI. Si le hook échoue localement mais que la CI passe, **suspecter une pollution pnpm avant de "corriger" un bug fantôme**.
+
+---
+
 ## 📋 **Checklist Avant de Modifier le Code**
 
 - [ ] Pas de modifications à fichiers migrations existants
