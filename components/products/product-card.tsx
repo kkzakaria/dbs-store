@@ -70,7 +70,7 @@ export function ProductCard({ product }: { product: Product }) {
         {badge ? (
           <span
             className={cn(
-              "absolute left-2 top-2 z-10 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide sm:left-3 sm:top-3",
+              "absolute left-1.5 top-3 z-10 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide sm:left-3 sm:top-3",
               badge.variant === "promo" && "bg-primary text-primary-foreground",
               badge.variant === "out" && "border border-red-300 bg-background text-red-700",
               badge.variant === "soft" && "border bg-background text-foreground"
