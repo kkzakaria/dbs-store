@@ -3,7 +3,7 @@ import { cache } from "react";
 import { eq, or, and, ne, lte, gte, gt, asc, desc, isNotNull, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { products } from "@/lib/db/schema";
-import type { Product, ProductBadge } from "@/lib/db/schema";
+import type { Product, ProductBadge, ProductColor } from "@/lib/db/schema";
 import { getDb, type Db } from "@/lib/db";
 
 export type ProductFilters = {
@@ -16,9 +16,10 @@ export type ProductFilters = {
 type ProductRow = typeof products.$inferSelect;
 
 function parseProduct(row: ProductRow): Product {
-  const { images: _images, specs: _specs, badge: _badge, ...rest } = row;
+  const { images: _images, specs: _specs, badge: _badge, colors: _colors, ...rest } = row;
   let images: string[] = [];
   let specs: Record<string, string> = {};
+  let colors: ProductColor[] = [];
 
   try {
     const parsed = JSON.parse(_images);
@@ -42,7 +43,21 @@ function parseProduct(row: ProductRow): Product {
     console.error(`[products] JSON invalide dans specs pour "${row.slug}"`);
   }
 
-  return { ...rest, images, specs, badge: _badge as ProductBadge | null };
+  try {
+    const parsed = JSON.parse(_colors);
+    if (Array.isArray(parsed)) {
+      colors = parsed.filter(
+        (c): c is ProductColor =>
+          c != null && typeof c.name === "string" && typeof c.hex === "string"
+      );
+    } else {
+      console.error(`[products] colors non-tableau pour "${row.slug}"`);
+    }
+  } catch {
+    console.error(`[products] JSON invalide dans colors pour "${row.slug}"`);
+  }
+
+  return { ...rest, images, specs, colors, badge: _badge as ProductBadge | null };
 }
 
 export async function getProductsByCategory(

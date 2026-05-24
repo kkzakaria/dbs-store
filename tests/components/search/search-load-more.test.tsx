@@ -32,6 +32,9 @@ const makeProduct = (id: string, name: string): Product => ({
   specs: {},
   stock: 5,
   badge: null,
+  rating: null,
+  reviews: 0,
+  colors: [],
   is_active: true,
   created_at: new Date("2026-01-01"),
 });

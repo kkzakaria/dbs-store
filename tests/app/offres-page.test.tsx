@@ -42,6 +42,9 @@ const PRODUCT: Product = {
   specs: {},
   stock: 5,
   badge: null,
+  rating: null,
+  reviews: 0,
+  colors: [],
   is_active: true,
   created_at: new Date(),
 };

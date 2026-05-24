@@ -1,7 +1,7 @@
 import { eq, like, and, desc, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { products } from "@/lib/db/schema";
-import type { Product } from "@/lib/db/schema";
+import type { Product, ProductColor } from "@/lib/db/schema";
 import type { Db } from "@/lib/db";
 
 export const PAGE_SIZE = 25;
@@ -32,6 +32,18 @@ function parseAdminProduct(row: ProductRow): Product {
       }
     })(),
     badge: row.badge as Product["badge"],
+    colors: (() => {
+      try {
+        const parsed = JSON.parse(row.colors);
+        return Array.isArray(parsed)
+          ? (parsed.filter(
+              (c) => c != null && typeof c.name === "string" && typeof c.hex === "string"
+            ) as ProductColor[])
+          : [];
+      } catch {
+        return [];
+      }
+    })(),
   };
 }
 

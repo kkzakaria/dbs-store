@@ -708,11 +708,37 @@ const seed = [
   },
 ];
 
+// Métadonnées carte produit (note / avis / coloris) générées de façon
+// déterministe à partir de l'id, pour des données de démo stables et réalistes.
+const COLOR_PALETTES = [
+  [{ name: "Graphite", hex: "#1a1a1f" }, { name: "Argent", hex: "#d9d9de" }],
+  [{ name: "Noir", hex: "#0e0e10" }, { name: "Blanc", hex: "#f4f3ee" }, { name: "Bleu nuit", hex: "#1d2733" }],
+  [{ name: "Titane", hex: "#8a8a8f" }, { name: "Noir sidéral", hex: "#16161a" }],
+  [{ name: "Crème", hex: "#efe9dd" }, { name: "Vert forêt", hex: "#2f4a35" }],
+  [{ name: "Or", hex: "#d4af6a" }, { name: "Graphite", hex: "#1a1a1f" }, { name: "Argent", hex: "#d9d9de" }],
+];
+
+function hashStr(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0;
+  return Math.abs(h);
+}
+
+const seedWithMeta = seed.map((p) => {
+  const h = hashStr(p.id);
+  return {
+    ...p,
+    rating: Math.round((40 + (h % 10)) ) / 10, // 4.0 → 4.9
+    reviews: 50 + (h % 1950), // 50 → 1999
+    colors: JSON.stringify(COLOR_PALETTES[h % COLOR_PALETTES.length]),
+  };
+});
+
 async function main() {
   console.log("Seeding products...");
   await db.delete(products);
-  await db.insert(products).values(seed);
-  console.log(`✓ ${seed.length} produits insérés`);
+  await db.insert(products).values(seedWithMeta);
+  console.log(`✓ ${seedWithMeta.length} produits insérés`);
 }
 
 main().catch((err) => {
