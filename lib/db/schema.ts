@@ -1,5 +1,5 @@
 // lib/db/schema.ts
-import { sqliteTable, text, integer, type AnySQLiteColumn } from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, real, type AnySQLiteColumn } from "drizzle-orm/sqlite-core";
 import type { CategoryIcon } from "@/lib/data/category-icons";
 
 export const products = sqliteTable("products", {
@@ -16,20 +16,27 @@ export const products = sqliteTable("products", {
   specs: text("specs").notNull(),           // JSON Record<string, string>
   stock: integer("stock").default(0).notNull(),
   badge: text("badge"),                     // "Nouveau" | "Populaire" | "Promo" | null
+  rating: real("rating"),                   // note moyenne 0–5, null si non noté
+  reviews: integer("reviews").default(0).notNull(),
+  colors: text("colors").notNull().default("[]"), // JSON {name, hex}[]
   is_active: integer("is_active", { mode: "boolean" }).default(true).notNull(),
   created_at: integer("created_at", { mode: "timestamp" }).notNull(),
 });
 
 export type ProductBadge = "Nouveau" | "Populaire" | "Promo";
 
-// Ligne brute telle que retournée par Drizzle (images/specs en JSON string)
+// Variante de coloris affichée dans la carte produit
+export type ProductColor = { name: string; hex: string };
+
+// Ligne brute telle que retournée par Drizzle (images/specs/colors en JSON string)
 type ProductRow = typeof products.$inferSelect;
 
-// Type utilisé dans les composants et les pages (images/specs parsés, badge union)
-export type Product = Omit<ProductRow, "images" | "specs" | "badge"> & {
+// Type utilisé dans les composants et les pages (images/specs/colors parsés, badge union)
+export type Product = Omit<ProductRow, "images" | "specs" | "badge" | "colors"> & {
   images: string[];
   specs: Record<string, string>;
   badge: ProductBadge | null;
+  colors: ProductColor[];
 };
 
 export type NewProduct = typeof products.$inferInsert;

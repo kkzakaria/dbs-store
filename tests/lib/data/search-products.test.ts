@@ -22,6 +22,9 @@ function createTestDb() {
       specs TEXT NOT NULL,
       stock INTEGER NOT NULL DEFAULT 0,
       badge TEXT,
+      rating REAL,
+      reviews INTEGER NOT NULL DEFAULT 0,
+      colors TEXT NOT NULL DEFAULT '[]',
       is_active INTEGER NOT NULL DEFAULT 1,
       created_at INTEGER NOT NULL
     )

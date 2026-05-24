@@ -24,8 +24,14 @@ const BASE = {
   images: ["/placeholder.svg"],
   description: "Top.",
   specs: {},
-  stock: 5,
+  stock: 8,
   badge: "Nouveau" as const,
+  rating: 4.6,
+  reviews: 1284,
+  colors: [
+    { name: "Noir", hex: "#0e0e10" },
+    { name: "Blanc", hex: "#f4f3ee" },
+  ],
   is_active: true,
   created_at: new Date(),
 };
@@ -38,7 +44,7 @@ describe("ProductCard", () => {
   it("affiche le nom et le prix du produit", () => {
     render(<ProductCard product={BASE} />);
     expect(screen.getByText("iPhone 16 Pro")).toBeInTheDocument();
-    expect(screen.getByText(/899 000/)).toBeInTheDocument();
+    expect(screen.getByText(/899 000 FCFA/)).toBeInTheDocument();
   });
 
   it("affiche le badge quand présent", () => {
@@ -46,7 +52,7 @@ describe("ProductCard", () => {
     expect(screen.getByText("Nouveau")).toBeInTheDocument();
   });
 
-  it("n'affiche pas de badge quand null", () => {
+  it("n'affiche pas de badge quand null et hors promo", () => {
     render(<ProductCard product={{ ...BASE, badge: null }} />);
     expect(screen.queryByText("Nouveau")).not.toBeInTheDocument();
   });
@@ -57,14 +63,46 @@ describe("ProductCard", () => {
     expect(screen.getByText(/-\d+%/)).toBeInTheDocument();
   });
 
-  it("affiche 'Rupture de stock' quand stock = 0", () => {
+  it("affiche la note et le nombre d'avis", () => {
+    render(<ProductCard product={BASE} />);
+    expect(screen.getByText("4.6")).toBeInTheDocument();
+    expect(screen.getByText(/284/)).toBeInTheDocument();
+  });
+
+  it("affiche les pastilles de coloris", () => {
+    render(<ProductCard product={BASE} />);
+    expect(screen.getByRole("button", { name: "Noir" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Blanc" })).toBeInTheDocument();
+  });
+
+  it("permet d'ajouter/retirer des favoris", () => {
+    render(<ProductCard product={BASE} />);
+    const fav = screen.getByRole("button", { name: /favoris/i });
+    expect(fav).toHaveAttribute("aria-pressed", "false");
+    fireEvent.click(fav);
+    expect(fav).toHaveAttribute("aria-pressed", "true");
+  });
+
+  it("ouvre WhatsApp avec le produit pré-rempli", () => {
+    const openSpy = vi.spyOn(window, "open").mockImplementation(() => null);
+    render(<ProductCard product={BASE} />);
+    fireEvent.click(screen.getByRole("button", { name: /whatsapp/i }));
+    expect(openSpy).toHaveBeenCalledTimes(1);
+    const url = decodeURIComponent(String(openSpy.mock.calls[0][0]));
+    expect(url).toContain("wa.me/");
+    expect(url).toContain("iPhone 16 Pro");
+    openSpy.mockRestore();
+  });
+
+  it("affiche l'état rupture de stock quand stock = 0", () => {
     render(<ProductCard product={{ ...BASE, stock: 0 }} />);
-    expect(screen.getByText(/rupture de stock/i)).toBeInTheDocument();
+    expect(screen.getByText(/rupture/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /me prévenir/i })).toBeDisabled();
   });
 
   it("pointe vers la page détail produit", () => {
     render(<ProductCard product={BASE} />);
-    const link = screen.getByRole("link");
+    const link = screen.getByRole("link", { name: /iphone 16 pro/i });
     expect(link).toHaveAttribute("href", "/produits/iphone-16-pro");
   });
 
