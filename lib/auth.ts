@@ -1,6 +1,6 @@
 import { betterAuth } from "better-auth";
 import { organization, emailOTP } from "better-auth/plugins";
-import { drizzle } from "drizzle-orm/d1";
+import { D1Dialect } from "kysely-d1";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { ac, owner, admin, member } from "@/lib/auth/permissions";
 import { sendOtpEmail } from "@/lib/email";
@@ -32,7 +32,10 @@ export async function getAuth() {
   }
 
   return betterAuth({
-    database: drizzle(env.DB),
+    database: {
+      dialect: new D1Dialect({ database: env.DB }),
+      type: "sqlite",
+    },
 
     baseURL: env.BETTER_AUTH_URL,
     secret: env.BETTER_AUTH_SECRET,
