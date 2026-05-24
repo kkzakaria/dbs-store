@@ -53,7 +53,9 @@ export function ProductCard({ product }: { product: Product }) {
       className="group relative flex flex-col overflow-hidden rounded-xl border bg-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
     >
       {/* Image */}
-      <div className="relative m-3 mb-0 aspect-square overflow-hidden rounded-lg border bg-muted/40 transition-colors group-hover:bg-muted">
+      {/* Mobile : pleine largeur + simple trait de séparation (image maximisée).
+          ≥ sm : cadre complet avec léger retrait. */}
+      <div className="relative aspect-square overflow-hidden rounded-t-xl border-b bg-muted/40 transition-colors group-hover:bg-muted sm:m-3 sm:mb-0 sm:rounded-lg sm:border">
         <Image
           src={image}
           alt={product.name}
@@ -68,7 +70,7 @@ export function ProductCard({ product }: { product: Product }) {
         {badge ? (
           <span
             className={cn(
-              "absolute left-3 top-3 z-10 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide",
+              "absolute left-2 top-2 z-10 rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wide sm:left-3 sm:top-3",
               badge.variant === "promo" && "bg-primary text-primary-foreground",
               badge.variant === "out" && "border border-red-300 bg-background text-red-700",
               badge.variant === "soft" && "border bg-background text-foreground"
@@ -86,7 +88,7 @@ export function ProductCard({ product }: { product: Product }) {
             e.preventDefault();
             setLiked((v) => !v);
           }}
-          className="absolute right-3 top-3 z-10 grid size-8 place-items-center rounded-full bg-background/80 backdrop-blur-sm transition-transform hover:scale-110"
+          className="absolute right-2 top-2 z-10 grid size-8 place-items-center rounded-full bg-background/80 backdrop-blur-sm transition-transform hover:scale-110 sm:right-3 sm:top-3"
         >
           <Heart className={cn("size-4", liked ? "fill-primary text-primary" : "text-foreground")} />
         </button>
