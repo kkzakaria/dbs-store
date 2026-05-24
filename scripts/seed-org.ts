@@ -1,5 +1,18 @@
-// @ts-expect-error - seed script not compatible with D1 getAuth(), needs local auth setup
-import { auth } from "@/lib/auth";
+// Seeds the owner account + organization by driving the running server's
+// better-auth HTTP endpoints.
+//
+// getAuth() needs the Cloudflare Worker/D1 runtime context, so we can't build a
+// standalone auth instance here — we call the real endpoints instead. This means
+// the dev server (`bun run dev`) or preview (`bun run preview`) must be running.
+//
+// Idempotent: re-running signs in if the owner already exists and skips the org
+// if its slug is taken.
+
+const BASE_URL = process.env.SEED_BASE_URL ?? "http://localhost:33000";
+// Origin must be a trusted origin (better-auth checks it against baseURL on
+// mutating endpoints like organization/create). Defaults to the prod baseURL
+// configured in wrangler.jsonc.
+const ORIGIN = process.env.SEED_ORIGIN ?? "https://dbs-store.ci";
 
 const OWNER_EMAIL = "admin@dbs-store.ci";
 const OWNER_PASSWORD = "changeme123!";
@@ -7,55 +20,92 @@ const OWNER_NAME = "Admin DBS";
 const ORG_NAME = "DBS Store";
 const ORG_SLUG = "dbs-store";
 
-async function seed() {
-  console.log("Creating owner account...");
+function sessionCookie(res: Response): string {
+  const list = res.headers.getSetCookie?.() ?? [];
+  return list.map((c) => c.split(";")[0]).join("; ");
+}
 
-  const signUpResponse = await auth.api.signUpEmail({
-    body: {
-      name: OWNER_NAME,
-      email: OWNER_EMAIL,
-      password: OWNER_PASSWORD,
-    },
-    asResponse: true,
+async function post(path: string, body: unknown, cookie?: string) {
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    Origin: ORIGIN,
+  };
+  if (cookie) headers.cookie = cookie;
+  const res = await fetch(`${BASE_URL}${path}`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
+  const data = await res.json().catch(() => ({}));
+  return { res, data } as { res: Response; data: Record<string, unknown> };
+}
+
+async function seed() {
+  console.log(`Seeding via ${BASE_URL} ...`);
+
+  // 1. Create the owner account (or sign in if it already exists).
+  let cookie = "";
+  const signUp = await post("/api/auth/sign-up/email", {
+    name: OWNER_NAME,
+    email: OWNER_EMAIL,
+    password: OWNER_PASSWORD,
   });
 
-  if (!signUpResponse.ok) {
-    console.error("Failed to create owner account:", signUpResponse.status);
+  if (signUp.res.ok) {
+    cookie = sessionCookie(signUp.res);
+    console.log(`✓ Owner account created: ${OWNER_EMAIL}`);
+  } else {
+    const msg = `${signUp.data.code ?? ""} ${signUp.data.message ?? ""}`.toLowerCase();
+    if (signUp.res.status === 422 || msg.includes("exist")) {
+      console.log("• Owner already exists — signing in");
+      const signIn = await post("/api/auth/sign-in/email", {
+        email: OWNER_EMAIL,
+        password: OWNER_PASSWORD,
+      });
+      if (!signIn.res.ok) {
+        console.error(`Sign-in failed (${signIn.res.status}):`, JSON.stringify(signIn.data));
+        process.exit(1);
+      }
+      cookie = sessionCookie(signIn.res);
+    } else {
+      console.error(`Sign-up failed (${signUp.res.status}):`, JSON.stringify(signUp.data));
+      process.exit(1);
+    }
+  }
+
+  if (!cookie) {
+    console.error("No session cookie returned — cannot create organization.");
     process.exit(1);
   }
 
-  const signUpData = await signUpResponse.json();
-  console.log(`Owner created: ${signUpData.user.email}`);
-
-  // Extract session cookies from the signup response
-  const setCookieHeader = signUpResponse.headers.get("set-cookie") ?? "";
-  // Parse cookie values to forward them
-  const cookies = setCookieHeader
-    .split(",")
-    .map((c: string) => c.trim().split(";")[0])
-    .filter(Boolean)
-    .join("; ");
-
-  console.log("Creating organization...");
-  await auth.api.createOrganization({
-    body: {
-      name: ORG_NAME,
-      slug: ORG_SLUG,
-    },
-    headers: new Headers({
-      cookie: cookies,
-    }),
-  });
-
-  console.log(`Organization created: ${ORG_NAME} (${ORG_SLUG})`);
-  console.log("\nSeed complete!");
-  console.log(
-    `\nLogin with:\n  Email: ${OWNER_EMAIL}\n  Password: ${OWNER_PASSWORD}`
+  // 2. Create the organization (owner membership is added automatically).
+  const org = await post(
+    "/api/auth/organization/create",
+    { name: ORG_NAME, slug: ORG_SLUG },
+    cookie
   );
+
+  if (org.res.ok) {
+    console.log(`✓ Organization created: ${ORG_NAME} (${ORG_SLUG})`);
+  } else {
+    const msg = `${org.data.code ?? ""} ${org.data.message ?? ""}`.toLowerCase();
+    if (msg.includes("exist") || msg.includes("slug") || msg.includes("taken")) {
+      console.log(`• Organization "${ORG_SLUG}" already exists — skipping`);
+    } else {
+      console.error(`Org create failed (${org.res.status}):`, JSON.stringify(org.data));
+      process.exit(1);
+    }
+  }
+
+  console.log(`\nSeed complete!\n  Login: ${OWNER_EMAIL}\n  Password: ${OWNER_PASSWORD}`);
   console.log("\nChange the password after first login!");
 }
 
 seed().catch((error) => {
-  console.error("Seed failed:", error);
+  if (error instanceof TypeError && /fetch failed|ECONNREFUSED/i.test(String(error.cause ?? error))) {
+    console.error(`\nCould not reach ${BASE_URL}. Is the dev server running? (bun run dev)`);
+  } else {
+    console.error("Seed failed:", error);
+  }
   process.exit(1);
 });

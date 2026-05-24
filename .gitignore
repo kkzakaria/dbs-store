@@ -58,3 +58,6 @@ next-env.d.ts
 # local assets
 image-catalogue/
 *.Zone.Identifier
+
+# Local dev secrets (better-auth)
+.dev.vars
