@@ -1,20 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
-import { PackageX, Home } from "lucide-react";
+import { Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-muted/50 px-4 text-center">
-      <Image
-        src="/images/dbs-store-logo.png"
-        alt="DBS Store"
-        width={140}
-        height={36}
-        className="h-9 w-auto"
-      />
-      <div className="flex size-20 items-center justify-center rounded-full bg-white shadow-md">
-        <PackageX className="size-9 text-muted-foreground" />
+      <div className="flex size-28 items-center justify-center rounded-full bg-white shadow-md md:size-36 lg:size-40">
+        <Image
+          src="/images/dbs-store-logo.png"
+          alt="DBS Store"
+          width={140}
+          height={36}
+          className="h-10 w-auto md:h-12 lg:h-14"
+        />
       </div>
       <div className="flex flex-col gap-2">
         <h1 className="text-2xl font-bold">Page introuvable</h1>
