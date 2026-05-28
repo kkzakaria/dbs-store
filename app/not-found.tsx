@@ -6,13 +6,13 @@ import { Button } from "@/components/ui/button";
 export default function NotFound() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-muted/50 px-4 text-center">
-      <div className="flex size-40 items-center justify-center rounded-full bg-white shadow-md">
+      <div className="flex size-28 items-center justify-center rounded-full bg-white shadow-md md:size-36 lg:size-40">
         <Image
           src="/images/dbs-store-logo.png"
           alt="DBS Store"
           width={140}
           height={36}
-          className="h-14 w-auto"
+          className="h-10 w-auto md:h-12 lg:h-14"
         />
       </div>
       <div className="flex flex-col gap-2">
