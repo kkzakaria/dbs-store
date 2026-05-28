@@ -35,8 +35,9 @@ describe("MobileMenu", () => {
     expect(screen.getByText("Ordinateurs")).toBeInTheDocument();
     expect(screen.getByText("Audio")).toBeInTheDocument();
     expect(screen.getByText("Accessoires")).toBeInTheDocument();
-    // "offres" slug is filtered out (hardcoded "Offres & Promotions" entry handles it)
-    expect(screen.getByText("Offres & Promotions")).toBeInTheDocument();
+    // TODO: Hardcoded "Offres & Promotions" entry is disabled — will be re-enabled when feature is ready
+    // TODO: Re-enable assertion when "Offres" feature is ready for launch
+    // expect(screen.getByText("Offres & Promotions")).toBeInTheDocument();
   });
 
   it("shows subcategories when category is tapped", async () => {
