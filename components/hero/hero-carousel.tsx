@@ -30,9 +30,10 @@ function HeroFallback() {
           <Button size="lg" asChild>
             <Link href="/smartphones">Voir les smartphones</Link>
           </Button>
-          <Button size="lg" variant="outline" asChild>
+          {/* TODO: Re-enable when "Offres" feature is ready for launch */}
+          {/* <Button size="lg" variant="outline" asChild>
             <Link href="/offres">Offres du moment</Link>
-          </Button>
+          </Button> */}
         </div>
       </div>
     </section>
