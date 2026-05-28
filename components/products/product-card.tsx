@@ -205,7 +205,7 @@ export function ProductCard({ product }: { product: Product }) {
                 e.preventDefault();
                 window.open(whatsappHref, "_blank", "noopener,noreferrer");
               }}
-              className="grid size-8 shrink-0 place-items-center rounded-full bg-[#25D366] text-white transition-colors hover:bg-[#1ebd5a]"
+              className="grid size-8 shrink-0 place-items-center rounded-full bg-[#25D366] text-white transition-colors cursor-pointer hover:bg-[#1ebd5a]"
             >
               <svg
                 width="16"
