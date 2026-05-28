@@ -42,7 +42,7 @@ describe("CategoryTray", () => {
       />
     );
     const seeAllLink = screen.getByRole("link", { name: /tout voir/i });
-    expect(seeAllLink).toHaveAttribute("href", "/categorie/smartphones");
+    expect(seeAllLink).toHaveAttribute("href", "/smartphones");
   });
 
   it("subcategory links point to correct paths", () => {
@@ -54,7 +54,7 @@ describe("CategoryTray", () => {
       />
     );
     const iphoneLink = screen.getByRole("link", { name: /iphone/i });
-    expect(iphoneLink).toHaveAttribute("href", "/categorie/smartphones/iphone");
+    expect(iphoneLink).toHaveAttribute("href", "/iphone");
   });
 
   it("calls onClose when Escape is pressed", () => {

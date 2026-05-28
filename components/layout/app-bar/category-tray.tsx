@@ -47,7 +47,7 @@ export function CategoryTray({
         {subcategories.map((sub) => (
           <Link
             key={sub.id}
-            href={`/categorie/${categorySlug}/${sub.slug}`}
+            href={`/${sub.slug}`}
             className="rounded-lg px-3 py-2.5 text-sm font-medium transition-colors hover:bg-muted"
             onClick={onClose}
           >
@@ -57,7 +57,7 @@ export function CategoryTray({
       </div>
       <div className="mt-3 border-t pt-3">
         <Link
-          href={`/categorie/${categorySlug}`}
+          href={`/${categorySlug}`}
           className="block rounded-lg px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/5"
           onClick={onClose}
         >
