@@ -89,9 +89,10 @@ export default async function HomePage() {
             Profitez de reductions allant jusqu&apos;a -20% sur une selection de produits.
             Offre valable jusqu&apos;a dimanche.
           </p>
-          <Button variant="secondary" size="lg" asChild>
+          {/* TODO: Re-enable when "Offres" feature is ready for launch */}
+          {/* <Button variant="secondary" size="lg" asChild>
             <Link href="/offres">Voir les offres</Link>
-          </Button>
+          </Button> */}
         </div>
       </section>
 
@@ -176,7 +177,8 @@ export default async function HomePage() {
               <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
                 <li><Link href="/montres-connectees" className="hover:text-foreground">Montres</Link></li>
                 <li><Link href="/accessoires" className="hover:text-foreground">Accessoires</Link></li>
-                <li><Link href="/offres" className="hover:text-foreground">Offres</Link></li>
+                {/* TODO: Re-enable when "Offres" feature is ready for launch */}
+                {/* <li><Link href="/offres" className="hover:text-foreground">Offres</Link></li> */}
                 <li><Link href="/support" className="hover:text-foreground">Support</Link></li>
               </ul>
             </div>
