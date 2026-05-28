@@ -64,7 +64,7 @@ export function UserMenu() {
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link href="/compte">
+            <Link href="/compte/profil">
               <Settings className="mr-2 size-4" />
               Mon compte
             </Link>
