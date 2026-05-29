@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { formatPrice } from "@/lib/utils";
+import { cn, formatPrice } from "@/lib/utils";
 import { AddToCartButton } from "./add-to-cart-button";
 import type { Product } from "@/lib/db/schema";
 

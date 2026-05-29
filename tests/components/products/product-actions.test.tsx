@@ -94,4 +94,15 @@ describe("ProductActions — avec variantes", () => {
     render(<ProductActions product={withOverride} />);
     expect(screen.getByText(/950 000/)).toBeInTheDocument();
   });
+
+  it("affiche rupture quand toutes les variantes sont épuisées", () => {
+    const allOOS = { ...productWithVariants, variants: [
+      makeVariant({ id: "v1", color_name: "Noir", stock: 0 }),
+      makeVariant({ id: "v2", color_name: "Blanc", color_hex: "#fff", stock: 0 }),
+    ]};
+    render(<ProductActions product={allOOS} />);
+    expect(screen.getByRole("button", { name: /rupture/i })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Noir" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "Blanc" })).toBeDisabled();
+  });
 });
