@@ -33,7 +33,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     ? (filters.tri as Filters["tri"])
     : undefined;
   const items = await getProductsByCategory(db, category.id, {
-    brand: filters.marque,
+    brands: filters.marque ? [filters.marque] : undefined,
     prix_max: prixMax !== undefined && Number.isFinite(prixMax) ? prixMax : undefined,
     tri,
   });

@@ -1,6 +1,6 @@
 // lib/data/products.ts
 import { cache } from "react";
-import { eq, or, and, ne, lte, gte, gt, asc, desc, isNotNull, sql } from "drizzle-orm";
+import { eq, or, and, ne, lte, gte, gt, asc, desc, isNotNull, inArray, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { products } from "@/lib/db/schema";
 import type { Product, ProductBadge, ProductColor, ProductVariant } from "@/lib/db/schema";
@@ -8,7 +8,7 @@ import { getDb, type Db } from "@/lib/db";
 import { getVariantsByProductIds } from "@/lib/data/variants";
 
 export type ProductFilters = {
-  brand?: string;
+  brands?: string[];
   prix_min?: number;
   prix_max?: number;
   tri?: "prix_asc" | "prix_desc" | "nouveau";
@@ -74,19 +74,25 @@ async function attachVariants(db: Db, productList: Product[]): Promise<Product[]
   return productList.map((p) => ({ ...p, variants: byProductId.get(p.id) ?? [] }));
 }
 
+function categoryFilterConditions(categoryId: string, filters: ProductFilters) {
+  const conditions = [
+    or(eq(products.category_id, categoryId), eq(products.subcategory_id, categoryId)),
+    eq(products.is_active, true),
+  ];
+  if (filters.brands && filters.brands.length > 0) {
+    conditions.push(inArray(products.brand, filters.brands));
+  }
+  if (filters.prix_min !== undefined) conditions.push(gte(products.price, filters.prix_min));
+  if (filters.prix_max !== undefined) conditions.push(lte(products.price, filters.prix_max));
+  return conditions;
+}
+
 export async function getProductsByCategory(
   db: Db,
   categoryId: string,
   filters: ProductFilters = {}
 ): Promise<Product[]> {
-  const conditions = [
-    or(eq(products.category_id, categoryId), eq(products.subcategory_id, categoryId)),
-    eq(products.is_active, true),
-  ];
-
-  if (filters.brand) conditions.push(eq(products.brand, filters.brand));
-  if (filters.prix_min !== undefined) conditions.push(gte(products.price, filters.prix_min));
-  if (filters.prix_max !== undefined) conditions.push(lte(products.price, filters.prix_max));
+  const conditions = categoryFilterConditions(categoryId, filters);
 
   const order =
     filters.tri === "prix_asc"
@@ -101,6 +107,33 @@ export async function getProductsByCategory(
     .where(and(...conditions))
     .orderBy(order);
   return attachVariants(db, rows.map(parseProduct));
+}
+
+export async function getCategoryBrands(db: Db, categoryId: string): Promise<string[]> {
+  const rows = await db
+    .selectDistinct({ brand: products.brand })
+    .from(products)
+    .where(
+      and(
+        or(eq(products.category_id, categoryId), eq(products.subcategory_id, categoryId)),
+        eq(products.is_active, true)
+      )
+    )
+    .orderBy(asc(products.brand));
+  return rows.map((r) => r.brand);
+}
+
+export async function countProductsByCategory(
+  db: Db,
+  categoryId: string,
+  filters: ProductFilters = {}
+): Promise<number> {
+  const conditions = categoryFilterConditions(categoryId, filters);
+  const result = await db
+    .select({ count: sql<number>`count(*)` })
+    .from(products)
+    .where(and(...conditions));
+  return Number(result[0]?.count ?? 0);
 }
 
 export async function getProduct(db: Db, slug: string): Promise<Product | null> {
