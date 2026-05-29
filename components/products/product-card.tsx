@@ -186,10 +186,13 @@ export function ProductCard({ product }: { product: Product }) {
                   e.preventDefault();
                   addItem({
                     productId: product.id,
+                    variantId: null,
                     slug: product.slug,
                     name: product.name,
                     price: product.price,
                     image,
+                    colorName: null,
+                    colorHex: null,
                   });
                 }}
               >

@@ -15,10 +15,13 @@ export function AddToCartButton({ product }: { product: Product }) {
       onClick={() =>
         addItem({
           productId: product.id,
+          variantId: null,
           slug: product.slug,
           name: product.name,
           price: product.price,
           image: product.images[0] ?? "/images/products/placeholder.svg",
+          colorName: null,
+          colorHex: null,
         })
       }
     >

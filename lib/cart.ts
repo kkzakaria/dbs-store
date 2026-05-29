@@ -4,45 +4,42 @@ import { persist, createJSONStorage } from "zustand/middleware";
 const safeLocalStorage = createJSONStorage(() => ({
   getItem(name: string) {
     if (typeof window === "undefined") return null;
-    try {
-      return localStorage.getItem(name);
-    } catch (e) {
-      console.error("[cart] Impossible de lire le panier:", e);
-      return null;
-    }
+    try { return localStorage.getItem(name); }
+    catch (e) { console.error("[cart] Impossible de lire le panier:", e); return null; }
   },
   setItem(name: string, value: string) {
     if (typeof window === "undefined") return;
-    try {
-      localStorage.setItem(name, value);
-    } catch (e) {
-      console.error("[cart] Impossible de sauvegarder le panier:", e);
-    }
+    try { localStorage.setItem(name, value); }
+    catch (e) { console.error("[cart] Impossible de sauvegarder le panier:", e); }
   },
   removeItem(name: string) {
     if (typeof window === "undefined") return;
-    try {
-      localStorage.removeItem(name);
-    } catch (e) {
-      console.error("[cart] Impossible de supprimer le panier:", e);
-    }
+    try { localStorage.removeItem(name); }
+    catch (e) { console.error("[cart] Impossible de supprimer le panier:", e); }
   },
 }));
 
 export type CartItem = {
   productId: string;
+  variantId: string | null;
   slug: string;
   name: string;
   price: number;
   image: string;
+  colorName: string | null;
+  colorHex: string | null;
   quantity: number;
 };
+
+// Clé d'unicité : variantId si présent, sinon productId
+const cartKey = (i: Pick<CartItem, "variantId" | "productId">) =>
+  i.variantId ?? i.productId;
 
 type CartState = {
   items: CartItem[];
   addItem: (item: Omit<CartItem, "quantity">) => void;
-  removeItem: (productId: string) => void;
-  setQuantity: (productId: string, quantity: number) => void;
+  removeItem: (key: string) => void;
+  setQuantity: (key: string, quantity: number) => void;
   clear: () => void;
   total: () => number;
   count: () => number;
@@ -54,28 +51,29 @@ export const useCartStore = create<CartState>()(
       items: [],
       addItem(item) {
         set((state) => {
-          const existing = state.items.find((i) => i.productId === item.productId);
+          const key = cartKey(item);
+          const existing = state.items.find((i) => cartKey(i) === key);
           if (existing) {
             return {
               items: state.items.map((i) =>
-                i.productId === item.productId ? { ...i, quantity: i.quantity + 1 } : i
+                cartKey(i) === key ? { ...i, quantity: i.quantity + 1 } : i
               ),
             };
           }
           return { items: [...state.items, { ...item, quantity: 1 }] };
         });
       },
-      removeItem(productId) {
-        set((state) => ({ items: state.items.filter((i) => i.productId !== productId) }));
+      removeItem(key) {
+        set((state) => ({ items: state.items.filter((i) => cartKey(i) !== key) }));
       },
-      setQuantity(productId, quantity) {
+      setQuantity(key, quantity) {
         if (quantity <= 0) {
-          get().removeItem(productId);
+          get().removeItem(key);
           return;
         }
         set((state) => ({
           items: state.items.map((i) =>
-            i.productId === productId ? { ...i, quantity } : i
+            cartKey(i) === key ? { ...i, quantity } : i
           ),
         }));
       },
@@ -91,7 +89,7 @@ export const useCartStore = create<CartState>()(
     }),
     {
       name: "dbs-cart",
-      version: 1,
+      version: 2,
       storage: safeLocalStorage,
       migrate: () => ({ items: [] }),
       onRehydrateStorage: () => (_, error) => {

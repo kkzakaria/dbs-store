@@ -8,8 +8,8 @@ import { buildOrder } from "@/lib/order-utils";
 describe("buildOrder", () => {
   it("calculates correct totals for COD", () => {
     const items = [
-      { productId: "p1", name: "A", slug: "a", price: 100_000, image: "/a.svg", quantity: 2 },
-      { productId: "p2", name: "B", slug: "b", price: 50_000, image: "/b.svg", quantity: 1 },
+      { productId: "p1", variantId: null, name: "A", slug: "a", price: 100_000, image: "/a.svg", colorName: null, colorHex: null, quantity: 2 },
+      { productId: "p2", variantId: null, name: "B", slug: "b", price: 50_000, image: "/b.svg", colorName: null, colorHex: null, quantity: 1 },
     ];
     const result = buildOrder(items, "cod");
     expect(result.subtotal).toBe(250_000);
@@ -19,7 +19,7 @@ describe("buildOrder", () => {
 
   it("computes subtotal correctly with quantities > 1", () => {
     const items = [
-      { productId: "p1", name: "A", slug: "a", price: 500_000, image: "/a.svg", quantity: 3 },
+      { productId: "p1", variantId: null, name: "A", slug: "a", price: 500_000, image: "/a.svg", colorName: null, colorHex: null, quantity: 3 },
     ];
     const result = buildOrder(items, "cod");
     expect(result.subtotal).toBe(1_500_000);
@@ -28,7 +28,7 @@ describe("buildOrder", () => {
 
   it("handles single item with quantity 1", () => {
     const items = [
-      { productId: "p1", name: "A", slug: "a", price: 75_000, image: "/a.svg", quantity: 1 },
+      { productId: "p1", variantId: null, name: "A", slug: "a", price: 75_000, image: "/a.svg", colorName: null, colorHex: null, quantity: 1 },
     ];
     const result = buildOrder(items, "cod");
     expect(result.subtotal).toBe(75_000);
@@ -45,7 +45,7 @@ describe("buildOrder", () => {
 
   it("forwards the paymentMethod in its result", () => {
     const items = [
-      { productId: "p1", name: "A", slug: "a", price: 10_000, image: "/a.svg", quantity: 1 },
+      { productId: "p1", variantId: null, name: "A", slug: "a", price: 10_000, image: "/a.svg", colorName: null, colorHex: null, quantity: 1 },
     ];
     expect(buildOrder(items, "cod").paymentMethod).toBe("cod");
   });
