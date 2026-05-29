@@ -199,3 +199,49 @@ describe("getPromoProducts", () => {
     expect(result[0].slug).toBe("promo");
   });
 });
+
+describe("variant attachment", () => {
+  it("attaches variants to products returned by getProductsByCategory", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values(BASE);
+    await db.insert(schema.product_variants).values({
+      id: "variant-1",
+      product_id: BASE.id,
+      color_name: "Noir",
+      color_hex: "#000000",
+      stock: 3,
+      price_override: null,
+      sort_order: 0,
+      created_at: new Date("2026-01-01"),
+    });
+    const result = await getProductsByCategory(db, "smartphones");
+    expect(result).toHaveLength(1);
+    expect(result[0].variants).toHaveLength(1);
+    expect(result[0].variants[0].color_name).toBe("Noir");
+  });
+
+  it("attaches variants to product returned by getProduct", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values(BASE);
+    await db.insert(schema.product_variants).values({
+      id: "variant-2",
+      product_id: BASE.id,
+      color_name: "Blanc",
+      color_hex: "#ffffff",
+      stock: 1,
+      price_override: 950000,
+      sort_order: 0,
+      created_at: new Date("2026-01-01"),
+    });
+    const result = await getProduct(db, "iphone-16-pro");
+    expect(result?.variants).toHaveLength(1);
+    expect(result?.variants[0].color_name).toBe("Blanc");
+  });
+
+  it("returns empty variants array when no variants exist", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values(BASE);
+    const result = await getProductsByCategory(db, "smartphones");
+    expect(result[0].variants).toEqual([]);
+  });
+});

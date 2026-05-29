@@ -3,9 +3,9 @@ import { cache } from "react";
 import { eq, or, and, ne, lte, gte, gt, asc, desc, isNotNull, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { products } from "@/lib/db/schema";
-import type { Product, ProductBadge, ProductColor } from "@/lib/db/schema";
+import type { Product, ProductBadge, ProductColor, ProductVariant } from "@/lib/db/schema";
 import { getDb, type Db } from "@/lib/db";
-import { getVariantsByProductId, getVariantsByProductIds } from "@/lib/data/variants";
+import { getVariantsByProductIds } from "@/lib/data/variants";
 
 export type ProductFilters = {
   brand?: string;
@@ -65,7 +65,7 @@ async function attachVariants(db: Db, productList: Product[]): Promise<Product[]
   if (productList.length === 0) return productList;
   const ids = productList.map((p) => p.id);
   const allVariants = await getVariantsByProductIds(db, ids);
-  const byProductId = new Map<string, typeof allVariants>();
+  const byProductId = new Map<string, ProductVariant[]>();
   for (const v of allVariants) {
     const arr = byProductId.get(v.product_id) ?? [];
     arr.push(v);
@@ -110,9 +110,8 @@ export async function getProduct(db: Db, slug: string): Promise<Product | null> 
     .where(and(eq(products.slug, slug), eq(products.is_active, true)))
     .limit(1);
   if (!result[0]) return null;
-  const parsed = parseProduct(result[0]);
-  const variants = await getVariantsByProductId(db, parsed.id);
-  return { ...parsed, variants };
+  const [withVariants] = await attachVariants(db, [parseProduct(result[0])]);
+  return withVariants ?? null;
 }
 
 export async function getRelatedProducts(

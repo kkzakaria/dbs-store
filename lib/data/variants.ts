@@ -14,14 +14,33 @@ export async function getVariantsByProductId(
     .orderBy(asc(product_variants.sort_order));
 }
 
+const BATCH_SIZE = 100;
+
 export async function getVariantsByProductIds(
   db: Db,
   productIds: string[]
 ): Promise<ProductVariant[]> {
   if (productIds.length === 0) return [];
-  return db
-    .select()
-    .from(product_variants)
-    .where(inArray(product_variants.product_id, productIds))
-    .orderBy(asc(product_variants.sort_order));
+  if (productIds.length <= BATCH_SIZE) {
+    return db
+      .select()
+      .from(product_variants)
+      .where(inArray(product_variants.product_id, productIds))
+      .orderBy(asc(product_variants.sort_order));
+  }
+  // Chunk to respect D1's 100 bound-parameter limit
+  const chunks: string[][] = [];
+  for (let i = 0; i < productIds.length; i += BATCH_SIZE) {
+    chunks.push(productIds.slice(i, i + BATCH_SIZE));
+  }
+  const results = await Promise.all(
+    chunks.map((chunk) =>
+      db
+        .select()
+        .from(product_variants)
+        .where(inArray(product_variants.product_id, chunk))
+        .orderBy(asc(product_variants.sort_order))
+    )
+  );
+  return results.flat();
 }
