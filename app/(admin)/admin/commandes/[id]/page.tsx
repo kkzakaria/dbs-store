@@ -80,6 +80,15 @@ export default async function AdminCommandeDetailPage({ params }: Props) {
             <div key={item.id} className="flex items-center gap-3 px-4 py-3">
               <div className="flex-1">
                 <p className="font-medium">{item.product_name}</p>
+                {item.color_name && item.color_hex ? (
+                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span
+                      className="size-2 shrink-0 rounded-full border border-black/10"
+                      style={{ backgroundColor: item.color_hex }}
+                    />
+                    {item.color_name}
+                  </span>
+                ) : null}
                 <p className="text-sm text-muted-foreground">
                   {item.quantity} × {formatFCFA(item.unit_price)}
                 </p>

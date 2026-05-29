@@ -18,10 +18,13 @@ describe("CartDrawer", () => {
     act(() =>
       useCartStore.getState().addItem({
         productId: "p1",
+        variantId: null,
         slug: "iphone",
         name: "iPhone 16",
         price: 1_000_000,
         image: "/placeholder.svg",
+        colorName: null,
+        colorHex: null,
       })
     );
     render(<CartDrawer open onOpenChange={() => {}} />);
@@ -41,10 +44,13 @@ describe("CartDrawer", () => {
     act(() =>
       useCartStore.getState().addItem({
         productId: "p1",
+        variantId: null,
         slug: "iphone",
         name: "iPhone 16",
         price: 1_000_000,
         image: "/placeholder.svg",
+        colorName: null,
+        colorHex: null,
       })
     );
     const onOpenChange = vi.fn();
@@ -57,10 +63,13 @@ describe("CartDrawer", () => {
     act(() =>
       useCartStore.getState().addItem({
         productId: "p1",
+        variantId: null,
         slug: "iphone",
         name: "iPhone 16",
         price: 1_000_000,
         image: "/placeholder.svg",
+        colorName: null,
+        colorHex: null,
       })
     );
     render(<CartDrawer open onOpenChange={() => {}} />);

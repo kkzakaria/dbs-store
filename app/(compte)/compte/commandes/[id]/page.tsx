@@ -88,6 +88,15 @@ export default async function CommandeDetailPage({ params }: Props) {
                   >
                     {item.product_name}
                   </Link>
+                  {item.color_name && item.color_hex ? (
+                    <span className="mt-0.5 flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <span
+                        className="size-2 shrink-0 rounded-full border border-black/10"
+                        style={{ backgroundColor: item.color_hex }}
+                      />
+                      {item.color_name}
+                    </span>
+                  ) : null}
                   <p className="mt-0.5 text-xs text-muted-foreground">
                     {item.unit_price.toLocaleString("fr-FR")} FCFA × {item.quantity}
                   </p>

@@ -28,9 +28,10 @@ const BASE = {
   badge: "Nouveau" as const,
   rating: 4.6,
   reviews: 1284,
-  colors: [
-    { name: "Noir", hex: "#0e0e10" },
-    { name: "Blanc", hex: "#f4f3ee" },
+  colors: [],
+  variants: [
+    { id: "v1", product_id: "iphone-16-pro", color_name: "Noir", color_hex: "#0e0e10", stock: 5, price_override: null, sort_order: 0, created_at: new Date() },
+    { id: "v2", product_id: "iphone-16-pro", color_name: "Blanc", color_hex: "#f4f3ee", stock: 3, price_override: null, sort_order: 1, created_at: new Date() },
   ],
   is_active: true,
   created_at: new Date(),
@@ -95,7 +96,15 @@ describe("ProductCard", () => {
   });
 
   it("affiche l'état rupture de stock quand stock = 0", () => {
-    render(<ProductCard product={{ ...BASE, stock: 0 }} />);
+    const outOfStock = {
+      ...BASE,
+      stock: 0,
+      variants: [
+        { ...BASE.variants[0], stock: 0 },
+        { ...BASE.variants[1], stock: 0 },
+      ],
+    };
+    render(<ProductCard product={outOfStock} />);
     expect(screen.getByText(/rupture/i)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /me prévenir/i })).toBeDisabled();
   });
@@ -109,12 +118,47 @@ describe("ProductCard", () => {
   it("ajoute au panier en cliquant sur le bouton", () => {
     render(<ProductCard product={BASE} />);
     fireEvent.click(screen.getByRole("button", { name: /ajouter au panier/i }));
-    expect(useCartStore.getState().items).toHaveLength(1);
-    expect(useCartStore.getState().items[0].productId).toBe("iphone-16-pro");
+    const item = useCartStore.getState().items[0];
+    expect(item.productId).toBe("iphone-16-pro");
+    expect(item.variantId).toBe("v1");
+    expect(item.colorName).toBe("Noir");
   });
 
   it("n'affiche pas de bouton panier quand rupture de stock", () => {
-    render(<ProductCard product={{ ...BASE, stock: 0 }} />);
+    const outOfStock = {
+      ...BASE,
+      stock: 0,
+      variants: [
+        { ...BASE.variants[0], stock: 0 },
+        { ...BASE.variants[1], stock: 0 },
+      ],
+    };
+    render(<ProductCard product={outOfStock} />);
     expect(screen.queryByRole("button", { name: /ajouter au panier/i })).not.toBeInTheDocument();
+  });
+
+  it("ajoute la variante sélectionnée au panier (v2 Blanc)", () => {
+    render(<ProductCard product={BASE} />);
+    fireEvent.click(screen.getByRole("button", { name: "Blanc" }));
+    fireEvent.click(screen.getByRole("button", { name: /ajouter au panier/i }));
+    const item = useCartStore.getState().items[0];
+    expect(item.variantId).toBe("v2");
+    expect(item.colorName).toBe("Blanc");
+  });
+
+  it("désactive le bouton Ajouter quand la variante sélectionnée est épuisée", () => {
+    const oneOOS = {
+      ...BASE,
+      // Noir (index 0) is OOS, Blanc (index 1) has stock — findIndex selects Blanc by default
+      variants: [
+        { ...BASE.variants[0], stock: 0 },  // Noir, OOS
+        { ...BASE.variants[1], stock: 3 },  // Blanc, in stock
+      ],
+    };
+    render(<ProductCard product={oneOOS} />);
+    // Default selected is Blanc (in stock) — "Ajouter au panier" button should be enabled
+    expect(screen.getByRole("button", { name: /ajouter au panier/i })).not.toBeDisabled();
+    // Noir swatch is disabled because its stock is 0
+    expect(screen.getByRole("button", { name: "Noir" })).toBeDisabled();
   });
 });

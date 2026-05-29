@@ -32,6 +32,16 @@ function createTestDb() {
       colors TEXT NOT NULL DEFAULT '[]',
       is_active INTEGER NOT NULL DEFAULT 1,
       created_at INTEGER NOT NULL
+    );
+    CREATE TABLE product_variants (
+      id TEXT NOT NULL PRIMARY KEY,
+      product_id TEXT NOT NULL REFERENCES products(id) ON DELETE CASCADE,
+      color_name TEXT NOT NULL,
+      color_hex TEXT NOT NULL,
+      stock INTEGER NOT NULL DEFAULT 0,
+      price_override INTEGER,
+      sort_order INTEGER NOT NULL DEFAULT 0,
+      created_at INTEGER NOT NULL
     )
   `);
   // Cast to any: BetterSQLite3Database is used for tests while D1 is used in production
@@ -187,5 +197,51 @@ describe("getPromoProducts", () => {
     const result = await getPromoProducts(db);
     expect(result).toHaveLength(1);
     expect(result[0].slug).toBe("promo");
+  });
+});
+
+describe("variant attachment", () => {
+  it("attaches variants to products returned by getProductsByCategory", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values(BASE);
+    await db.insert(schema.product_variants).values({
+      id: "variant-1",
+      product_id: BASE.id,
+      color_name: "Noir",
+      color_hex: "#000000",
+      stock: 3,
+      price_override: null,
+      sort_order: 0,
+      created_at: new Date("2026-01-01"),
+    });
+    const result = await getProductsByCategory(db, "smartphones");
+    expect(result).toHaveLength(1);
+    expect(result[0].variants).toHaveLength(1);
+    expect(result[0].variants[0].color_name).toBe("Noir");
+  });
+
+  it("attaches variants to product returned by getProduct", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values(BASE);
+    await db.insert(schema.product_variants).values({
+      id: "variant-2",
+      product_id: BASE.id,
+      color_name: "Blanc",
+      color_hex: "#ffffff",
+      stock: 1,
+      price_override: 950000,
+      sort_order: 0,
+      created_at: new Date("2026-01-01"),
+    });
+    const result = await getProduct(db, "iphone-16-pro");
+    expect(result?.variants).toHaveLength(1);
+    expect(result?.variants[0].color_name).toBe("Blanc");
+  });
+
+  it("returns empty variants array when no variants exist", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values(BASE);
+    const result = await getProductsByCategory(db, "smartphones");
+    expect(result[0].variants).toEqual([]);
   });
 });

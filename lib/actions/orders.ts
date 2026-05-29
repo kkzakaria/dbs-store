@@ -1,12 +1,13 @@
 "use server";
 import { randomUUID } from "crypto";
 import { redirect } from "next/navigation";
-import { inArray } from "drizzle-orm";
+import { inArray, eq, sql } from "drizzle-orm";
 import { getDb } from "@/lib/db";
-import { orders, order_items, products } from "@/lib/db/schema";
+import { orders, order_items, products, product_variants } from "@/lib/db/schema";
 import type { PaymentMethod } from "@/lib/db/schema";
 import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { validateVariantStock } from "@/lib/order-utils";
 import type { CartItemInput } from "@/lib/order-utils";
 
 export type CheckoutFormData = {
@@ -15,10 +16,49 @@ export type CheckoutFormData = {
   city: string;
   address: string;
   notes?: string;
-  // Narrowed to "cod" — other payment methods are not yet implemented
   payment_method: Extract<PaymentMethod, "cod">;
   items: CartItemInput[];
 };
+
+
+async function fetchVariantsByIds(db: Awaited<ReturnType<typeof getDb>>, ids: string[]) {
+  if (ids.length === 0) return [];
+  const BATCH = 100;
+  if (ids.length <= BATCH) {
+    return db.select().from(product_variants).where(inArray(product_variants.id, ids));
+  }
+  const chunks: string[][] = [];
+  for (let i = 0; i < ids.length; i += BATCH) chunks.push(ids.slice(i, i + BATCH));
+  const results = await Promise.all(
+    chunks.map((chunk) => db.select().from(product_variants).where(inArray(product_variants.id, chunk)))
+  );
+  return results.flat();
+}
+
+async function fetchProductsByIds(
+  db: Awaited<ReturnType<typeof getDb>>,
+  ids: string[]
+) {
+  if (ids.length === 0) return [];
+  const BATCH = 100;
+  if (ids.length <= BATCH) {
+    return db
+      .select({ id: products.id, price: products.price, is_active: products.is_active })
+      .from(products)
+      .where(inArray(products.id, ids));
+  }
+  const chunks: string[][] = [];
+  for (let i = 0; i < ids.length; i += BATCH) chunks.push(ids.slice(i, i + BATCH));
+  const results = await Promise.all(
+    chunks.map((chunk) =>
+      db
+        .select({ id: products.id, price: products.price, is_active: products.is_active })
+        .from(products)
+        .where(inArray(products.id, chunk))
+    )
+  );
+  return results.flat();
+}
 
 export async function createOrder(data: CheckoutFormData): Promise<{ orderId: string }> {
   const auth = await getAuth();
@@ -26,43 +66,48 @@ export async function createOrder(data: CheckoutFormData): Promise<{ orderId: st
   if (!session?.user) redirect("/connexion");
   if (!session.user.emailVerified) redirect("/email-non-verifie");
 
-  // Validate input before touching the DB
-  if (!data.items || data.items.length === 0) {
-    throw new Error("EMPTY_CART");
-  }
-  if (data.items.some((i) => i.quantity <= 0)) {
-    throw new Error("INVALID_QUANTITY");
-  }
+  if (!data.items || data.items.length === 0) throw new Error("EMPTY_CART");
+  if (data.items.some((i) => i.quantity <= 0)) throw new Error("INVALID_QUANTITY");
 
-  // Fetch authoritative prices from DB — never trust client-supplied prices
   const db = await getDb();
-  const productIds = data.items.map((i) => i.productId);
-  const dbProducts = await db
-    .select({ id: products.id, price: products.price, is_active: products.is_active })
-    .from(products)
-    .where(inArray(products.id, productIds));
 
-  const priceMap = new Map(dbProducts.map((p) => [p.id, p]));
+  const itemsWithVariant = data.items.filter((i) => i.variantId != null);
+  const variantIds = itemsWithVariant.map((i) => i.variantId!);
+  const productIds = data.items.map((i) => i.productId);
+
+  const [dbVariants, dbProducts] = await Promise.all([
+    fetchVariantsByIds(db, variantIds),
+    fetchProductsByIds(db, productIds),
+  ]);
+
+  const variantMap = new Map(dbVariants.map((v) => [v.id, v]));
+  const productMap = new Map(dbProducts.map((p) => [p.id, p]));
 
   for (const item of data.items) {
-    const product = priceMap.get(item.productId);
-    if (!product || !product.is_active) {
-      throw new Error(`PRODUCT_NOT_FOUND:${item.productId}`);
-    }
+    const product = productMap.get(item.productId);
+    if (!product || !product.is_active) throw new Error(`PRODUCT_NOT_FOUND:${item.productId}`);
   }
 
-  // Use DB prices for all financial calculations
-  const itemsWithDbPrices = data.items.map((item) => ({
-    ...item,
-    price: priceMap.get(item.productId)!.price,
-  }));
+  validateVariantStock(data.items, variantMap);
 
-  const subtotal = itemsWithDbPrices.reduce((sum, i) => sum + i.price * i.quantity, 0);
-  const shipping_fee = 0; // Livraison gratuite phase initiale
+  const itemsWithPrices = data.items.map((item) => {
+    const variant = item.variantId ? variantMap.get(item.variantId) : null;
+    const product = productMap.get(item.productId)!;
+    return { ...item, price: variant?.price_override ?? product.price };
+  });
+
+  const subtotal = itemsWithPrices.reduce((sum, i) => sum + i.price * i.quantity, 0);
+  const shipping_fee = 0;
   const total = subtotal + shipping_fee;
-
   const orderId = randomUUID();
   const now = new Date();
+
+  const stockDecrements = itemsWithVariant.map((item) =>
+    db
+      .update(product_variants)
+      .set({ stock: sql`stock - ${item.quantity}` })
+      .where(eq(product_variants.id, item.variantId!))
+  );
 
   try {
     await db.batch([
@@ -84,18 +129,22 @@ export async function createOrder(data: CheckoutFormData): Promise<{ orderId: st
         updated_at: now,
       }),
       db.insert(order_items).values(
-        itemsWithDbPrices.map((item) => ({
+        itemsWithPrices.map((item) => ({
           id: randomUUID(),
           order_id: orderId,
           product_id: item.productId,
+          variant_id: item.variantId ?? null,
           product_name: item.name,
           product_slug: item.slug,
           product_image: item.image,
+          color_name: item.colorName ?? null,
+          color_hex: item.colorHex ?? null,
           unit_price: item.price,
           quantity: item.quantity,
           line_total: item.price * item.quantity,
         }))
       ),
+      ...stockDecrements,
     ]);
   } catch (err) {
     console.error("[createOrder] DB write failed", {

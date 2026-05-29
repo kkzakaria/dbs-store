@@ -48,8 +48,17 @@ export default async function OrderConfirmationPage({ params }: Props) {
           <ul className="mt-4 space-y-2">
             {items.map((item) => (
               <li key={item.id} className="flex justify-between text-sm">
-                <span>
-                  {item.product_name} × {item.quantity}
+                <span className="flex flex-col gap-0.5">
+                  <span>{item.product_name} × {item.quantity}</span>
+                  {item.color_name && item.color_hex ? (
+                    <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                      <span
+                        className="size-2 shrink-0 rounded-full border border-black/10"
+                        style={{ backgroundColor: item.color_hex }}
+                      />
+                      {item.color_name}
+                    </span>
+                  ) : null}
                 </span>
                 <span>{item.line_total.toLocaleString("fr-FR")} FCFA</span>
               </li>

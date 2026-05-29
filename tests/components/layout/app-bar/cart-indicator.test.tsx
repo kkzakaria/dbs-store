@@ -25,10 +25,13 @@ describe("CartIndicator", () => {
     act(() =>
       useCartStore.getState().addItem({
         productId: "p1",
+        variantId: null,
         slug: "iphone",
         name: "iPhone 16",
         price: 1_000_000,
         image: "/placeholder.svg",
+        colorName: null,
+        colorHex: null,
       })
     );
     render(<CartIndicator onClick={() => {}} />);
@@ -44,10 +47,13 @@ describe("CartIndicator", () => {
     act(() =>
       useCartStore.getState().addItem({
         productId: "p1",
+        variantId: null,
         slug: "iphone",
         name: "iPhone 16",
         price: 1_000_000,
         image: "/placeholder.svg",
+        colorName: null,
+        colorHex: null,
       })
     );
     act(() => useCartStore.getState().setQuantity("p1", 100));

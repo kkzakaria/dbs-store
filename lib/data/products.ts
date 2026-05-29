@@ -3,8 +3,9 @@ import { cache } from "react";
 import { eq, or, and, ne, lte, gte, gt, asc, desc, isNotNull, sql } from "drizzle-orm";
 import type { SQL } from "drizzle-orm";
 import { products } from "@/lib/db/schema";
-import type { Product, ProductBadge, ProductColor } from "@/lib/db/schema";
+import type { Product, ProductBadge, ProductColor, ProductVariant } from "@/lib/db/schema";
 import { getDb, type Db } from "@/lib/db";
+import { getVariantsByProductIds } from "@/lib/data/variants";
 
 export type ProductFilters = {
   brand?: string;
@@ -57,7 +58,20 @@ function parseProduct(row: ProductRow): Product {
     console.error(`[products] JSON invalide dans colors pour "${row.slug}"`);
   }
 
-  return { ...rest, images, specs, colors, badge: _badge as ProductBadge | null };
+  return { ...rest, images, specs, colors, badge: _badge as ProductBadge | null, variants: [] };
+}
+
+async function attachVariants(db: Db, productList: Product[]): Promise<Product[]> {
+  if (productList.length === 0) return productList;
+  const ids = productList.map((p) => p.id);
+  const allVariants = await getVariantsByProductIds(db, ids);
+  const byProductId = new Map<string, ProductVariant[]>();
+  for (const v of allVariants) {
+    const arr = byProductId.get(v.product_id) ?? [];
+    arr.push(v);
+    byProductId.set(v.product_id, arr);
+  }
+  return productList.map((p) => ({ ...p, variants: byProductId.get(p.id) ?? [] }));
 }
 
 export async function getProductsByCategory(
@@ -86,7 +100,7 @@ export async function getProductsByCategory(
     .from(products)
     .where(and(...conditions))
     .orderBy(order);
-  return rows.map(parseProduct);
+  return attachVariants(db, rows.map(parseProduct));
 }
 
 export async function getProduct(db: Db, slug: string): Promise<Product | null> {
@@ -95,7 +109,9 @@ export async function getProduct(db: Db, slug: string): Promise<Product | null> 
     .from(products)
     .where(and(eq(products.slug, slug), eq(products.is_active, true)))
     .limit(1);
-  return result[0] ? parseProduct(result[0]) : null;
+  if (!result[0]) return null;
+  const [withVariants] = await attachVariants(db, [parseProduct(result[0])]);
+  return withVariants ?? null;
 }
 
 export async function getRelatedProducts(
@@ -114,7 +130,7 @@ export async function getRelatedProducts(
       )
     )
     .limit(4);
-  return rows.map(parseProduct);
+  return attachVariants(db, rows.map(parseProduct));
 }
 
 export async function getPromoProducts(db: Db, limit = 4): Promise<Product[]> {
@@ -124,7 +140,7 @@ export async function getPromoProducts(db: Db, limit = 4): Promise<Product[]> {
     .where(and(isNotNull(products.old_price), eq(products.is_active, true)))
     .orderBy(desc(products.created_at))
     .limit(limit);
-  return rows.map(parseProduct);
+  return attachVariants(db, rows.map(parseProduct));
 }
 
 export type PromoFilters = {
@@ -165,7 +181,7 @@ export async function getPromoProductsFiltered(
     .where(and(...conditions))
     .orderBy(orderBy);
 
-  return rows.map(parseProduct);
+  return attachVariants(db, rows.map(parseProduct));
 }
 
 // React.cache() — déduplication par requête (scope: arbre React d'un seul rendu).
@@ -239,8 +255,9 @@ export async function searchProducts(
   const hasMore = rows.length > limit;
   const sliced = hasMore ? rows.slice(0, limit) : rows;
 
+  const parsedProducts = await attachVariants(db, sliced.map(parseProduct));
   return {
-    products: sliced.map(parseProduct),
+    products: parsedProducts,
     hasMore,
     total: Number(countResult[0]?.count ?? 0),
   };

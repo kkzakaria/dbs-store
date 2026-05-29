@@ -44,6 +44,7 @@ function parseAdminProduct(row: ProductRow): Product {
         return [];
       }
     })(),
+    variants: [],
   };
 }
 

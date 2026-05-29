@@ -134,10 +134,21 @@ export function CheckoutForm() {
         <h2 className="font-semibold">Votre commande</h2>
         <ul className="divide-y rounded-xl border">
           {items.map((item) => (
-            <li key={item.productId} className="flex items-center gap-3 p-3 text-sm">
-              <span className="line-clamp-1 flex-1">{item.name}</span>
-              <span className="text-muted-foreground">×{item.quantity}</span>
-              <span className="font-medium">{formatPrice(item.price * item.quantity)}</span>
+            <li key={item.variantId ?? item.productId} className="flex items-center gap-3 p-3 text-sm">
+              <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="line-clamp-1">{item.name}</span>
+                {item.colorName && item.colorHex ? (
+                  <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <span
+                      className="size-2 shrink-0 rounded-full border border-black/10"
+                      style={{ backgroundColor: item.colorHex }}
+                    />
+                    {item.colorName}
+                  </span>
+                ) : null}
+              </div>
+              <span className="shrink-0 text-muted-foreground">×{item.quantity}</span>
+              <span className="shrink-0 font-medium">{formatPrice(item.price * item.quantity)}</span>
             </li>
           ))}
         </ul>
