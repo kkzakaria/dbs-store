@@ -123,7 +123,7 @@ export default async function ProductDetailPage({ params }: Props) {
           </p>
 
           <div className="mt-6 flex gap-3">
-            <AddToCartButton product={product} />
+            <AddToCartButton product={product} variant={null} />
           </div>
 
           {Object.keys(product.specs).length > 0 ? (

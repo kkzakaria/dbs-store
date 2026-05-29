@@ -2,11 +2,19 @@
 import { ShoppingCart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCartStore } from "@/lib/cart";
-import type { Product } from "@/lib/db/schema";
+import type { Product, ProductVariant } from "@/lib/db/schema";
 
-export function AddToCartButton({ product }: { product: Product }) {
+type Props = {
+  product: Product;
+  variant: ProductVariant | null;
+};
+
+export function AddToCartButton({ product, variant }: Props) {
   const addItem = useCartStore((s) => s.addItem);
-  const isOutOfStock = product.stock === 0;
+  const effectiveStock = variant !== null ? variant.stock : product.stock;
+  const isOutOfStock = effectiveStock === 0;
+  const effectivePrice = variant?.price_override ?? product.price;
+
   return (
     <Button
       size="lg"
@@ -15,13 +23,13 @@ export function AddToCartButton({ product }: { product: Product }) {
       onClick={() =>
         addItem({
           productId: product.id,
-          variantId: null,
+          variantId: variant?.id ?? null,
           slug: product.slug,
           name: product.name,
-          price: product.price,
+          price: effectivePrice,
           image: product.images[0] ?? "/images/products/placeholder.svg",
-          colorName: null,
-          colorHex: null,
+          colorName: variant?.color_name ?? null,
+          colorHex: variant?.color_hex ?? null,
         })
       }
     >

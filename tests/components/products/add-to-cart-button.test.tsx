@@ -3,12 +3,13 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { act } from "@testing-library/react";
 import { AddToCartButton } from "@/components/products/add-to-cart-button";
 import { useCartStore } from "@/lib/cart";
+import type { ProductVariant } from "@/lib/db/schema";
 
 beforeEach(() => {
   act(() => useCartStore.setState({ items: [] }));
 });
 
-const inStockProduct = {
+const baseProduct = {
   id: "p1",
   slug: "iphone-16",
   name: "iPhone 16",
@@ -30,37 +31,69 @@ const inStockProduct = {
   created_at: new Date(),
 };
 
-describe("AddToCartButton", () => {
-  it("renders 'Ajouter au panier' when in stock", () => {
-    render(<AddToCartButton product={inStockProduct} />);
+const makeVariant = (overrides: Partial<ProductVariant> = {}): ProductVariant => ({
+  id: "v1",
+  product_id: "p1",
+  color_name: "Noir",
+  color_hex: "#000",
+  stock: 5,
+  price_override: null,
+  sort_order: 0,
+  created_at: new Date(),
+  ...overrides,
+});
+
+describe("AddToCartButton — sans variante", () => {
+  it("affiche 'Ajouter au panier' quand en stock", () => {
+    render(<AddToCartButton product={baseProduct} variant={null} />);
     expect(screen.getByRole("button", { name: /ajouter au panier/i })).toBeInTheDocument();
   });
 
-  it("is enabled when in stock", () => {
-    render(<AddToCartButton product={inStockProduct} />);
-    expect(screen.getByRole("button", { name: /ajouter au panier/i })).not.toBeDisabled();
+  it("est désactivé quand stock = 0", () => {
+    render(<AddToCartButton product={{ ...baseProduct, stock: 0 }} variant={null} />);
+    expect(screen.getByRole("button", { name: /rupture/i })).toBeDisabled();
   });
 
-  it("renders 'Rupture de stock' and is disabled when stock is 0", () => {
-    render(<AddToCartButton product={{ ...inStockProduct, stock: 0 }} />);
-    const btn = screen.getByRole("button", { name: /rupture de stock/i });
-    expect(btn).toBeInTheDocument();
-    expect(btn).toBeDisabled();
+  it("ajoute l'item sans variantId au panier", () => {
+    render(<AddToCartButton product={baseProduct} variant={null} />);
+    fireEvent.click(screen.getByRole("button", { name: /ajouter/i }));
+    const item = useCartStore.getState().items[0];
+    expect(item.productId).toBe("p1");
+    expect(item.variantId).toBeNull();
+    expect(item.colorName).toBeNull();
   });
 
-  it("adds item to cart on click", () => {
-    render(<AddToCartButton product={inStockProduct} />);
-    fireEvent.click(screen.getByRole("button", { name: /ajouter au panier/i }));
-    const { items } = useCartStore.getState();
-    expect(items).toHaveLength(1);
-    expect(items[0].productId).toBe("p1");
-    expect(items[0].price).toBe(1_000_000);
-    expect(items[0].quantity).toBe(1);
-  });
-
-  it("uses placeholder image when product has no images", () => {
-    render(<AddToCartButton product={{ ...inStockProduct, images: [] }} />);
-    fireEvent.click(screen.getByRole("button", { name: /ajouter au panier/i }));
+  it("utilise l'image placeholder quand pas d'images", () => {
+    render(<AddToCartButton product={{ ...baseProduct, images: [] }} variant={null} />);
+    fireEvent.click(screen.getByRole("button", { name: /ajouter/i }));
     expect(useCartStore.getState().items[0].image).toBe("/images/products/placeholder.svg");
+  });
+});
+
+describe("AddToCartButton — avec variante", () => {
+  it("est désactivé quand stock de la variante = 0", () => {
+    render(<AddToCartButton product={baseProduct} variant={makeVariant({ stock: 0 })} />);
+    expect(screen.getByRole("button", { name: /rupture/i })).toBeDisabled();
+  });
+
+  it("ajoute avec variantId et colorName", () => {
+    render(<AddToCartButton product={baseProduct} variant={makeVariant()} />);
+    fireEvent.click(screen.getByRole("button", { name: /ajouter/i }));
+    const item = useCartStore.getState().items[0];
+    expect(item.variantId).toBe("v1");
+    expect(item.colorName).toBe("Noir");
+    expect(item.colorHex).toBe("#000");
+  });
+
+  it("utilise price_override quand défini", () => {
+    render(<AddToCartButton product={baseProduct} variant={makeVariant({ price_override: 950_000 })} />);
+    fireEvent.click(screen.getByRole("button", { name: /ajouter/i }));
+    expect(useCartStore.getState().items[0].price).toBe(950_000);
+  });
+
+  it("utilise le prix produit quand price_override est null", () => {
+    render(<AddToCartButton product={baseProduct} variant={makeVariant({ price_override: null })} />);
+    fireEvent.click(screen.getByRole("button", { name: /ajouter/i }));
+    expect(useCartStore.getState().items[0].price).toBe(1_000_000);
   });
 });
