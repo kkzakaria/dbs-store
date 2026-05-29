@@ -32,7 +32,7 @@ export type ProductColor = { name: string; hex: string };
 
 export const product_variants = sqliteTable("product_variants", {
   id: text("id").primaryKey(),
-  product_id: text("product_id").notNull().references(() => products.id),
+  product_id: text("product_id").notNull().references(() => products.id, { onDelete: "cascade" }),
   color_name: text("color_name").notNull(),
   color_hex: text("color_hex").notNull(),
   stock: integer("stock").notNull().default(0),
