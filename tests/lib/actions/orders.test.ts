@@ -56,8 +56,8 @@ describe("validateVariantStock", () => {
   it("ne lève pas d'erreur si stock suffisant", () => {
     expect(() =>
       validateVariantStock(
-        [{ variantId: "v1", quantity: 2 }],
-        new Map([["v1", { stock: 5 }]])
+        [{ variantId: "v1", productId: "p1", quantity: 2 }],
+        new Map([["v1", { stock: 5, product_id: "p1" }]])
       )
     ).not.toThrow();
   });
@@ -65,8 +65,8 @@ describe("validateVariantStock", () => {
   it("lève STOCK_INSUFFICIENT si stock insuffisant", () => {
     expect(() =>
       validateVariantStock(
-        [{ variantId: "v1", quantity: 3 }],
-        new Map([["v1", { stock: 2 }]])
+        [{ variantId: "v1", productId: "p1", quantity: 3 }],
+        new Map([["v1", { stock: 2, product_id: "p1" }]])
       )
     ).toThrow("STOCK_INSUFFICIENT:v1");
   });
@@ -74,7 +74,7 @@ describe("validateVariantStock", () => {
   it("lève VARIANT_NOT_FOUND si la variante n'existe pas en DB", () => {
     expect(() =>
       validateVariantStock(
-        [{ variantId: "v-unknown", quantity: 1 }],
+        [{ variantId: "v-unknown", productId: "p1", quantity: 1 }],
         new Map()
       )
     ).toThrow("VARIANT_NOT_FOUND:v-unknown");
@@ -83,9 +83,18 @@ describe("validateVariantStock", () => {
   it("ignore les items sans variantId", () => {
     expect(() =>
       validateVariantStock(
-        [{ variantId: null, quantity: 5 }],
+        [{ variantId: null, productId: "p1", quantity: 5 }],
         new Map()
       )
     ).not.toThrow();
+  });
+
+  it("lève VARIANT_PRODUCT_MISMATCH si la variante appartient à un autre produit", () => {
+    expect(() =>
+      validateVariantStock(
+        [{ variantId: "v-cheap", productId: "p-expensive", quantity: 1 }],
+        new Map([["v-cheap", { stock: 10, product_id: "p-cheap" }]])
+      )
+    ).toThrow("VARIANT_PRODUCT_MISMATCH:v-cheap");
   });
 });

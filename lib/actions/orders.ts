@@ -21,15 +21,55 @@ export type CheckoutFormData = {
 
 // Exported for unit testing
 export function validateVariantStock(
-  variantItems: { variantId: string | null; quantity: number }[],
-  variantMap: Map<string, { stock: number }>
+  variantItems: { variantId: string | null; productId: string; quantity: number }[],
+  variantMap: Map<string, { stock: number; product_id: string }>
 ): void {
   for (const item of variantItems) {
     if (!item.variantId) continue;
     const variant = variantMap.get(item.variantId);
     if (!variant) throw new Error(`VARIANT_NOT_FOUND:${item.variantId}`);
+    if (variant.product_id !== item.productId) throw new Error(`VARIANT_PRODUCT_MISMATCH:${item.variantId}`);
     if (variant.stock < item.quantity) throw new Error(`STOCK_INSUFFICIENT:${item.variantId}`);
   }
+}
+
+async function fetchVariantsByIds(db: Awaited<ReturnType<typeof getDb>>, ids: string[]) {
+  if (ids.length === 0) return [];
+  const BATCH = 100;
+  if (ids.length <= BATCH) {
+    return db.select().from(product_variants).where(inArray(product_variants.id, ids));
+  }
+  const chunks: string[][] = [];
+  for (let i = 0; i < ids.length; i += BATCH) chunks.push(ids.slice(i, i + BATCH));
+  const results = await Promise.all(
+    chunks.map((chunk) => db.select().from(product_variants).where(inArray(product_variants.id, chunk)))
+  );
+  return results.flat();
+}
+
+async function fetchProductsByIds(
+  db: Awaited<ReturnType<typeof getDb>>,
+  ids: string[]
+) {
+  if (ids.length === 0) return [];
+  const BATCH = 100;
+  if (ids.length <= BATCH) {
+    return db
+      .select({ id: products.id, price: products.price, is_active: products.is_active })
+      .from(products)
+      .where(inArray(products.id, ids));
+  }
+  const chunks: string[][] = [];
+  for (let i = 0; i < ids.length; i += BATCH) chunks.push(ids.slice(i, i + BATCH));
+  const results = await Promise.all(
+    chunks.map((chunk) =>
+      db
+        .select({ id: products.id, price: products.price, is_active: products.is_active })
+        .from(products)
+        .where(inArray(products.id, chunk))
+    )
+  );
+  return results.flat();
 }
 
 export async function createOrder(data: CheckoutFormData): Promise<{ orderId: string }> {
@@ -48,13 +88,8 @@ export async function createOrder(data: CheckoutFormData): Promise<{ orderId: st
   const productIds = data.items.map((i) => i.productId);
 
   const [dbVariants, dbProducts] = await Promise.all([
-    variantIds.length > 0
-      ? db.select().from(product_variants).where(inArray(product_variants.id, variantIds))
-      : Promise.resolve([]),
-    db
-      .select({ id: products.id, price: products.price, is_active: products.is_active })
-      .from(products)
-      .where(inArray(products.id, productIds)),
+    fetchVariantsByIds(db, variantIds),
+    fetchProductsByIds(db, productIds),
   ]);
 
   const variantMap = new Map(dbVariants.map((v) => [v.id, v]));
