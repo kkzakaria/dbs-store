@@ -8,7 +8,7 @@ import { getProductCached, getRelatedProducts } from "@/lib/data/products";
 import { ProductGallery } from "@/components/products/product-gallery";
 import { ProductSpecs } from "@/components/products/product-specs";
 import { ProductCard } from "@/components/products/product-card";
-import { AddToCartButton } from "@/components/products/add-to-cart-button";
+import { ProductActions } from "@/components/products/product-actions";
 import { formatPrice } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
@@ -94,36 +94,42 @@ export default async function ProductDetailPage({ params }: Props) {
           <p className="text-sm font-medium text-muted-foreground">{product.brand}</p>
           <h1 className="mt-1 text-2xl font-bold tracking-tight lg:text-3xl">{product.name}</h1>
 
-          <div className="mt-4 flex flex-wrap items-baseline gap-3">
-            <span className="text-3xl font-bold">{formatPrice(product.price)} FCFA</span>
-            {product.old_price ? (
-              <>
-                <span className="text-lg text-muted-foreground line-through">
-                  {formatPrice(product.old_price)} FCFA
-                </span>
-                <span className="rounded-full bg-red-100 px-2 py-0.5 text-sm font-semibold text-red-600">
-                  -{discount}%
-                </span>
-              </>
-            ) : null}
-          </div>
+          {/* Prix — affiché ici seulement si aucune variante (ProductActions le gère sinon) */}
+          {product.variants.length === 0 ? (
+            <div className="mt-4 flex flex-wrap items-baseline gap-3">
+              <span className="text-3xl font-bold">{formatPrice(product.price)} FCFA</span>
+              {product.old_price ? (
+                <>
+                  <span className="text-lg text-muted-foreground line-through">
+                    {formatPrice(product.old_price)} FCFA
+                  </span>
+                  <span className="rounded-full bg-red-100 px-2 py-0.5 text-sm font-semibold text-red-600">
+                    -{discount}%
+                  </span>
+                </>
+              ) : null}
+            </div>
+          ) : null}
 
-          <p className="mt-2 text-sm">
-            {isOutOfStock ? (
-              <span className="font-medium text-red-500">Rupture de stock</span>
-            ) : (
-              <span className="font-medium text-green-600">
-                En stock ({product.stock} disponible{product.stock > 1 ? "s" : ""})
-              </span>
-            )}
-          </p>
+          {/* Stock — affiché ici seulement si aucune variante */}
+          {product.variants.length === 0 ? (
+            <p className="mt-2 text-sm">
+              {isOutOfStock ? (
+                <span className="font-medium text-red-500">Rupture de stock</span>
+              ) : (
+                <span className="font-medium text-green-600">
+                  En stock ({product.stock} disponible{product.stock > 1 ? "s" : ""})
+                </span>
+              )}
+            </p>
+          ) : null}
 
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
             {product.description}
           </p>
 
-          <div className="mt-6 flex gap-3">
-            <AddToCartButton product={product} variant={null} />
+          <div className="mt-6">
+            <ProductActions product={product} />
           </div>
 
           {Object.keys(product.specs).length > 0 ? (
