@@ -1,7 +1,7 @@
 -- migrations/0006_product_variants.sql
 CREATE TABLE product_variants (
   id             TEXT    NOT NULL PRIMARY KEY,
-  product_id     TEXT    NOT NULL REFERENCES products(id),
+  product_id     TEXT    NOT NULL REFERENCES products(id) ON DELETE CASCADE,
   color_name     TEXT    NOT NULL,
   color_hex      TEXT    NOT NULL,
   stock          INTEGER NOT NULL DEFAULT 0 CHECK (stock >= 0),
