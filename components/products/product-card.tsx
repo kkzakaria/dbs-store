@@ -35,14 +35,19 @@ export function ProductCard({ product }: { product: Product }) {
   });
   const selectedVariant = product.variants[colorIdx] ?? null;
   const effectiveStock = selectedVariant !== null ? selectedVariant.stock : product.stock;
+  // isOutOfStock: drives button state — based on the selected variant's stock
   const isOutOfStock = selectedVariant !== null
+    ? selectedVariant.stock === 0
+    : product.stock === 0;
+  // isAllOOS: drives badge + image greyscale — true only when every variant is depleted
+  const isAllOOS = selectedVariant !== null
     ? product.variants.every((v) => v.stock === 0)
     : product.stock === 0;
   const isLowStock = effectiveStock > 0 && effectiveStock <= LOW_STOCK_THRESHOLD;
   const image = product.images[0] ?? "/images/products/placeholder.svg";
 
   // Badge unique en haut à gauche : rupture > promo (remise) > badge produit.
-  const badge = isOutOfStock
+  const badge = isAllOOS
     ? { label: "Rupture", variant: "out" as const }
     : product.old_price
       ? { label: `-${discountPercent(product.price, product.old_price)}%`, variant: "promo" as const }
@@ -68,7 +73,7 @@ export function ProductCard({ product }: { product: Product }) {
           fill
           className={cn(
             "object-contain p-6 transition-transform duration-500 ease-out group-hover:scale-105",
-            isOutOfStock && "opacity-60 grayscale"
+            isAllOOS && "opacity-60 grayscale"
           )}
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
         />
@@ -144,7 +149,7 @@ export function ProductCard({ product }: { product: Product }) {
                     }}
                     className={cn(
                       "size-3.5 rounded-full border transition-transform hover:scale-110",
-                      v.stock === 0 && "opacity-40"
+                      v.stock === 0 && "cursor-not-allowed opacity-40"
                     )}
                     style={{
                       backgroundColor: v.color_hex,

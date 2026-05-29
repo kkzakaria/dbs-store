@@ -136,4 +136,29 @@ describe("ProductCard", () => {
     render(<ProductCard product={outOfStock} />);
     expect(screen.queryByRole("button", { name: /ajouter au panier/i })).not.toBeInTheDocument();
   });
+
+  it("ajoute la variante sélectionnée au panier (v2 Blanc)", () => {
+    render(<ProductCard product={BASE} />);
+    fireEvent.click(screen.getByRole("button", { name: "Blanc" }));
+    fireEvent.click(screen.getByRole("button", { name: /ajouter au panier/i }));
+    const item = useCartStore.getState().items[0];
+    expect(item.variantId).toBe("v2");
+    expect(item.colorName).toBe("Blanc");
+  });
+
+  it("désactive le bouton Ajouter quand la variante sélectionnée est épuisée", () => {
+    const oneOOS = {
+      ...BASE,
+      // Noir (index 0) is OOS, Blanc (index 1) has stock — findIndex selects Blanc by default
+      variants: [
+        { ...BASE.variants[0], stock: 0 },  // Noir, OOS
+        { ...BASE.variants[1], stock: 3 },  // Blanc, in stock
+      ],
+    };
+    render(<ProductCard product={oneOOS} />);
+    // Default selected is Blanc (in stock) — "Ajouter au panier" button should be enabled
+    expect(screen.getByRole("button", { name: /ajouter au panier/i })).not.toBeDisabled();
+    // Noir swatch is disabled because its stock is 0
+    expect(screen.getByRole("button", { name: "Noir" })).toBeDisabled();
+  });
 });
