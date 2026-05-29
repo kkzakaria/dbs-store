@@ -133,4 +133,13 @@ describe("useCartStore — total et count", () => {
     });
     expect(useCartStore.getState().count()).toBe(2);
   });
+
+  it("vide le panier", () => {
+    act(() => {
+      useCartStore.getState().addItem(variantItem);
+      useCartStore.getState().addItem(noVariantItem);
+      useCartStore.getState().clear();
+    });
+    expect(useCartStore.getState().items).toHaveLength(0);
+  });
 });
