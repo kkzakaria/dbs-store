@@ -14,13 +14,22 @@ export const CartItemRow = memo(function CartItemRow({ item }: { item: CartItem 
       </div>
       <div className="flex flex-1 flex-col gap-1">
         <p className="text-sm font-medium leading-snug line-clamp-2">{item.name}</p>
+        {item.colorName && item.colorHex ? (
+          <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+            <span
+              className="size-2.5 shrink-0 rounded-full border border-black/10"
+              style={{ backgroundColor: item.colorHex }}
+            />
+            {item.colorName}
+          </span>
+        ) : null}
         <p className="text-sm font-bold">{formatPrice(item.price)} FCFA</p>
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
             size="icon"
             className="size-6"
-            onClick={() => useCartStore.getState().setQuantity(item.variantId ?? item.productId, item.quantity - 1)} // TODO Task 11: key uses variantId
+            onClick={() => useCartStore.getState().setQuantity(item.variantId ?? item.productId, item.quantity - 1)}
             aria-label="Diminuer la quantité"
           >
             <Minus className="size-3" />
@@ -30,7 +39,7 @@ export const CartItemRow = memo(function CartItemRow({ item }: { item: CartItem 
             variant="outline"
             size="icon"
             className="size-6"
-            onClick={() => useCartStore.getState().setQuantity(item.variantId ?? item.productId, item.quantity + 1)} // TODO Task 11: key uses variantId
+            onClick={() => useCartStore.getState().setQuantity(item.variantId ?? item.productId, item.quantity + 1)}
             aria-label="Augmenter la quantité"
           >
             <Plus className="size-3" />
@@ -39,7 +48,7 @@ export const CartItemRow = memo(function CartItemRow({ item }: { item: CartItem 
             variant="ghost"
             size="icon"
             className="ml-auto size-6 text-muted-foreground hover:text-destructive"
-            onClick={() => useCartStore.getState().removeItem(item.variantId ?? item.productId)} // TODO Task 11: key uses variantId
+            onClick={() => useCartStore.getState().removeItem(item.variantId ?? item.productId)}
             aria-label="Supprimer"
           >
             <Trash2 className="size-3" />
