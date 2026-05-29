@@ -7,6 +7,7 @@ import { orders, order_items, products, product_variants } from "@/lib/db/schema
 import type { PaymentMethod } from "@/lib/db/schema";
 import { getAuth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { validateVariantStock } from "@/lib/order-utils";
 import type { CartItemInput } from "@/lib/order-utils";
 
 export type CheckoutFormData = {
@@ -19,19 +20,6 @@ export type CheckoutFormData = {
   items: CartItemInput[];
 };
 
-// Exported for unit testing
-export function validateVariantStock(
-  variantItems: { variantId: string | null; productId: string; quantity: number }[],
-  variantMap: Map<string, { stock: number; product_id: string }>
-): void {
-  for (const item of variantItems) {
-    if (!item.variantId) continue;
-    const variant = variantMap.get(item.variantId);
-    if (!variant) throw new Error(`VARIANT_NOT_FOUND:${item.variantId}`);
-    if (variant.product_id !== item.productId) throw new Error(`VARIANT_PRODUCT_MISMATCH:${item.variantId}`);
-    if (variant.stock < item.quantity) throw new Error(`STOCK_INSUFFICIENT:${item.variantId}`);
-  }
-}
 
 async function fetchVariantsByIds(db: Awaited<ReturnType<typeof getDb>>, ids: string[]) {
   if (ids.length === 0) return [];

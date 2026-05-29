@@ -9,3 +9,16 @@ export function buildOrder(items: CartItemInput[], paymentMethod: PaymentMethod)
   const shipping_fee = 0; // Livraison gratuite phase initiale
   return { subtotal, shipping_fee, total: subtotal + shipping_fee, paymentMethod };
 }
+
+export function validateVariantStock(
+  variantItems: { variantId: string | null; productId: string; quantity: number }[],
+  variantMap: Map<string, { stock: number; product_id: string }>
+): void {
+  for (const item of variantItems) {
+    if (!item.variantId) continue;
+    const variant = variantMap.get(item.variantId);
+    if (!variant) throw new Error(`VARIANT_NOT_FOUND:${item.variantId}`);
+    if (variant.product_id !== item.productId) throw new Error(`VARIANT_PRODUCT_MISMATCH:${item.variantId}`);
+    if (variant.stock < item.quantity) throw new Error(`STOCK_INSUFFICIENT:${item.variantId}`);
+  }
+}
