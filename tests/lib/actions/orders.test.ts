@@ -4,6 +4,7 @@ vi.mock("@/lib/db", () => ({ getDb: vi.fn() }));
 vi.mock("@/lib/auth", () => ({ auth: { api: { getSession: vi.fn() } } }));
 
 import { buildOrder } from "@/lib/order-utils";
+import { validateVariantStock } from "@/lib/actions/orders";
 
 describe("buildOrder", () => {
   it("calculates correct totals for COD", () => {
@@ -48,5 +49,43 @@ describe("buildOrder", () => {
       { productId: "p1", variantId: null, name: "A", slug: "a", price: 10_000, image: "/a.svg", colorName: null, colorHex: null, quantity: 1 },
     ];
     expect(buildOrder(items, "cod").paymentMethod).toBe("cod");
+  });
+});
+
+describe("validateVariantStock", () => {
+  it("ne lève pas d'erreur si stock suffisant", () => {
+    expect(() =>
+      validateVariantStock(
+        [{ variantId: "v1", quantity: 2 }],
+        new Map([["v1", { stock: 5 }]])
+      )
+    ).not.toThrow();
+  });
+
+  it("lève STOCK_INSUFFICIENT si stock insuffisant", () => {
+    expect(() =>
+      validateVariantStock(
+        [{ variantId: "v1", quantity: 3 }],
+        new Map([["v1", { stock: 2 }]])
+      )
+    ).toThrow("STOCK_INSUFFICIENT:v1");
+  });
+
+  it("lève VARIANT_NOT_FOUND si la variante n'existe pas en DB", () => {
+    expect(() =>
+      validateVariantStock(
+        [{ variantId: "v-unknown", quantity: 1 }],
+        new Map()
+      )
+    ).toThrow("VARIANT_NOT_FOUND:v-unknown");
+  });
+
+  it("ignore les items sans variantId", () => {
+    expect(() =>
+      validateVariantStock(
+        [{ variantId: null, quantity: 5 }],
+        new Map()
+      )
+    ).not.toThrow();
   });
 });
