@@ -57,7 +57,7 @@ function parseProduct(row: ProductRow): Product {
     console.error(`[products] JSON invalide dans colors pour "${row.slug}"`);
   }
 
-  return { ...rest, images, specs, colors, badge: _badge as ProductBadge | null };
+  return { ...rest, images, specs, colors, badge: _badge as ProductBadge | null, variants: [] };
 }
 
 export async function getProductsByCategory(

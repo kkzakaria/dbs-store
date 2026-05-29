@@ -25,6 +25,7 @@ const inStockProduct = {
   rating: null,
   reviews: 0,
   colors: [],
+  variants: [],
   is_active: true,
   created_at: new Date(),
 };

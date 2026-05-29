@@ -28,6 +28,22 @@ export type ProductBadge = "Nouveau" | "Populaire" | "Promo";
 // Variante de coloris affichée dans la carte produit
 export type ProductColor = { name: string; hex: string };
 
+// ── Product Variants ──────────────────────────────────────────────────────────
+
+export const product_variants = sqliteTable("product_variants", {
+  id: text("id").primaryKey(),
+  product_id: text("product_id").notNull().references(() => products.id),
+  color_name: text("color_name").notNull(),
+  color_hex: text("color_hex").notNull(),
+  stock: integer("stock").notNull().default(0),
+  price_override: integer("price_override"),
+  sort_order: integer("sort_order").notNull().default(0),
+  created_at: integer("created_at", { mode: "timestamp" }).notNull(),
+});
+
+export type ProductVariant = typeof product_variants.$inferSelect;
+export type NewProductVariant = typeof product_variants.$inferInsert;
+
 // Ligne brute telle que retournée par Drizzle (images/specs/colors en JSON string)
 type ProductRow = typeof products.$inferSelect;
 
@@ -37,6 +53,7 @@ export type Product = Omit<ProductRow, "images" | "specs" | "badge" | "colors"> 
   specs: Record<string, string>;
   badge: ProductBadge | null;
   colors: ProductColor[];
+  variants: ProductVariant[];
 };
 
 export type NewProduct = typeof products.$inferInsert;
@@ -71,9 +88,12 @@ export const order_items = sqliteTable("order_items", {
   id: text("id").primaryKey(),
   order_id: text("order_id").notNull().references(() => orders.id),
   product_id: text("product_id").notNull(),
+  variant_id: text("variant_id"),
   product_name: text("product_name").notNull(),
   product_slug: text("product_slug").notNull(),
   product_image: text("product_image").notNull(),
+  color_name: text("color_name"),
+  color_hex: text("color_hex"),
   unit_price: integer("unit_price").notNull(),
   quantity: integer("quantity").notNull(),
   line_total: integer("line_total").notNull(),

@@ -32,6 +32,7 @@ const BASE = {
     { name: "Noir", hex: "#0e0e10" },
     { name: "Blanc", hex: "#f4f3ee" },
   ],
+  variants: [],
   is_active: true,
   created_at: new Date(),
 };
