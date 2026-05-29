@@ -29,10 +29,16 @@ function discountPercent(price: number, oldPrice: number) {
 export function ProductCard({ product }: { product: Product }) {
   const addItem = useCartStore((s) => s.addItem);
   const [liked, setLiked] = useState(false);
-  const [colorIdx, setColorIdx] = useState(0);
-
-  const isOutOfStock = product.stock === 0;
-  const isLowStock = product.stock > 0 && product.stock <= LOW_STOCK_THRESHOLD;
+  const [colorIdx, setColorIdx] = useState(() => {
+    const firstInStock = product.variants.findIndex((v) => v.stock > 0);
+    return firstInStock >= 0 ? firstInStock : 0;
+  });
+  const selectedVariant = product.variants[colorIdx] ?? null;
+  const effectiveStock = selectedVariant !== null ? selectedVariant.stock : product.stock;
+  const isOutOfStock = selectedVariant !== null
+    ? product.variants.every((v) => v.stock === 0)
+    : product.stock === 0;
+  const isLowStock = effectiveStock > 0 && effectiveStock <= LOW_STOCK_THRESHOLD;
   const image = product.images[0] ?? "/images/products/placeholder.svg";
 
   // Badge unique en haut à gauche : rupture > promo (remise) > badge produit.
@@ -103,7 +109,7 @@ export function ProductCard({ product }: { product: Product }) {
           {isLowStock ? (
             <span className="flex items-center gap-1.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-amber-600">
               <span className="size-1.5 rounded-full bg-amber-500 ring-2 ring-amber-500/20" />
-              Plus que {product.stock}
+              Plus que {effectiveStock}
             </span>
           ) : null}
         </div>
@@ -112,7 +118,7 @@ export function ProductCard({ product }: { product: Product }) {
           {product.name}
         </h3>
 
-        {product.rating != null || product.colors.length > 0 ? (
+        {product.rating != null || product.variants.length > 0 ? (
           <div className="flex items-center justify-between gap-2">
             {product.rating != null ? (
               <span className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -123,21 +129,25 @@ export function ProductCard({ product }: { product: Product }) {
             ) : (
               <span />
             )}
-            {product.colors.length > 0 ? (
+            {product.variants.length > 0 ? (
               <span className="flex gap-1.5">
-                {product.colors.map((c, i) => (
+                {product.variants.map((v, i) => (
                   <button
-                    key={c.name}
+                    key={v.id}
                     type="button"
-                    aria-label={c.name}
+                    aria-label={v.color_name}
                     aria-pressed={i === colorIdx}
+                    disabled={v.stock === 0}
                     onClick={(e) => {
                       e.preventDefault();
                       setColorIdx(i);
                     }}
-                    className="size-3.5 rounded-full border transition-transform hover:scale-110"
+                    className={cn(
+                      "size-3.5 rounded-full border transition-transform hover:scale-110",
+                      v.stock === 0 && "opacity-40"
+                    )}
                     style={{
-                      backgroundColor: c.hex,
+                      backgroundColor: v.color_hex,
                       borderColor: i === colorIdx ? "var(--primary)" : "rgba(0,0,0,0.15)",
                       boxShadow: i === colorIdx ? "0 0 0 2px var(--card) inset" : undefined,
                     }}
@@ -186,13 +196,13 @@ export function ProductCard({ product }: { product: Product }) {
                   e.preventDefault();
                   addItem({
                     productId: product.id,
-                    variantId: null,
+                    variantId: selectedVariant?.id ?? null,
                     slug: product.slug,
                     name: product.name,
-                    price: product.price,
+                    price: selectedVariant?.price_override ?? product.price,
                     image,
-                    colorName: null,
-                    colorHex: null,
+                    colorName: selectedVariant?.color_name ?? null,
+                    colorHex: selectedVariant?.color_hex ?? null,
                   });
                 }}
               >
