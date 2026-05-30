@@ -77,10 +77,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
       ) : null}
 
       <div className="mt-8 flex flex-col gap-8 lg:flex-row">
-        <ProductFilters
-          brands={brands}
-          current={{ brand: filters.marque, prix_max: filters.prix_max, tri: filters.tri }}
-        />
+        <ProductFilters brands={brands} value={{ brands: [] }} onChange={() => {}} />
 
         {items.length === 0 ? (
           <div className="flex flex-1 flex-col items-center justify-center py-20 text-center">
