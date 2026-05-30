@@ -7,12 +7,12 @@
 //
 // Idempotent: re-running signs in if the owner already exists and skips the org
 // if its slug is taken.
-
+//
 const BASE_URL = process.env.SEED_BASE_URL ?? "http://localhost:33000";
 // Origin must be a trusted origin (better-auth checks it against baseURL on
-// mutating endpoints like organization/create). Defaults to the prod baseURL
-// configured in wrangler.jsonc.
-const ORIGIN = process.env.SEED_ORIGIN ?? "https://dbs-store.ci";
+// mutating endpoints like organization/create). Defaults to BASE_URL so local
+// and prod seeding both work without extra configuration.
+const ORIGIN = process.env.SEED_ORIGIN ?? BASE_URL;
 
 const OWNER_EMAIL = "admin@dbs-store.ci";
 const OWNER_PASSWORD = "changeme123!";
@@ -123,7 +123,8 @@ async function seed() {
   console.log(`\nSeed complete!`);
   console.log(`  Admin  — ${OWNER_EMAIL} / ${OWNER_PASSWORD}`);
   console.log(`  Client — ${CLIENT_EMAIL} / ${CLIENT_PASSWORD}`);
-  console.log("\nChange the passwords after first login!");
+  console.log("\nOTP codes are logged to the dev server console ([emailOTP DEV]).");
+  console.log("Change the passwords after first login!");
 }
 
 seed().catch((error) => {
