@@ -20,6 +20,10 @@ const OWNER_NAME = "Admin DBS";
 const ORG_NAME = "DBS Store";
 const ORG_SLUG = "dbs-store";
 
+const CLIENT_EMAIL = "client@dbs-store.ci";
+const CLIENT_PASSWORD = "changeme123!";
+const CLIENT_NAME = "Client Test";
+
 function sessionCookie(res: Response): string {
   const list = res.headers.getSetCookie?.() ?? [];
   return list.map((c) => c.split(";")[0]).join("; ");
@@ -97,8 +101,29 @@ async function seed() {
     }
   }
 
-  console.log(`\nSeed complete!\n  Login: ${OWNER_EMAIL}\n  Password: ${OWNER_PASSWORD}`);
-  console.log("\nChange the password after first login!");
+  // 3. Create the test client account (no org membership needed).
+  const clientSignUp = await post("/api/auth/sign-up/email", {
+    name: CLIENT_NAME,
+    email: CLIENT_EMAIL,
+    password: CLIENT_PASSWORD,
+  });
+
+  if (clientSignUp.res.ok) {
+    console.log(`✓ Client account created: ${CLIENT_EMAIL}`);
+  } else {
+    const msg = `${clientSignUp.data.code ?? ""} ${clientSignUp.data.message ?? ""}`.toLowerCase();
+    if (clientSignUp.res.status === 422 || msg.includes("exist")) {
+      console.log("• Client already exists — skipping");
+    } else {
+      console.error(`Client sign-up failed (${clientSignUp.res.status}):`, JSON.stringify(clientSignUp.data));
+      process.exit(1);
+    }
+  }
+
+  console.log(`\nSeed complete!`);
+  console.log(`  Admin  — ${OWNER_EMAIL} / ${OWNER_PASSWORD}`);
+  console.log(`  Client — ${CLIENT_EMAIL} / ${CLIENT_PASSWORD}`);
+  console.log("\nChange the passwords after first login!");
 }
 
 seed().catch((error) => {
