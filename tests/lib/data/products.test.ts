@@ -8,6 +8,8 @@ import {
   getProduct,
   getRelatedProducts,
   getPromoProducts,
+  getCategoryBrands,
+  countProductsByCategory,
 } from "@/lib/data/products";
 
 function createTestDb() {
@@ -92,7 +94,7 @@ describe("getProductsByCategory", () => {
     const db = createTestDb();
     const samsung = { ...BASE, id: "s25", slug: "s25", brand: "Samsung", subcategory_id: null };
     await db.insert(schema.products).values([BASE, samsung]);
-    const result = await getProductsByCategory(db, "smartphones", { brand: "Apple" });
+    const result = await getProductsByCategory(db, "smartphones", { brands: ["Apple"] });
     expect(result).toHaveLength(1);
     expect(result[0].brand).toBe("Apple");
   });
@@ -197,6 +199,64 @@ describe("getPromoProducts", () => {
     const result = await getPromoProducts(db);
     expect(result).toHaveLength(1);
     expect(result[0].slug).toBe("promo");
+  });
+});
+
+describe("getProductsByCategory — multi-marques", () => {
+  it("filtre sur plusieurs marques avec brands[]", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values([
+      { ...BASE, id: "a", slug: "a", brand: "Apple" },
+      { ...BASE, id: "b", slug: "b", brand: "Samsung" },
+      { ...BASE, id: "c", slug: "c", brand: "Xiaomi" },
+    ]);
+    const result = await getProductsByCategory(db, "smartphones", { brands: ["Apple", "Xiaomi"] });
+    expect(result.map((p) => p.brand).sort()).toEqual(["Apple", "Xiaomi"]);
+  });
+
+  it("combine fourchette de prix et marques", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values([
+      { ...BASE, id: "a", slug: "a", brand: "Apple", price: 100000 },
+      { ...BASE, id: "b", slug: "b", brand: "Apple", price: 900000 },
+    ]);
+    const result = await getProductsByCategory(db, "smartphones", { brands: ["Apple"], prix_min: 50000, prix_max: 200000 });
+    expect(result).toHaveLength(1);
+    expect(result[0].id).toBe("a");
+  });
+});
+
+describe("getCategoryBrands", () => {
+  it("renvoie la liste complète des marques, indépendamment des filtres", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values([
+      { ...BASE, id: "a", slug: "a", brand: "Apple" },
+      { ...BASE, id: "b", slug: "b", brand: "Samsung" },
+      { ...BASE, id: "c", slug: "c", brand: "Apple" },
+    ]);
+    const brands = await getCategoryBrands(db, "smartphones");
+    expect(brands).toEqual(["Apple", "Samsung"]); // distinctes, triées
+  });
+
+  it("exclut les produits inactifs", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values([
+      { ...BASE, id: "a", slug: "a", brand: "Apple" },
+      { ...BASE, id: "b", slug: "b", brand: "Inactive", is_active: false },
+    ]);
+    expect(await getCategoryBrands(db, "smartphones")).toEqual(["Apple"]);
+  });
+});
+
+describe("countProductsByCategory", () => {
+  it("compte les produits correspondant aux filtres", async () => {
+    const db = createTestDb();
+    await db.insert(schema.products).values([
+      { ...BASE, id: "a", slug: "a", brand: "Apple" },
+      { ...BASE, id: "b", slug: "b", brand: "Samsung" },
+    ]);
+    expect(await countProductsByCategory(db, "smartphones", { brands: ["Apple"] })).toBe(1);
+    expect(await countProductsByCategory(db, "smartphones", {})).toBe(2);
   });
 });
 

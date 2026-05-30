@@ -61,3 +61,6 @@ image-catalogue/
 
 # Local dev secrets (better-auth)
 .dev.vars
+
+# Brainstorming visual companion
+.superpowers/
