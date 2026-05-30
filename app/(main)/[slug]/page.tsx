@@ -79,29 +79,27 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         </div>
       ) : null}
 
-      {/* Barre d'outils sticky : tiroir mobile + tri + puces de filtres actifs */}
-      <div className="sticky top-20 z-30 -mx-4 mt-6 border-b bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 lg:-mx-6 lg:px-6">
-        <div className="flex items-center gap-4">
-          <div className="lg:hidden">
-            <FilterDrawer
-              brands={brands}
-              current={current}
-              categoryId={category.id}
-              initialCount={items.length}
-            />
-          </div>
-          <div className="ml-auto">
-            <SortSelect current={current.tri} />
-          </div>
+      {/* Barre d'outils : tiroir mobile + tri */}
+      <div className="mt-6 flex items-center gap-4">
+        <div className="lg:hidden">
+          <FilterDrawer
+            brands={brands}
+            current={current}
+            categoryId={category.id}
+            initialCount={items.length}
+          />
         </div>
-
-        {/* Puces de filtres actifs */}
-        {hasActiveFilters ? (
-          <div className="mt-3">
-            <ActiveFilters current={current} />
-          </div>
-        ) : null}
+        <div className="ml-auto">
+          <SortSelect current={current.tri} />
+        </div>
       </div>
+
+      {/* Puces de filtres actifs */}
+      {hasActiveFilters ? (
+        <div className="mt-4">
+          <ActiveFilters current={current} />
+        </div>
+      ) : null}
 
       <div className="mt-6 flex flex-col gap-8 lg:flex-row">
         <div className="hidden lg:block">
