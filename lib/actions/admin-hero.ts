@@ -27,11 +27,13 @@ export interface HeroSlideFormData {
 const VALID_TEXT_ALIGNS: TextAlign[] = ["left", "center", "right"];
 const MAX_ACTIVE_SLIDES = 5;
 
-function validateSlideData(data: HeroSlideFormData): { error: string } | null {
+export function validateSlideData(data: HeroSlideFormData): { error: string } | null {
   if (!data.title.trim()) return { error: "Le titre est requis" };
-  if (!data.image_url.trim()) return { error: "L'image est requise" };
-  if (!data.image_url.trim().startsWith("https://"))
-    return { error: "L'URL de l'image doit commencer par https://" };
+  const img = data.image_url.trim();
+  if (!img) return { error: "L'image est requise" };
+  // Image servie par le binding R2 (/api/media/...) ou URL externe https héritée.
+  if (!img.startsWith("/api/media/") && !img.startsWith("https://"))
+    return { error: "Image invalide" };
   if (!VALID_TEXT_ALIGNS.includes(data.text_align)) return { error: "Alignement de texte invalide" };
   if (data.overlay_opacity < 0 || data.overlay_opacity > 100)
     return { error: "L'opacité doit être entre 0 et 100" };
