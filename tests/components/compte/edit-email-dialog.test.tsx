@@ -35,4 +35,19 @@ describe("EditEmailDialog", () => {
     });
     expect(await screen.findByText(/lien de confirmation/i)).toBeInTheDocument();
   });
+
+  it("affiche l'erreur traduite quand la vérification email n'est pas activée et ne passe pas en état 'envoyé'", async () => {
+    vi.mocked(changeEmail).mockResolvedValue({
+      data: null,
+      error: { message: "Verification email isn't enabled" },
+    } as never);
+    const user = userEvent.setup();
+    render(<EditEmailDialog open onOpenChange={() => {}} currentEmail="a@b.com" />);
+    await user.type(screen.getByLabelText(/nouvel email/i), "nouveau@exemple.com");
+    await user.click(screen.getByRole("button", { name: /envoyer|confirmer/i }));
+    expect(
+      await screen.findByText(/Vous devez d'abord vérifier votre adresse email actuelle\./i)
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/lien de confirmation/i)).not.toBeInTheDocument();
+  });
 });

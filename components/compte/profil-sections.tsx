@@ -11,9 +11,10 @@ interface ProfilSectionsProps {
   name: string;
   email: string;
   canChangePassword: boolean;
+  canChangeEmail: boolean;
 }
 
-export function ProfilSections({ name, email, canChangePassword }: ProfilSectionsProps) {
+export function ProfilSections({ name, email, canChangePassword, canChangeEmail }: ProfilSectionsProps) {
   const [editName, setEditName] = useState(false);
   const [editEmail, setEditEmail] = useState(false);
   const [editPassword, setEditPassword] = useState(false);
@@ -43,9 +44,13 @@ export function ProfilSections({ name, email, canChangePassword }: ProfilSection
               </dt>
               <dd className="mt-1 truncate text-sm">{email}</dd>
             </div>
-            <Button variant="outline" size="sm" onClick={() => setEditEmail(true)}>
-              Modifier
-            </Button>
+            {canChangeEmail ? (
+              <Button variant="outline" size="sm" onClick={() => setEditEmail(true)}>
+                Modifier
+              </Button>
+            ) : (
+              <span className="text-xs text-muted-foreground">Vérifiez votre email d&apos;abord</span>
+            )}
           </div>
         </dl>
       </section>
@@ -82,12 +87,14 @@ export function ProfilSections({ name, email, canChangePassword }: ProfilSection
         onOpenChange={setEditName}
         currentName={name}
       />
-      <EditEmailDialog
-        key={editEmail ? "email-open" : "email-closed"}
-        open={editEmail}
-        onOpenChange={setEditEmail}
-        currentEmail={email}
-      />
+      {canChangeEmail ? (
+        <EditEmailDialog
+          key={editEmail ? "email-open" : "email-closed"}
+          open={editEmail}
+          onOpenChange={setEditEmail}
+          currentEmail={email}
+        />
+      ) : null}
       {canChangePassword ? (
         <ChangePasswordDialog
           key={editPassword ? "pwd-open" : "pwd-closed"}

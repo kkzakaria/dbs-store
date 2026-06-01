@@ -1,6 +1,14 @@
 // tests/lib/auth-utils.test.ts
 import { describe, it, expect } from "vitest";
-import { hasCredentialAccount } from "@/lib/auth-utils";
+import { hasCredentialAccount, translateAuthError } from "@/lib/auth-utils";
+
+describe("translateAuthError", () => {
+  it("traduit le message 'Verification email isn't enabled' en français", () => {
+    expect(
+      translateAuthError("Verification email isn't enabled", "fallback")
+    ).toBe("Vous devez d'abord vérifier votre adresse email actuelle.");
+  });
+});
 
 describe("hasCredentialAccount", () => {
   it("retourne true si un compte credential existe", () => {

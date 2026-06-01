@@ -52,6 +52,7 @@ export default async function ProfilPage() {
           name={user.name}
           email={user.email}
           canChangePassword={canChangePassword}
+          canChangeEmail={Boolean(user.emailVerified)}
         />
       </div>
     </div>

@@ -35,7 +35,7 @@ export function EditEmailDialog({ open, onOpenChange, currentEmail }: EditEmailD
       setError("Adresse email invalide.");
       return;
     }
-    if (trimmed === currentEmail) {
+    if (trimmed.toLowerCase() === currentEmail.toLowerCase()) {
       setError("Cette adresse est déjà la vôtre.");
       return;
     }
