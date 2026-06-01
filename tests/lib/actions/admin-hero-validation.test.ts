@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { validateSlideData } from "@/lib/actions/admin-hero";
+import { validateSlideData } from "@/lib/actions/hero-validation";
 import type { HeroSlideFormData } from "@/lib/actions/admin-hero";
 
 const base: HeroSlideFormData = {
