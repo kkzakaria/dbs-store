@@ -21,9 +21,14 @@ export async function GET(
   const object = await env.MEDIA.get(key);
   if (!object) return new Response("Not found", { status: 404 });
 
+  // En dev, @opennextjs/cloudflare proxifie le binding R2 : passer un argument
+  // non-POJO (writeHttpMetadata(Headers)) ou streamer object.body échoue
+  // (DevalueError). On matérialise les octets et on lit le content-type depuis
+  // httpMetadata — primitives proxy-safe qui fonctionnent en dev comme en prod.
+  const buffer = await object.arrayBuffer();
   const headers = new Headers();
-  object.writeHttpMetadata(headers);
-  headers.set("etag", object.httpEtag);
+  headers.set("Content-Type", object.httpMetadata?.contentType ?? "application/octet-stream");
+  headers.set("ETag", object.httpEtag);
   headers.set("Cache-Control", "public, max-age=31536000, immutable");
-  return new Response(object.body, { headers });
+  return new Response(buffer, { headers });
 }

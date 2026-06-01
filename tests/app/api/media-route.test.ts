@@ -30,16 +30,38 @@ describe("GET /api/media/[...key]", () => {
     expect(res.status).toBe(404);
   });
 
-  it("200 + content-type + cache long quand l'objet existe", async () => {
+  it("200 avec content-type, etag et cache long (sans writeHttpMetadata/body)", async () => {
+    // En dev, @opennextjs/cloudflare proxifie le binding : writeHttpMetadata(Headers)
+    // et object.body échouent (DevalueError). On lit via arrayBuffer + httpMetadata.
+    const arrayBuffer = vi.fn().mockResolvedValue(new ArrayBuffer(3));
     getMock.mockResolvedValueOnce({
-      body: new ReadableStream(),
+      httpMetadata: { contentType: "image/png" },
       httpEtag: '"abc"',
-      writeHttpMetadata: (h: Headers) => h.set("content-type", "image/png"),
+      arrayBuffer,
+      // pièges à éviter : présents mais NON utilisés par la route
+      body: new ReadableStream(),
+      writeHttpMetadata: () => {
+        throw new Error("writeHttpMetadata ne doit pas être appelé");
+      },
     });
     const res = await GET(new Request("http://x/api/media/banners/x.png"), ctx(["banners", "x.png"]));
     expect(res.status).toBe(200);
     expect(res.headers.get("content-type")).toBe("image/png");
+    expect(res.headers.get("etag")).toBe('"abc"');
     expect(res.headers.get("cache-control")).toContain("immutable");
+    expect(arrayBuffer).toHaveBeenCalledTimes(1);
     expect(getMock).toHaveBeenCalledWith("banners/x.png");
+    expect(await res.arrayBuffer()).toBeInstanceOf(ArrayBuffer);
+  });
+
+  it("content-type par défaut si httpMetadata absent", async () => {
+    getMock.mockResolvedValueOnce({
+      httpMetadata: undefined,
+      httpEtag: '"x"',
+      arrayBuffer: vi.fn().mockResolvedValue(new ArrayBuffer(1)),
+    });
+    const res = await GET(new Request("http://x/api/media/products/y.bin"), ctx(["products", "y.bin"]));
+    expect(res.status).toBe(200);
+    expect(res.headers.get("content-type")).toBe("application/octet-stream");
   });
 });
