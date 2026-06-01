@@ -16,6 +16,14 @@
       "migrations_dir": "migrations"
     }
   ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      // TODO(before deploy): replace with the real bucket name currently
+      // served by cdn.dbs-store.ci. Local dev (miniflare) auto-creates it.
+      "bucket_name": "dbs-store-media"
+    }
+  ],
   "kv_namespaces": [
     {
       "binding": "NEXT_INC_CACHE_KV",
