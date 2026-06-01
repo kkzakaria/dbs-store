@@ -19,9 +19,8 @@
   "r2_buckets": [
     {
       "binding": "MEDIA",
-      // TODO(before deploy): replace with the real bucket name currently
-      // served by cdn.dbs-store.ci. Local dev (miniflare) auto-creates it.
-      "bucket_name": "dbs-store-media"
+      // Bucket servi par cdn.dbs-store.ci. En dev, miniflare le simule en local.
+      "bucket_name": "dbs-store"
     }
   ],
   "kv_namespaces": [
