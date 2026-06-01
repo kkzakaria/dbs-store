@@ -19,7 +19,9 @@
   "r2_buckets": [
     {
       "binding": "MEDIA",
-      // Bucket servi par cdn.dbs-store.ci. En dev, miniflare le simule en local.
+      // L'app lit/écrit ce bucket via le binding (uploads servis en same-origin
+      // par /api/media/[...key]). cdn.dbs-store.ci reste le chemin public/edge
+      // pour les URLs https héritées. En dev, miniflare simule le bucket en local.
       "bucket_name": "dbs-store"
     }
   ],
