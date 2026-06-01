@@ -191,7 +191,7 @@ export function buildChangeEmailVerificationEmail(
                 Cliquez sur le bouton ci-dessous pour confirmer. Ce lien est valable un temps limité.
               </p>
               <div style="text-align:center;margin-bottom:32px;">
-                <a href="${url}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:8px;font-size:15px;font-weight:600;">Confirmer le changement</a>
+                <a href="${escapeHtml(url)}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:8px;font-size:15px;font-weight:600;">Confirmer le changement</a>
               </div>
               <p style="margin:0;font-size:13px;color:#94a3b8;line-height:1.6;">
                 Si vous n'êtes pas à l'origine de cette demande, ignorez cet email. Votre adresse reste inchangée.
