@@ -1,0 +1,38 @@
+"use client";
+
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { cn } from "@/lib/utils";
+
+const nav = [
+  { label: "Mon profil", href: "/compte/profil" },
+  { label: "Mes commandes", href: "/compte/commandes" },
+];
+
+export function CompteNav() {
+  const pathname = usePathname();
+
+  return (
+    <nav className="flex gap-2 lg:w-48 lg:flex-col">
+      {nav.map((item) => {
+        const active =
+          pathname === item.href || pathname.startsWith(`${item.href}/`);
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            aria-current={active ? "page" : undefined}
+            className={cn(
+              "rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              active
+                ? "bg-muted text-foreground"
+                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+            )}
+          >
+            {item.label}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
