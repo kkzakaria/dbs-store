@@ -1,13 +1,14 @@
 "use client";
 
-import { useState } from "react";
-import { Loader2, Upload, Link as LinkIcon } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Loader2, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { generateBannerPresignedUrl } from "@/lib/actions/admin-upload";
+import { uploadBannerImage } from "@/lib/actions/admin-upload";
+import { HeroSlidePreview } from "@/components/admin/hero-slide-preview";
 // isRedirectError n'est pas exporté depuis next/navigation en Next.js 16 — import interne nécessaire.
 import { isRedirectError } from "next/dist/client/components/redirect-error";
 import type { HeroSlide, TextAlign } from "@/lib/db/schema";
@@ -29,12 +30,14 @@ export function HeroSlideForm({ initial, action, submitLabel }: HeroSlideFormPro
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
-  const [imageMode, setImageMode] = useState<"upload" | "url">("url");
 
   const [title, setTitle] = useState(initial?.title ?? "");
   const [subtitle, setSubtitle] = useState(initial?.subtitle ?? "");
   const [badge, setBadge] = useState(initial?.badge ?? "");
+  // URL https publique persistée (envoyée au serveur).
   const [imageUrl, setImageUrl] = useState(initial?.image_url ?? "");
+  // Aperçu local instantané (blob://) affiché pendant l'upload, sinon imageUrl.
+  const [previewUrl, setPreviewUrl] = useState<string | null>(initial?.image_url ?? null);
   const [textAlign, setTextAlign] = useState<TextAlign>(initial?.text_align ?? "center");
   const [overlayColor, setOverlayColor] = useState(initial?.overlay_color ?? "#000000");
   const [overlayOpacity, setOverlayOpacity] = useState(initial?.overlay_opacity ?? 40);
@@ -44,25 +47,49 @@ export function HeroSlideForm({ initial, action, submitLabel }: HeroSlideFormPro
   const [ctaSecondaryHref, setCtaSecondaryHref] = useState(initial?.cta_secondary_href ?? "");
   const [isActive, setIsActive] = useState(initial?.is_active ?? true);
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const blobUrlRef = useRef<string | null>(null);
+
+  // Libère le dernier blob d'aperçu au démontage pour éviter une fuite mémoire.
+  useEffect(() => {
+    return () => {
+      if (blobUrlRef.current) URL.revokeObjectURL(blobUrlRef.current);
+    };
+  }, []);
+
+  function revokeBlob() {
+    if (blobUrlRef.current) {
+      URL.revokeObjectURL(blobUrlRef.current);
+      blobUrlRef.current = null;
+    }
+  }
+
   async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    // Aperçu instantané via blob, le temps que l'upload se fasse.
+    revokeBlob();
+    const blobUrl = URL.createObjectURL(file);
+    blobUrlRef.current = blobUrl;
+    setPreviewUrl(blobUrl);
+
     setUploading(true);
     setServerError(null);
     try {
-      const { uploadUrl, publicUrl } = await generateBannerPresignedUrl(file.name, file.type);
-      const res = await fetch(uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
-      });
-      if (!res.ok) throw new Error(`Upload échoué: ${res.status}`);
-      setImageUrl(publicUrl);
+      const fd = new FormData();
+      fd.append("file", file);
+      const result = await uploadBannerImage(fd);
+      if ("error" in result) throw new Error(result.error);
+      setImageUrl(result.path);
+      setPreviewUrl(result.path);
+      revokeBlob();
     } catch (err) {
       console.error("[HeroSlideForm] handleFileUpload:", err);
-      setServerError(
-        err instanceof Error ? err.message : "Échec de l'upload de l'image"
-      );
+      setServerError(err instanceof Error ? err.message : "Échec de l'upload de l'image");
+      // Annule l'aperçu blob : aucune image valide n'a été uploadée.
+      revokeBlob();
+      setPreviewUrl(imageUrl || null);
     } finally {
       setUploading(false);
     }
@@ -106,6 +133,21 @@ export function HeroSlideForm({ initial, action, submitLabel }: HeroSlideFormPro
 
   return (
     <form onSubmit={handleSubmit} className="max-w-2xl space-y-6">
+      {/* Aperçu live (sticky) */}
+      <div className="sticky top-0 z-10 -mx-1 bg-background/95 px-1 pb-2 pt-1 backdrop-blur">
+        <HeroSlidePreview
+          title={title}
+          subtitle={subtitle}
+          badge={badge}
+          imageUrl={previewUrl ?? undefined}
+          textAlign={textAlign}
+          overlayColor={overlayColor}
+          overlayOpacity={overlayOpacity}
+          ctaPrimaryLabel={ctaPrimaryLabel}
+          ctaSecondaryLabel={ctaSecondaryLabel}
+        />
+      </div>
+
       {/* Titre */}
       <div className="space-y-1.5">
         <Label htmlFor="title">Titre *</Label>
@@ -144,54 +186,34 @@ export function HeroSlideForm({ initial, action, submitLabel }: HeroSlideFormPro
       {/* Image */}
       <div className="space-y-2">
         <Label>Image *</Label>
-        <div className="flex gap-2">
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileUpload}
+        />
+        <div className="flex items-center gap-3">
           <Button
             type="button"
-            size="sm"
-            variant={imageMode === "url" ? "default" : "outline"}
-            onClick={() => setImageMode("url")}
+            variant="outline"
+            disabled={uploading}
+            onClick={() => fileInputRef.current?.click()}
           >
-            <LinkIcon className="mr-1.5 size-3.5" />
-            URL
+            {uploading ? (
+              <Loader2 className="mr-1.5 size-4 animate-spin" />
+            ) : (
+              <Upload className="mr-1.5 size-4" />
+            )}
+            {previewUrl ? "Changer l'image" : "Ajouter une image"}
           </Button>
-          <Button
-            type="button"
-            size="sm"
-            variant={imageMode === "upload" ? "default" : "outline"}
-            onClick={() => setImageMode("upload")}
-          >
-            <Upload className="mr-1.5 size-3.5" />
-            Upload
-          </Button>
+          {uploading ? (
+            <span className="text-xs text-muted-foreground">Envoi en cours…</span>
+          ) : null}
         </div>
-
-        {imageMode === "url" ? (
-          <Input
-            value={imageUrl}
-            onChange={(e) => setImageUrl(e.target.value)}
-            placeholder="https://..."
-          />
-        ) : (
-          <div className="flex items-center gap-3">
-            <input type="file" accept="image/*" onChange={handleFileUpload} className="text-sm" />
-            {uploading ? <Loader2 className="size-4 animate-spin text-muted-foreground" /> : null}
-          </div>
-        )}
-
-        {/* Aperçu */}
-        {imageUrl ? (
-          <div className="relative h-36 w-full overflow-hidden rounded-lg border">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={imageUrl} alt="Aperçu" className="h-full w-full object-cover" />
-            <div
-              className="absolute inset-0"
-              style={{ backgroundColor: overlayColor, opacity: overlayOpacity / 100 }}
-            />
-            <p className="absolute bottom-2 left-2 rounded bg-black/50 px-1.5 py-0.5 text-xs text-white">
-              Aperçu avec overlay
-            </p>
-          </div>
-        ) : null}
+        <p className="text-xs text-muted-foreground">
+          JPG, PNG ou WebP. L&apos;image est uploadée puis affichée dans l&apos;aperçu ci-dessus.
+        </p>
       </div>
 
       {/* Position du texte */}

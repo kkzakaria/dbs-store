@@ -8,6 +8,7 @@ import { requireOrgMember } from "@/lib/actions/admin-auth";
 import { getDb } from "@/lib/db";
 import { hero_slides } from "@/lib/db/schema";
 import type { TextAlign } from "@/lib/db/schema";
+import { validateSlideData } from "@/lib/actions/hero-validation";
 
 export interface HeroSlideFormData {
   title: string;
@@ -24,19 +25,7 @@ export interface HeroSlideFormData {
   is_active: boolean;
 }
 
-const VALID_TEXT_ALIGNS: TextAlign[] = ["left", "center", "right"];
 const MAX_ACTIVE_SLIDES = 5;
-
-function validateSlideData(data: HeroSlideFormData): { error: string } | null {
-  if (!data.title.trim()) return { error: "Le titre est requis" };
-  if (!data.image_url.trim()) return { error: "L'image est requise" };
-  if (!data.image_url.trim().startsWith("https://"))
-    return { error: "L'URL de l'image doit commencer par https://" };
-  if (!VALID_TEXT_ALIGNS.includes(data.text_align)) return { error: "Alignement de texte invalide" };
-  if (data.overlay_opacity < 0 || data.overlay_opacity > 100)
-    return { error: "L'opacité doit être entre 0 et 100" };
-  return null;
-}
 
 export async function createHeroSlide(data: HeroSlideFormData): Promise<{ error?: string }> {
   await requireOrgMember();

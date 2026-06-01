@@ -3,7 +3,7 @@
 import { useState, useRef } from "react";
 import { Upload, X, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { generatePresignedUrl } from "@/lib/actions/admin-upload";
+import { uploadProductImage } from "@/lib/actions/admin-upload";
 
 interface ImageUploaderProps {
   images: string[];
@@ -25,20 +25,16 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
 
     for (const file of Array.from(files)) {
       try {
-        const { uploadUrl, publicUrl } = await generatePresignedUrl(
-          file.name,
-          file.type
-        );
-        const res = await fetch(uploadUrl, {
-          method: "PUT",
-          body: file,
-          headers: { "Content-Type": file.type },
-        });
-        if (!res.ok) throw new Error(`Upload failed: ${res.status}`);
-        uploaded.push(publicUrl);
+        const fd = new FormData();
+        fd.append("file", file);
+        const result = await uploadProductImage(fd);
+        if ("error" in result) throw new Error(result.error);
+        uploaded.push(result.path);
       } catch (err) {
-        failedFiles.push(file.name);
-        console.error(err);
+        // Conserve la raison par fichier (type/taille/serveur), pas seulement le nom.
+        const reason = err instanceof Error ? err.message : "erreur inconnue";
+        failedFiles.push(`${file.name} (${reason})`);
+        console.error("[ImageUploader] handleFiles:", err);
       }
     }
 

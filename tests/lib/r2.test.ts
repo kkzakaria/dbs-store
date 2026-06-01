@@ -1,5 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { sanitizeFilename } from "@/lib/r2";
+import { describe, it, expect, vi } from "vitest";
+import type { R2Bucket } from "@cloudflare/workers-types";
+import { sanitizeFilename, mediaKey, putMedia } from "@/lib/r2";
 
 describe("sanitizeFilename", () => {
   it("conserve un nom simple avec son extension", () => {
@@ -36,5 +37,31 @@ describe("sanitizeFilename", () => {
   it("retire les points/tirets en tête (pas de fichier caché)", () => {
     expect(sanitizeFilename(".hidden.png")).toBe("hidden.png");
     expect(sanitizeFilename("--weird.jpg")).toBe("weird.jpg");
+  });
+});
+
+describe("mediaKey", () => {
+  it("préfixe la clé et conserve un nom de fichier assaini", () => {
+    const key = mediaKey("banners", "Mon Image (1).JPG");
+    expect(key.startsWith("banners/")).toBe(true);
+    expect(key).toMatch(/Mon-Image-1/);
+  });
+});
+
+describe("putMedia", () => {
+  it("écrit dans le bucket et renvoie la clé + le chemin /api/media", async () => {
+    const put = vi.fn().mockResolvedValue(undefined);
+    const bucket = { put } as unknown as R2Bucket;
+    const body = new ArrayBuffer(4);
+
+    const result = await putMedia(bucket, "banners", "photo.png", "image/png", body);
+
+    expect(put).toHaveBeenCalledTimes(1);
+    const [calledKey, calledBody, opts] = put.mock.calls[0];
+    expect(calledKey).toBe(result.key);
+    expect(calledBody).toBe(body);
+    expect(opts).toEqual({ httpMetadata: { contentType: "image/png" } });
+    expect(result.key.startsWith("banners/")).toBe(true);
+    expect(result.path).toBe(`/api/media/${result.key}`);
   });
 });

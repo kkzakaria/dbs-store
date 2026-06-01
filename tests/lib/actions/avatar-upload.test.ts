@@ -1,46 +1,56 @@
-// tests/lib/actions/avatar-upload.test.ts
 import { describe, it, expect, vi, beforeEach } from "vitest";
 
-const getCachedSession = vi.fn();
-const createPresignedUpload = vi.fn();
-
-vi.mock("@/lib/session", () => ({ getCachedSession: () => getCachedSession() }));
-vi.mock("@/lib/r2", () => ({
-  ALLOWED_CONTENT_TYPES: ["image/jpeg", "image/png", "image/webp", "image/gif"],
-  createPresignedUpload: (...args: unknown[]) => createPresignedUpload(...args),
+const { getCachedSession, mockGetContext, putMock } = vi.hoisted(() => ({
+  getCachedSession: vi.fn(),
+  mockGetContext: vi.fn(),
+  putMock: vi.fn().mockResolvedValue(undefined),
 }));
 
-import { generateAvatarUploadUrl } from "@/lib/actions/avatar-upload";
+vi.mock("@/lib/session", () => ({ getCachedSession: () => getCachedSession() }));
+vi.mock("@opennextjs/cloudflare", () => ({ getCloudflareContext: mockGetContext }));
+
+import { uploadAvatarImage } from "@/lib/actions/avatar-upload";
+
+function form(file: File | null): FormData {
+  const fd = new FormData();
+  if (file) fd.append("file", file);
+  return fd;
+}
 
 beforeEach(() => {
   vi.clearAllMocks();
+  mockGetContext.mockResolvedValue({ env: { MEDIA: { put: putMock } } });
 });
 
-describe("generateAvatarUploadUrl", () => {
+describe("uploadAvatarImage", () => {
   it("rejette si aucun utilisateur connecté", async () => {
     getCachedSession.mockResolvedValue(null);
-    await expect(
-      generateAvatarUploadUrl("a.png", "image/png")
-    ).rejects.toThrow(/connecté/i);
-    expect(createPresignedUpload).not.toHaveBeenCalled();
+    const res = await uploadAvatarImage(form(new File(["x"], "a.png", { type: "image/png" })));
+    expect(res).toEqual({ error: expect.stringMatching(/connecté/i) });
+    expect(putMock).not.toHaveBeenCalled();
   });
 
   it("rejette un type de fichier non autorisé", async () => {
     getCachedSession.mockResolvedValue({ user: { id: "u1" } });
-    await expect(
-      generateAvatarUploadUrl("a.svg", "image/svg+xml")
-    ).rejects.toThrow(/non autorisé/i);
-    expect(createPresignedUpload).not.toHaveBeenCalled();
+    const res = await uploadAvatarImage(form(new File(["x"], "a.svg", { type: "image/svg+xml" })));
+    expect(res).toEqual({ error: expect.stringMatching(/non autorisé/i) });
+    expect(putMock).not.toHaveBeenCalled();
   });
 
-  it("génère une URL préfixée par l'id utilisateur", async () => {
+  it("rejette un fichier trop volumineux (> 5 Mo) sans écrire", async () => {
     getCachedSession.mockResolvedValue({ user: { id: "u1" } });
-    createPresignedUpload.mockResolvedValue({
-      uploadUrl: "https://up",
-      publicUrl: "https://pub",
-    });
-    const res = await generateAvatarUploadUrl("a.png", "image/png");
-    expect(createPresignedUpload).toHaveBeenCalledWith("avatars/u1", "a.png", "image/png");
-    expect(res).toEqual({ uploadUrl: "https://up", publicUrl: "https://pub" });
+    const big = new File(["x"], "big.png", { type: "image/png" });
+    Object.defineProperty(big, "size", { value: 6 * 1024 * 1024 });
+    const res = await uploadAvatarImage(form(big));
+    expect(res).toEqual({ error: expect.stringMatching(/volumineux/i) });
+    expect(putMock).not.toHaveBeenCalled();
+  });
+
+  it("écrit sous avatars/<userId> et renvoie un chemin /api/media/avatars/", async () => {
+    getCachedSession.mockResolvedValue({ user: { id: "u1" } });
+    const res = await uploadAvatarImage(form(new File(["x"], "a.png", { type: "image/png" })));
+    expect(putMock).toHaveBeenCalledTimes(1);
+    expect(putMock.mock.calls[0][0]).toMatch(/^avatars\/u1\//);
+    expect(res).toEqual({ path: expect.stringMatching(/^\/api\/media\/avatars\/u1\//) });
   });
 });
