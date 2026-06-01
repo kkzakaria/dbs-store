@@ -49,9 +49,23 @@ describe("GET /api/media/[...key]", () => {
     expect(res.headers.get("content-type")).toBe("image/png");
     expect(res.headers.get("etag")).toBe('"abc"');
     expect(res.headers.get("cache-control")).toContain("immutable");
+    expect(res.headers.get("x-content-type-options")).toBe("nosniff");
     expect(arrayBuffer).toHaveBeenCalledTimes(1);
     expect(getMock).toHaveBeenCalledWith("banners/x.png");
     expect(await res.arrayBuffer()).toBeInstanceOf(ArrayBuffer);
+  });
+
+  it("500 (sans throw) si la lecture de l'objet échoue", async () => {
+    const errSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+    getMock.mockResolvedValueOnce({
+      httpMetadata: { contentType: "image/png" },
+      httpEtag: '"e"',
+      arrayBuffer: vi.fn().mockRejectedValue(new Error("read failed")),
+    });
+    const res = await GET(new Request("http://x/api/media/banners/x.png"), ctx(["banners", "x.png"]));
+    expect(res.status).toBe(500);
+    expect(errSpy).toHaveBeenCalled();
+    errSpy.mockRestore();
   });
 
   it("content-type par défaut si httpMetadata absent", async () => {
