@@ -64,3 +64,6 @@ image-catalogue/
 
 # Brainstorming visual companion
 .superpowers/
+
+# Claude Code runtime lock
+.claude/scheduled_tasks.lock

@@ -14,9 +14,23 @@ const AUTH_ERROR_TRANSLATIONS: Record<string, string> = {
   "Invalid email or password": "Email ou mot de passe incorrect.",
   "Password too short": "Le mot de passe est trop court.",
   "Email not verified": "Votre email n'est pas encore vérifié.",
+  "Verification email isn't enabled": "Vous devez d'abord vérifier votre adresse email actuelle.",
+  "Email is the same": "Cette adresse est déjà la vôtre.",
 };
 
 export function translateAuthError(message: string | undefined, fallback: string): string {
   if (!message) return fallback;
   return AUTH_ERROR_TRANSLATIONS[message] ?? message;
+}
+
+/**
+ * better-auth listUserAccounts() retourne un tableau d'objets dont le champ
+ * `provider` vaut "credential" pour un compte email/mot de passe, ou le nom du
+ * provider social ("google", "facebook", "apple"). On n'autorise le changement
+ * de mot de passe que si un compte credential existe.
+ */
+export function hasCredentialAccount(
+  accounts: { provider: string }[]
+): boolean {
+  return accounts.some((a) => a.provider === "credential");
 }

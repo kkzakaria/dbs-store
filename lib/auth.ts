@@ -4,6 +4,8 @@ import { D1Dialect } from "kysely-d1";
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { ac, owner, admin, member } from "@/lib/auth/permissions";
 import { sendOtpEmail } from "@/lib/email";
+import { enqueueEmail } from "@/lib/email/enqueue";
+import { buildChangeEmailVerificationEmail } from "@/lib/email/templates";
 
 export async function getAuth() {
   const { env } = await getCloudflareContext<CloudflareEnv>();
@@ -45,6 +47,21 @@ export async function getAuth() {
       minPasswordLength: 8,
       maxPasswordLength: 128,
       autoSignIn: true,
+    },
+
+    user: {
+      changeEmail: {
+        enabled: true,
+        sendChangeEmailVerification: async ({ user, newEmail, url }) => {
+          if (!env.RESEND_API_KEY) {
+            console.log(`[changeEmail DEV] from=${user.email} to=${newEmail} url=${url}`);
+            return;
+          }
+          await enqueueEmail(
+            buildChangeEmailVerificationEmail(user.email, newEmail, url)
+          );
+        },
+      },
     },
 
     socialProviders,
