@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { buildOtpEmail, buildContactEmail } from "@/lib/email/templates";
+import { buildOtpEmail, buildContactEmail, buildChangeEmailVerificationEmail } from "@/lib/email/templates";
 
 describe("buildOtpEmail", () => {
   it("returns an EmailMessage with the recipient", () => {
@@ -104,5 +104,19 @@ describe("buildContactEmail", () => {
     };
     const msg = buildContactEmail(data);
     expect(msg.subject).toContain("&lt;script&gt;");
+  });
+});
+
+describe("buildChangeEmailVerificationEmail", () => {
+  it("adresse l'email à l'adresse actuelle et inclut le lien", () => {
+    const msg = buildChangeEmailVerificationEmail(
+      "actuel@exemple.com",
+      "nouveau@exemple.com",
+      "https://dbs.example/verify?token=abc"
+    );
+    expect(msg.to).toBe("actuel@exemple.com");
+    expect(msg.subject).toMatch(/changement.*email|adresse email/i);
+    expect(msg.html).toContain("https://dbs.example/verify?token=abc");
+    expect(msg.html).toContain("nouveau@exemple.com");
   });
 });

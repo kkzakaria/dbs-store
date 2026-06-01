@@ -160,3 +160,59 @@ export function buildContactEmail(data: ContactFormData): EmailMessage {
     html: buildContactHtml(data),
   };
 }
+
+export function buildChangeEmailVerificationEmail(
+  currentEmail: string,
+  newEmail: string,
+  url: string
+): EmailMessage {
+  const html = `<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Confirmez le changement d'adresse email</title>
+</head>
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 16px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#ffffff;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,.08);overflow:hidden;">
+          <tr>
+            <td style="background:#0f172a;padding:24px 32px;text-align:center;">
+              <span style="font-size:20px;font-weight:700;color:#ffffff;letter-spacing:-0.5px;">⚡ DBS Store</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding:40px 32px 32px;">
+              <h1 style="margin:0 0 8px;font-size:22px;font-weight:700;color:#0f172a;">Changement d'adresse email</h1>
+              <p style="margin:0 0 24px;font-size:15px;color:#64748b;line-height:1.6;">
+                Vous avez demandé à remplacer votre adresse par <strong>${escapeHtml(newEmail)}</strong>.
+                Cliquez sur le bouton ci-dessous pour confirmer. Ce lien est valable un temps limité.
+              </p>
+              <div style="text-align:center;margin-bottom:32px;">
+                <a href="${url}" style="display:inline-block;background:#0f172a;color:#ffffff;text-decoration:none;padding:14px 28px;border-radius:8px;font-size:15px;font-weight:600;">Confirmer le changement</a>
+              </div>
+              <p style="margin:0;font-size:13px;color:#94a3b8;line-height:1.6;">
+                Si vous n'êtes pas à l'origine de cette demande, ignorez cet email. Votre adresse reste inchangée.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style="border-top:1px solid #e2e8f0;padding:16px 32px;text-align:center;">
+              <p style="margin:0;font-size:12px;color:#94a3b8;">© 2026 DBS Store — Abidjan, Côte d'Ivoire</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  return {
+    to: currentEmail,
+    subject: "Confirmez le changement d'adresse email — DBS Store",
+    html,
+  };
+}
