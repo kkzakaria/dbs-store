@@ -20,3 +20,15 @@ export function translateAuthError(message: string | undefined, fallback: string
   if (!message) return fallback;
   return AUTH_ERROR_TRANSLATIONS[message] ?? message;
 }
+
+/**
+ * better-auth listUserAccounts() retourne un tableau d'objets dont le champ
+ * `provider` vaut "credential" pour un compte email/mot de passe, ou le nom du
+ * provider social ("google", "facebook", "apple"). On n'autorise le changement
+ * de mot de passe que si un compte credential existe.
+ */
+export function hasCredentialAccount(
+  accounts: { provider: string }[]
+): boolean {
+  return accounts.some((a) => a.provider === "credential");
+}
