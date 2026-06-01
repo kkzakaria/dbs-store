@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
-import { generateBannerPresignedUrl } from "@/lib/actions/admin-upload";
+import { uploadBannerImage } from "@/lib/actions/admin-upload";
 import { HeroSlidePreview } from "@/components/admin/hero-slide-preview";
 // isRedirectError n'est pas exporté depuis next/navigation en Next.js 16 — import interne nécessaire.
 import { isRedirectError } from "next/dist/client/components/redirect-error";
@@ -77,15 +77,12 @@ export function HeroSlideForm({ initial, action, submitLabel }: HeroSlideFormPro
     setUploading(true);
     setServerError(null);
     try {
-      const { uploadUrl, publicUrl } = await generateBannerPresignedUrl(file.name, file.type);
-      const res = await fetch(uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
-      });
-      if (!res.ok) throw new Error(`Upload échoué: ${res.status}`);
-      setImageUrl(publicUrl);
-      setPreviewUrl(publicUrl);
+      const fd = new FormData();
+      fd.append("file", file);
+      const { path, error } = await uploadBannerImage(fd);
+      if (error || !path) throw new Error(error ?? "Échec de l'upload de l'image");
+      setImageUrl(path);
+      setPreviewUrl(path);
       revokeBlob();
     } catch (err) {
       console.error("[HeroSlideForm] handleFileUpload:", err);
