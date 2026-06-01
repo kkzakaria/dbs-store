@@ -1,5 +1,6 @@
 import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import type { R2Bucket } from "@cloudflare/workers-types";
 
 export const ALLOWED_CONTENT_TYPES = [
   "image/jpeg",
@@ -80,4 +81,27 @@ export async function createPresignedUpload(
   );
 
   return { uploadUrl, publicUrl: `${baseUrl}/${key}` };
+}
+
+/** Construit une clé d'objet R2 unique et sûre, préfixée par un dossier logique. */
+export function mediaKey(keyPrefix: string, filename: string): string {
+  const safeName = sanitizeFilename(filename);
+  return `${keyPrefix}/${Date.now()}-${Math.random().toString(36).slice(2)}-${safeName}`;
+}
+
+/**
+ * Écrit un objet dans le bucket R2 (binding) et renvoie sa clé et son chemin
+ * same-origin servi par `app/api/media/[...key]/route.ts`.
+ * Le caller DOIT avoir vérifié l'autorisation et le contentType avant d'appeler.
+ */
+export async function putMedia(
+  bucket: R2Bucket,
+  keyPrefix: string,
+  filename: string,
+  contentType: string,
+  body: ArrayBuffer
+): Promise<{ key: string; path: string }> {
+  const key = mediaKey(keyPrefix, filename);
+  await bucket.put(key, body, { httpMetadata: { contentType } });
+  return { key, path: `/api/media/${key}` };
 }
