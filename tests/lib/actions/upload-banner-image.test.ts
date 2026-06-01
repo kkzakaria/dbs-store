@@ -45,6 +45,14 @@ describe("uploadBannerImage", () => {
     expect(putMock).not.toHaveBeenCalled();
   });
 
+  it("rejette un fichier trop volumineux (> 5 Mo) sans écrire", async () => {
+    const big = new File(["x"], "big.png", { type: "image/png" });
+    Object.defineProperty(big, "size", { value: 6 * 1024 * 1024 });
+    const res = await uploadBannerImage(form(big));
+    expect(res).toEqual({ error: expect.stringMatching(/volumineux/i) });
+    expect(putMock).not.toHaveBeenCalled();
+  });
+
   it("écrit dans MEDIA et renvoie un chemin /api/media/banners/", async () => {
     const res = await uploadBannerImage(
       form(new File(["x"], "promo.png", { type: "image/png" }))

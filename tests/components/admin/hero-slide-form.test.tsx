@@ -38,4 +38,14 @@ describe("HeroSlideForm", () => {
     const fd = uploadMock.mock.calls[0][0] as FormData;
     expect(fd.get("file")).toBeInstanceOf(File);
   });
+
+  it("affiche l'erreur et revient au placeholder si l'upload échoue", async () => {
+    uploadMock.mockResolvedValueOnce({ error: "Échec serveur R2" });
+    const { container } = render(<HeroSlideForm action={noop} submitLabel="Créer la bannière" />);
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    await userEvent.upload(input, new File(["x"], "promo.png", { type: "image/png" }));
+    await waitFor(() => expect(screen.getByText("Échec serveur R2")).toBeDefined());
+    // L'aperçu blob est annulé → placeholder « Aucune image ».
+    expect(screen.getByText(/aucune image/i)).toBeDefined();
+  });
 });

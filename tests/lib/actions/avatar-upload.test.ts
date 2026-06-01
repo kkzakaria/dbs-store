@@ -37,6 +37,15 @@ describe("uploadAvatarImage", () => {
     expect(putMock).not.toHaveBeenCalled();
   });
 
+  it("rejette un fichier trop volumineux (> 5 Mo) sans écrire", async () => {
+    getCachedSession.mockResolvedValue({ user: { id: "u1" } });
+    const big = new File(["x"], "big.png", { type: "image/png" });
+    Object.defineProperty(big, "size", { value: 6 * 1024 * 1024 });
+    const res = await uploadAvatarImage(form(big));
+    expect(res).toEqual({ error: expect.stringMatching(/volumineux/i) });
+    expect(putMock).not.toHaveBeenCalled();
+  });
+
   it("écrit sous avatars/<userId> et renvoie un chemin /api/media/avatars/", async () => {
     getCachedSession.mockResolvedValue({ user: { id: "u1" } });
     const res = await uploadAvatarImage(form(new File(["x"], "a.png", { type: "image/png" })));

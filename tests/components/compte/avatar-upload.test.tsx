@@ -38,4 +38,20 @@ describe("AvatarUpload", () => {
     expect(updateUser).toHaveBeenCalledWith({ image: "/api/media/avatars/u1/a.png" });
     await waitFor(() => expect(mockRefresh).toHaveBeenCalled());
   });
+
+  it("affiche l'erreur et ne rafraîchit pas si updateUser échoue après l'upload", async () => {
+    vi.mocked(uploadAvatarImage).mockResolvedValue({ path: "/api/media/avatars/u1/a.png" });
+    vi.mocked(updateUser).mockResolvedValue({
+      data: null,
+      error: { message: "Mise à jour refusée" },
+    } as never);
+
+    const user = userEvent.setup();
+    const { container, findByText } = render(<AvatarUpload name="Jean" image={null} />);
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    await user.upload(input, new File(["x"], "a.png", { type: "image/png" }));
+
+    expect(await findByText("Mise à jour refusée")).toBeDefined();
+    expect(mockRefresh).not.toHaveBeenCalled();
+  });
 });
