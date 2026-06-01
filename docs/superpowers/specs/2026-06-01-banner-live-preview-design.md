@@ -77,4 +77,27 @@ current DBS form style.
 
 - Gradient backgrounds, price/badge-color fields (netereka-specific).
 - Deferred-upload flow (create-then-attach) — DBS uploads immediately.
-- Server-side, schema, or carousel rendering changes.
+- Carousel rendering changes.
+
+## Addendum (2026-06-01) — R2 architecture pivot
+
+Removing the URL field exposed that the **only** image-input path (presigned S3
+upload) requires real R2 API credentials in **every** environment, including
+`bun run dev` — there is no local simulation for presigned S3 URLs
+([Cloudflare docs](https://developers.cloudflare.com/r2/api/s3/presigned-urls/):
+"generated client-side ... requiring only your R2 API credentials").
+
+Per the user's decision, we pivot to the **idiomatic R2 binding** approach:
+
+- **Write:** a server action receives the `File` (FormData) and calls
+  `env.MEDIA.put(key, body)` via `getCloudflareContext()`.
+- **Read:** a same-origin route `GET /api/media/[...key]` streams
+  `env.MEDIA.get(key)`; `image_url` is stored as `/api/media/<key>`.
+- **Local dev:** `getCloudflareContext()` (wired by
+  `initOpenNextCloudflareForDev()` in `next.config.ts`) gives a miniflare local
+  R2 simulation — **no credentials needed**, works offline. Optional
+  `experimental_remote` to hit the real bucket.
+
+This drops the dependency on presigned URLs, the custom-domain `R2_PUBLIC_URL`,
+and `@aws-sdk/*` (once products are migrated). Detailed in
+`docs/superpowers/plans/2026-06-01-r2-binding-upload.md`.

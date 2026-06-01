@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Camera, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ProfilAvatar } from "@/components/compte/profil-avatar";
-import { generateAvatarUploadUrl } from "@/lib/actions/avatar-upload";
+import { uploadAvatarImage } from "@/lib/actions/avatar-upload";
 import { updateUser } from "@/lib/auth-client";
 
 interface AvatarUploadProps {
@@ -24,14 +24,11 @@ export function AvatarUpload({ name, image }: AvatarUploadProps) {
     setUploading(true);
     setError(null);
     try {
-      const { uploadUrl, publicUrl } = await generateAvatarUploadUrl(file.name, file.type);
-      const res = await fetch(uploadUrl, {
-        method: "PUT",
-        body: file,
-        headers: { "Content-Type": file.type },
-      });
-      if (!res.ok) throw new Error(`Upload échoué (${res.status})`);
-      const updated = await updateUser({ image: publicUrl });
+      const fd = new FormData();
+      fd.append("file", file);
+      const { path, error } = await uploadAvatarImage(fd);
+      if (error || !path) throw new Error(error ?? "Échec de l'upload de l'avatar.");
+      const updated = await updateUser({ image: path });
       if (updated.error) throw new Error(updated.error.message ?? "Mise à jour échouée");
       router.refresh();
     } catch (err) {

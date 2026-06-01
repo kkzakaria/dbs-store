@@ -16,7 +16,7 @@ vi.mock("@/components/admin/image-uploader", () => ({
 }));
 
 vi.mock("@/lib/actions/admin-upload", () => ({
-  generatePresignedUrl: vi.fn(),
+  uploadProductImage: vi.fn(),
 }));
 
 import { render, screen } from "@testing-library/react";

@@ -4,7 +4,7 @@ import { getCloudflareContext } from "@opennextjs/cloudflare";
 export const dynamic = "force-dynamic";
 
 // Seuls les objets uploadés par l'admin sont servis (clés non devinables).
-const ALLOWED_PREFIXES = ["banners/", "products/"];
+const ALLOWED_PREFIXES = ["banners/", "products/", "avatars/"];
 
 export async function GET(
   _request: Request,

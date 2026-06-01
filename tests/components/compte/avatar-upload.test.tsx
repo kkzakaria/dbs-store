@@ -8,24 +8,20 @@ const mockRefresh = vi.fn();
 vi.mock("next/navigation", () => ({ useRouter: () => ({ refresh: mockRefresh }) }));
 
 vi.mock("@/lib/actions/avatar-upload", () => ({
-  generateAvatarUploadUrl: vi.fn(),
+  uploadAvatarImage: vi.fn(),
 }));
 vi.mock("@/lib/auth-client", () => ({ updateUser: vi.fn() }));
 
-import { generateAvatarUploadUrl } from "@/lib/actions/avatar-upload";
+import { uploadAvatarImage } from "@/lib/actions/avatar-upload";
 import { updateUser } from "@/lib/auth-client";
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200 }));
 });
 
 describe("AvatarUpload", () => {
   it("upload le fichier puis met à jour l'avatar et rafraîchit", async () => {
-    vi.mocked(generateAvatarUploadUrl).mockResolvedValue({
-      uploadUrl: "https://up",
-      publicUrl: "https://pub/a.png",
-    });
+    vi.mocked(uploadAvatarImage).mockResolvedValue({ path: "/api/media/avatars/u1/a.png" });
     vi.mocked(updateUser).mockResolvedValue({ data: {}, error: null } as never);
 
     const user = userEvent.setup();
@@ -35,13 +31,11 @@ describe("AvatarUpload", () => {
     await user.upload(input, file);
 
     await waitFor(() => {
-      expect(generateAvatarUploadUrl).toHaveBeenCalledWith("a.png", "image/png");
+      expect(uploadAvatarImage).toHaveBeenCalledTimes(1);
     });
-    expect(global.fetch).toHaveBeenCalledWith(
-      "https://up",
-      expect.objectContaining({ method: "PUT" })
-    );
-    expect(updateUser).toHaveBeenCalledWith({ image: "https://pub/a.png" });
+    const fd = vi.mocked(uploadAvatarImage).mock.calls[0][0] as FormData;
+    expect(fd.get("file")).toBeInstanceOf(File);
+    expect(updateUser).toHaveBeenCalledWith({ image: "/api/media/avatars/u1/a.png" });
     await waitFor(() => expect(mockRefresh).toHaveBeenCalled());
   });
 });
