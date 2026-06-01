@@ -56,3 +56,28 @@ export async function uploadBannerImage(
   );
   return { path };
 }
+
+export async function uploadProductImage(
+  formData: FormData
+): Promise<{ path?: string; error?: string }> {
+  await requireOrgMember();
+
+  const file = formData.get("file");
+  if (!(file instanceof File)) return { error: "Aucun fichier fourni" };
+  if (!ALLOWED_CONTENT_TYPES.includes(file.type)) {
+    return { error: `Type de fichier non autorisé: ${file.type}` };
+  }
+  if (file.size > MAX_UPLOAD_BYTES) {
+    return { error: "Fichier trop volumineux (max 5 Mo)" };
+  }
+
+  const { env } = await getCloudflareContext<CloudflareEnv>();
+  const { path } = await putMedia(
+    env.MEDIA,
+    "products",
+    file.name,
+    file.type,
+    await file.arrayBuffer()
+  );
+  return { path };
+}
