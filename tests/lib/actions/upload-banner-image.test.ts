@@ -33,7 +33,7 @@ describe("uploadBannerImage", () => {
 
   it("retourne une erreur si aucun fichier", async () => {
     const res = await uploadBannerImage(form(null));
-    expect(res.error).toBeDefined();
+    expect(res).toHaveProperty("error");
     expect(putMock).not.toHaveBeenCalled();
   });
 
@@ -41,7 +41,7 @@ describe("uploadBannerImage", () => {
     const res = await uploadBannerImage(
       form(new File(["x"], "a.js", { type: "application/javascript" }))
     );
-    expect(res.error).toMatch(/type/i);
+    expect(res).toEqual({ error: expect.stringMatching(/type/i) });
     expect(putMock).not.toHaveBeenCalled();
   });
 
@@ -50,7 +50,6 @@ describe("uploadBannerImage", () => {
       form(new File(["x"], "promo.png", { type: "image/png" }))
     );
     expect(putMock).toHaveBeenCalledTimes(1);
-    expect(res.path).toMatch(/^\/api\/media\/banners\//);
-    expect(res.error).toBeUndefined();
+    expect(res).toEqual({ path: expect.stringMatching(/^\/api\/media\/banners\//) });
   });
 });

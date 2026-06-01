@@ -35,7 +35,7 @@ describe("uploadProductImage", () => {
     const res = await uploadProductImage(
       form(new File(["x"], "a.js", { type: "application/javascript" }))
     );
-    expect(res.error).toMatch(/type/i);
+    expect(res).toEqual({ error: expect.stringMatching(/type/i) });
     expect(putMock).not.toHaveBeenCalled();
   });
 
@@ -44,7 +44,6 @@ describe("uploadProductImage", () => {
       form(new File(["x"], "phone.png", { type: "image/png" }))
     );
     expect(putMock).toHaveBeenCalledTimes(1);
-    expect(res.path).toMatch(/^\/api\/media\/products\//);
-    expect(res.error).toBeUndefined();
+    expect(res).toEqual({ path: expect.stringMatching(/^\/api\/media\/products\//) });
   });
 });

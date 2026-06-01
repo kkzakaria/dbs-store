@@ -26,14 +26,14 @@ describe("uploadAvatarImage", () => {
   it("rejette si aucun utilisateur connecté", async () => {
     getCachedSession.mockResolvedValue(null);
     const res = await uploadAvatarImage(form(new File(["x"], "a.png", { type: "image/png" })));
-    expect(res.error).toMatch(/connecté/i);
+    expect(res).toEqual({ error: expect.stringMatching(/connecté/i) });
     expect(putMock).not.toHaveBeenCalled();
   });
 
   it("rejette un type de fichier non autorisé", async () => {
     getCachedSession.mockResolvedValue({ user: { id: "u1" } });
     const res = await uploadAvatarImage(form(new File(["x"], "a.svg", { type: "image/svg+xml" })));
-    expect(res.error).toMatch(/non autorisé/i);
+    expect(res).toEqual({ error: expect.stringMatching(/non autorisé/i) });
     expect(putMock).not.toHaveBeenCalled();
   });
 
@@ -42,7 +42,6 @@ describe("uploadAvatarImage", () => {
     const res = await uploadAvatarImage(form(new File(["x"], "a.png", { type: "image/png" })));
     expect(putMock).toHaveBeenCalledTimes(1);
     expect(putMock.mock.calls[0][0]).toMatch(/^avatars\/u1\//);
-    expect(res.path).toMatch(/^\/api\/media\/avatars\/u1\//);
-    expect(res.error).toBeUndefined();
+    expect(res).toEqual({ path: expect.stringMatching(/^\/api\/media\/avatars\/u1\//) });
   });
 });

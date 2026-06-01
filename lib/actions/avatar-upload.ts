@@ -3,12 +3,11 @@
 import { getCloudflareContext } from "@opennextjs/cloudflare";
 import { getCachedSession } from "@/lib/session";
 import { ALLOWED_CONTENT_TYPES, putMedia } from "@/lib/r2";
+import type { UploadResult } from "@/lib/r2";
 
 const MAX_UPLOAD_BYTES = 5 * 1024 * 1024; // 5 Mo
 
-export async function uploadAvatarImage(
-  formData: FormData
-): Promise<{ path?: string; error?: string }> {
+export async function uploadAvatarImage(formData: FormData): Promise<UploadResult> {
   const session = await getCachedSession();
   if (!session?.user) {
     return { error: "Vous devez être connecté pour modifier votre avatar." };
@@ -23,13 +22,18 @@ export async function uploadAvatarImage(
     return { error: "Fichier trop volumineux (max 5 Mo)" };
   }
 
-  const { env } = await getCloudflareContext<CloudflareEnv>();
-  const { path } = await putMedia(
-    env.MEDIA,
-    `avatars/${session.user.id}`,
-    file.name,
-    file.type,
-    await file.arrayBuffer()
-  );
-  return { path };
+  try {
+    const { env } = await getCloudflareContext<CloudflareEnv>();
+    const { path } = await putMedia(
+      env.MEDIA,
+      `avatars/${session.user.id}`,
+      file.name,
+      file.type,
+      await file.arrayBuffer()
+    );
+    return { path };
+  } catch (err) {
+    console.error("[uploadAvatarImage] échec d'écriture R2:", err);
+    return { error: "Échec de l'enregistrement de l'image. Veuillez réessayer." };
+  }
 }

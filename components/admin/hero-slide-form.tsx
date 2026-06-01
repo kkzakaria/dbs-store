@@ -79,10 +79,10 @@ export function HeroSlideForm({ initial, action, submitLabel }: HeroSlideFormPro
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const { path, error } = await uploadBannerImage(fd);
-      if (error || !path) throw new Error(error ?? "Échec de l'upload de l'image");
-      setImageUrl(path);
-      setPreviewUrl(path);
+      const result = await uploadBannerImage(fd);
+      if ("error" in result) throw new Error(result.error);
+      setImageUrl(result.path);
+      setPreviewUrl(result.path);
       revokeBlob();
     } catch (err) {
       console.error("[HeroSlideForm] handleFileUpload:", err);

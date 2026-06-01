@@ -27,12 +27,14 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
       try {
         const fd = new FormData();
         fd.append("file", file);
-        const { path, error } = await uploadProductImage(fd);
-        if (error || !path) throw new Error(error ?? `Upload failed`);
-        uploaded.push(path);
+        const result = await uploadProductImage(fd);
+        if ("error" in result) throw new Error(result.error);
+        uploaded.push(result.path);
       } catch (err) {
-        failedFiles.push(file.name);
-        console.error(err);
+        // Conserve la raison par fichier (type/taille/serveur), pas seulement le nom.
+        const reason = err instanceof Error ? err.message : "erreur inconnue";
+        failedFiles.push(`${file.name} (${reason})`);
+        console.error("[ImageUploader] handleFiles:", err);
       }
     }
 

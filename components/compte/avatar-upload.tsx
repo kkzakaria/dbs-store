@@ -26,12 +26,13 @@ export function AvatarUpload({ name, image }: AvatarUploadProps) {
     try {
       const fd = new FormData();
       fd.append("file", file);
-      const { path, error } = await uploadAvatarImage(fd);
-      if (error || !path) throw new Error(error ?? "Échec de l'upload de l'avatar.");
-      const updated = await updateUser({ image: path });
+      const result = await uploadAvatarImage(fd);
+      if ("error" in result) throw new Error(result.error);
+      const updated = await updateUser({ image: result.path });
       if (updated.error) throw new Error(updated.error.message ?? "Mise à jour échouée");
       router.refresh();
     } catch (err) {
+      console.error("[AvatarUpload] handleFile:", err);
       setError(err instanceof Error ? err.message : "Échec de l'upload de l'avatar.");
     } finally {
       setUploading(false);
